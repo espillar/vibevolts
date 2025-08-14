@@ -3,7 +3,10 @@
 Creating a new version of volts that runs faster using jules and other tools.
 
 
+
+
 * Log
+
 
 ** [2025-08-14 Thu]
 
@@ -14,3 +17,5 @@ itslef.  It's OK I guess.
 It's rather interesting to be moving these things around between github
 and other locations so quickly, and being able to edit thigns everywhere.
 
+OK, the next action I need to do is to actually get radiometry working,
+and stuff like that. 
