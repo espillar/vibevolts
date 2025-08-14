@@ -4,8 +4,42 @@ Creating a new version of volts that runs faster using jules and other tools.
 
 
 
+* Todo
+
+** Create new points instead of red satellties
+- Do a little research to figure out how 
+- create a nice grid of points to be observed for now. 
+
+** Compute exclusions
+*** Satellites and observatories
+This test needs to be applied to any potential or actual pointing.
+It should be done across the whole vector.
+- solar - is the sun within the FOV
+- lunar - is the moon within the FOV
+- earth - for satellite is the earth within FOV, for observatory
+  make it above the horizon.
+
+** visibility
+- Create a 2-d array that has a flag for each time the satellite
+  might be observed, a row for each time in the simulaton,
+  and a  vector of the times for the rows.
+- for each target, compute if its within anyones FOV, if the
+  observer isn't blinded, and the SNR is high enough.
+
+
+** Pointing selections (OK, this one will take some developement!)
+
+** Scoring
+- use the visibilty matrix above
+- take the visibility vector and calculate the fraction
+  of the time that the thing is observed
+- Calculate the gap times- basically for each column,
+  compute the interobservation distances and histogram
+  them.
+  
 
 * Log
+
 
 
 ** [2025-08-14 Thu]
@@ -22,3 +56,22 @@ and other locations so quickly, and being able to edit thigns everywhere.
 
 OK, the next action I need to do is to actually get radiometry working,
 and stuff like that. 
+
+** Prompt1
+Create a function called solarexclusion.
+Create an exclusion numpy vector. the same length as the number of
+satellites.
+Create a function which operates on all the satellites in
+the list of satellites in a vectorized manner.
+create a vector from the satellite to the sun and the vector
+representing the satellite pointing.  If the angle between these
+two is less than the solar exclusion angle for the satellite,
+place a 1 in the exclusion list, othewise leave it as 0.
+Return this vector as well as a vector of the angle from
+the function.
+
+Create a test function that prints these two vectors out.
+
+
+
+
