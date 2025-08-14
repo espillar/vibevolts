@@ -9,6 +9,9 @@ Creating a new version of volts that runs faster using jules and other tools.
 
 
 ** [2025-08-14 Thu]
+Ok, lots of today has so far just been figuring out git and github and
+emacs and remembering those commands.  I think I just need to download
+a nice git single page to put in my desk references.
 
 I don't know how this is going to work: but I'm going to try it out!
 OK, I'm seeing that I can actually do some editing on this in github 
