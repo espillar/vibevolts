@@ -1,0 +1,10 @@
+* Vibevolts
+
+Creating a new version of volts that runs faster using jules and other tools.
+
+
+* Log
+
+** [2025-08-14 Thu]
+
+I don't know how this is going to work: but I'm going to try it out!
