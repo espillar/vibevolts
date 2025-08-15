@@ -7,7 +7,8 @@ Creating a new version of volts that runs faster using jules and other tools.
 * Todo
 
 ** Create new points instead of red satellties
-- Do a little research to figure out how 
+- Do a little research to figure out how to create a nice 3d
+  space filling set of points.
 - create a nice grid of points to be observed for now. 
 
 ** Compute exclusions
@@ -41,6 +42,16 @@ It should be done across the whole vector.
 * Log
 
 
+
+
+
+** Prompt for Gemini
+I need an algorithm that will create a set of points in 3d space.
+Relative to a central point, they should be space logarithmically
+spaced in distance from the central point, but equally spaced in
+angle in any range of distances. Subject to these constraints the
+points should lie between an inner and an outer radius. Find this
+algorithm, and if possible give me code to execute it.
 
 ** [2025-08-14 Thu]
 Ok, lots of today has so far just been figuring out git and github and
