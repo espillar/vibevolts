@@ -42,10 +42,13 @@ It should be done across the whole vector.
 * Log
 
 
+** 2025-08
 
+*** [2025-08-15 Fri]
+Looking at the plan above, I wrote a prompt for gemini to create
+the space filling data.
 
-
-** Prompt for Gemini
+**** Prompt for Gemini
 I need an algorithm that will create a set of points in 3d space.
 Relative to a central point, they should be space logarithmically
 spaced in distance from the central point, but equally spaced in
@@ -53,7 +56,14 @@ angle in any range of distances. Subject to these constraints the
 points should lie between an inner and an outer radius. Find this
 algorithm, and if possible give me code to execute it.
 
-** [2025-08-14 Thu]
+take the function we just generated and add a new function that creates
+4 plots: first, a 3d plot using plotly that displays the points
+(assuming we are in a Jupyter notebook), a plot that histograms the
+radii of the points, and plots that display the angular distributions
+of the points in terms of latitude and longitude. Display the function
+so I can copy it.
+
+*** [2025-08-14 Thu]
 Ok, lots of today has so far just been figuring out git and github and
 emacs and remembering those commands.  I think I just need to download
 a nice git single page to put in my desk references.
@@ -68,7 +78,7 @@ and other locations so quickly, and being able to edit thigns everywhere.
 OK, the next action I need to do is to actually get radiometry working,
 and stuff like that. 
 
-** Prompt1
+**** Prompt1
 Create a function called solarexclusion.
 Create an exclusion numpy vector. the same length as the number of
 satellites.
