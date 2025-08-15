@@ -47,6 +47,10 @@ It should be done across the whole vector.
 *** [2025-08-15 Fri]
 Looking at the plan above, I wrote a prompt for gemini to create
 the space filling data.
+That worked, and I added a function to check it.  There
+was a bug in that the radial distribution wasn't applired randomly
+in az and el, but gemini found that once I mentioned it.
+Checking in with git.
 
 **** Prompt for Gemini
 I need an algorithm that will create a set of points in 3d space.
