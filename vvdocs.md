@@ -86,7 +86,8 @@ This section describes the functions available in the toolkit, organized by modu
 *   **`readtle(tle_file_path)`**: Reads a Two-Line Element (TLE) file and returns a NumPy array of orbital elements and a list of epoch datetimes.
 *   **`propagate_satellites(data_struct, time_date)`**: Updates satellite positions based on their orbital elements to a new time using a vectorized Keplerian propagator.
 *   **`plot_positions_3d(positions, title, plot_time, labels)`**: Displays an interactive 3D plot of object positions using `plotly`.
-*   **`demo1()`, `demo2()`, `demo3()`, `demo4()`**: Demonstration functions that run pre-configured simulations and generate plots.
+*   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors.
+*   **`demo1()`, `demo2()`, `demo3()`, `demo4()`, `demo5()`**: Demonstration functions that run pre-configured simulations and generate plots.
 
 ### 2.2. `radiometry.py`
 
@@ -100,6 +101,16 @@ This section describes the functions available in the toolkit, organized by modu
 ### 2.3. `lambertiansphere.py`
 
 *   **`lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)`**: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.
+
+### 2.4. `exclusion.py`
+
+*   **`exclusion(data_struct, satellite_index)`**: Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
+*   **`test_exclusion_plot()`**: Tests the exclusion function by creating a scenario with 100 satellites and plots the results for 15 of them.
+
+### 2.5. `generate_log_spherical_points.py`
+
+*   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution.
+*   **`visualize_point_distribution(points)`**: Visualizes the distribution of a 3D point cloud with four plots.
 
 ## 3. Dependencies
 
