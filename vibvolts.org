@@ -23,13 +23,6 @@ It should be done across the whole vector.
 - for each target, compute if its within anyones FOV, if the
   observer isn't blinded, and the SNR is high enough.
 
-* Done
-** Create new points instead of red satellties
-- Do a little research to figure out how to create a nice 3d
-  space filling set of points.
-- create a nice grid of points to be observed for now. 
-
-
 ** Pointing selections (OK, this one will take some developement!)
 
 ** Scoring
@@ -40,6 +33,13 @@ It should be done across the whole vector.
   compute the interobservation distances and histogram
   them.
   
+
+* Done
+** Create new points instead of red satellties
+- Do a little research to figure out how to create a nice 3d
+  space filling set of points.
+- create a nice grid of points to be observed for now. 
+
 
 * Log
 
