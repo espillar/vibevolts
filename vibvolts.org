@@ -44,7 +44,15 @@ It should be done across the whole vector.
 
 ** 2025-08
 
+*** [2025-08-16 Sat]
+Last Socorro Vacation Day. Testing out working copy.
+
 *** [2025-08-15 Fri]
+
+Summary:  I actually did get a nice function to generate evenly
+spaced 3d points in, and get it tested.  Working well with github.
+
+
 Looking at the plan above, I wrote a prompt for gemini to create
 the space filling data.
 That worked, and I added a function to check it.  There
