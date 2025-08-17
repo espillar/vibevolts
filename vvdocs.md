@@ -34,7 +34,10 @@ This is the central data structure, created by the `initializeStructures` functi
         'detector': np.zeros((num_satellites, 7)),
     },
     'observatories': { ... },
-    'red_satellites': { ... }
+    'red_satellites': { ... },
+    'fixedpoints': {
+        'position': np.zeros((num_points, 3))
+    }
 }
 ```
 
@@ -88,6 +91,7 @@ This section describes the functions available in the toolkit, organized by modu
 *   **`plot_positions_3d(positions, title, plot_time, labels)`**: Displays an interactive 3D plot of object positions using `plotly`.
 *   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors.
 *   **`demo1()`, `demo2()`, `demo3()`, `demo4()`, `demo5()`**: Demonstration functions that run pre-configured simulations and generate plots.
+*   **`demo_fixedpoints()`**: Demonstrates the `fixedpoints` data structure by plotting it in 3D.
 
 ### 2.2. `radiometry.py`
 
