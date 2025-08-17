@@ -8,13 +8,6 @@ Creating a new version of volts that runs faster using jules and other tools.
 
 
 ** Compute exclusions
-*** Satellites and observatories
-This test needs to be applied to any potential or actual pointing.
-It should be done across the whole vector.
-- solar - is the sun within the FOV
-- lunar - is the moon within the FOV
-- earth - for satellite is the earth within FOV, for observatory
-  make it above the horizon.
 
 ** visibility
 - Create a 2-d array that has a flag for each time the satellite
@@ -40,11 +33,35 @@ It should be done across the whole vector.
   space filling set of points.
 - create a nice grid of points to be observed for now. 
 
+*** Satellites and observatories
+This test needs to be applied to any potential or actual pointing.
+It should be done across the whole vector.
+- solar - is the sun within the FOV
+- lunar - is the moon within the FOV
+- earth - for satellite is the earth within FOV, for observatory
+  make it above the horizon.
+
 
 * Log
 
 
 ** 2025-08
+
+*** [2025-08-17 Sun]
+
+OK, I need to collect observations now.  Let's get a prompt.  Maybe see if jules
+can do this since it's across several files now.
+
+*** Prompt
+use the python tools currently in the repository, but don't change them
+un-necessarily.
+Create a new central data structure in vibevolts.py
+called fixedpoints that is
+initialized using the generate_log_spherical_points including
+points from 2000000 meters to tice geodistances.  Add
+a new demo functino that plots this data in a plotly.
+
+
 
 *** [2025-08-16 Sat]
 Last Socorro Vacation Day. Testing out working copy. Seems really good
