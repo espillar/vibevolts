@@ -17,6 +17,9 @@ from sgp4.api import Satrec
 # You can install it with: pip install plotly
 import plotly.graph_objects as go
 
+# Import the point generation function
+from generate_log_spherical_points import generate_log_spherical_points
+
 
 # --- Global Constants for Array Indices ---
 # These constants define column indices for numpy arrays, making the
@@ -139,6 +142,16 @@ def initializeStructures(
             'epochs': [],
             'pointing': np.zeros((num_red_satellites, 3), dtype=float),
             'detector': np.zeros((num_red_satellites, 7), dtype=float),
+        },
+
+        'fixedpoints': {
+            'position': generate_log_spherical_points(
+                num_points=10000,
+                inner_radius=2000000,
+                # Outer radius is 2 * geostationary radius (42,164 km)
+                # This is an interpretation of "tice geodistances".
+                outer_radius=84328000
+            )
         }
     }
     
@@ -883,9 +896,36 @@ def demo4():
     )
     fig.show()
 
+def demo_fixedpoints():
+    """
+    Demonstrates the fixedpoints data structure by plotting it in 3D.
+    """
+    print("\n--- Starting Demo Fixedpoints ---")
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+
+    # Initialize the data structures. We don't need any satellites for this demo.
+    sim_data = initializeStructures(
+        num_satellites=0,
+        num_observatories=0,
+        num_red_satellites=0,
+        start_time=sim_start_time
+    )
+
+    fixed_positions = sim_data['fixedpoints']['position']
+
+    print(f"Plotting {len(fixed_positions)} fixed points.")
+
+    plot_positions_3d(
+        positions=fixed_positions,
+        title="Fixed Points Distribution",
+        plot_time=sim_start_time,
+        labels=[f"Point {i}" for i in range(len(fixed_positions))]
+    )
+
 # --- Main Execution Block ---
 if __name__ == '__main__':
     demo1()
     demo2()
     demo3()
     demo4()
+
