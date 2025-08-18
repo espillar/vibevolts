@@ -1,6 +1,7 @@
 import numpy as np
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Tuple
+import vibevolts as vv
 
 # The astropy library is required for accurate astronomical calculations.
 # You can install it with: pip install astropy jplephem
@@ -21,52 +22,6 @@ moon_radius = 1737400.0
 DETECTOR_SOLAR_EXCL_IDX = 4
 DETECTOR_LUNAR_EXCL_IDX = 5
 DETECTOR_EARTH_EXCL_IDX = 6
-
-# --- Function from original file (needed for the test) ---
-def initializeStructures(
-    num_satellites: int,
-    num_observatories: int,
-    num_red_satellites: int,
-    start_time: datetime
-) -> Dict[str, Any]:
-    """
-    Initializes categorized data structures for a space simulation.
-    (This function is copied from the original file for standalone testing)
-    """
-    if not isinstance(start_time, datetime) or start_time.tzinfo is None:
-        raise ValueError("start_time must be a timezone-aware datetime object.")
-
-    return {
-        'start_time': start_time,
-        'counts': {
-            'celestial': 2,
-            'satellites': num_satellites,
-            'observatories': num_observatories,
-            'red_satellites': num_red_satellites
-        },
-        'celestial': {
-            'position': np.zeros((2, 3), dtype=float),
-        },
-        'satellites': {
-            'position': np.zeros((num_satellites, 3), dtype=float),
-            'pointing': np.zeros((num_satellites, 3), dtype=float),
-            'detector': np.zeros((num_satellites, 7), dtype=float),
-        },
-    }
-
-def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
-    """
-    Calculates and updates the positions of the Sun and Moon.
-    (This function is copied from the original file for standalone testing)
-    """
-    if time_date.tzinfo is None:
-        raise ValueError("time_date must be timezone-aware.")
-    astro_time = Time(time_date)
-    sun_gcrs = get_body("sun", astro_time).transform_to(GCRS(obstime=astro_time))
-    moon_gcrs = get_body("moon", astro_time).transform_to(GCRS(obstime=astro_time))
-    data_struct['celestial']['position'][0] = sun_gcrs.cartesian.xyz.to('m').value
-    data_struct['celestial']['position'][1] = moon_gcrs.cartesian.xyz.to('m').value
-    return data_struct
 
 # --- New Exclusion Function ---
 
@@ -146,6 +101,27 @@ def exclusion(data_struct: Dict[str, Any], satellite_index: int) -> bool:
     return is_excluded
 
 
+def check_all_exclusions(data_struct: Dict[str, Any]) -> np.ndarray:
+    """
+    Checks exclusion status for all satellites in the 'satellites' category.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+
+    Returns:
+        A NumPy array of integers (0 or 1) where 1 indicates an excluded view
+        and 0 indicates a clear view for each satellite.
+    """
+    num_satellites = data_struct['counts']['satellites']
+    exclusion_vector = np.zeros(num_satellites, dtype=int)
+
+    for i in range(num_satellites):
+        if exclusion(data_struct, i):
+            exclusion_vector[i] = 1
+
+    return exclusion_vector
+
+
 # --- New Testing Function ---
 
 def test_exclusion_plot():
@@ -162,8 +138,8 @@ def test_exclusion_plot():
     # Ensure planetary ephemeris data is available
     solar_system_ephemeris.set('jpl')
     
-    sim_data = initializeStructures(num_sats, 0, 0, sim_start_time)
-    sim_data = celestial_update(sim_data, sim_start_time)
+    sim_data = vv.initializeStructures(num_sats, 0, 0, sim_start_time)
+    sim_data = vv.celestial_update(sim_data, sim_start_time)
     
     # --- 2. Create Random Satellites ---
     leo_radius = earth_radius + 500e3  # 500 km altitude
@@ -269,6 +245,14 @@ def test_exclusion_plot():
             margin=dict(r=10, b=10, l=10, t=40)
         )
         fig.show()
+
+    # --- 4. Test the new check_all_exclusions function ---
+    print("\n--- Testing check_all_exclusions function ---")
+    exclusion_results = check_all_exclusions(sim_data)
+    print(f"Exclusion vector for all {num_sats} satellites:")
+    print(exclusion_results)
+    print(f"Total excluded satellites: {np.sum(exclusion_results)}")
+
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
