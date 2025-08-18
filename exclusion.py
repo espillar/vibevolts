@@ -101,6 +101,27 @@ def exclusion(data_struct: Dict[str, Any], satellite_index: int) -> bool:
     return is_excluded
 
 
+def check_all_exclusions(data_struct: Dict[str, Any]) -> np.ndarray:
+    """
+    Checks exclusion status for all satellites in the 'satellites' category.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+
+    Returns:
+        A NumPy array of integers (0 or 1) where 1 indicates an excluded view
+        and 0 indicates a clear view for each satellite.
+    """
+    num_satellites = data_struct['counts']['satellites']
+    exclusion_vector = np.zeros(num_satellites, dtype=int)
+
+    for i in range(num_satellites):
+        if exclusion(data_struct, i):
+            exclusion_vector[i] = 1
+
+    return exclusion_vector
+
+
 # --- New Testing Function ---
 
 def test_exclusion_plot():
@@ -224,6 +245,14 @@ def test_exclusion_plot():
             margin=dict(r=10, b=10, l=10, t=40)
         )
         fig.show()
+
+    # --- 4. Test the new check_all_exclusions function ---
+    print("\n--- Testing check_all_exclusions function ---")
+    exclusion_results = check_all_exclusions(sim_data)
+    print(f"Exclusion vector for all {num_sats} satellites:")
+    print(exclusion_results)
+    print(f"Total excluded satellites: {np.sum(exclusion_results)}")
+
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
