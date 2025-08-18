@@ -3,9 +3,154 @@
 Creating a new version of volts that runs faster using jules and other tools.
 
 
+
+* Todo
+
+
+** Compute exclusions
+
+** visibility
+- Create a 2-d array that has a flag for each time the satellite
+  might be observed, a row for each time in the simulaton,
+  and a  vector of the times for the rows.
+- for each target, compute if its within anyones FOV, if the
+  observer isn't blinded, and the SNR is high enough.
+
+** Pointing selections (OK, this one will take some developement!)
+
+** Scoring
+- use the visibilty matrix above
+- take the visibility vector and calculate the fraction
+  of the time that the thing is observed
+- Calculate the gap times- basically for each column,
+  compute the interobservation distances and histogram
+  them.
+  
+
+* Done
+** Create new points instead of red satellties
+- Do a little research to figure out how to create a nice 3d
+  space filling set of points.
+- create a nice grid of points to be observed for now. 
+
+** exclusions Satellites and observatories
+This test needs to be applied to any potential or actual pointing.
+It should be done across the whole vector.
+- solar - is the sun within the FOV
+- lunar - is the moon within the FOV
+- earth - for satellite is the earth within FOV, for observatory
+  make it above the horizon.
+
+
 * Log
 
-** [2025-08-14 Thu]
+
+** 2025-08
+
+*** [2025-08-18 Mon]
+Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
+
+
+
+*** [2025-08-17 Sun]
+
+OK, I need to collect observations now.  Let's get a prompt.  Maybe see if jules
+can do this since it's across several files now.
+
+*** Prompt
+use the python tools currently in the repository, but don't change them
+un-necessarily.
+Create a new central data structure in vibevolts.py
+called fixedpoints that is
+initialized using the generate_log_spherical_points including
+points from 2000000 meters to tice geodistances.  Add
+a new demo functino that plots this data in a plotly.
+
+Did some reading on git- I thought it was all in my head, put creating
+local branches of remote things, switching branches, restoring older
+versions of files, and newer commans switch and resotre were not
+in my vocabulary.
+
+
+*** [2025-08-16 Sat]
+Last Socorro Vacation Day. Testing out working copy. Seems really good
+for some things! Took me 7 minutes to get my environment up.
+
+OK, I need to take in to account points of view that are blocked by
+earth or blinded by the sun moon or earth.  It would be nice
+to make this an ECS function- but let's start simple
+
+**** Prompt - this appears to have mostly worked. a
+
+Based on the existing code you've just read, create a new
+python function exclusion  in a new file that does the following.
+
+Add two global variables, earth_radius and moon_radius that contain
+those radii in meters.
+Create for me a function that takes an index number into the satellites
+array, and extracts position for the satellite, the pointing
+vector for the satellite, and also collects positions of the sun
+and the moon.
+Compute the unit vectors to the sun, the moon, and the earth from
+satellite position.
+
+For the sun, compute the angle betwen the vector to the sun and
+the pointing vector, and set a flag if the angle is less than
+the solar exclusion angle.
+
+For the moon and the earth, calculate the angle between the
+vector to the objects and the pointing angle, subtract
+the arctangent of the  radius of the object and the distance to
+to the object, and set flags if either is less than the
+appropriate exclusion angle.
+
+Set a global exclusion flag if any of these three flags is
+set and return this flag, either true of false.
+
+
+For testing, create a function that that does some displays in
+plotly.  The function should initialize the positions of the
+sun and moon.  It should create a 100 satellites in random
+positions between leo out to geo each pointing in a random
+direction. Call the exclusion function.  For each of these
+cases, using plotly, create a plot containing the earth,
+the satellites position with a pointing vector pointing away
+from it, and vectors to the moon, sun, and earth, together with
+an indication if the view was excluded or not.
+
+
+*** [2025-08-15 Fri]
+
+Summary:  I actually did get a nice function to generate evenly
+spaced 3d points in, and get it tested.  Working well with github.
+
+
+Looking at the plan above, I wrote a prompt for gemini to create
+the space filling data.
+That worked, and I added a function to check it.  There
+was a bug in that the radial distribution wasn't applired randomly
+in az and el, but gemini found that once I mentioned it.
+Checking in with git.
+
+**** Prompt for Gemini
+I need an algorithm that will create a set of points in 3d space.
+Relative to a central point, they should be space logarithmically
+spaced in distance from the central point, but equally spaced in
+angle in any range of distances. Subject to these constraints the
+points should lie between an inner and an outer radius. Find this
+algorithm, and if possible give me code to execute it.
+
+take the function we just generated and add a new function that creates
+4 plots: first, a 3d plot using plotly that displays the points
+(assuming we are in a Jupyter notebook), a plot that histograms the
+radii of the points, and plots that display the angular distributions
+of the points in terms of latitude and longitude. Display the function
+so I can copy it.
+
+*** [2025-08-14 Thu]
+Ok, lots of today has so far just been figuring out git and github and
+emacs and remembering those commands.  I think I just need to download
+a nice git single page to put in my desk references.
 
 I don't know how this is going to work: but I'm going to try it out!
 OK, I'm seeing that I can actually do some editing on this in github 
@@ -13,4 +158,25 @@ itslef.  It's OK I guess.
 
 It's rather interesting to be moving these things around between github
 and other locations so quickly, and being able to edit thigns everywhere.
+
+OK, the next action I need to do is to actually get radiometry working,
+and stuff like that. 
+
+**** Prompt1
+Create a function called solarexclusion.
+Create an exclusion numpy vector. the same length as the number of
+satellites.
+Create a function which operates on all the satellites in
+the list of satellites in a vectorized manner.
+create a vector from the satellite to the sun and the vector
+representing the satellite pointing.  If the angle between these
+two is less than the solar exclusion angle for the satellite,
+place a 1 in the exclusion list, othewise leave it as 0.
+Return this vector as well as a vector of the angle from
+the function.
+
+Create a test function that prints these two vectors out.
+
+
+
 
