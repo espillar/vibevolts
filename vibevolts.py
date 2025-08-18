@@ -405,6 +405,68 @@ def plot_positions_3d(positions: np.ndarray, title: str, plot_time: datetime, la
     fig.show()
 
 
+def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Calculates solar exclusion for all satellites based on their pointing vectors.
+
+    This function operates in a vectorized manner on all satellites in the
+    'satellites' category. It computes the angle between each satellite's
+    pointing vector and the vector from the satellite to the Sun.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+
+    Returns:
+        A tuple containing:
+        - exclusion_vector (np.ndarray): An array of the same length as the
+          number of satellites. An element is 1 if the satellite is within
+          the solar exclusion angle, 0 otherwise.
+        - angle_vector (np.ndarray): An array containing the calculated angle
+          in radians for each satellite.
+    """
+    num_sats = data_struct['counts']['satellites']
+    if num_sats == 0:
+        return np.array([]), np.array([])
+
+    # Get required data from the main structure
+    sun_pos = data_struct['celestial']['position'][0]
+    sat_pos = data_struct['satellites']['position']
+    sat_pointing = data_struct['satellites']['pointing']
+    solar_exclusion_angles = data_struct['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX]
+
+    # Calculate the vector from each satellite to the Sun
+    vec_sat_to_sun = sun_pos - sat_pos
+
+    # Normalize the vectors
+    norm_sat_to_sun = np.linalg.norm(vec_sat_to_sun, axis=1)
+    norm_sat_pointing = np.linalg.norm(sat_pointing, axis=1)
+
+    # Avoid division by zero for zero-length vectors.
+    # A zero-length pointing vector can't have an angle, so we create a
+    # mask to handle these cases safely.
+    valid_norms = (norm_sat_to_sun > 1e-9) & (norm_sat_pointing > 1e-9)
+
+    # Initialize angle vector with a default value (pi = 180 deg) for invalid cases
+    angle_vector = np.full(num_sats, np.pi)
+
+    # Calculate dot product only for vectors with valid norms
+    if np.any(valid_norms):
+        dot_product = np.einsum('ij,ij->i', vec_sat_to_sun[valid_norms], sat_pointing[valid_norms])
+
+        # Calculate the angle where possible
+        cos_angle = dot_product / (norm_sat_to_sun[valid_norms] * norm_sat_pointing[valid_norms])
+
+        # Clip to handle potential floating point inaccuracies
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+
+        angle_vector[valid_norms] = np.arccos(cos_angle)
+
+    # Determine exclusion based on the angle
+    exclusion_vector = (angle_vector < solar_exclusion_angles).astype(int)
+
+    return exclusion_vector, angle_vector
+
+
 def demo1():
     """
     Runs a full demonstration of the simulation tools: initialization,
@@ -805,6 +867,99 @@ def demo3():
     )
     fig.show()
 
+def demo5():
+    """
+    Demonstrates the use of the solarexclusion function.
+
+    This test sets up a scenario with 3 satellites and specific pointing
+    vectors to verify the solar exclusion logic.
+    - Sat 1: Points directly at the Sun (should be excluded).
+    - Sat 2: Points perpendicular to the Sun (should not be excluded).
+    - Sat 3: Points away from the Sun (should not be excluded).
+    """
+    print("\n--- Starting Demo 5: Solar Exclusion Test ---")
+
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+
+    # --- Initialization for 3 satellites ---
+    tle_data = """SAT-1
+1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90401  51.6412 254.9961 0006733  98.4322 261.6813 15.49493393462383
+SAT-2
+1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9992
+2 90402  99.1533 244.3362 0013327 101.3725 258.7562 14.12510122810029
+SAT-3
+1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9993
+2 90403  28.4695 177.8391 0001259 138.5273 221.5822 15.09326468 23453
+"""
+    dummy_tle_path = "dummy_tle5.txt"
+    with open(dummy_tle_path, "w") as f:
+        f.write(tle_data)
+
+    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
+    num_sats = len(orbital_elements_from_tle)
+
+    sim_data = initializeStructures(
+        num_satellites=num_sats,
+        num_observatories=0,
+        num_red_satellites=0,
+        start_time=sim_start_time
+    )
+    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
+    sim_data['satellites']['epochs'] = epochs_from_tle
+
+    # --- Set up test conditions ---
+    # Propagate to get initial positions
+    sim_data = propagate_satellites(sim_data, sim_start_time)
+    sim_data = celestial_update(sim_data, sim_start_time)
+
+    sun_pos = sim_data['celestial']['position'][0]
+    sat_pos = sim_data['satellites']['position']
+
+    # Define pointing vectors for the test case
+    vec_sat_to_sun = sun_pos - sat_pos
+
+    # Sat 1: Point directly at the Sun
+    sim_data['satellites']['pointing'][0] = vec_sat_to_sun[0]
+
+    # Sat 2: Point perpendicular to the Sun vector
+    # Create a perpendicular vector by swapping and negating components
+    perp_vec = np.array([-vec_sat_to_sun[1, 1], vec_sat_to_sun[1, 0], 0])
+    sim_data['satellites']['pointing'][1] = perp_vec
+
+    # Sat 3: Point directly away from the Sun
+    sim_data['satellites']['pointing'][2] = -vec_sat_to_sun[2]
+
+    # Set solar exclusion angles (in radians)
+    # Sat 1 should be excluded, Sat 2 and 3 should not.
+    solar_exclusion_angles = np.array([
+        0.2,  # 11.5 degrees, angle should be ~0, so excluded
+        0.1,  #  5.7 degrees, angle should be ~pi/2, so not excluded
+        0.1   #  5.7 degrees, angle should be ~pi, so not excluded
+    ])
+    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = solar_exclusion_angles
+
+    # --- Run the function ---
+    exclusion_vec, angle_vec = solarexclusion(sim_data)
+
+    # --- Print results ---
+    print("\n--- Input Data ---")
+    print(f"Solar Exclusion Angles (rad): {np.round(solar_exclusion_angles, 2)}")
+    # Pointing vectors are too long to print neatly, but their setup is described above.
+
+    print("\n--- Output Data ---")
+    print(f"Calculated Angles (rad): {np.round(angle_vec, 2)}")
+    print(f"Exclusion Vector: {exclusion_vec}")
+
+    print("\n--- Verification ---")
+    # Expected: Sat 1 angle is ~0, Sat 2 is ~pi/2, Sat 3 is ~pi
+    # Expected: Exclusion vector is [1 0 0]
+    expected_exclusion = np.array([1, 0, 0])
+    if np.array_equal(exclusion_vec, expected_exclusion):
+        print("SUCCESS: Exclusion vector matches expected output [1 0 0].")
+    else:
+        print(f"FAILURE: Exclusion vector was {exclusion_vec}, expected {expected_exclusion}.")
+
 def demo4():
     """
     Runs a fourth demonstration with a single GEO satellite, plotting its
@@ -889,3 +1044,4 @@ if __name__ == '__main__':
     demo2()
     demo3()
     demo4()
+    demo5()
