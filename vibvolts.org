@@ -17,6 +17,11 @@ Creating a new version of volts that runs faster using jules and other tools.
   observer isn't blinded, and the SNR is high enough.
 
 ** Pointing selections (OK, this one will take some developement!)
+OK, had some thoughts on this:
+We can probably assign satellites to do some simple patterns
+that follow their strengths in terms of where they should be
+looking, we reallly only have a few categories I think
+we are going to try.
 
 ** Scoring
 - use the visibilty matrix above
@@ -49,6 +54,11 @@ It should be done across the whole vector.
 
 *** [2025-08-18 Mon]
 Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
+
+Tried to have jules fix the docs up and get some demos to run- but it tried to
+insert a matplolib and a pandas dependency that I have asked it to remove.
+
+
 
 
 
