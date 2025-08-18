@@ -60,6 +60,8 @@ This is the central data structure, created by the `initializeStructures` functi
     *   `5`: Lunar exclusion angle (radians)
     *   `6`: Earth exclusion angle (radians)
 
+*   **`fixedpoints`**: A dictionary containing a single key, `position`, which holds a NumPy array (`num_points x 3`) of static 3D points in the GCRS frame. These points are generated with a logarithmic radial distribution and are intended for fixed-point calculations or as a reference grid.
+
 ### 1.2. Radiometric Filter Data (`FILTER_DATA`)
 
 This dictionary from `radiometry.py` contains standard data for various astronomical filters.
@@ -108,8 +110,10 @@ This section describes the functions available in the toolkit, organized by modu
 
 ### 2.4. `exclusion.py`
 
-*   **`exclusion(data_struct, satellite_index)`**: Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
-*   **`test_exclusion_plot()`**: Tests the exclusion function by creating a scenario with 100 satellites and plots the results for 15 of them.
+This module provides functions to determine if a satellite's line of sight is obstructed by major celestial bodies (Sun, Moon, Earth).
+
+*   **`exclusion(data_struct, satellite_index)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `True` if the satellite's pointing vector is within the exclusion zone of the Sun, Moon, or Earth, and `False` otherwise. The exclusion angles are retrieved from the satellite's `detector` properties.
+*   **`test_exclusion_plot()`**: A demonstration and testing function that creates a scenario with 100 satellites with random orbits and pointing vectors. It runs the `exclusion` check on them and generates interactive 3D plots for the first 15 satellites to visually verify the results.
 
 ### 2.5. `generate_log_spherical_points.py`
 
