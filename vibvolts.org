@@ -7,7 +7,7 @@ Creating a new version of volts that runs faster using jules and other tools.
 * Todo
 
 
-** Compute exclusions
+** Caculate
 
 ** visibility
 - Create a 2-d array that has a flag for each time the satellite
@@ -59,7 +59,13 @@ Tried to have jules fix the docs up and get some demos to run- but it tried to
 insert a matplolib and a pandas dependency that I have asked it to remove.
 
 
+**** prompt
 
+Add a new two dimensional numpy array to the common area.
+The first index should correspond to a satellite number.
+The second number should correspond to a fixed point.
+
+update both vvdoc files to keep up with the current functions and structures.
 
 
 *** [2025-08-17 Sun]
@@ -67,7 +73,7 @@ insert a matplolib and a pandas dependency that I have asked it to remove.
 OK, I need to collect observations now.  Let's get a prompt.  Maybe see if jules
 can do this since it's across several files now.
 
-*** Prompt
+**** Prompt
 use the python tools currently in the repository, but don't change them
 un-necessarily.
 Create a new central data structure in vibevolts.py
