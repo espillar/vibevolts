@@ -1,7 +1,7 @@
 import numpy as np
-import pandas as pd
 import plotly.express as px
-import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 def generate_log_spherical_points(
     num_points: int, 
@@ -79,14 +79,11 @@ def generate_log_spherical_points(
 
 def visualize_point_distribution(points: np.ndarray):
     """
-    Visualizes the distribution of a 3D point cloud with four plots.
+    Visualizes the distribution of a 3D point cloud with plots.
 
-    This function generates and displays four plots for analysis:
-    1. A table of the first 15 data points.
-    2. A 3D interactive scatter plot of the points using Plotly.
-    3. A histogram of the radial distances of the points from the origin.
-    4. A histogram of the longitude (azimuthal angle) distribution.
-    5. A histogram of the latitude (polar angle) distribution.
+    This function generates and displays plots for analysis:
+    1. A 3D interactive scatter plot of the points.
+    2. Histograms of the radial, longitude, and latitude distributions.
 
     Args:
         points: A NumPy array of shape (num_points, 3) with Cartesian coordinates.
@@ -94,17 +91,17 @@ def visualize_point_distribution(points: np.ndarray):
     if not isinstance(points, np.ndarray) or points.ndim != 2 or points.shape[1] != 3:
         raise ValueError("Input 'points' must be a NumPy array of shape (N, 3).")
 
-    # --- 1. Display a sample of the data points in a table ---
-    print("--- Sample of Generated Points ---")
-    df = pd.DataFrame(points, columns=['X', 'Y', 'Z'])
-    df['Radius'] = np.linalg.norm(points, axis=1)
-    print(df.head(15).to_string())
-    print("-" * 34 + "\n")
+    # --- 1. Display a sample of the data points ---
+    print("--- Sample of Generated Points (X, Y, Z, Radius) ---")
+    radii = np.linalg.norm(points, axis=1)
+    sample_data = np.hstack((points[:15], radii[:15, np.newaxis]))
+    for row in sample_data:
+        print(f"[{row[0]:>8.2f} {row[1]:>8.2f} {row[2]:>8.2f} | {row[3]:>8.2f}]")
+    print("-" * 45 + "\n")
 
 
     # --- 2. 3D Scatter Plot using Plotly ---
     print("Displaying 3D scatter plot...")
-    radii = np.linalg.norm(points, axis=1) # Recalculate here or pass from above
     fig_3d = px.scatter_3d(
         x=points[:, 0], 
         y=points[:, 1], 
@@ -116,56 +113,54 @@ def visualize_point_distribution(points: np.ndarray):
     )
     fig_3d.update_traces(marker=dict(size=2))
     fig_3d.update_layout(
-        scene=dict(
-            xaxis_title='X',
-            yaxis_title='Y',
-            zaxis_title='Z'
-        ),
+        scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z'),
         margin=dict(l=0, r=0, b=0, t=40)
     )
     fig_3d.show()
 
     # --- 3. Calculate Spherical Coordinates for Histograms ---
-    # Radii are already calculated
-    
     # Longitude (Azimuthal angle, theta) from -180 to 180 degrees
-    longitude = np.arctan2(points[:, 1], points[:, 0])
-    longitude_deg = np.degrees(longitude)
-
+    longitude_deg = np.degrees(np.arctan2(points[:, 1], points[:, 0]))
     # Latitude (Polar angle, phi) from -90 to 90 degrees
-    # Note: np.arccos returns [0, pi]. We convert it to latitude [-pi/2, pi/2]
     polar_angle = np.arccos(points[:, 2] / radii)
-    latitude = np.pi / 2 - polar_angle
-    latitude_deg = np.degrees(latitude)
+    latitude_deg = np.degrees(np.pi / 2 - polar_angle)
 
-    # --- 4. Create Histograms using Matplotlib ---
+    # --- 4. Create Histograms using Plotly ---
     print("Displaying distribution histograms...")
-    fig, axs = plt.subplots(1, 3, figsize=(20, 6))
-    
+    fig_hist = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=(
+            'Distribution of Radial Distances',
+            'Distribution of Longitude',
+            'Distribution of Latitude'
+        )
+    )
+
     # Radii Histogram
-    axs[0].hist(radii, bins=50, color='skyblue', edgecolor='black')
-    axs[0].set_title('Distribution of Radial Distances', fontsize=14)
-    axs[0].set_xlabel('Radius', fontsize=12)
-    axs[0].set_ylabel('Frequency', fontsize=12)
-    axs[0].grid(axis='y', alpha=0.75)
-
+    fig_hist.add_trace(
+        go.Histogram(x=radii, nbinsx=50, name='Radius', marker_color='skyblue'),
+        row=1, col=1
+    )
     # Longitude Histogram
-    axs[1].hist(longitude_deg, bins=50, color='salmon', edgecolor='black')
-    axs[1].set_title('Distribution of Longitude (Azimuthal Angle)', fontsize=14)
-    axs[1].set_xlabel('Longitude (Degrees)', fontsize=12)
-    axs[1].set_ylabel('Frequency', fontsize=12)
-    axs[1].grid(axis='y', alpha=0.75)
-
+    fig_hist.add_trace(
+        go.Histogram(x=longitude_deg, nbinsx=50, name='Longitude', marker_color='salmon'),
+        row=1, col=2
+    )
     # Latitude Histogram
-    axs[2].hist(latitude_deg, bins=50, color='lightgreen', edgecolor='black')
-    axs[2].set_title('Distribution of Latitude (Polar Angle)', fontsize=14)
-    axs[2].set_xlabel('Latitude (Degrees)', fontsize=12)
-    axs[2].set_ylabel('Frequency', fontsize=12)
-    axs[2].grid(axis='y', alpha=0.75)
+    fig_hist.add_trace(
+        go.Histogram(x=latitude_deg, nbinsx=50, name='Latitude', marker_color='lightgreen'),
+        row=1, col=3
+    )
 
-    fig.suptitle('Analysis of Point Cloud Distribution', fontsize=16, fontweight='bold')
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.show()
+    fig_hist.update_layout(
+        title_text='Analysis of Point Cloud Distribution',
+        xaxis1_title='Radius', yaxis1_title='Frequency',
+        xaxis2_title='Longitude (Degrees)', yaxis2_title='Frequency',
+        xaxis3_title='Latitude (Degrees)', yaxis3_title='Frequency',
+        showlegend=False,
+        height=500
+    )
+    fig_hist.show()
 
 
 if __name__ == '__main__':
