@@ -33,7 +33,7 @@ Creating a new version of volts that runs faster using jules and other tools.
   space filling set of points.
 - create a nice grid of points to be observed for now. 
 
-*** Satellites and observatories
+** exclusions Satellites and observatories
 This test needs to be applied to any potential or actual pointing.
 It should be done across the whole vector.
 - solar - is the sun within the FOV
@@ -46,6 +46,11 @@ It should be done across the whole vector.
 
 
 ** 2025-08
+
+*** [2025-08-18 Mon]
+Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
+
+
 
 *** [2025-08-17 Sun]
 
@@ -61,6 +66,10 @@ initialized using the generate_log_spherical_points including
 points from 2000000 meters to tice geodistances.  Add
 a new demo functino that plots this data in a plotly.
 
+Did some reading on git- I thought it was all in my head, put creating
+local branches of remote things, switching branches, restoring older
+versions of files, and newer commans switch and resotre were not
+in my vocabulary.
 
 
 *** [2025-08-16 Sat]
