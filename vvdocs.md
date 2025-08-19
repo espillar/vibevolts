@@ -64,21 +64,34 @@ This is the central data structure, created by the `initializeStructures` functi
 
 ### 1.2. Radiometric Filter Data (`FILTER_DATA`)
 
-This dictionary from `radiometry.py` contains standard data for various astronomical filters.
+This dictionary, located in `radiometry.py`, provides standard data for a variety of astronomical filters, including Johnson-Cousins, SDSS, and JWST.
+
+*   **`sun`**: The apparent magnitude of the Sun in the given filter.
+*   **`sky`**: The typical dark sky brightness in magnitudes per square arcsecond.
+*   **`central_wavelength`**: The central wavelength of the filter passband in nanometers (nm).
+*   **`bandwidth`**: The effective width of the filter passband in nanometers (nm).
+*   **`zero_point`**: The photon flux (in photons/sec/m²) corresponding to a 0-magnitude star.
 
 ```python
 {
     'U': {
-        'sun': -26.03,              # Apparent magnitude of the Sun
-        'sky': 22.0,                # Sky brightness (mag/arcsec^2)
-        'central_wavelength': 365.0, # in nm
-        'bandwidth': 66.0,          # in nm
-        'zero_point': 4.96e9,       # Photon flux for mag=0 object
+        'sun': -26.03,
+        'sky': 22.0,
+        'central_wavelength': 365.0,
+        'bandwidth': 66.0,
+        'zero_point': 4.96e9,
     },
     'B': { ... },
     # ... and so on for V, R, I, J, H, K, g, r, i, z, L, M, N, and JWST filters.
 }
 ```
+
+### 1.3. Physical Constants
+
+The `radiometry.py` module also defines the following physical constants:
+
+*   **`AU_M`**: The astronomical unit in meters (`1.496e+11 m`).
+*   **`RSUN_M`**: The radius of the Sun in meters (`6.957e+08 m`).
 
 ## 2. Existing Functions
 
