@@ -25,6 +25,10 @@ from generate_log_spherical_points import generate_log_spherical_points
 # These constants define column indices for numpy arrays, making the
 # code more readable and preventing errors from using "magic numbers".
 
+# -- Radii in Meters --
+EARTH_RADIUS = 6378137.0
+MOON_RADIUS = 1737400.0
+
 # -- Detector Array Indices --
 DETECTOR_APERTURE_IDX = 0      # Aperture size in meters
 DETECTOR_PIXEL_SIZE_IDX = 1    # Pixel size in radians
@@ -484,6 +488,131 @@ def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]
 
     return exclusion_vector, angle_vector
 
+def exclusion(data_struct: Dict[str, Any], satellite_index: int) -> bool:
+    """
+    Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+        satellite_index: The index of the satellite to check.
+
+    Returns:
+        True if the satellite's view is excluded, False otherwise.
+    """
+    # --- 1. Extract Data ---
+    sat_pos = data_struct['satellites']['position'][satellite_index]
+    sat_pointing = data_struct['satellites']['pointing'][satellite_index]
+    sun_pos = data_struct['celestial']['position'][0]
+    moon_pos = data_struct['celestial']['position'][1]
+    
+    # Get exclusion angles for the specific satellite
+    detector_props = data_struct['satellites']['detector'][satellite_index]
+    solar_excl_angle = detector_props[DETECTOR_SOLAR_EXCL_IDX]
+    lunar_excl_angle = detector_props[DETECTOR_LUNAR_EXCL_IDX]
+    earth_excl_angle = detector_props[DETECTOR_EARTH_EXCL_IDX]
+
+    # --- 2. Compute Vectors and Normalize ---
+    # Vector from satellite to celestial bodies
+    vec_to_sun = sun_pos - sat_pos
+    vec_to_moon = moon_pos - sat_pos
+    vec_to_earth = -sat_pos  # Vector from satellite to Earth's center
+
+    # Distances
+    dist_to_sun = np.linalg.norm(vec_to_sun)
+    dist_to_moon = np.linalg.norm(vec_to_moon)
+    dist_to_earth = np.linalg.norm(vec_to_earth)
+    
+    # Normalize all relevant vectors to unit vectors
+    # Handle potential zero-length vectors to avoid division by zero errors
+    u_vec_to_sun = vec_to_sun / dist_to_sun if dist_to_sun > 0 else np.array([0., 0., 0.])
+    u_vec_to_moon = vec_to_moon / dist_to_moon if dist_to_moon > 0 else np.array([0., 0., 0.])
+    u_vec_to_earth = vec_to_earth / dist_to_earth if dist_to_earth > 0 else np.array([0., 0., 0.])
+    
+    norm_pointing = np.linalg.norm(sat_pointing)
+    u_sat_pointing = sat_pointing / norm_pointing if norm_pointing > 0 else np.array([0., 0., 0.])
+
+    # --- 3. Calculate Angles and Check for Exclusion ---
+    sun_flag, moon_flag, earth_flag = False, False, False
+
+    # -- Sun Exclusion --
+    # Angle between pointing vector and sun vector
+    cos_angle_sun = np.clip(np.dot(u_sat_pointing, u_vec_to_sun), -1.0, 1.0)
+    angle_sun = np.arccos(cos_angle_sun)
+    if angle_sun < solar_excl_angle:
+        sun_flag = True
+
+    # -- Moon Exclusion --
+    # Angle between pointing vector and moon vector
+    cos_angle_moon = np.clip(np.dot(u_sat_pointing, u_vec_to_moon), -1.0, 1.0)
+    angle_moon = np.arccos(cos_angle_moon)
+    # Apparent angular radius of the Moon from the satellite's perspective
+    apparent_radius_moon = np.arctan(MOON_RADIUS / dist_to_moon) if dist_to_moon > 0 else 0
+    if (angle_moon - apparent_radius_moon) < lunar_excl_angle:
+        moon_flag = True
+
+    # -- Earth Exclusion --
+    # Angle between pointing vector and Earth vector
+    cos_angle_earth = np.clip(np.dot(u_sat_pointing, u_vec_to_earth), -1.0, 1.0)
+    angle_earth = np.arccos(cos_angle_earth)
+    # Apparent angular radius of the Earth from the satellite's perspective
+    apparent_radius_earth = np.arctan(EARTH_RADIUS / dist_to_earth) if dist_to_earth > 0 else 0
+    if (angle_earth - apparent_radius_earth) < earth_excl_angle:
+        earth_flag = True
+
+    # --- 4. Set Global Exclusion Flag and Return ---
+    is_excluded = sun_flag or moon_flag or earth_flag
+    return is_excluded
+
+
+def create_exclusion_table(data_struct: Dict[str, Any]) -> np.ndarray:
+    """
+    Creates a table of exclusion statuses for each satellite against each fixed point.
+
+    For each satellite, this function iterates through every fixed point, sets the
+    satellite's pointing vector towards that point, and calls the `exclusion`
+    function to determine if that line of sight is blocked by the Sun, Moon, or Earth.
+
+    Args:
+        data_struct: The main simulation data dictionary, which must be fully
+                     populated with satellite and celestial body positions.
+
+    Returns:
+        A 2D NumPy array where rows correspond to satellites and columns correspond
+        to fixed points. A cell value of 1 means the view is excluded, and 0 means
+        it is clear.
+    """
+    num_satellites = data_struct['counts']['satellites']
+    fixed_points = data_struct['fixedpoints']['position']
+    num_fixed_points = len(fixed_points)
+
+    if num_satellites == 0 or num_fixed_points == 0:
+        return np.array([[]])
+
+    # Initialize the results table with zeros
+    exclusion_tbl = np.zeros((num_satellites, num_fixed_points), dtype=int)
+
+    # Get satellite positions
+    satellite_positions = data_struct['satellites']['position']
+
+    # Iterate through each satellite
+    for i in range(num_satellites):
+        sat_pos = satellite_positions[i]
+        
+        # Iterate through each fixed point
+        for j in range(num_fixed_points):
+            fixed_point_pos = fixed_points[j]
+            
+            # Temporarily set the satellite's pointing vector towards the fixed point
+            # This is the crucial step for the check.
+            pointing_vector = fixed_point_pos - sat_pos
+            data_struct['satellites']['pointing'][i] = pointing_vector
+            
+            # Call the exclusion function for the current satellite
+            if exclusion(data_struct, i):
+                exclusion_tbl[i, j] = 1
+            # No need for an else, as it's already 0
+    
+    return exclusion_tbl
 
 def demo1():
     """
@@ -1082,12 +1211,97 @@ def demo_fixedpoints():
         labels=[f"Point {i}" for i in range(len(fixed_positions))]
     )
 
+def demo_exclusion_table():
+    """
+    Demonstrates the creation and visualization of the exclusion table.
+    
+    This function sets up a scenario with 20 LEO satellites and calculates
+    their exclusion status against the first 200 fixed points. It then
+    displays this table as a red and green heatmap.
+    """
+    print("\n--- Starting Demo: Exclusion Table Visualization ---")
+    sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
+    num_sats = 20
+    
+    # --- 1. Initialize Simulation ---
+    print("Initializing simulation environment...")
+    # Ensure planetary ephemeris data is available
+    solar_system_ephemeris.set('jpl')
+    
+    sim_data = initializeStructures(num_sats, 0, 0, sim_start_time)
+    
+    # --- 2. Create Random LEO Satellites ---
+    # For this demo, we'll place satellites in random LEO positions.
+    earth_radius = 6378137.0
+    leo_altitudes = np.random.uniform(400e3, 2000e3, num_sats)
+    radii = earth_radius + leo_altitudes
+
+    # Generate random positions on a sphere for each radius
+    phi = np.random.uniform(0, 2 * np.pi, num_sats)
+    costheta = np.random.uniform(-1, 1, num_sats)
+    theta = np.arccos(costheta)
+    
+    x = radii * np.sin(theta) * np.cos(phi)
+    y = radii * np.sin(theta) * np.sin(phi)
+    z = radii * np.cos(theta)
+    sim_data['satellites']['position'] = np.vstack((x, y, z)).T
+    
+    # Set fixed exclusion angles for all satellites (in radians)
+    # Approx 30 degrees for Sun/Moon, 10 degrees for Earth limb
+    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
+
+    # --- 3. Update Celestial Positions ---
+    print("Calculating celestial body positions...")
+    sim_data = celestial_update(sim_data, sim_start_time)
+    
+    # --- 4. Create the Exclusion Table ---
+    # To make the demo run faster and the plot readable, we'll only check
+    # against the first 200 fixed points.
+    print("Generating exclusion table (this may take a moment)...")
+    original_fixed_points = sim_data['fixedpoints']['position']
+    sim_data['fixedpoints']['position'] = original_fixed_points[:200]
+    
+    exclusion_matrix = create_exclusion_table(sim_data)
+    
+    # Restore original fixed points if needed elsewhere
+    sim_data['fixedpoints']['position'] = original_fixed_points
+    
+    print("Exclusion table generated.")
+
+    # --- 5. Visualize the Table as a Heatmap ---
+    print("Displaying results as a heatmap...")
+    fig = go.Figure(data=go.Heatmap(
+        z=exclusion_matrix,
+        colorscale=[[0, 'red'], [1, 'green']], # 0 is red, 1 is green
+        showscale=False # Hide the color bar
+    ))
+
+    fig.update_layout(
+        title='Satellite vs. Fixed Point Exclusion Status',
+        xaxis_title='Fixed Point Index',
+        yaxis_title='Satellite Index',
+        yaxis=dict(autorange='reversed') # Puts satellite 0 at the top
+    )
+
+    # Add annotations to clarify colors
+    fig.add_annotation(
+        x=1, y=1.05, xref='paper', yref='paper',
+        text='■ Excluded (1)', showarrow=False, font=dict(color='green')
+    )
+    fig.add_annotation(
+        x=0, y=1.05, xref='paper', yref='paper',
+        text='■ Clear (0)', showarrow=False, font=dict(color='red')
+    )
+
+    fig.show()
+
 # --- Main Execution Block ---
 if __name__ == '__main__':
     demo1()
     demo2()
     demo3()
     demo4()
-
     demo_fixedpoints()
-
+    demo_exclusion_table()

@@ -7,7 +7,6 @@ Creating a new version of volts that runs faster using jules and other tools.
 * Todo
 
 
-** Compute exclusions
 
 ** visibility
 - Create a 2-d array that has a flag for each time the satellite
@@ -57,8 +56,14 @@ Later work a little when I get home, still maybe some problems.
 
 OK, well, later, clone it on to neptune, which isn't too demanding intellectually,
 but a good thing to do if I'm going to work this in the long run.
+Establish a nice ssh key for push and pull in git and on the local machine
+and in the repo.  Git copilot helped with that!
 
+Well I think I'm getting the hang of it, but I really ought to write it down.
+For now, what's the next useful step I can take?
 
+OK, I think I did something to do some visibility calculations. I haven't really
+RUN it though to check if things are working. Next.
 
 *** [2025-08-17 Sun]
 
