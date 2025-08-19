@@ -91,9 +91,11 @@ This section describes the functions available in the toolkit, organized by modu
 *   **`readtle(tle_file_path)`**: Reads a Two-Line Element (TLE) file and returns a NumPy array of orbital elements and a list of epoch datetimes.
 *   **`propagate_satellites(data_struct, time_date)`**: Updates satellite positions based on their orbital elements to a new time using a vectorized Keplerian propagator.
 *   **`plot_positions_3d(positions, title, plot_time, labels)`**: Displays an interactive 3D plot of object positions using `plotly`.
+
 *   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors.
 *   **`demo1()`, `demo2()`, `demo3()`, `demo4()`, `demo5()`**: Demonstration functions that run pre-configured simulations and generate plots.
 *   **`demo_fixedpoints()`**: Demonstrates the `fixedpoints` data structure by plotting it in 3D.
+
 
 ### 2.2. `radiometry.py`
 

@@ -92,6 +92,7 @@ organized by module.
 
 ** 2.1. ~vibevolts.py~
 
+
 - *initializeStructures(num_satellites, num_observatories,
   num_red_satellites, start_time)*: Creates and returns the
   main ~simulation_data~ dictionary.
@@ -110,6 +111,7 @@ organized by module.
 - *demo1()*, *demo2()*, *demo3()*, *demo4()*: Demonstration
   functions that run pre-configured simulations and generate
   plots.
+
 
 ** 2.2. ~radiometry.py~
 
