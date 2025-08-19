@@ -49,6 +49,14 @@ It should be done across the whole vector.
 
 *** [2025-08-18 Mon]
 Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
+Hmm.
+Well, that's kinda working, but somehow I am having some challenges getting git
+to the way I want it too. Ther are some edge cases i guess.
+
+Later work a little when I get home, still maybe some problems.
+
+OK, well, later, clone it on to neptune, which isn't too demanding intellectually,
+but a good thing to do if I'm going to work this in the long run.
 
 
 
