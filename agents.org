@@ -164,3 +164,9 @@ When modifying the code, prioritize the following areas:
    file (e.g., `config.json` or `config.yaml`) to make the
    simulation more flexible.
 
+4. *Object Orientation*: Use object orientation sparingly.
+   Do not add any object oriented features to the code
+   without being instructed or having the plan approved.
+   In general the code should be a series of functions
+   that operate on the central data structure.
+
