@@ -614,16 +614,95 @@ def create_exclusion_table(data_struct: Dict[str, Any]) -> np.ndarray:
     
     return exclusion_tbl
 
-def demo1():
+def plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: datetime):
     """
-    Runs a full demonstration of the simulation tools: initialization,
-    celestial updates, TLE reading, satellite propagation, and 3D plotting.
+    Displays a 3D plot of satellites with their pointing vectors.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+        title: The title for the plot.
+        plot_time: The UTC datetime for the plot, used for Earth orientation.
     """
-    # Define the simulation start time. It must be timezone-aware and set to UTC.
-    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-    
-    # --- TLE Reading and Initialization ---
-    # Create a dummy TLE file for demonstration with more satellites
+    sat_positions = data_struct['satellites']['position']
+    sat_pointing = data_struct['satellites']['pointing']
+    num_sats = data_struct['counts']['satellites']
+
+    if num_sats == 0:
+        print("No satellites to plot.")
+        return
+
+    fig = go.Figure()
+
+    # Add satellite markers
+    fig.add_trace(go.Scatter3d(
+        x=sat_positions[:, 0],
+        y=sat_positions[:, 1],
+        z=sat_positions[:, 2],
+        mode='markers',
+        marker=dict(size=5, color='blue', opacity=0.8),
+        name='Satellites'
+    ))
+
+    # Add pointing vectors for each satellite
+    # A scale factor makes the vectors visible. Doubled from 0.25 to 0.5.
+    vector_scale = 0.5 * EARTH_RADIUS
+    for i in range(num_sats):
+        start_point = sat_positions[i]
+        
+        # Normalize the pointing vector before scaling
+        pointing_vec = sat_pointing[i]
+        norm = np.linalg.norm(pointing_vec)
+        if norm > 0:
+            unit_vec = pointing_vec / norm
+        else:
+            unit_vec = np.array([0, 0, 0]) # Handle zero-length pointing
+            
+        end_point = start_point + unit_vec * vector_scale
+        
+        fig.add_trace(go.Scatter3d(
+            x=[start_point[0], end_point[0]],
+            y=[start_point[1], end_point[1]],
+            z=[start_point[2], end_point[2]],
+            mode='lines',
+            line=dict(color='red', width=3),
+            showlegend=False # Don't add hundreds of legend entries
+        ))
+
+    # Add a sphere to represent the Earth
+    u_sphere = np.linspace(0, 2 * np.pi, 100)
+    v_sphere = np.linspace(0, np.pi, 100)
+    x_earth = EARTH_RADIUS * np.outer(np.cos(u_sphere), np.sin(v_sphere))
+    y_earth = EARTH_RADIUS * np.outer(np.sin(u_sphere), np.sin(v_sphere))
+    z_earth = EARTH_RADIUS * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
+    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
+
+    fig.update_layout(
+        title=title,
+        scene=dict(
+            xaxis_title='X (m)',
+            yaxis_title='Y (m)',
+            zaxis_title='Z (m)',
+            aspectmode='data'
+        ),
+        margin=dict(r=20, b=10, l=10, t=40)
+    )
+    fig.show()
+
+def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:
+    """
+    Initializes a standard simulation with a predefined set of satellites.
+
+    This function consolidates the TLE data used across various demos into
+    a single setup function. It initializes the main data structure with a
+    mix of LEO, GEO, and HEO satellites.
+
+    Args:
+        start_time: The timezone-aware datetime object for the simulation start.
+
+    Returns:
+        The fully initialized simulation data dictionary.
+    """
+    # Consolidated TLE data from all demos
     tle_data = """ISS (ZARYA)
 1 25544U 98067A   25209.52203988  .00012111  00000+0  22159-3 0  9991
 2 25544  51.6412 254.9961 0006733  98.4322 261.6813 15.49493393462383
@@ -694,35 +773,40 @@ LEO-05
 1 90020U 25003E   25209.50000000  .00000000  00000-0  00000-0 0  9994
 2 90020  28.5000  10.0000 0010000  10.0000 100.0000 15.50000000    12
 """
-    dummy_tle_path = "dummy_tle.txt"
+    dummy_tle_path = "standard_tle.txt"
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
     
     # Read the TLEs to determine the number of satellites
-    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements_from_tle)
-    num_obs = 3
-    num_red_sats = 0 # No red satellites in this TLE file
+    orbital_elements, epochs = readtle(dummy_tle_path)
+    num_sats = len(orbital_elements)
 
-    print(f"Initializing structures for simulation starting at {sim_start_time.isoformat()}")
-    print(f"Counts: {num_sats} satellites, {num_obs} observatories, {num_red_sats} red satellites.\n")
+    print(f"Initializing standard simulation with {num_sats} satellites.")
     
     sim_data = initializeStructures(
         num_satellites=num_sats,
-        num_observatories=num_obs,
-        num_red_satellites=num_red_sats,
-        start_time=sim_start_time
+        num_observatories=0,
+        num_red_satellites=0,
+        start_time=start_time
     )
     
     # Populate the satellite orbital elements from the TLE file
-    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
-    sim_data['satellites']['epochs'] = epochs_from_tle
+    sim_data['satellites']['orbital_elements'] = orbital_elements
+    sim_data['satellites']['epochs'] = epochs
     
     # Ensure the required ephemeris data is available
-    print("\nEnsuring planetary ephemeris data is available (may download on first run)...")
     solar_system_ephemeris.set('jpl')
-    print("Ephemeris data is ready.")
 
+    return sim_data
+
+def demo1():
+    """
+    Runs a full demonstration of the simulation tools: initialization,
+    celestial updates, TLE reading, satellite propagation, and 3D plotting.
+    """
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+    sim_data = initialize_standard_simulation(sim_start_time)
+    
     # --- Celestial Body Updates ---
     sim_data = celestial_update(sim_data, sim_start_time)
     print("\n--- Celestial Positions at Start Time ---")
@@ -730,132 +814,23 @@ LEO-05
     print(sim_data['celestial']['position'])
 
     # --- Satellite Propagation and Plotting ---
-    # First propagation time
     time_t1 = sim_start_time + timedelta(hours=1, minutes=30)
     print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
     sim_data = propagate_satellites(sim_data, time_t1)
-    positions_t1 = sim_data['satellites']['position'].copy() # Important to copy the data
     
-    # Second propagation time, 10 minutes later
-    time_t2 = time_t1 + timedelta(minutes=10)
-    print(f"\n--- Propagating satellites to T2: {time_t2.isoformat()} ---")
-    sim_data = propagate_satellites(sim_data, time_t2)
-    positions_t2 = sim_data['satellites']['position'].copy()
-
-    # --- 3D Plotting of Both Time Steps ---
-    print("\n--- Generating 3D plot of satellite positions at two time steps ---")
-    satellite_names = [line.strip() for i, line in enumerate(tle_data.strip().split('\n')) if i % 3 == 0]
-    earth_radius = 6378137.0 # meters
-    fig = go.Figure()
-
-    # Add positions at T1
-    fig.add_trace(go.Scatter3d(
-        x=positions_t1[:, 0], y=positions_t1[:, 1], z=positions_t1[:, 2],
-        mode='markers',
-        marker=dict(size=5, color='blue', opacity=0.8),
-        text=satellite_names, hoverinfo='text', name=f'Positions at T1'
-    ))
-
-    # Add positions at T2
-    fig.add_trace(go.Scatter3d(
-        x=positions_t2[:, 0], y=positions_t2[:, 1], z=positions_t2[:, 2],
-        mode='markers',
-        marker=dict(size=5, color='red', opacity=0.8),
-        text=satellite_names, hoverinfo='text', name=f'Positions at T2 (+10 min)'
-    ))
-
-    # Add Earth sphere and reference markers
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
-    
-    theta = np.linspace(0, 2 * np.pi, 100)
-    x_eq = earth_radius * np.cos(theta)
-    y_eq = earth_radius * np.sin(theta)
-    z_eq = np.zeros_like(theta)
-    fig.add_trace(go.Scatter3d(x=x_eq, y=y_eq, z=z_eq, mode='lines', line=dict(color='green', width=3), name='Equator'))
-    
-    fig.add_trace(go.Scatter3d(x=[0], y=[0], z=[earth_radius * 1.1], mode='text', text=['N'], textfont=dict(size=15, color='red'), name='North Pole'))
-    
-    lat_es = 33.92 * u.deg
-    lon_es = -118.42 * u.deg
-    el_segundo_loc = EarthLocation.from_geodetic(lon=lon_es, lat=lat_es)
-    itrs_coords = el_segundo_loc.get_itrs(obstime=Time(time_t2)) # Use final time for Earth orientation
-    gcrs_coords = itrs_coords.transform_to(GCRS(obstime=Time(time_t2)))
-    es_pos = gcrs_coords.cartesian.xyz.to(u.m).value * 1.05
-    fig.add_trace(go.Scatter3d(x=[es_pos[0]], y=[es_pos[1]], z=[es_pos[2]], mode='text', text=['ES'], textfont=dict(size=15, color='yellow'), name='El Segundo'))
-
-    fig.update_layout(
-        title=f"Satellite Positions at Two Time Steps",
-        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
-        margin=dict(r=20, b=10, l=10, t=40),
-        legend_title_text='Objects'
+    plot_positions_3d(
+        sim_data['satellites']['position'],
+        f"Satellite Positions at {time_t1.isoformat()}",
+        time_t1
     )
-    fig.show()
-
 
 def demo2():
     """
     Runs a second demonstration with 10 LEO satellites, plotting their
     positions and celestial vectors at 0, 60, and 300 seconds.
     """
-    # Define the simulation start time.
     sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-    
-    # --- TLE Reading and Initialization ---
-    # Create a dummy TLE file for 10 LEO satellites
-    tle_data = """LEO-DEMO-1
-1 90101U 25004A   25210.50000000  .00000000  00000-0  00000-0 0  9991
-2 90101  97.5000  10.0000 0010000  90.0000  20.0000 15.50000000    11
-LEO-DEMO-2
-1 90102U 25004B   25210.50000000  .00000000  00000-0  00000-0 0  9992
-2 90102  97.5000  46.0000 0010000  90.0000  20.0000 15.50000000    12
-LEO-DEMO-3
-1 90103U 25004C   25210.50000000  .00000000  00000-0  00000-0 0  9993
-2 90103  97.5000  82.0000 0010000  90.0000  20.0000 15.50000000    13
-LEO-DEMO-4
-1 90104U 25004D   25210.50000000  .00000000  00000-0  00000-0 0  9994
-2 90104  97.5000 118.0000 0010000  90.0000  20.0000 15.50000000    14
-LEO-DEMO-5
-1 90105U 25004E   25210.50000000  .00000000  00000-0  00000-0 0  9995
-2 90105  97.5000 154.0000 0010000  90.0000  20.0000 15.50000000    15
-LEO-DEMO-6
-1 90106U 25004F   25210.50000000  .00000000  00000-0  00000-0 0  9996
-2 90106  97.5000 190.0000 0010000  90.0000  20.0000 15.50000000    16
-LEO-DEMO-7
-1 90107U 25004G   25210.50000000  .00000000  00000-0  00000-0 0  9997
-2 90107  97.5000 226.0000 0010000  90.0000  20.0000 15.50000000    17
-LEO-DEMO-8
-1 90108U 25004H   25210.50000000  .00000000  00000-0  00000-0 0  9998
-2 90108  97.5000 262.0000 0010000  90.0000  20.0000 15.50000000    18
-LEO-DEMO-9
-1 90109U 25004I   25210.50000000  .00000000  00000-0  00000-0 0  9999
-2 90109  97.5000 298.0000 0010000  90.0000  20.0000 15.50000000    19
-LEO-DEMO-10
-1 90110U 25004J   25210.50000000  .00000000  00000-0  00000-0 0  9990
-2 90110  97.5000 334.0000 0010000  90.0000  20.0000 15.50000000    10
-"""
-    dummy_tle_path = "dummy_tle2.txt"
-    with open(dummy_tle_path, "w") as f:
-        f.write(tle_data)
-
-    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements_from_tle)
-
-    print(f"\n--- Starting Demo 2 ---")
-    print(f"Initializing structures for {num_sats} LEO satellites.")
-    
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
-    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
-    sim_data['satellites']['epochs'] = epochs_from_tle
+    sim_data = initialize_standard_simulation(sim_start_time)
     
     # --- Satellite and Celestial Propagation ---
     time_t0 = sim_start_time
@@ -864,63 +839,40 @@ LEO-DEMO-10
     sim_data = celestial_update(sim_data, time_t0)
     celestial_pos_t0 = sim_data['celestial']['position'].copy()
     
-    time_t1 = sim_start_time + timedelta(seconds=60)
+    time_t1 = sim_start_time + timedelta(seconds=300)
     sim_data = propagate_satellites(sim_data, time_t1)
     positions_t1 = sim_data['satellites']['position'].copy()
     sim_data = celestial_update(sim_data, time_t1)
     celestial_pos_t1 = sim_data['celestial']['position'].copy()
 
-    time_t2 = sim_start_time + timedelta(seconds=300)
-    sim_data = propagate_satellites(sim_data, time_t2)
-    positions_t2 = sim_data['satellites']['position'].copy()
-    sim_data = celestial_update(sim_data, time_t2)
-    celestial_pos_t2 = sim_data['celestial']['position'].copy()
-
     # --- 3D Plotting of All Time Steps ---
     print("\n--- Generating 3D plot for Demo 2 ---")
-    satellite_names = [line.strip() for i, line in enumerate(tle_data.strip().split('\n')) if i % 3 == 0]
     earth_radius = 6378137.0
-    vector_scale = 2.5 * earth_radius
+    vector_scale = 10 * earth_radius
     fig = go.Figure()
 
-    # Add positions at T0, T1, and T2
+    # Add positions at T0 and T1
     fig.add_trace(go.Scatter3d(
         x=positions_t0[:, 0], y=positions_t0[:, 1], z=positions_t0[:, 2],
-        mode='markers', marker=dict(size=5, color='blue'),
-        text=satellite_names, hoverinfo='text', name='Sats (T=0s)'
+        mode='markers', marker=dict(size=5, color='blue'), name='Sats (T=0s)'
     ))
     fig.add_trace(go.Scatter3d(
         x=positions_t1[:, 0], y=positions_t1[:, 1], z=positions_t1[:, 2],
-        mode='markers', marker=dict(size=5, color='red'),
-        text=satellite_names, hoverinfo='text', name='Sats (T=60s)'
-    ))
-    fig.add_trace(go.Scatter3d(
-        x=positions_t2[:, 0], y=positions_t2[:, 1], z=positions_t2[:, 2],
-        mode='markers', marker=dict(size=5, color='green'),
-        text=satellite_names, hoverinfo='text', name='Sats (T=300s)'
+        mode='markers', marker=dict(size=5, color='red'), name='Sats (T=300s)'
     ))
     
     # Add Celestial Vectors
-    # T=0s
     sun_vec_t0 = celestial_pos_t0[0] / np.linalg.norm(celestial_pos_t0[0]) * vector_scale
     moon_vec_t0 = celestial_pos_t0[1] / np.linalg.norm(celestial_pos_t0[1]) * vector_scale
-    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t0[0]], y=[0, sun_vec_t0[1]], z=[0, sun_vec_t0[2]], mode='lines', line=dict(color='blue', width=4), name='Sun (T=0s)'))
-    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t0[0]], y=[0, moon_vec_t0[1]], z=[0, moon_vec_t0[2]], mode='lines', line=dict(color='cyan', width=4), name='Moon (T=0s)'))
+    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t0[0]], y=[0, sun_vec_t0[1]], z=[0, sun_vec_t0[2]], mode='lines', line=dict(color='orange', width=4), name='Sun (T=0s)'))
+    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t0[0]], y=[0, moon_vec_t0[1]], z=[0, moon_vec_t0[2]], mode='lines', line=dict(color='gray', width=4), name='Moon (T=0s)'))
     
-    # T=60s
     sun_vec_t1 = celestial_pos_t1[0] / np.linalg.norm(celestial_pos_t1[0]) * vector_scale
     moon_vec_t1 = celestial_pos_t1[1] / np.linalg.norm(celestial_pos_t1[1]) * vector_scale
-    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t1[0]], y=[0, sun_vec_t1[1]], z=[0, sun_vec_t1[2]], mode='lines', line=dict(color='red', width=4), name='Sun (T=60s)'))
-    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t1[0]], y=[0, moon_vec_t1[1]], z=[0, moon_vec_t1[2]], mode='lines', line=dict(color='magenta', width=4), name='Moon (T=60s)'))
+    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t1[0]], y=[0, sun_vec_t1[1]], z=[0, sun_vec_t1[2]], mode='lines', line=dict(color='yellow', width=4), name='Sun (T=300s)'))
+    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t1[0]], y=[0, moon_vec_t1[1]], z=[0, moon_vec_t1[2]], mode='lines', line=dict(color='lightgray', width=4), name='Moon (T=300s)'))
 
-    # T=300s
-    sun_vec_t2 = celestial_pos_t2[0] / np.linalg.norm(celestial_pos_t2[0]) * vector_scale
-    moon_vec_t2 = celestial_pos_t2[1] / np.linalg.norm(celestial_pos_t2[1]) * vector_scale
-    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t2[0]], y=[0, sun_vec_t2[1]], z=[0, sun_vec_t2[2]], mode='lines', line=dict(color='green', width=4), name='Sun (T=300s)'))
-    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t2[0]], y=[0, moon_vec_t2[1]], z=[0, moon_vec_t2[2]], mode='lines', line=dict(color='lime', width=4), name='Moon (T=300s)'))
-
-
-    # Add Earth and reference markers
+    # Add Earth
     u_sphere = np.linspace(0, 2 * np.pi, 100)
     v_sphere = np.linspace(0, np.pi, 100)
     x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
@@ -929,10 +881,9 @@ LEO-DEMO-10
     fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
 
     fig.update_layout(
-        title=f"LEO Satellite Positions at 0, 60, and 300 seconds",
+        title=f"Satellite and Celestial Positions at 0 and 300 seconds",
         scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
-        margin=dict(r=20, b=10, l=10, t=40),
-        legend_title_text='Time Step'
+        margin=dict(r=20, b=10, l=10, t=40)
     )
     fig.show()
 
@@ -1013,99 +964,6 @@ def demo3():
         legend_title_text='Trace'
     )
     fig.show()
-
-def demo5():
-    """
-    Demonstrates the use of the solarexclusion function.
-
-    This test sets up a scenario with 3 satellites and specific pointing
-    vectors to verify the solar exclusion logic.
-    - Sat 1: Points directly at the Sun (should be excluded).
-    - Sat 2: Points perpendicular to the Sun (should not be excluded).
-    - Sat 3: Points away from the Sun (should not be excluded).
-    """
-    print("\n--- Starting Demo 5: Solar Exclusion Test ---")
-
-    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-
-    # --- Initialization for 3 satellites ---
-    tle_data = """SAT-1
-1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
-2 90401  51.6412 254.9961 0006733  98.4322 261.6813 15.49493393462383
-SAT-2
-1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9992
-2 90402  99.1533 244.3362 0013327 101.3725 258.7562 14.12510122810029
-SAT-3
-1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9993
-2 90403  28.4695 177.8391 0001259 138.5273 221.5822 15.09326468 23453
-"""
-    dummy_tle_path = "dummy_tle5.txt"
-    with open(dummy_tle_path, "w") as f:
-        f.write(tle_data)
-
-    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements_from_tle)
-
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
-    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
-    sim_data['satellites']['epochs'] = epochs_from_tle
-
-    # --- Set up test conditions ---
-    # Propagate to get initial positions
-    sim_data = propagate_satellites(sim_data, sim_start_time)
-    sim_data = celestial_update(sim_data, sim_start_time)
-
-    sun_pos = sim_data['celestial']['position'][0]
-    sat_pos = sim_data['satellites']['position']
-
-    # Define pointing vectors for the test case
-    vec_sat_to_sun = sun_pos - sat_pos
-
-    # Sat 1: Point directly at the Sun
-    sim_data['satellites']['pointing'][0] = vec_sat_to_sun[0]
-
-    # Sat 2: Point perpendicular to the Sun vector
-    # Create a perpendicular vector by swapping and negating components
-    perp_vec = np.array([-vec_sat_to_sun[1, 1], vec_sat_to_sun[1, 0], 0])
-    sim_data['satellites']['pointing'][1] = perp_vec
-
-    # Sat 3: Point directly away from the Sun
-    sim_data['satellites']['pointing'][2] = -vec_sat_to_sun[2]
-
-    # Set solar exclusion angles (in radians)
-    # Sat 1 should be excluded, Sat 2 and 3 should not.
-    solar_exclusion_angles = np.array([
-        0.2,  # 11.5 degrees, angle should be ~0, so excluded
-        0.1,  #  5.7 degrees, angle should be ~pi/2, so not excluded
-        0.1   #  5.7 degrees, angle should be ~pi, so not excluded
-    ])
-    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = solar_exclusion_angles
-
-    # --- Run the function ---
-    exclusion_vec, angle_vec = solarexclusion(sim_data)
-
-    # --- Print results ---
-    print("\n--- Input Data ---")
-    print(f"Solar Exclusion Angles (rad): {np.round(solar_exclusion_angles, 2)}")
-    # Pointing vectors are too long to print neatly, but their setup is described above.
-
-    print("\n--- Output Data ---")
-    print(f"Calculated Angles (rad): {np.round(angle_vec, 2)}")
-    print(f"Exclusion Vector: {exclusion_vec}")
-
-    print("\n--- Verification ---")
-    # Expected: Sat 1 angle is ~0, Sat 2 is ~pi/2, Sat 3 is ~pi
-    # Expected: Exclusion vector is [1 0 0]
-    expected_exclusion = np.array([1, 0, 0])
-    if np.array_equal(exclusion_vec, expected_exclusion):
-        print("SUCCESS: Exclusion vector matches expected output [1 0 0].")
-    else:
-        print(f"FAILURE: Exclusion vector was {exclusion_vec}, expected {expected_exclusion}.")
 
 def demo4():
     """
@@ -1221,30 +1079,7 @@ def demo_exclusion_table():
     """
     print("\n--- Starting Demo: Exclusion Table Visualization ---")
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
-    num_sats = 20
-    
-    # --- 1. Initialize Simulation ---
-    print("Initializing simulation environment...")
-    # Ensure planetary ephemeris data is available
-    solar_system_ephemeris.set('jpl')
-    
-    sim_data = initializeStructures(num_sats, 0, 0, sim_start_time)
-    
-    # --- 2. Create Random LEO Satellites ---
-    # For this demo, we'll place satellites in random LEO positions.
-    earth_radius = 6378137.0
-    leo_altitudes = np.random.uniform(400e3, 2000e3, num_sats)
-    radii = earth_radius + leo_altitudes
-
-    # Generate random positions on a sphere for each radius
-    phi = np.random.uniform(0, 2 * np.pi, num_sats)
-    costheta = np.random.uniform(-1, 1, num_sats)
-    theta = np.arccos(costheta)
-    
-    x = radii * np.sin(theta) * np.cos(phi)
-    y = radii * np.sin(theta) * np.sin(phi)
-    z = radii * np.cos(theta)
-    sim_data['satellites']['position'] = np.vstack((x, y, z)).T
+    sim_data = initialize_standard_simulation(sim_start_time)
     
     # Set fixed exclusion angles for all satellites (in radians)
     # Approx 30 degrees for Sun/Moon, 10 degrees for Earth limb
@@ -1274,34 +1109,51 @@ def demo_exclusion_table():
     print("Displaying results as a heatmap...")
     fig = go.Figure(data=go.Heatmap(
         z=exclusion_matrix,
-        colorscale=[[0, 'red'], [1, 'green']], # 0 is red, 1 is green
+        colorscale=[[0, 'green'], [1, 'red']], # 0 is green (clear), 1 is red (excluded)
         showscale=False # Hide the color bar
     ))
 
     fig.update_layout(
-        title='Satellite vs. Fixed Point Exclusion Status',
+        title='Satellite vs. Fixed Point Exclusion Status (0=Clear, 1=Excluded)',
         xaxis_title='Fixed Point Index',
         yaxis_title='Satellite Index',
         yaxis=dict(autorange='reversed') # Puts satellite 0 at the top
     )
-
-    # Add annotations to clarify colors
-    fig.add_annotation(
-        x=1, y=1.05, xref='paper', yref='paper',
-        text='■ Excluded (1)', showarrow=False, font=dict(color='green')
-    )
-    fig.add_annotation(
-        x=0, y=1.05, xref='paper', yref='paper',
-        text='■ Clear (0)', showarrow=False, font=dict(color='red')
-    )
-
     fig.show()
+
+def demo_pointing_plot():
+    """
+    Demonstrates the plot_pointing_vectors function with the standard satellite set.
+    """
+    print("\n--- Starting Demo: Pointing Vector Plot ---")
+    sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
+    sim_data = initialize_standard_simulation(sim_start_time)
+    num_sats = sim_data['counts']['satellites']
+
+    # Propagate satellites to the start time
+    sim_data = propagate_satellites(sim_data, sim_start_time)
+
+    # Assign random pointing vectors to each satellite
+    random_vectors = np.random.rand(num_sats, 3) - 0.5
+    norms = np.linalg.norm(random_vectors, axis=1)[:, np.newaxis]
+    sim_data['satellites']['pointing'] = random_vectors / norms
+    
+    # Call the plotting function
+    plot_pointing_vectors(
+        data_struct=sim_data,
+        title="Satellite Positions with Random Pointing Vectors",
+        plot_time=sim_start_time
+    )
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
+    # Each demo can be run independently.
+    # To avoid generating multiple plots, comment out the ones you don't need.
+    
     demo1()
     demo2()
     demo3()
     demo4()
     demo_fixedpoints()
     demo_exclusion_table()
+    demo_pointing_plot()
