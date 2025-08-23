@@ -1,3 +1,4 @@
+
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and other tools.
@@ -5,8 +6,6 @@ Creating a new version of volts that runs faster using jules and other tools.
 
 
 * Todo
-
-
 
 ** visibility
 - Create a 2-d array that has a flag for each time the satellite
@@ -45,6 +44,12 @@ It should be done across the whole vector.
 
 
 ** 2025-08
+
+
+*** [2025-08-23 Sat]
+Hmm.  Too bad I left some dead time here.
+
+- Have vibevolts update all the documentation.
 
 *** [2025-08-18 Mon]
 Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
