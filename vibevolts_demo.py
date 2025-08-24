@@ -488,10 +488,10 @@ if __name__ == '__main__':
     # Each demo can be run independently.
     # To avoid generating multiple plots, comment out the ones you don't need.
 
-    demo1()
-    demo2()
-    demo3()
-    demo4()
+    # demo1()
+    # demo2()
+    # demo3()
+    # demo4()
     demo_fixedpoints()
-    demo_exclusion_table()
-    demo_pointing_plot()
+    # demo_exclusion_table()
+    # demo_pointing_plot()
