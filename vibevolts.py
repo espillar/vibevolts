@@ -13,10 +13,6 @@ import astropy.units as u
 # You can install it with: pip install sgp4
 from sgp4.api import Satrec
 
-# The plotly library is required for 3D plotting.
-# You can install it with: pip install plotly
-import plotly.graph_objects as go
-
 # Import the point generation function
 from generate_log_spherical_points import generate_log_spherical_points
 
@@ -350,6 +346,7 @@ def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime) -> Di
 
     return data_struct
 
+
 def plot_positions_3d(positions: np.ndarray, title: str, plot_time: datetime, labels: Optional[List[str]] = None):
     """
     Displays a 3D interactive plot of object positions with Earth references.
@@ -425,6 +422,7 @@ def plot_positions_3d(positions: np.ndarray, title: str, plot_time: datetime, la
         legend_title_text='Objects'
     )
     fig.show()
+
 
 
 def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
@@ -614,77 +612,4 @@ def create_exclusion_table(data_struct: Dict[str, Any]) -> np.ndarray:
     
     return exclusion_tbl
 
-def plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: datetime):
-    """
-    Displays a 3D plot of satellites with their pointing vectors.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        title: The title for the plot.
-        plot_time: The UTC datetime for the plot, used for Earth orientation.
-    """
-    sat_positions = data_struct['satellites']['position']
-    sat_pointing = data_struct['satellites']['pointing']
-    num_sats = data_struct['counts']['satellites']
-
-    if num_sats == 0:
-        print("No satellites to plot.")
-        return
-
-    fig = go.Figure()
-
-    # Add satellite markers
-    fig.add_trace(go.Scatter3d(
-        x=sat_positions[:, 0],
-        y=sat_positions[:, 1],
-        z=sat_positions[:, 2],
-        mode='markers',
-        marker=dict(size=5, color='blue', opacity=0.8),
-        name='Satellites'
-    ))
-
-    # Add pointing vectors for each satellite
-    # A scale factor makes the vectors visible. Doubled from 0.25 to 0.5.
-    vector_scale = 0.5 * EARTH_RADIUS
-    for i in range(num_sats):
-        start_point = sat_positions[i]
-        
-        # Normalize the pointing vector before scaling
-        pointing_vec = sat_pointing[i]
-        norm = np.linalg.norm(pointing_vec)
-        if norm > 0:
-            unit_vec = pointing_vec / norm
-        else:
-            unit_vec = np.array([0, 0, 0]) # Handle zero-length pointing
-            
-        end_point = start_point + unit_vec * vector_scale
-        
-        fig.add_trace(go.Scatter3d(
-            x=[start_point[0], end_point[0]],
-            y=[start_point[1], end_point[1]],
-            z=[start_point[2], end_point[2]],
-            mode='lines',
-            line=dict(color='red', width=3),
-            showlegend=False # Don't add hundreds of legend entries
-        ))
-
-    # Add a sphere to represent the Earth
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = EARTH_RADIUS * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = EARTH_RADIUS * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = EARTH_RADIUS * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
-
-    fig.update_layout(
-        title=title,
-        scene=dict(
-            xaxis_title='X (m)',
-            yaxis_title='Y (m)',
-            zaxis_title='Z (m)',
-            aspectmode='data'
-        ),
-        margin=dict(r=20, b=10, l=10, t=40)
-    )
-    fig.show()
 

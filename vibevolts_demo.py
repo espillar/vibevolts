@@ -9,13 +9,12 @@ from vibevolts import (
     celestial_update,
     readtle,
     propagate_satellites,
-    plot_positions_3d,
     create_exclusion_table,
-    plot_pointing_vectors,
     DETECTOR_SOLAR_EXCL_IDX,
     DETECTOR_LUNAR_EXCL_IDX,
     DETECTOR_EARTH_EXCL_IDX,
 )
+from visualization import plot_3d_scatter, plot_pointing_vectors
 
 
 def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:
@@ -148,10 +147,12 @@ def demo1():
     print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
     sim_data = propagate_satellites(sim_data, time_t1)
 
-    plot_positions_3d(
-        sim_data['satellites']['position'],
-        f"Satellite Positions at {time_t1.isoformat()}",
-        time_t1
+    plot_3d_scatter(
+        positions=sim_data['satellites']['position'],
+        title=f"Satellite Positions at {time_t1.isoformat()}",
+        plot_time=time_t1,
+        marker_size=2,
+        trace_name='Satellites'
     )
 
 def demo2():
@@ -392,11 +393,13 @@ def demo_fixedpoints():
 
     print(f"Plotting {len(fixed_positions)} fixed points.")
 
-    plot_positions_3d(
+    plot_3d_scatter(
         positions=fixed_positions,
         title="Fixed Points Distribution",
         plot_time=sim_start_time,
-        labels=[f"Point {i}" for i in range(len(fixed_positions))]
+        labels=[f"Point {i}" for i in range(len(fixed_positions))],
+        marker_size=1,
+        trace_name='Fixed Points'
     )
 
 def demo_exclusion_table():
@@ -485,6 +488,7 @@ def demo_pointing_plot():
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
+
     # Each demo can be run independently.
     # To avoid generating multiple plots, comment out the ones you don't need.
 
@@ -495,3 +499,4 @@ if __name__ == '__main__':
     demo_fixedpoints()
     # demo_exclusion_table()
     # demo_pointing_plot()
+
