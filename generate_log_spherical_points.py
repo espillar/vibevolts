@@ -171,7 +171,7 @@ def visualize_point_distribution(points: np.ndarray):
 if __name__ == '__main__':
     # --- Example Usage ---
     # Define parameters for the point cloud
-    NUM_POINTS = 5000
+    NUM_POINTS = 100
     INNER_RADIUS = 10.0
     OUTER_RADIUS = 100.0
     OBJECT_SIZE = 5.0 # Example object size of 5 meters
