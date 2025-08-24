@@ -382,7 +382,7 @@ def plot_positions_3d(positions: np.ndarray, title: str, plot_time: datetime, la
         z=positions[:, 2],
         mode='markers',
         marker=dict(
-            size=2,
+            size=1,
             color=np.arange(len(positions)), # Color by index
             colorscale='Viridis',
             opacity=0.8
