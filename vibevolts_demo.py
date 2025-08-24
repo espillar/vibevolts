@@ -21,15 +21,16 @@ def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:
     """
     Initializes a standard simulation with a predefined set of satellites.
 
-    This function consolidates the TLE data used across various demos into
-    a single setup function. It initializes the main data structure with a
-    mix of LEO, GEO, and HEO satellites.
+    This function consolidates TLE data, initializes the main data structure,
+    and propagates satellites to their initial positions at the specified start
+    time. This ensures the returned simulation state is fully populated with
+    positions and radially-outward pointing vectors.
 
     Args:
         start_time: The timezone-aware datetime object for the simulation start.
 
     Returns:
-        The fully initialized simulation data dictionary.
+        The fully initialized and propagated simulation data dictionary.
     """
     # Consolidated TLE data from all demos
     tle_data = """ISS (ZARYA)
@@ -126,6 +127,10 @@ LEO-05
     # Ensure the required ephemeris data is available
     solar_system_ephemeris.set('jpl')
 
+    # Propagate satellites to the start time to initialize positions and pointing vectors
+    print(f"Propagating satellites to start time: {start_time.isoformat()} to set initial state.")
+    sim_data = propagate_satellites(sim_data, start_time)
+
     return sim_data
 
 def demo1():
@@ -164,10 +169,9 @@ def demo2():
     sim_data = initialize_standard_simulation(sim_start_time)
 
     # --- Satellite and Celestial Propagation ---
-    time_t0 = sim_start_time
-    sim_data = propagate_satellites(sim_data, time_t0)
+    # Positions are already at T0 from the initialization function
     positions_t0 = sim_data['satellites']['position'].copy()
-    sim_data = celestial_update(sim_data, time_t0)
+    sim_data = celestial_update(sim_data, sim_start_time)
     celestial_pos_t0 = sim_data['celestial']['position'].copy()
 
     time_t1 = sim_start_time + timedelta(seconds=300)
@@ -414,11 +418,6 @@ def demo_exclusion_table():
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
     sim_data = initialize_standard_simulation(sim_start_time)
 
-    # --- Propagate Satellites to the simulation start time ---
-    # This step is crucial. Without it, satellite positions are [0,0,0].
-    print("Propagating satellites to the simulation start time...")
-    sim_data = propagate_satellites(sim_data, sim_start_time)
-
     # Set fixed exclusion angles for all satellites (in radians)
     # Approx 30 degrees for Sun/Moon, 10 degrees for Earth limb
     sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
@@ -461,42 +460,29 @@ def demo_exclusion_table():
 
 def demo_pointing_plot():
     """
-    Demonstrates the plot_pointing_vectors function with the standard satellite set.
+    Demonstrates the plot_pointing_vectors function with radially outward pointing.
     """
     print("\n--- Starting Demo: Pointing Vector Plot ---")
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
+    # The initialization function now handles the initial propagation
     sim_data = initialize_standard_simulation(sim_start_time)
-    num_sats = sim_data['counts']['satellites']
 
-    # Propagate satellites to the start time
-    sim_data = propagate_satellites(sim_data, sim_start_time)
-
-    # Assign random pointing vectors to each satellite
-    # This ensures the pointing vectors are initialized for the plot.
-    random_vectors = np.random.rand(num_sats, 3) - 0.5
-    norms = np.linalg.norm(random_vectors, axis=1)[:, np.newaxis]
-    # Avoid division by zero if a random vector is [0,0,0]
-    norms[norms == 0] = 1.0
-    sim_data['satellites']['pointing'] = random_vectors / norms
-
-    # Call the plotting function
+    # Call the plotting function to visualize the results
     plot_pointing_vectors(
         data_struct=sim_data,
-        title="Satellite Positions with Random Pointing Vectors",
+        title="Satellite Positions with Radially Outward Pointing Vectors",
         plot_time=sim_start_time
     )
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
-
     # Each demo can be run independently.
     # To avoid generating multiple plots, comment out the ones you don't need.
 
-    # demo1()
-    # demo2()
-    # demo3()
-    # demo4()
-    demo_fixedpoints()
-    # demo_exclusion_table()
-    # demo_pointing_plot()
-
+    demo1()
+    demo2()
+    demo3()
+    demo4()
+    # demo_fixedpoints()
+    demo_exclusion_table()
+    demo_pointing_plot()
