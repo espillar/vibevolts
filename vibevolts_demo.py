@@ -420,9 +420,9 @@ def demo_exclusion_table():
 
     # Set fixed exclusion angles for all satellites (in radians)
     # Approx 30 degrees for Sun/Moon, 10 degrees for Earth limb
-    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
-    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(30)
-    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
+    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(1)
+    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(1)
+    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(1)
 
     # --- Update Celestial Positions ---
     print("Calculating celestial body positions...")
@@ -435,13 +435,13 @@ def demo_exclusion_table():
     original_fixed_points = sim_data['fixedpoints']['position']
     sim_data['fixedpoints']['position'] = original_fixed_points[:200]
 
-    exclusion_matrix = create_exclusion_table(sim_data)
-
     # Restore original fixed points if needed elsewhere
     sim_data['fixedpoints']['position'] = original_fixed_points
 
     print("Exclusion table generated.")
 
+    exclusion_matrix = create_exclusion_table(sim_data)
+    
     # --- Visualize the Table as a Heatmap ---
     print("Displaying results as a heatmap...")
     fig = go.Figure(data=go.Heatmap(
