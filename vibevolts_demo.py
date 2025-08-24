@@ -488,6 +488,15 @@ def demo_pointing_plot():
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
-    # This script now only runs the primary fixed points demonstration
-    # to avoid confusion from multiple plots.
+
+    # Each demo can be run independently.
+    # To avoid generating multiple plots, comment out the ones you don't need.
+
+    # demo1()
+    # demo2()
+    # demo3()
+    # demo4()
     demo_fixedpoints()
+    # demo_exclusion_table()
+    # demo_pointing_plot()
+
