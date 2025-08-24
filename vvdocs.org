@@ -40,11 +40,22 @@ categories.
         'detector': np.zeros((num_satellites, 7)),
     },
     'observatories': { ... },
-    'red_satellites': { ... }
+    'red_satellites': { ... },
+    'fixedpoints': {
+        'position': np.zeros((num_points, 3)),
+        'size': np.zeros((num_points,))
+    }
 }
 #+END_SRC
 
 *** Key Components:
+
+- */fixedpoints/*: A dictionary containing the properties of the
+  static points in space used as observation targets.
+  - ~position~: A NumPy array (~num_points x 3~) of static
+    3D points in the GCRS frame.
+  - ~size~: A NumPy array (~num_points~,) of the size of
+    each object in meters.
 
 - */orbital_elements/*: A NumPy array (~n x 6~) containing the
   classical orbital elements for each satellite. The columns
@@ -140,7 +151,7 @@ This module contains a set of demonstration functions that showcase the capabili
 
 ** 2.4. ~generate_log_spherical_points.py~
 
-- *generate_log_spherical_points(num_points, inner_radius, outer_radius, seed)*: Generates a set of 3D points with logarithmic radial and uniform angular distribution.
+- *generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)*: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.
 - *visualize_point_distribution(points)*: Visualizes the distribution of a 3D point cloud with four plots.
 
 * 3. Dependencies

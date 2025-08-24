@@ -4,31 +4,33 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 def generate_log_spherical_points(
-    num_points: int, 
-    inner_radius: float, 
+    num_points: int,
+    inner_radius: float,
     outer_radius: float,
+    object_size_m: float = 1.0,
     seed: int = None
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Generates a set of 3D points with logarithmic radial and uniform angular distribution.
+    Generates 3D points with logarithmic radial and uniform angular distribution.
 
-    The function creates a point cloud where the distances of points from the origin
-    are logarithmically spaced between an inner and outer radius. For any given
-    radius, the points on the corresponding spherical shell are distributed
-    uniformly using the Fibonacci lattice method, which ensures an equal-area
-    distribution.
+    This function creates a point cloud where point distances from the origin are
+    logarithmically spaced. On any given spherical shell, points are distributed
+    uniformly using the Fibonacci lattice method. Each point is associated with a
+    specified object size.
 
     Args:
         num_points: The total number of points to generate.
-        inner_radius: The minimum distance from the origin. Must be positive.
-        outer_radius: The maximum distance from the origin. Must be greater than
-                      or equal to inner_radius.
+        inner_radius: The minimum distance from the origin (must be positive).
+        outer_radius: The maximum distance from the origin (must be >= inner_radius).
+        object_size_m: The size in meters to be associated with each point.
+                       Defaults to 1.0.
         seed: An optional integer to seed the random number generator for
               reproducible shuffling.
 
     Returns:
-        A NumPy array of shape (num_points, 3) containing the Cartesian
-        coordinates (x, y, z) of the generated points.
+        A tuple containing:
+        - A NumPy array of shape (num_points, 3) for the Cartesian coordinates.
+        - A NumPy array of shape (num_points,) for the object size in meters.
     """
     # Input validation
     if not isinstance(num_points, int) or num_points <= 0:
@@ -75,7 +77,10 @@ def generate_log_spherical_points(
     # Reshape radii to (N, 1) to broadcast with (N, 3) unit_vectors
     points = unit_vectors * radii[:, np.newaxis]
 
-    return points
+    # --- 5. Create an array for the object sizes ---
+    sizes = np.full(num_points, object_size_m, dtype=float)
+
+    return points, sizes
 
 def visualize_point_distribution(points: np.ndarray):
     """
@@ -169,16 +174,23 @@ if __name__ == '__main__':
     NUM_POINTS = 5000
     INNER_RADIUS = 10.0
     OUTER_RADIUS = 100.0
+    OBJECT_SIZE = 5.0 # Example object size of 5 meters
 
     # Generate the points
     print(f"Generating {NUM_POINTS} points from radius {INNER_RADIUS} to {OUTER_RADIUS}...")
-    generated_points = generate_log_spherical_points(
+    generated_points, generated_sizes = generate_log_spherical_points(
         num_points=NUM_POINTS,
         inner_radius=INNER_RADIUS,
         outer_radius=OUTER_RADIUS,
+        object_size_m=OBJECT_SIZE,
         seed=42 # Add seed for reproducibility
     )
     print("Point generation complete.\n")
+
+    # --- Display a sample of the sizes ---
+    print(f"--- Sample of Generated Sizes (all should be {OBJECT_SIZE}m) ---")
+    print(generated_sizes[:15])
+    print("-" * 45 + "\n")
 
     # Visualize the generated points
     visualize_point_distribution(generated_points)
