@@ -36,7 +36,8 @@ This is the central data structure, created by the `initializeStructures` functi
     'observatories': { ... },
     'red_satellites': { ... },
     'fixedpoints': {
-        'position': np.zeros((num_points, 3))
+        'position': np.zeros((num_points, 3)),
+        'size': np.zeros((num_points,))
     }
 }
 ```
@@ -60,7 +61,9 @@ This is the central data structure, created by the `initializeStructures` functi
     *   `5`: Lunar exclusion angle (radians)
     *   `6`: Earth exclusion angle (radians)
 
-*   **`fixedpoints`**: A dictionary containing a single key, `position`, which holds a NumPy array (`num_points x 3`) of static 3D points in the GCRS frame. These points are generated with a logarithmic radial distribution and are intended for fixed-point calculations or as a reference grid.
+*   **`fixedpoints`**: A dictionary containing the properties of the static points in space used as observation targets.
+    *   `position`: A NumPy array (`num_points x 3`) of static 3D points in the GCRS frame.
+    *   `size`: A NumPy array (`num_points`,) of the size of each object in meters.
 
 ### 1.2. Radiometric Filter Data (`FILTER_DATA`)
 
@@ -137,7 +140,7 @@ This module contains a set of demonstration functions that showcase the capabili
 
 ### 2.4. `generate_log_spherical_points.py`
 
-*   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution.
+*   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.
 *   **`visualize_point_distribution(points)`**: Visualizes the distribution of a 3D point cloud with four plots.
 
 ## 3. Dependencies
