@@ -108,11 +108,21 @@ This section describes the functions available in the toolkit, organized by modu
 *   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors. Returns a tuple containing an `exclusion_vector` (1 for excluded, 0 for clear) and an `angle_vector` (the calculated angle in radians for each satellite).
 *   **`exclusion(data_struct, satellite_index)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `True` if the satellite's pointing vector is within the exclusion zone of the Sun, Moon, or Earth, and `False` otherwise.
 *   **`create_exclusion_table(data_struct)`**: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is excluded, and 0 means it is clear.
-*   **`demo1()`, `demo2()`, `demo3()`, `demo4()`, `demo5()`**: Demonstration functions that run pre-configured simulations and generate plots.
+
+### 2.2. `vibevolts_demo.py`
+
+This module contains a set of demonstration functions that showcase the capabilities of the VibeVolts toolkit. When run as a script, it will execute all of the demos in sequence.
+
+*   **`initialize_standard_simulation(start_time)`**: A helper function that sets up a standard simulation scenario with a predefined mix of LEO, GEO, and HEO satellites.
+*   **`demo1()`**: Runs a full demonstration of the simulation tools, including initialization, propagation, and 3D plotting.
+*   **`demo2()`**: Plots the positions of 10 LEO satellites and celestial vectors at different time steps.
+*   **`demo3()`**: Plots the trajectory of a single LEO satellite over 90 minutes.
+*   **`demo4()`**: Plots the trajectory of a single GEO satellite over 23 hours.
 *   **`demo_fixedpoints()`**: Demonstrates the `fixedpoints` data structure by plotting it in 3D.
 *   **`demo_exclusion_table()`**: Demonstrates the creation and visualization of the exclusion table.
+*   **`demo_pointing_plot()`**: Demonstrates the `plot_pointing_vectors` function.
 
-### 2.2. `radiometry.py`
+### 2.3. `radiometry.py`
 
 *   **`mag(x)`**: Converts a linear flux ratio to an astronomical magnitude.
 *   **`amag(x)`**: Converts an astronomical magnitude back to a linear flux ratio.
