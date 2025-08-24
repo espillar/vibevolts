@@ -106,13 +106,18 @@ This section describes the functions available in the toolkit, organized by modu
 *   **`celestial_update(data_struct, time_date)`**: Updates the positions of the Sun and Moon for a given time using the `astropy` library.
 *   **`readtle(tle_file_path)`**: Reads a Two-Line Element (TLE) file and returns a NumPy array of orbital elements and a list of epoch datetimes.
 *   **`propagate_satellites(data_struct, time_date)`**: Updates satellite positions based on their orbital elements to a new time using a vectorized Keplerian propagator.
-*   **`plot_positions_3d(positions, title, plot_time, labels)`**: Displays an interactive 3D plot of object positions using `plotly`.
-
 *   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors. Returns a tuple containing an `exclusion_vector` (1 for excluded, 0 for clear) and an `angle_vector` (the calculated angle in radians for each satellite).
 *   **`exclusion(data_struct, satellite_index)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `True` if the satellite's pointing vector is within the exclusion zone of the Sun, Moon, or Earth, and `False` otherwise.
 *   **`create_exclusion_table(data_struct)`**: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is excluded, and 0 means it is clear.
 
-### 2.2. `vibevolts_demo.py`
+### 2.2. `visualization.py`
+
+This module contains functions for creating interactive 3D plots of the simulation state using the `plotly` library.
+
+*   **`plot_3d_scatter(positions, title, plot_time, labels, marker_size, trace_name)`**: The primary function for creating 3D scatter plots. It displays object positions with Earth references and allows for customization of the marker size and trace name.
+*   **`plot_pointing_vectors(data_struct, title, plot_time)`**: Displays a 3D plot of satellites along with vectors indicating their pointing direction.
+
+### 2.3. `vibevolts_demo.py`
 
 This module contains a set of demonstration functions that showcase the capabilities of the VibeVolts toolkit. When run as a script, it will execute all of the demos in sequence.
 
@@ -138,10 +143,9 @@ This module contains a set of demonstration functions that showcase the capabili
 
 *   **`lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)`**: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.
 
-### 2.4. `generate_log_spherical_points.py`
+### 2.5. `generate_log_spherical_points.py`
 
 *   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.
-*   **`visualize_point_distribution(points)`**: Visualizes the distribution of a 3D point cloud with four plots.
 
 ## 3. Dependencies
 
