@@ -411,17 +411,22 @@ def demo_exclusion_table():
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
     sim_data = initialize_standard_simulation(sim_start_time)
 
+    # --- Propagate Satellites to the simulation start time ---
+    # This step is crucial. Without it, satellite positions are [0,0,0].
+    print("Propagating satellites to the simulation start time...")
+    sim_data = propagate_satellites(sim_data, sim_start_time)
+
     # Set fixed exclusion angles for all satellites (in radians)
     # Approx 30 degrees for Sun/Moon, 10 degrees for Earth limb
     sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
     sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(30)
     sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
 
-    # --- 3. Update Celestial Positions ---
+    # --- Update Celestial Positions ---
     print("Calculating celestial body positions...")
     sim_data = celestial_update(sim_data, sim_start_time)
 
-    # --- 4. Create the Exclusion Table ---
+    # --- Create the Exclusion Table ---
     # To make the demo run faster and the plot readable, we'll only check
     # against the first 200 fixed points.
     print("Generating exclusion table (this may take a moment)...")
@@ -435,7 +440,7 @@ def demo_exclusion_table():
 
     print("Exclusion table generated.")
 
-    # --- 5. Visualize the Table as a Heatmap ---
+    # --- Visualize the Table as a Heatmap ---
     print("Displaying results as a heatmap...")
     fig = go.Figure(data=go.Heatmap(
         z=exclusion_matrix,
@@ -464,8 +469,11 @@ def demo_pointing_plot():
     sim_data = propagate_satellites(sim_data, sim_start_time)
 
     # Assign random pointing vectors to each satellite
+    # This ensures the pointing vectors are initialized for the plot.
     random_vectors = np.random.rand(num_sats, 3) - 0.5
     norms = np.linalg.norm(random_vectors, axis=1)[:, np.newaxis]
+    # Avoid division by zero if a random vector is [0,0,0]
+    norms[norms == 0] = 1.0
     sim_data['satellites']['pointing'] = random_vectors / norms
 
     # Call the plotting function
