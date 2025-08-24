@@ -1,4 +1,5 @@
 
+
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and other tools.
@@ -45,6 +46,14 @@ It should be done across the whole vector.
 
 ** 2025-08
 
+***[2025-08-24 Sun]
+Starting around 0830.  This is good! I want to get 1.5 hours in.
+
+First ask gemini to fix demo_exclusion_table working- it does it nice and quickly.
+
+**** prompt 1
+Follow the instructions in the agents.org file about how to change the code. then change the data structure and function generate_log_spherical_points so that in addition to the position, an object size in meters is included for each object. Make this an additional argument to the function; make the default size 1 meter. Change the initialize structures function so that it uses the correct signature for the function. Add these specifications in the documentation for the simulation state dictionary both in the python file and the documentations. Change the demo function so that the points are displayed much smaller. Instead of using 10000 points, use 100 points for the moment.
+Update the vvdocs.org and vvdocs.md files so these changes are reflected.
 
 *** [2025-08-23 Sat]
 Hmm.  Too bad I left some dead time here.
@@ -197,4 +206,6 @@ Create a test function that prints these two vectors out.
 
 
 
+
+** 
 
