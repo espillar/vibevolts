@@ -416,13 +416,18 @@ def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]
 
     return exclusion_vector, angle_vector
 
-def exclusion(data_struct: Dict[str, Any], satellite_index: int) -> bool:
+def exclusion(
+    data_struct: Dict[str, Any],
+    satellite_index: int,
+    print_debug: bool = False
+) -> bool:
     """
     Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
 
     Args:
         data_struct: The main simulation data dictionary.
         satellite_index: The index of the satellite to check.
+        print_debug: If True, prints detailed debug information for the calculation.
 
     Returns:
         True if the satellite's view is excluded, False otherwise.
@@ -433,76 +438,84 @@ def exclusion(data_struct: Dict[str, Any], satellite_index: int) -> bool:
     sun_pos = data_struct['celestial']['position'][0]
     moon_pos = data_struct['celestial']['position'][1]
     
-    # Get exclusion angles for the specific satellite
     detector_props = data_struct['satellites']['detector'][satellite_index]
     solar_excl_angle = detector_props[DETECTOR_SOLAR_EXCL_IDX]
     lunar_excl_angle = detector_props[DETECTOR_LUNAR_EXCL_IDX]
     earth_excl_angle = detector_props[DETECTOR_EARTH_EXCL_IDX]
 
     # --- 2. Compute Vectors and Normalize ---
-    # Vector from satellite to celestial bodies
     vec_to_sun = sun_pos - sat_pos
     vec_to_moon = moon_pos - sat_pos
-    vec_to_earth = -sat_pos  # Vector from satellite to Earth's center
+    vec_to_earth = -sat_pos
 
-    # Distances
     dist_to_sun = np.linalg.norm(vec_to_sun)
     dist_to_moon = np.linalg.norm(vec_to_moon)
     dist_to_earth = np.linalg.norm(vec_to_earth)
     
-    # Normalize all relevant vectors to unit vectors
-    # Handle potential zero-length vectors to avoid division by zero errors
-    u_vec_to_sun = vec_to_sun / dist_to_sun if dist_to_sun > 0 else np.array([0., 0., 0.])
-    u_vec_to_moon = vec_to_moon / dist_to_moon if dist_to_moon > 0 else np.array([0., 0., 0.])
-    u_vec_to_earth = vec_to_earth / dist_to_earth if dist_to_earth > 0 else np.array([0., 0., 0.])
+    u_vec_to_sun = vec_to_sun / dist_to_sun if dist_to_sun > 0 else np.array([0.,0.,0.])
+    u_vec_to_moon = vec_to_moon / dist_to_moon if dist_to_moon > 0 else np.array([0.,0.,0.])
+    u_vec_to_earth = vec_to_earth / dist_to_earth if dist_to_earth > 0 else np.array([0.,0.,0.])
     
     norm_pointing = np.linalg.norm(sat_pointing)
-    u_sat_pointing = sat_pointing / norm_pointing if norm_pointing > 0 else np.array([0., 0., 0.])
+    u_sat_pointing = sat_pointing / norm_pointing if norm_pointing > 0 else np.array([0.,0.,0.])
 
     # --- 3. Calculate Angles and Check for Exclusion ---
     sun_flag, moon_flag, earth_flag = False, False, False
 
-    # -- Sun Exclusion --
-    # Angle between pointing vector and sun vector
     cos_angle_sun = np.clip(np.dot(u_sat_pointing, u_vec_to_sun), -1.0, 1.0)
     angle_sun = np.arccos(cos_angle_sun)
     if angle_sun < solar_excl_angle:
         sun_flag = True
 
-    # -- Moon Exclusion --
-    # Angle between pointing vector and moon vector
     cos_angle_moon = np.clip(np.dot(u_sat_pointing, u_vec_to_moon), -1.0, 1.0)
     angle_moon = np.arccos(cos_angle_moon)
-    # Apparent angular radius of the Moon from the satellite's perspective
     apparent_radius_moon = np.arctan(MOON_RADIUS / dist_to_moon) if dist_to_moon > 0 else 0
     if (angle_moon - apparent_radius_moon) < lunar_excl_angle:
         moon_flag = True
 
-    # -- Earth Exclusion --
-    # Angle between pointing vector and Earth vector
     cos_angle_earth = np.clip(np.dot(u_sat_pointing, u_vec_to_earth), -1.0, 1.0)
     angle_earth = np.arccos(cos_angle_earth)
-    # Apparent angular radius of the Earth from the satellite's perspective
     apparent_radius_earth = np.arctan(EARTH_RADIUS / dist_to_earth) if dist_to_earth > 0 else 0
     if (angle_earth - apparent_radius_earth) < earth_excl_angle:
         earth_flag = True
 
-    # --- 4. Set Global Exclusion Flag and Return ---
+    # --- 4. Optional Debug Printing ---
+    if print_debug:
+        print(f"\n--- Exclusion Debug for Satellite {satellite_index} ---")
+        print(f"  - Sat Position: {np.array2string(sat_pos, precision=3)}")
+        print(f"  - Sat Pointing: {np.array2string(u_sat_pointing, precision=3)}")
+        print("-" * 20)
+        print(f"  - Sun Flag:   {sun_flag}")
+        print(f"    - Angle to Sun: {np.rad2deg(angle_sun):.2f} deg")
+        print(f"    - Exclusion Angle: {np.rad2deg(solar_excl_angle):.2f} deg")
+        print("-" * 20)
+        print(f"  - Moon Flag:  {moon_flag}")
+        print(f"    - Angle to Moon: {np.rad2deg(angle_moon):.2f} deg")
+        print(f"    - Apparent Radius: {np.rad2deg(apparent_radius_moon):.2f} deg")
+        print(f"    - Exclusion Angle: {np.rad2deg(lunar_excl_angle):.2f} deg")
+        print("-" * 20)
+        print(f"  - Earth Flag: {earth_flag}")
+        print(f"    - Angle to Earth: {np.rad2deg(angle_earth):.2f} deg")
+        print(f"    - Apparent Radius: {np.rad2deg(apparent_radius_earth):.2f} deg")
+        print(f"    - Exclusion Angle: {np.rad2deg(earth_excl_angle):.2f} deg")
+        print("-" * 20)
+
+    # --- 5. Set Global Exclusion Flag and Return ---
     is_excluded = sun_flag or moon_flag or earth_flag
     return is_excluded
 
 
-def create_exclusion_table(data_struct: Dict[str, Any]) -> np.ndarray:
+def create_exclusion_table(
+    data_struct: Dict[str, Any],
+    print_debug_for_sat: Optional[int] = None
+) -> np.ndarray:
     """
     Creates a table of exclusion statuses for each satellite against each fixed point.
 
-    For each satellite, this function iterates through every fixed point, sets the
-    satellite's pointing vector towards that point, and calls the `exclusion`
-    function to determine if that line of sight is blocked by the Sun, Moon, or Earth.
-
     Args:
-        data_struct: The main simulation data dictionary, which must be fully
-                     populated with satellite and celestial body positions.
+        data_struct: The main simulation data dictionary.
+        print_debug_for_sat: If an integer is provided, the `exclusion` function's
+                             debug printout will be enabled for that satellite index.
 
     Returns:
         A 2D NumPy array where rows correspond to satellites and columns correspond
@@ -516,28 +529,21 @@ def create_exclusion_table(data_struct: Dict[str, Any]) -> np.ndarray:
     if num_satellites == 0 or num_fixed_points == 0:
         return np.array([[]])
 
-    # Initialize the results table with zeros
     exclusion_tbl = np.zeros((num_satellites, num_fixed_points), dtype=int)
-
-    # Get satellite positions
     satellite_positions = data_struct['satellites']['position']
 
-    # Iterate through each satellite
     for i in range(num_satellites):
         sat_pos = satellite_positions[i]
         
-        # Iterate through each fixed point
+        # Determine if we should print debug info for this satellite
+        should_print_debug = (i == print_debug_for_sat)
+
         for j in range(num_fixed_points):
             fixed_point_pos = fixed_points[j]
-            
-            # Temporarily set the satellite's pointing vector towards the fixed point
-            # This is the crucial step for the check.
             pointing_vector = fixed_point_pos - sat_pos
             data_struct['satellites']['pointing'][i] = pointing_vector
             
-            # Call the exclusion function for the current satellite
-            if exclusion(data_struct, i):
+            if exclusion(data_struct, i, print_debug=should_print_debug):
                 exclusion_tbl[i, j] = 1
-            # No need for an else, as it's already 0
     
     return exclusion_tbl

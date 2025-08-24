@@ -420,9 +420,9 @@ def demo_exclusion_table():
 
     # Set fixed exclusion angles for all satellites (in radians)
     # Approx 30 degrees for Sun/Moon, 10 degrees for Earth limb
-    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(1)
-    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(1)
-    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(1)
+    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
 
     # --- Update Celestial Positions ---
     print("Calculating celestial body positions...")
@@ -435,13 +435,13 @@ def demo_exclusion_table():
     original_fixed_points = sim_data['fixedpoints']['position']
     sim_data['fixedpoints']['position'] = original_fixed_points[:200]
 
+    exclusion_matrix = create_exclusion_table(sim_data)
+
     # Restore original fixed points if needed elsewhere
     sim_data['fixedpoints']['position'] = original_fixed_points
 
     print("Exclusion table generated.")
 
-    exclusion_matrix = create_exclusion_table(sim_data)
-    
     # --- Visualize the Table as a Heatmap ---
     print("Displaying results as a heatmap...")
     fig = go.Figure(data=go.Heatmap(
@@ -474,6 +474,41 @@ def demo_pointing_plot():
         plot_time=sim_start_time
     )
 
+def demo_exclusion_debug_print():
+    """
+    Demonstrates the debug printing feature of the exclusion function.
+
+    This function runs the exclusion check for the first satellite against
+    the first 100 fixed points and prints the detailed debug output for
+    each check, as enabled by the `print_debug_for_sat` parameter.
+    """
+    print("\n--- Starting Demo: Exclusion Debug Print ---")
+    sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
+    sim_data = initialize_standard_simulation(sim_start_time)
+
+    # Set some example exclusion angles
+    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(15)
+    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
+
+    # Update celestial positions
+    sim_data = celestial_update(sim_data, sim_start_time)
+
+    # To limit the printing for the demo, we'll only check satellite 0
+    # against the first 100 fixed points.
+    print("\n--- Generating exclusion table for Satellite 0 vs First 100 Fixed Points (with debug print) ---")
+    original_fixed_points = sim_data['fixedpoints']['position']
+    sim_data['fixedpoints']['position'] = original_fixed_points[:100]
+
+    # Call the function with the debug flag for satellite index 0.
+    # We don't need to store the result for this demo, just see the printout.
+    _ = create_exclusion_table(sim_data, print_debug_for_sat=0)
+
+    # Restore original fixed points
+    sim_data['fixedpoints']['position'] = original_fixed_points
+    print("\n--- Debug Print Demo Complete ---")
+
+
 # --- Main Execution Block ---
 if __name__ == '__main__':
     # Each demo can be run independently.
@@ -483,6 +518,7 @@ if __name__ == '__main__':
     demo2()
     demo3()
     demo4()
-    # demo_fixedpoints()
+    demo_fixedpoints()
     demo_exclusion_table()
     demo_pointing_plot()
+    # demo_exclusion_debug_print()
