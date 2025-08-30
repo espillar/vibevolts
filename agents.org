@@ -172,3 +172,6 @@ When modifying the code, prioritize the following areas:
 
 5. For any documentation file, try to limit line length
    to 80 characters to make it easier to read in emacs.
+
+6. automatically re-create call graphs of the code using
+   pycallgraph2 and graphviz
