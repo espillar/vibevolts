@@ -1,0 +1,22 @@
+// Control Flow of vibevolts_demo.py
+digraph {
+	rankdir=TB size="8,8"
+	node [shape=box]
+	A [label=Start]
+	B [label="demo1()"]
+	C [label="demo2()"]
+	D [label="demo3()"]
+	E [label="demo4()"]
+	F [label="demo_fixedpoints()"]
+	G [label="demo_exclusion_table()"]
+	H [label="demo_pointing_plot()"]
+	I [label=End]
+	A -> B
+	B -> C
+	C -> D
+	D -> E
+	E -> F
+	F -> G
+	G -> H
+	H -> I
+}
