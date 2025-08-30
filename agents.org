@@ -170,3 +170,5 @@ When modifying the code, prioritize the following areas:
    In general the code should be a series of functions
    that operate on the central data structure.
 
+5. For any documentation file, try to limit line length
+   to 80 characters to make it easier to read in emacs.
