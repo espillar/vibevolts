@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeVolts Code Graphs</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        .mermaid {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VibeVolts Code Graphs</h1>
+
+        <h2>Control Flow Diagram</h2>
+        <p>This diagram shows the execution flow of the main demo script (<code>vibevolts_demo.py</code>).</p>
+        <div class="mermaid">
+            graph TD
+                A[Start] --> B(demo1);
+                B --> C(demo2);
+                C --> D(demo3);
+                D --> E(demo4);
+                E --> F(demo_fixedpoints);
+                F --> G(demo_exclusion_table);
+                G --> H(demo_pointing_plot);
+                H --> I[End];
+        </div>
+
+        <h2>Function Call Graph</h2>
+        <p>This diagram shows which functions are called by other functions across the different modules.</p>
+        <div class="mermaid">
+            graph TD
+                subgraph vibevolts_demo.py
+                    A(main) --> B(demo1);
+                    A --> C(demo2);
+                    A --> D(demo3);
+                    A --> E(demo4);
+                    A --> F(demo_fixedpoints);
+                    A --> G(demo_exclusion_table);
+                    A --> H(demo_pointing_plot);
+                    B --> I(initialize_standard_simulation);
+                    C --> I;
+                    G --> I;
+                    H --> I;
+                    I --> J(readtle);
+                    I --> K(initializeStructures);
+                    I --> L(propagate_satellites);
+                    B --> M(celestial_update);
+                    B --> L;
+                    B --> N(plot_3d_scatter);
+                    C --> M;
+                    C --> L;
+                    D --> J;
+                    D --> K;
+                    D --> L;
+                    E --> J;
+                    E --> K;
+                    E --> L;
+                    F --> K;
+                    F --> N;
+                    G --> M;
+                    G --> O(create_exclusion_table);
+                    H --> P(plot_pointing_vectors);
+                end
+
+                subgraph vibevolts.py
+                    J --> Q(sgp4.Satrec.twoline2rv);
+                    K --> R(generate_log_spherical_points);
+                    L --> L;
+                    O --> S(exclusion);
+                end
+
+                subgraph visualization.py
+                    N --> T(plotly.graph_objects.Figure);
+                    P --> T;
+                end
+
+                subgraph generate_log_spherical_points.py
+                    R --> R;
+                end
+        </div>
+    </div>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>
