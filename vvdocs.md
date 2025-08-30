@@ -2,6 +2,10 @@
 
 This document provides an overview of the data structures, functions, and dependencies for the VibeVolts simulation toolkit.
 
+## HTML Wiki
+
+A pure HTML version of this documentation is available in the file [wiki.html](wiki.html).
+
 ## 1. Common Data Structures
 
 The toolkit uses two primary data structures to manage simulation state and physical constants.
