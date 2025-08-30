@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeVolts Wiki</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #0056b3;
+        }
+        pre {
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VibeVolts Documentation</h1>
+        <p>This document provides an overview of the data structures, functions, and dependencies for the VibeVolts simulation toolkit.</p>
+
+        <h2>1. Common Data Structures</h2>
+        <p>The toolkit uses two primary data structures to manage simulation state and physical constants.</p>
+
+        <h3>1.1. Simulation State Dictionary (<code>simulation_data</code>)</h3>
+        <p>This is the central data structure, created by the <code>initializeStructures</code> function in <code>vibevolts.py</code>. It is a Python dictionary that organizes all simulation entities into categories.</p>
+        <pre><code>
+{
+    'start_time': datetime,
+    'counts': {
+        'celestial': 2,
+        'satellites': num_satellites,
+        'observatories': num_observatories,
+        'red_satellites': num_red_satellites
+    },
+    'celestial': {
+        'position': np.zeros((2, 3)),
+        'velocity': np.zeros((2, 3)),
+        'acceleration': np.zeros((2, 3)),
+    },
+    'satellites': {
+        'position': np.zeros((num_satellites, 3)),
+        'velocity': np.zeros((num_satellites, 3)),
+        'acceleration': np.zeros((num_satellites, 3)),
+        'orbital_elements': np.zeros((num_satellites, 6)),
+        'epochs': [],
+        'pointing': np.zeros((num_satellites, 3)),
+        'detector': np.zeros((num_satellites, 7)),
+    },
+    'observatories': { ... },
+    'red_satellites': { ... },
+    'fixedpoints': {
+        'position': np.zeros((num_points, 3)),
+        'size': np.zeros((num_points,))
+    }
+}
+        </code></pre>
+
+        <h4>Key Components:</h4>
+        <ul>
+            <li><strong><code>orbital_elements</code></strong>: A NumPy array (<code>n x 6</code>) containing the classical orbital elements for each satellite. The columns are:
+                <ul>
+                    <li><code>0</code>: Semi-major axis (meters)</li>
+                    <li><code>1</code>: Eccentricity</li>
+                    <li><code>2</code>: Inclination (radians)</li>
+                    <li><code>3</code>: Right Ascension of the Ascending Node (radians)</li>
+                    <li><code>4</code>: Argument of Perigee (radians)</li>
+                    <li><code>5</code>: Mean Anomaly (radians)</li>
+                </ul>
+            </li>
+            <li><strong><code>detector</code></strong>: A NumPy array (<code>n x 7</code>) containing the properties of each sensor. The columns are:
+                <ul>
+                    <li><code>0</code>: Aperture size (meters)</li>
+                    <li><code>1</code>: Pixel size (radians)</li>
+                    <li><code>2</code>: Quantum Efficiency (fraction)</li>
+                    <li><code>3</code>: Pixel count</li>
+                    <li><code>4</code>: Solar exclusion angle (radians)</li>
+                    <li><code>5</code>: Lunar exclusion angle (radians)</li>
+                    <li><code>6</code>: Earth exclusion angle (radians)</li>
+                </ul>
+            </li>
+            <li><strong><code>fixedpoints</code></strong>: A dictionary containing the properties of the static points in space used as observation targets.
+                <ul>
+                    <li><code>position</code>: A NumPy array (<code>num_points x 3</code>) of static 3D points in the GCRS frame.</li>
+                    <li><code>size</code>: A NumPy array (<code>num_points</code>,) of the size of each object in meters.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>1.2. Radiometric Filter Data (<code>FILTER_DATA</code>)</h3>
+        <p>This dictionary, located in <code>radiometry.py</code>, provides standard data for a variety of astronomical filters, including Johnson-Cousins, SDSS, and JWST.</p>
+        <ul>
+            <li><strong><code>sun</code></strong>: The apparent magnitude of the Sun in the given filter.</li>
+            <li><strong><code>sky</code></strong>: The typical dark sky brightness in magnitudes per square arcsecond.</li>
+            <li><strong><code>central_wavelength</code></strong>: The central wavelength of the filter passband in nanometers (nm).</li>
+            <li><strong><code>bandwidth</code></strong>: The effective width of the filter passband in nanometers (nm).</li>
+            <li><strong><code>zero_point</code></strong>: The photon flux (in photons/sec/m²) corresponding to a 0-magnitude star.</li>
+        </ul>
+        <pre><code>
+{
+    'U': {
+        'sun': -26.03,
+        'sky': 22.0,
+        'central_wavelength': 365.0,
+        'bandwidth': 66.0,
+        'zero_point': 4.96e9,
+    },
+    'B': { ... },
+    # ... and so on for V, R, I, J, H, K, g, r, i, z, L, M, N, and JWST filters.
+}
+        </code></pre>
+
+        <h3>1.3. Physical Constants</h3>
+        <p>The <code>radiometry.py</code> module also defines the following physical constants:</p>
+        <ul>
+            <li><strong><code>AU_M</code></strong>: The astronomical unit in meters (<code>1.496e+11 m</code>).</li>
+            <li><strong><code>RSUN_M</code></strong>: The radius of the Sun in meters (<code>6.957e+08 m</code>).</li>
+        </ul>
+
+        <h2>2. Existing Functions</h2>
+        <p>This section describes the functions available in the toolkit, organized by module.</p>
+
+        <h3>2.1. <code>vibevolts.py</code></h3>
+        <ul>
+            <li><strong><code>initializeStructures(num_satellites, num_observatories, num_red_satellites, start_time)</code></strong>: Creates and returns the main <code>simulation_data</code> dictionary.</li>
+            <li><strong><code>celestial_update(data_struct, time_date)</code></strong>: Updates the positions of the Sun and Moon for a given time using the <code>astropy</code> library.</li>
+            <li><strong><code>readtle(tle_file_path)</code></strong>: Reads a Two-Line Element (TLE) file and returns a NumPy array of orbital elements and a list of epoch datetimes.</li>
+            <li><strong><code>propagate_satellites(data_struct, time_date)</code></strong>: Updates satellite positions based on their orbital elements to a new time using a vectorized Keplerian propagator.</li>
+            <li><strong><code>solarexclusion(data_struct)</code></strong>: Calculates solar exclusion for all satellites based on their pointing vectors. Returns a tuple containing an <code>exclusion_vector</code> (1 for excluded, 0 for clear) and an <code>angle_vector</code> (the calculated angle in radians for each satellite).</li>
+            <li><strong><code>exclusion(data_struct, satellite_index)</code></strong>: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns <code>True</code> if the satellite's pointing vector is within the exclusion zone of the Sun, Moon, or Earth, and <code>False</code> otherwise.</li>
+            <li><strong><code>create_exclusion_table(data_struct)</code></strong>: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is excluded, and 0 means it is clear.</li>
+        </ul>
+
+        <h3>2.2. <code>visualization.py</code></h3>
+        <p>This module contains functions for creating interactive 3D plots of the simulation state using the <code>plotly</code> library.</p>
+        <ul>
+            <li><strong><code>plot_3d_scatter(positions, title, plot_time, labels, marker_size, trace_name)</code></strong>: The primary function for creating 3D scatter plots. It displays object positions with Earth references and allows for customization of the marker size and trace name.</li>
+            <li><strong><code>plot_pointing_vectors(data_struct, title, plot_time)</code></strong>: Displays a 3D plot of satellites along with vectors indicating their pointing direction.</li>
+        </ul>
+
+        <h3>2.3. <code>vibevolts_demo.py</code></h3>
+        <p>This module contains a set of demonstration functions that showcase the capabilities of the VibeVolts toolkit. When run as a script, it will execute all of the demos in sequence.</p>
+        <ul>
+            <li><strong><code>initialize_standard_simulation(start_time)</code></strong>: A helper function that sets up a standard simulation scenario with a predefined mix of LEO, GEO, and HEO satellites.</li>
+            <li><strong><code>demo1()</code></strong>: Runs a full demonstration of the simulation tools, including initialization, propagation, and 3D plotting.</li>
+            <li><strong><code>demo2()</code></strong>: Plots the positions of 10 LEO satellites and celestial vectors at different time steps.</li>
+            <li><strong><code>demo3()</code></strong>: Plots the trajectory of a single LEO satellite over 90 minutes.</li>
+            <li><strong><code>demo4()</code></strong>: Plots the trajectory of a single GEO satellite over 23 hours.</li>
+            <li><strong><code>demo_fixedpoints()</code></strong>: Demonstrates the <code>fixedpoints</code> data structure by plotting it in 3D.</li>
+            <li><strong><code>demo_exclusion_table()</code></strong>: Demonstrates the creation and visualization of the exclusion table.</li>
+            <li><strong><code>demo_pointing_plot()</code></strong>: Demonstrates the <code>plot_pointing_vectors</code> function.</li>
+        </ul>
+
+        <h3>2.4. <code>radiometry.py</code></h3>
+        <ul>
+            <li><strong><code>mag(x)</code></strong>: Converts a linear flux ratio to an astronomical magnitude.</li>
+            <li><strong><code>amag(x)</code></strong>: Converts an astronomical magnitude back to a linear flux ratio.</li>
+            <li><strong><code>blackbody_flux(temperature, lambda_short, lambda_long)</code></strong>: Computes the integrated spectral radiance of a blackbody over a wavelength band.</li>
+            <li><strong><code>stefan_boltzmann_law(temperature)</code></strong>: Calculates the total power radiated per unit area by a blackbody.</li>
+            <li><strong><code>plot_blackbody_spectrum(temperature)</code></strong>: Plots the spectral radiance of a blackbody from 0.5 to 30 microns.</li>
+            <li><strong><code>plot_blackbody_spectrum_visible_nir(temperature)</code></strong>: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.</li>
+        </ul>
+
+        <h3>2.5. <code>lambertiansphere.py</code></h3>
+        <ul>
+            <li><strong><code>lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)</code></strong>: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.</li>
+        </ul>
+
+        <h3>2.6. <code>generate_log_spherical_points.py</code></h3>
+        <ul>
+            <li><strong><code>generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)</code></strong>: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.</li>
+        </ul>
+
+        <h2>3. Dependencies</h2>
+        <p>To run the VibeVolts code, the following Python modules must be installed. You can install them using pip.</p>
+        <p><strong>Note:</strong> The <code>vibevolts.py</code> module also has an internal dependency on <code>generate_log_spherical_points.py</code>, which is included in this repository.</p>
+        <ul>
+            <li><strong><code>numpy</code></strong>: For numerical operations and array manipulation.</li>
+            <li><strong><code>astropy</code></strong>: For astronomical calculations and coordinate transformations.</li>
+            <li><strong><code>jplephem</code></strong>: Used by <code>astropy</code> for planetary ephemeris calculations.</li>
+            <li><strong><code>sgp4</code></strong>: For parsing TLE satellite data.</li>
+            <li><strong><code>plotly</code></strong>: For creating interactive 3D plots.</li>
+            <li><strong><code>scipy</code></strong>: For scientific computations, specifically numerical integration in <code>radiometry.py</code>.</li>
+        </ul>
+        <p>Example installation command:</p>
+        <pre><code>
+pip install numpy astropy jplephem sgp4 plotly scipy
+        </code></pre>
+    </div>
+</body>
+</html>
