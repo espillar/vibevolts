@@ -62,24 +62,33 @@ generate_log_spherical_points.py and vibevolts_demo.py
 *** [2025-08-31 Sun]
 OK, lets get serious.
 
+
+**** prompt 3
+- Write function called jerk(satellite_number) that takes takes the satellite
+  indicated by that number and moves the pointing vector 0.3 radians in
+  any direction.
+- write  function that examines the exclusion_table, finds any satellite
+  (column) which entirely 0, and applies the function jerk to that satellite.
+- create a new demo function that initializes the simulation,
+  then creates and plots an exclusion_table, then applies the function
+  just mentioned, and then creates and plots a new exclusion_table. 
+
+
 **** prompt 2
-- while you are testing the code on the server, run all the plots
-  and place the plotly plots into an html file that is stored in
-  git that I can view remotely after syncing.
+- take all the demos that create plots in plotly, wrap them up in a new
+  function that you run when you are testing things on the jules server
+  and place the outputs in a new html file placed in the repo that
+  can be viewed stand alone in the browswer.
+
 
 **** Prompt 1
-- read in and follow the instructions in agents.org file.
-- Modify the number of fixed points created is only 100 for the moment.
-- report any time you violate these instructions.
-- Create another array visibility in overall structures that will have a number of columns
-  equal to the number of satellites and a number of rows equal to the number
-  of fixed points. It will be extended into a third dimension as the
-  simulation proceeds.
-- change the function exclusion so that it returns a 0 if pointing is exclueded
-  and 1 if it is not excluded.
-- check that the function create_exclusion_table works with this new array
-  and fills its elements by calling the fuction exclusion.
-- run all the demos in vibevolts_demo.py command line.
+-read in and follow the instructions in agents.org file.
+-Modify the number of fixed points created is only 100 for the moment.
+-report any time you violate these instructions.
+-Create another array visibility in overall structures that will have a number of columns equal to the number of satellites and a number of rows equal to the number of fixed points. It will be extended into a third dimension as the simulation proceeds.
+-change the function exclusion so that it returns a 0 if pointing is exclueded and 1 if it is not excluded.
+-check that the function create_exclusion_table works with this new array and fills its elements by calling the fuction exclusion.
+-do not run all the demos, give me a change for GitHub.
 
 
 *** [2025-08-30 Sat]
