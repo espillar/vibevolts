@@ -133,7 +133,7 @@ LEO-05
 
     return sim_data
 
-def demo1():
+def demo1(show_plot=True) -> go.Figure:
     """
     Runs a full demonstration of the simulation tools: initialization,
     celestial updates, TLE reading, satellite propagation, and 3D plotting.
@@ -152,15 +152,17 @@ def demo1():
     print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
     sim_data = propagate_satellites(sim_data, time_t1)
 
-    plot_3d_scatter(
+    fig = plot_3d_scatter(
         positions=sim_data['satellites']['position'],
         title=f"Satellite Positions at {time_t1.isoformat()}",
         plot_time=time_t1,
         marker_size=2,
-        trace_name='Satellites'
+        trace_name='Satellites',
+        show_plot=show_plot
     )
+    return fig
 
-def demo2():
+def demo2(show_plot=True) -> go.Figure:
     """
     Runs a second demonstration with 10 LEO satellites, plotting their
     positions and celestial vectors at 0, 60, and 300 seconds.
@@ -220,9 +222,11 @@ def demo2():
         scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
         margin=dict(r=20, b=10, l=10, t=40)
     )
-    fig.show()
+    if show_plot:
+        fig.show()
+    return fig
 
-def demo3():
+def demo3(show_plot=True) -> go.Figure:
     """
     Runs a third demonstration with a single LEO satellite, plotting its
     trajectory over 90 minutes.
@@ -298,9 +302,11 @@ def demo3():
         margin=dict(r=20, b=10, l=10, t=40),
         legend_title_text='Trace'
     )
-    fig.show()
+    if show_plot:
+        fig.show()
+    return fig
 
-def demo4():
+def demo4(show_plot=True) -> go.Figure:
     """
     Runs a fourth demonstration with a single GEO satellite, plotting its
     trajectory over 23 hours.
@@ -376,9 +382,11 @@ def demo4():
         margin=dict(r=20, b=10, l=10, t=40),
         legend_title_text='Trace'
     )
-    fig.show()
+    if show_plot:
+        fig.show()
+    return fig
 
-def demo_fixedpoints():
+def demo_fixedpoints(show_plot=True) -> go.Figure:
     """
     Demonstrates the fixedpoints data structure by plotting it in 3D.
     """
@@ -397,16 +405,18 @@ def demo_fixedpoints():
 
     print(f"Plotting {len(fixed_positions)} fixed points.")
 
-    plot_3d_scatter(
+    fig = plot_3d_scatter(
         positions=fixed_positions,
         title="Fixed Points Distribution",
         plot_time=sim_start_time,
         labels=[f"Point {i}" for i in range(len(fixed_positions))],
         marker_size=1,
-        trace_name='Fixed Points'
+        trace_name='Fixed Points',
+        show_plot=show_plot
     )
+    return fig
 
-def demo_exclusion_table():
+def demo_exclusion_table(show_plot=True) -> go.Figure:
     """
     Demonstrates the creation and visualization of the exclusion table.
 
@@ -457,9 +467,11 @@ def demo_exclusion_table():
         yaxis_title='Satellite Index',
         yaxis=dict(autorange='reversed') # Puts satellite 0 at the top
     )
-    fig.show()
+    if show_plot:
+        fig.show()
+    return fig
 
-def demo_pointing_plot():
+def demo_pointing_plot(show_plot=True) -> go.Figure:
     """
     Demonstrates the plot_pointing_vectors function with radially outward pointing.
     """
@@ -469,11 +481,13 @@ def demo_pointing_plot():
     sim_data = initialize_standard_simulation(sim_start_time)
 
     # Call the plotting function to visualize the results
-    plot_pointing_vectors(
+    fig = plot_pointing_vectors(
         data_struct=sim_data,
         title="Satellite Positions with Radially Outward Pointing Vectors",
-        plot_time=sim_start_time
+        plot_time=sim_start_time,
+        show_plot=show_plot
     )
+    return fig
 
 def demo_exclusion_debug_print():
     """
