@@ -521,4 +521,4 @@ if __name__ == '__main__':
     demo_fixedpoints()
     demo_exclusion_table()
     demo_pointing_plot()
-    # demo_exclusion_debug_print()
+
