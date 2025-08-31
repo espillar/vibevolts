@@ -63,6 +63,10 @@ generate_log_spherical_points.py and vibevolts_demo.py
 OK, lets get serious.
 
 
+
+**** 
+
+
 **** prompt 3
 - Write function called jerk(satellite_number) that takes takes the satellite
   indicated by that number and moves the pointing vector 0.3 radians in
@@ -82,7 +86,7 @@ OK, lets get serious.
 - neglected to tell it to leave the original demos there- got that in there
   on the prompt.
 
-**** Prompt 1 - worked after I changed it to not do so much testing.
+**** Prompt 1 - this is sort of a repeat  worked after I changed it to not do so much testing.
 -read in and follow the instructions in agents.org file.
 -Modify the number of fixed points created is only 100 for the moment.
 -report any time you violate these instructions.
