@@ -104,6 +104,7 @@ def initializeStructures(
     if start_time.tzinfo is None:
         raise ValueError("start_time must be timezone-aware. Please set tzinfo.")
 
+    num_fixed_points = 100
 
     # --- Main Data Structure ---
     simulation_data: Dict[str, Any] = {
@@ -112,7 +113,8 @@ def initializeStructures(
             'celestial': 2,  # Sun and Moon
             'satellites': num_satellites,
             'observatories': num_observatories,
-            'red_satellites': num_red_satellites
+            'red_satellites': num_red_satellites,
+            'fixedpoints': num_fixed_points
         },
 
         'celestial': {
@@ -151,12 +153,13 @@ def initializeStructures(
 
         'fixedpoints': {
             'position': generate_log_spherical_points(
-                num_points=100,
+                num_points=num_fixed_points,
                 inner_radius=2000000,
                 # Outer radius is 2 * geostationary radius (42,164 km)
                 # This is an interpretation of "tice geodistances".
                 outer_radius=84328000
-            )[0] # Only get the positions, not the sizes
+            )[0], # Only get the positions, not the sizes
+            'visibility': np.zeros((num_fixed_points, num_satellites), dtype=int)
         }
     }
     
@@ -420,7 +423,7 @@ def exclusion(
     data_struct: Dict[str, Any],
     satellite_index: int,
     print_debug: bool = False
-) -> bool:
+) -> int:
     """
     Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
 
@@ -430,7 +433,7 @@ def exclusion(
         print_debug: If True, prints detailed debug information for the calculation.
 
     Returns:
-        True if the satellite's view is excluded, False otherwise.
+        0 if the satellite's view is excluded, 1 otherwise.
     """
     # --- 1. Extract Data ---
     sat_pos = data_struct['satellites']['position'][satellite_index]
@@ -502,34 +505,29 @@ def exclusion(
 
     # --- 5. Set Global Exclusion Flag and Return ---
     is_excluded = sun_flag or moon_flag or earth_flag
-    return is_excluded
+    return 0 if is_excluded else 1
 
 
-def create_exclusion_table(
+def update_visibility_table(
     data_struct: Dict[str, Any],
     print_debug_for_sat: Optional[int] = None
-) -> np.ndarray:
+) -> None:
     """
-    Creates a table of exclusion statuses for each satellite against each fixed point.
+    Updates the visibility table for each satellite against each fixed point.
 
     Args:
         data_struct: The main simulation data dictionary.
         print_debug_for_sat: If an integer is provided, the `exclusion` function's
                              debug printout will be enabled for that satellite index.
-
-    Returns:
-        A 2D NumPy array where rows correspond to satellites and columns correspond
-        to fixed points. A cell value of 1 means the view is excluded, and 0 means
-        it is clear.
     """
     num_satellites = data_struct['counts']['satellites']
     fixed_points = data_struct['fixedpoints']['position']
     num_fixed_points = len(fixed_points)
+    visibility_table = data_struct['fixedpoints']['visibility']
 
     if num_satellites == 0 or num_fixed_points == 0:
-        return np.array([[]])
+        return
 
-    exclusion_tbl = np.zeros((num_satellites, num_fixed_points), dtype=int)
     satellite_positions = data_struct['satellites']['position']
 
     for i in range(num_satellites):
@@ -543,7 +541,4 @@ def create_exclusion_table(
             pointing_vector = fixed_point_pos - sat_pos
             data_struct['satellites']['pointing'][i] = pointing_vector
             
-            if exclusion(data_struct, i, print_debug=should_print_debug):
-                exclusion_tbl[i, j] = 1
-    
-    return exclusion_tbl
+            visibility_table[j, i] = exclusion(data_struct, i, print_debug=should_print_debug)
