@@ -9,7 +9,7 @@ from vibevolts import (
     celestial_update,
     readtle,
     propagate_satellites,
-    create_exclusion_table,
+    update_visibility_table,
     DETECTOR_SOLAR_EXCL_IDX,
     DETECTOR_LUNAR_EXCL_IDX,
     DETECTOR_EARTH_EXCL_IDX,
@@ -435,7 +435,8 @@ def demo_exclusion_table():
     original_fixed_points = sim_data['fixedpoints']['position']
     sim_data['fixedpoints']['position'] = original_fixed_points[:200]
 
-    exclusion_matrix = create_exclusion_table(sim_data)
+    update_visibility_table(sim_data)
+    exclusion_matrix = sim_data['fixedpoints']['visibility']
 
     # Restore original fixed points if needed elsewhere
     sim_data['fixedpoints']['position'] = original_fixed_points
@@ -445,8 +446,8 @@ def demo_exclusion_table():
     # --- Visualize the Table as a Heatmap ---
     print("Displaying results as a heatmap...")
     fig = go.Figure(data=go.Heatmap(
-        z=exclusion_matrix,
-        colorscale=[[0, 'green'], [1, 'red']], # 0 is green (clear), 1 is red (excluded)
+        z=exclusion_matrix.T, # Transpose to have satellites on Y-axis
+        colorscale=[[0, 'red'], [1, 'green']], # 0 is red (excluded), 1 is green (clear)
         showscale=False # Hide the color bar
     ))
 
@@ -502,7 +503,7 @@ def demo_exclusion_debug_print():
 
     # Call the function with the debug flag for satellite index 0.
     # We don't need to store the result for this demo, just see the printout.
-    _ = create_exclusion_table(sim_data, print_debug_for_sat=0)
+    update_visibility_table(sim_data, print_debug_for_sat=0)
 
     # Restore original fixed points
     sim_data['fixedpoints']['position'] = original_fixed_points
