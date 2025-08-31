@@ -58,6 +58,25 @@ See if you can combine these to reduce redundancy: create one demo function to
 replace both, with arguments if necessary, and call it at the end of the file
 generate_log_spherical_points.py and vibevolts_demo.py
 
+ 
+*** [2025-08-31 Sun]
+OK, lets get serious.
+
+**** Prompt
+- read in and follow the instructions in agents.org file.
+- Modify the number of fixed points created is only 100 for the moment.
+- report any time you violate these instructions.
+- Create another array visibility in overall structures that will have a number of columns
+  equal to the number of satellites and a number of rows equal to the number
+  of fixed points. It will be extended into a third dimension as the
+  simulation proceeds.
+- change the function exclusion so that it returns a 0 if pointing is exclueded
+  and 1 if it is not excluded.
+- check that the function create_exclusion_table works with this new array
+  and fills its elements by calling the fuction exclusion.
+- run all the demos in vibevolts_demo.py command line.
+
+
 *** [2025-08-30 Sat]
 Well, that was a couple of weeks with not much going on.  Got to stop that.
 
@@ -110,7 +129,6 @@ Did some reading on git- I thought it was all in my head, put creating
 local branches of remote things, switching branches, restoring older
 versions of files, and newer commans switch and resotre were not
 in my vocabulary.
-
 
 *** [2025-08-16 Sat]
 Last Socorro Vacation Day. Testing out working copy. Seems really good
