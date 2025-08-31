@@ -62,7 +62,12 @@ generate_log_spherical_points.py and vibevolts_demo.py
 *** [2025-08-31 Sun]
 OK, lets get serious.
 
-**** Prompt
+**** prompt 2
+- while you are testing the code on the server, run all the plots
+  and place the plotly plots into an html file that is stored in
+  git that I can view remotely after syncing.
+
+**** Prompt 1
 - read in and follow the instructions in agents.org file.
 - Modify the number of fixed points created is only 100 for the moment.
 - report any time you violate these instructions.
