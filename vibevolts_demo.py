@@ -551,15 +551,18 @@ def demo_exclusion_debug_print():
     print("\n--- Debug Print Demo Complete ---")
 
 
-# --- Main Execution Block ---
-if __name__ == '__main__':
-    # This block runs when the script is executed directly.
-    # It demonstrates the two primary modes of operation for the demos:
-    # 1. Interactive Display: It calls each demo function and displays the
-    #    resulting plot in a new browser window or viewer pane.
-    # 2. HTML Export: It saves all generated plots into a single,
-    #    self-contained HTML file for easy sharing and review.
+def export_all_plots_to_html(output_filename: str = "all_demo_plots.html"):
+    """
+    Runs all demo functions that produce plots and saves them to a single
+    self-contained HTML file.
 
+    This function is not called by default during script execution but can be
+    invoked manually from a Python interpreter or another script to generate
+    the report.
+
+    Args:
+        output_filename: The name of the HTML file to create.
+    """
     # List of all demo functions that produce a plot
     demo_functions = [
         demo1,
@@ -569,27 +572,16 @@ if __name__ == '__main__':
         demo_fixedpoints,
         demo_exclusion_table,
         demo_pointing_plot,
-        demo_exclusion_debug_print, # Does not return a plot, just prints
     ]
 
-    print("--- Running All Demos ---")
+    print("--- Generating All Demo Figures for HTML Export ---")
     figures = []
     for func in demo_functions:
         print(f"\n... Executing {func.__name__} ...")
-        # Call the demo function. If it returns a figure, add it to the list.
         result = func()
         if isinstance(result, go.Figure):
             figures.append(result)
 
-    # 1. Interactive Display
-    # To avoid opening too many windows at once, this part can be commented out
-    # if you only need the HTML output.
-    print("\n--- Displaying Plots Interactively ---")
-    # for fig in figures:
-    #     fig.show()
-
-    # 2. HTML Export
-    output_filename = "demo_plots.html"
     print(f"\n--- Exporting All Plots to {output_filename} ---")
     with open(output_filename, 'w') as f:
         # Write a simple HTML header
@@ -608,5 +600,44 @@ if __name__ == '__main__':
         # Write a simple HTML footer
         f.write("</body></html>\n")
 
-    print(f"--- All operations complete. See {output_filename} for results. ---")
+    print(f"--- Export complete. See {output_filename} for results. ---")
 
+
+# --- Main Execution Block ---
+if __name__ == '__main__':
+    # This block runs when the script is executed directly.
+    # It demonstrates the interactive display mode by calling each demo
+    # function and showing the resulting plot in a new browser window.
+    #
+    # To generate a single HTML file containing all plots, you can
+    # import and call the `export_all_plots_to_html()` function from
+    # another script or a Python interpreter.
+
+    # List of all demo functions that produce a plot
+    demo_functions = [
+        demo1,
+        demo2,
+        demo3,
+        demo4,
+        demo_fixedpoints,
+        demo_exclusion_table,
+        demo_pointing_plot,
+        # demo_exclusion_debug_print, # Does not return a plot, just prints
+    ]
+    print("--- execute export_all_plots_to_html(filename) to create an html with all plots----")
+    print("--- Running All Demos for Interactive Display ---")
+    figures = []
+    for func in demo_functions:
+        print(f"\n... Executing {func.__name__} ...")
+        # Call the demo function. If it returns a figure, add it to the list.
+        result = func()
+        if isinstance(result, go.Figure):
+            figures.append(result)
+
+    # Interactive Display: Show each plot
+    print("\n--- Displaying Plots Interactively ---")
+    print("Each plot will open in a new browser tab/window.")
+    for fig in figures:
+        fig.show()
+
+    print("\n--- All demos complete. ---")
