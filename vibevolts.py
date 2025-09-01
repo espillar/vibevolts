@@ -542,3 +542,80 @@ def update_visibility_table(
             data_struct['satellites']['pointing'][i] = pointing_vector
             
             visibility_table[j, i] = exclusion(data_struct, i, print_debug=should_print_debug)
+
+def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
+    """
+    Moves the pointing vector of a specific satellite by 0.3 radians in a
+    random direction.
+
+    This function applies a random rotation to the satellite's pointing vector
+    using a simplified version of Rodrigues' rotation formula.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+        satellite_number: The index of the satellite to modify.
+
+    Returns:
+        The modified data_struct with the updated pointing vector.
+    """
+    # 1. Get and normalize the current pointing vector
+    p = data_struct['satellites']['pointing'][satellite_number]
+    p_norm = p / np.linalg.norm(p)
+
+    # 2. Generate a random, non-parallel vector to define the rotation axis
+    while True:
+        # Create a random vector
+        r = np.random.rand(3) - 0.5
+        # Create a rotation axis perpendicular to the pointing vector
+        k = np.cross(p_norm, r)
+        norm_k = np.linalg.norm(k)
+        # Ensure the random vector wasn't parallel to the pointing vector
+        if norm_k > 1e-9:
+            k_hat = k / norm_k
+            break
+
+    # 3. Define the rotation angle in radians
+    theta = 0.3
+
+    # 4. Apply Rodrigues' rotation formula.
+    # The formula simplifies because the rotation axis `k_hat` is perpendicular
+    # to the pointing vector `p_norm`, making their dot product zero.
+    cos_theta = np.cos(theta)
+    sin_theta = np.sin(sin(theta))
+    
+    p_new = p_norm * cos_theta + np.cross(k_hat, p_norm) * sin_theta
+
+    # 5. Update the pointing vector in the data structure, ensuring it remains a unit vector
+    data_struct['satellites']['pointing'][satellite_number] = p_new / np.linalg.norm(p_new)
+
+    return data_struct
+
+def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Finds satellites with no visibility and applies the 'jerk' function to them.
+
+    This function iterates through the visibility table. If any satellite (column)
+    has no visible fixed points (i.e., the column sum is 0), the `jerk`
+    function is called to randomly adjust its pointing vector.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+
+    Returns:
+        The modified data_struct.
+    """
+    visibility_table = data_struct['fixedpoints']['visibility']
+    num_satellites = data_struct['counts']['satellites']
+
+    # Find the indices of columns that are all zeros
+    # Note: axis=0 sums down the columns
+    column_sums = np.sum(visibility_table, axis=0)
+    blind_satellite_indices = np.where(column_sums == 0)[0]
+
+    # Apply the jerk function to each blind satellite
+    for sat_index in blind_satellite_indices:
+        print(f"Satellite {sat_index} has no visible points. Applying jerk.")
+        data_struct = jerk(data_struct, sat_index)
+        
+    return data_struct
+
