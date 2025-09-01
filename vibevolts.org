@@ -58,6 +58,11 @@ between tabs in safari.  Accidentally kill the Jules job I had fixing
 the error listed above. Figure out how to close a "window" in emacs.
 I guess this will all be useful but I wish I hadn't killed the job!
 
+OK, it churns for some time- but it more or less turns out right this
+time at last.  I need to edit some thigns.
+
+Change which functions are called. Create a new function that just
+creates the demo_plots file but isn't called by default (gemini).
 
 **** prompt 2
 add a function dump_detector that prints out a table with the rows
