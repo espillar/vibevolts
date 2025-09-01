@@ -53,6 +53,11 @@ again.  Prompt 2 from yesterday wasn't running.
 
 I think I've been running too fast. Time to look at the code a little.
 
+OK. Waste some time here. git mv rename this file. Figure out ^tab gets you
+between tabs in safari.  Accidentally kill the Jules job I had fixing
+the error listed above. Figure out how to close a "window" in emacs.
+I guess this will all be useful but I wish I hadn't killed the job!
+
 
 
 **** prompt 1
