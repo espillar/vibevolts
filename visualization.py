@@ -17,19 +17,23 @@ def plot_3d_scatter(
     plot_time: datetime,
     labels: Optional[List[str]] = None,
     marker_size: int = 1,
-    trace_name: str = 'Points'
-):
+    trace_name: str = 'Points',
+    show_plot: bool = True,
+) -> go.Figure:
     """
-    Displays a 3D interactive plot of object positions with Earth references.
+    Creates and optionally displays a 3D plot of object positions.
 
     Args:
         positions: An (n x 3) NumPy array of (x, y, z) positions in meters.
         title: The title for the plot.
-        plot_time: The UTC datetime for which the plot is generated. This is
-                   used to correctly orient the Earth.
-        labels: An optional list of names for each point to display on hover.
-        marker_size: The size of the markers in the plot. Defaults to 1.
+        plot_time: The UTC datetime for which the plot is generated.
+        labels: An optional list of names for each point for hover information.
+        marker_size: The size of the markers in the plot.
         trace_name: The name for the trace to appear in the legend.
+        show_plot: If True, the plot will be displayed. Defaults to True.
+
+    Returns:
+        The Plotly figure object.
     """
     if positions.ndim != 2 or positions.shape[1] != 3:
         raise ValueError("positions array must have shape (n, 3).")
@@ -104,17 +108,30 @@ def plot_3d_scatter(
         margin=dict(r=20, b=10, l=10, t=40),
         legend_title_text='Objects'
     )
-    fig.show()
+
+    if show_plot:
+        fig.show()
+
+    return fig
 
 
-def plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: datetime):
+def plot_pointing_vectors(
+    data_struct: Dict[str, Any],
+    title: str,
+    plot_time: datetime,
+    show_plot: bool = True
+) -> go.Figure:
     """
-    Displays a 3D plot of satellites with their pointing vectors.
+    Creates and optionally displays a 3D plot of satellites with pointing vectors.
 
     Args:
         data_struct: The main simulation data dictionary.
         title: The title for the plot.
         plot_time: The UTC datetime for the plot, used for Earth orientation.
+        show_plot: If True, the plot will be displayed. Defaults to True.
+
+    Returns:
+        The Plotly figure object.
     """
     sat_positions = data_struct['satellites']['position']
     sat_pointing = data_struct['satellites']['pointing']
@@ -177,4 +194,8 @@ def plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: da
         ),
         margin=dict(r=20, b=10, l=10, t=40)
     )
-    fig.show()
+
+    if show_plot:
+        fig.show()
+
+    return fig
