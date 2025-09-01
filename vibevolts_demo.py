@@ -2,6 +2,7 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional, Tuple
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from astropy.coordinates import solar_system_ephemeris
 
 from vibevolts import (
@@ -516,6 +517,93 @@ def demo_pointing_plot() -> go.Figure:
     )
     return fig
 
+def demo_exclusion_over_time() -> go.Figure:
+    """
+    Demonstrates the change in the exclusion table over time.
+
+    This function generates two exclusion heatmaps side-by-side: one at a
+    starting time (T0) and one after propagating the simulation forward by
+    four hours (T1). This visualization highlights how satellite and celestial
+    motion affects visibility over a longer period.
+
+    Returns:
+        The Plotly figure object containing the comparison plot.
+    """
+    print("\n--- Starting Demo: Exclusion Table Change Over Time ---")
+    sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
+    sim_data = initialize_standard_simulation(sim_start_time)
+
+    # Set fixed exclusion angles for all satellites (in radians)
+    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
+
+    # --- Calculate Exclusion Table at T0 ---
+    print(f"Calculating exclusions at T0: {sim_start_time.isoformat()}")
+    sim_data = celestial_update(sim_data, sim_start_time)
+
+    # To make the demo run faster, we'll only check a subset of fixed points.
+    original_fixed_points = sim_data['fixedpoints']['position']
+    sim_data['fixedpoints']['position'] = original_fixed_points[:200]
+
+    update_visibility_table(sim_data)
+    exclusion_matrix_t0 = sim_data['fixedpoints']['visibility'].copy()
+
+    # Restore original fixed points before propagation
+    sim_data['fixedpoints']['position'] = original_fixed_points
+
+    # --- Propagate Simulation to T1 ---
+    time_t1 = sim_start_time + timedelta(hours=4)
+    print(f"Propagating simulation to T1: {time_t1.isoformat()}")
+    sim_data = propagate_satellites(sim_data, time_t1)
+    sim_data = celestial_update(sim_data, time_t1)
+
+    # --- Calculate Exclusion Table at T1 ---
+    print(f"Calculating exclusions at T1: {time_t1.isoformat()}")
+    sim_data['fixedpoints']['position'] = original_fixed_points[:200]
+    update_visibility_table(sim_data)
+    exclusion_matrix_t1 = sim_data['fixedpoints']['visibility'].copy()
+    sim_data['fixedpoints']['position'] = original_fixed_points # Restore again
+
+    # --- Create a combined plot with subplots ---
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=(
+            f"Exclusion Table at T0 ({sim_start_time.strftime('%H:%M:%S')})",
+            f"Exclusion Table at T1 ({time_t1.strftime('%H:%M:%S')})"
+        ),
+        x_title="Fixed Point Index",
+        y_title="Satellite Index"
+    )
+
+    colorscale = [[0, 'red'], [1, 'green']]
+
+    fig.add_trace(
+        go.Heatmap(
+            z=exclusion_matrix_t0.T,
+            colorscale=colorscale,
+            showscale=False
+        ),
+        row=1, col=1
+    )
+
+    fig.add_trace(
+        go.Heatmap(
+            z=exclusion_matrix_t1.T,
+            colorscale=colorscale,
+            showscale=False
+        ),
+        row=1, col=2
+    )
+
+    fig.update_layout(
+        title_text="Exclusion Table Comparison Over 4 Hours (0=Excluded, 1=Visible)",
+        yaxis=dict(autorange='reversed'),
+        yaxis2=dict(autorange='reversed')
+    )
+
+    return fig
+
 def demo_exclusion_debug_print():
     """
     Demonstrates the debug printing feature of the exclusion function.
@@ -569,6 +657,7 @@ if __name__ == '__main__':
         demo_fixedpoints,
         demo_exclusion_table,
         demo_pointing_plot,
+        demo_exclusion_over_time,
         demo_exclusion_debug_print, # Does not return a plot, just prints
     ]
 
