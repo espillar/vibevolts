@@ -45,8 +45,8 @@ It should be done across the whole vector.
 
 ** 2025-09
 
-*** [2025-09-01 Mon]
-Labor day. I had left a thing running last night in jules, but it didn't finish
+*** [2025-09-01 Mon] Labor day.
+I had left a thing running last night in jules, but it didn't finish
 right- it could be that things timed out so things didn't get synced.
 Anyway, asking it to fix the bug with graphics not being called right
 again.  Prompt 2 from yesterday wasn't running.
@@ -57,6 +57,13 @@ OK. Waste some time here. git mv rename this file. Figure out ^tab gets you
 between tabs in safari.  Accidentally kill the Jules job I had fixing
 the error listed above. Figure out how to close a "window" in emacs.
 I guess this will all be useful but I wish I hadn't killed the job!
+
+
+**** prompt 2
+add a function dump_detector that prints out a table with the rows
+representing all the detectors and the labeled columns being the different
+aspects of that detector.
+
 
 
 
