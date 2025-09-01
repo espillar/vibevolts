@@ -36,6 +36,42 @@ You can install them using pip:
 pip install numpy astropy jplephem sgp4 plotly scipy
 ```
 
+## Usage and Demos
+
+The `vibevolts_demo.py` script provides a comprehensive demonstration of the toolkit's features. It is designed to be run in two ways:
+
+### 1. As a Standalone Script
+
+You can run the script directly from your terminal:
+
+```bash
+python vibevolts_demo.py
+```
+
+When executed, the script will:
+- Run a series of demonstration scenarios.
+- Print status information to the console.
+- Generate a `demo_plots.html` file in the same directory. This is a self-contained HTML file with interactive 3D plots for each demonstration scenario.
+
+### 2. As a Library in a Notebook or other Scripts
+
+The demo functions (e.g., `demo1`, `demo2`) can be imported and used in other Python scripts or Jupyter notebooks. In this mode, the functions will **return** a `plotly.graph_objects.Figure` object but will **not** automatically display it.
+
+This allows you to further customize the plot or integrate it into a larger analysis workflow.
+
+Example in a Jupyter Notebook:
+
+```python
+from vibevolts_demo import demo1
+
+# Generate the plot object
+my_figure = demo1()
+
+# You can now display it, modify it, or save it
+my_figure.update_layout(title="My Custom Title")
+my_figure.show()
+```
+
 ## Documentation
 
 For detailed documentation of all data structures, functions, and modules, please refer to `vvdocs.md` and `vvdocs.org`.

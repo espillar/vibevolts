@@ -17,11 +17,13 @@ def plot_3d_scatter(
     plot_time: datetime,
     labels: Optional[List[str]] = None,
     marker_size: int = 1,
-    trace_name: str = 'Points',
-    show_plot: bool = True,
+    trace_name: str = 'Points'
 ) -> go.Figure:
     """
-    Creates and optionally displays a 3D plot of object positions.
+    Creates a 3D plot of object positions.
+
+    This function generates a Plotly figure object but does not display it.
+    The caller is responsible for rendering the plot (e.g., using fig.show()).
 
     Args:
         positions: An (n x 3) NumPy array of (x, y, z) positions in meters.
@@ -30,7 +32,6 @@ def plot_3d_scatter(
         labels: An optional list of names for each point for hover information.
         marker_size: The size of the markers in the plot.
         trace_name: The name for the trace to appear in the legend.
-        show_plot: If True, the plot will be displayed. Defaults to True.
 
     Returns:
         The Plotly figure object.
@@ -109,26 +110,24 @@ def plot_3d_scatter(
         legend_title_text='Objects'
     )
 
-    if show_plot:
-        fig.show()
-
     return fig
 
 
 def plot_pointing_vectors(
     data_struct: Dict[str, Any],
     title: str,
-    plot_time: datetime,
-    show_plot: bool = True
+    plot_time: datetime
 ) -> go.Figure:
     """
-    Creates and optionally displays a 3D plot of satellites with pointing vectors.
+    Creates a 3D plot of satellites with pointing vectors.
+
+    This function generates a Plotly figure object but does not display it.
+    The caller is responsible for rendering the plot (e.g., using fig.show()).
 
     Args:
         data_struct: The main simulation data dictionary.
         title: The title for the plot.
         plot_time: The UTC datetime for the plot, used for Earth orientation.
-        show_plot: If True, the plot will be displayed. Defaults to True.
 
     Returns:
         The Plotly figure object.
@@ -194,8 +193,5 @@ def plot_pointing_vectors(
         ),
         margin=dict(r=20, b=10, l=10, t=40)
     )
-
-    if show_plot:
-        fig.show()
 
     return fig
