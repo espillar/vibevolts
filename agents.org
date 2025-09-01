@@ -22,12 +22,22 @@ points in space.
 
 The repository contains the following key files:
 
-- `vibevolts.py`: This is the main script and simulation
-  engine. It initializes all data structures, reads
-  satellite TLE data, propagates orbits, calculates
-  celestial positions, and contains the logic for
-  determining viewing exclusions. It also includes several
-  `demo` functions for visualization.
+- `vibevolts.py`: This is the core simulation library. It
+  initializes all data structures, reads satellite TLE
+  data, propagates orbits, calculates celestial
+  positions, and contains the logic for determining
+  viewing exclusions.
+
+- `vibevolts_demo.py`: This script contains a series of
+  demonstration functions that showcase the features of
+  the `vibevolts` library. It is designed to be run as a
+  standalone script to produce an HTML file with all demo
+  plots, or to be used as a library itself in notebooks.
+
+- `visualization.py`: This module contains the low-level
+  plotting functions that generate `plotly` figure
+  objects. These functions are responsible for creating
+  the visualizations but do not display them.
 
 - `generate_log_spherical_points.py`: A utility script
   that creates a 3D point cloud of "fixed points" to be
@@ -154,8 +164,13 @@ When modifying the code, prioritize the following areas:
    - `visibility.py`: For `exclusion`, `solarexclusion`,
      and the new vectorized `create_exclusion_table`.
 
-   - `visualization.py`: For the Plotly-based `demo`
+   - `visualization.py`: For the low-level plotting
      functions.
+
+   - `demos/`: The `vibevolts_demo.py` script is now well-structured,
+     but as more demos are added, it could be beneficial to
+     split it into a `demos/` directory, with each file
+     representing a specific scenario.
 
 3. *Configuration*: The demo functions currently have TLE
    data hardcoded as multi-line strings. Recommend moving

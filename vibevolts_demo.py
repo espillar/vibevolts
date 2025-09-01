@@ -133,12 +133,12 @@ LEO-05
 
     return sim_data
 
-def demo1(show_plot: bool = True) -> go.Figure:
+def demo1() -> go.Figure:
     """
-    Runs a full demonstration of the simulation tools and returns a plot.
+    Runs a full demonstration of the simulation tools.
 
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object for the satellite positions plot.
@@ -162,18 +162,16 @@ def demo1(show_plot: bool = True) -> go.Figure:
         title=f"Satellite Positions at {time_t1.isoformat()}",
         plot_time=time_t1,
         marker_size=2,
-        trace_name='Satellites',
-        show_plot=show_plot
+        trace_name='Satellites'
     )
     return fig
 
-def demo2(show_plot: bool = True) -> go.Figure:
+def demo2() -> go.Figure:
     """
-    Runs a second demonstration with 10 LEO satellites, plotting their
-    positions and celestial vectors at 0, 60, and 300 seconds.
+    Runs a demonstration plotting satellite and celestial positions.
 
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object.
@@ -234,18 +232,14 @@ def demo2(show_plot: bool = True) -> go.Figure:
         margin=dict(r=20, b=10, l=10, t=40)
     )
 
-    if show_plot:
-        fig.show()
-
     return fig
 
-def demo3(show_plot: bool = True) -> go.Figure:
+def demo3() -> go.Figure:
     """
-    Runs a third demonstration with a single LEO satellite, plotting its
-    trajectory over 90 minutes.
+    Runs a demonstration plotting a single LEO satellite trajectory.
 
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object.
@@ -322,18 +316,14 @@ def demo3(show_plot: bool = True) -> go.Figure:
         legend_title_text='Trace'
     )
 
-    if show_plot:
-        fig.show()
-
     return fig
 
-def demo4(show_plot: bool = True) -> go.Figure:
+def demo4() -> go.Figure:
     """
-    Runs a fourth demonstration with a single GEO satellite, plotting its
-    trajectory over 23 hours.
+    Runs a demonstration plotting a single GEO satellite trajectory.
 
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object.
@@ -410,17 +400,14 @@ def demo4(show_plot: bool = True) -> go.Figure:
         legend_title_text='Trace'
     )
 
-    if show_plot:
-        fig.show()
-
     return fig
 
-def demo_fixedpoints(show_plot: bool = True) -> go.Figure:
+def demo_fixedpoints() -> go.Figure:
     """
     Demonstrates the fixedpoints data structure by plotting it in 3D.
 
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object.
@@ -446,21 +433,16 @@ def demo_fixedpoints(show_plot: bool = True) -> go.Figure:
         plot_time=sim_start_time,
         labels=[f"Point {i}" for i in range(len(fixed_positions))],
         marker_size=1,
-        trace_name='Fixed Points',
-        show_plot=show_plot
+        trace_name='Fixed Points'
     )
     return fig
 
-def demo_exclusion_table(show_plot: bool = True) -> go.Figure:
+def demo_exclusion_table() -> go.Figure:
     """
     Demonstrates the creation and visualization of the exclusion table.
 
-    This function sets up a scenario with 20 LEO satellites and calculates
-    their exclusion status against the first 200 fixed points. It then
-    displays this table as a red and green heatmap.
-
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object.
@@ -509,17 +491,14 @@ def demo_exclusion_table(show_plot: bool = True) -> go.Figure:
         yaxis=dict(autorange='reversed') # Puts satellite 0 at the top
     )
 
-    if show_plot:
-        fig.show()
-
     return fig
 
-def demo_pointing_plot(show_plot: bool = True) -> go.Figure:
+def demo_pointing_plot() -> go.Figure:
     """
-    Demonstrates the plot_pointing_vectors function with radially outward pointing.
+    Demonstrates the plot_pointing_vectors function.
 
-    Args:
-        show_plot: If True, the plot will be displayed. Defaults to True.
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
 
     Returns:
         The Plotly figure object.
@@ -533,8 +512,7 @@ def demo_pointing_plot(show_plot: bool = True) -> go.Figure:
     fig = plot_pointing_vectors(
         data_struct=sim_data,
         title="Satellite Positions with Radially Outward Pointing Vectors",
-        plot_time=sim_start_time,
-        show_plot=show_plot
+        plot_time=sim_start_time
     )
     return fig
 
@@ -575,14 +553,60 @@ def demo_exclusion_debug_print():
 
 # --- Main Execution Block ---
 if __name__ == '__main__':
-    # Each demo can be run independently.
-    # To avoid generating multiple plots, comment out the ones you don't need.
+    # This block runs when the script is executed directly.
+    # It demonstrates the two primary modes of operation for the demos:
+    # 1. Interactive Display: It calls each demo function and displays the
+    #    resulting plot in a new browser window or viewer pane.
+    # 2. HTML Export: It saves all generated plots into a single,
+    #    self-contained HTML file for easy sharing and review.
 
-    demo1()
-    demo2()
-    demo3()
-    demo4()
-    demo_fixedpoints()
-    demo_exclusion_table()
-    demo_pointing_plot()
+    # List of all demo functions that produce a plot
+    demo_functions = [
+        demo1,
+        demo2,
+        demo3,
+        demo4,
+        demo_fixedpoints,
+        demo_exclusion_table,
+        demo_pointing_plot,
+        demo_exclusion_debug_print, # Does not return a plot, just prints
+    ]
+
+    print("--- Running All Demos ---")
+    figures = []
+    for func in demo_functions:
+        print(f"\n... Executing {func.__name__} ...")
+        # Call the demo function. If it returns a figure, add it to the list.
+        result = func()
+        if isinstance(result, go.Figure):
+            figures.append(result)
+
+    # 1. Interactive Display
+    # To avoid opening too many windows at once, this part can be commented out
+    # if you only need the HTML output.
+    print("\n--- Displaying Plots Interactively ---")
+    # for fig in figures:
+    #     fig.show()
+
+    # 2. HTML Export
+    output_filename = "demo_plots.html"
+    print(f"\n--- Exporting All Plots to {output_filename} ---")
+    with open(output_filename, 'w') as f:
+        # Write a simple HTML header
+        f.write("<html><head><title>VibeVolts Demo Plots</title></head><body>\n")
+        f.write("<h1>VibeVolts Demonstration Plots</h1>\n")
+        f.write(f"<p>Generated on: {datetime.now().isoformat()}</p>\n")
+
+        # Append each figure's HTML representation
+        for i, fig in enumerate(figures):
+            fig_title = fig.layout.title.text or f"Figure {i+1}"
+            f.write(f"<hr><h2>{fig_title}</h2>\n")
+            # Use to_html with full_html=False to get just the plot div
+            # and rely on a single CDN import of the plotly.js library.
+            f.write(fig.to_html(full_html=False, include_plotlyjs='cdn'))
+
+        # Write a simple HTML footer
+        f.write("</body></html>\n")
+
+    print(f"--- All operations complete. See {output_filename} for results. ---")
 
