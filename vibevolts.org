@@ -45,6 +45,17 @@ It should be done across the whole vector.
 
 ** 2025-09
 
+*** [2025-09-04 Thu] 
+Consider the following two files. I would like to create a new testing function that creates a single satellite in a GEO location and initialized celestial bodies. Create a two diminsional grid with the first axis going from -pi/2 to pi/2 in 50 in increments correspnding to the latitude or declination, and the second axis going from 0 to 2 pi correseponding to longitude or right ascention in 100 steps. For each of these points, orient the pointing vector of the satellite in this direction and call the exclusion function. Place the return value in the array. Finally plot this array using plotly. Place this function in a new module separate from the one I am showing you.
+
+
+*** [2025-09-01 Wed]  Actuall did some good thinking and notes on 
+things to do.  Started implementing thu.
+
+*** [2025-09-02 Tue]
+Made a little progress getting things working in the cloud on the
+work computer.  Things needed to be moved.
+
 *** [2025-09-01 Mon] Labor day.
 I had left a thing running last night in jules, but it didn't finish
 right- it could be that things timed out so things didn't get synced.
