@@ -45,8 +45,34 @@ It should be done across the whole vector.
 
 ** 2025-09
 
-*** [2025-09-04 Thu] 
-Consider the following two files. I would like to create a new testing function that creates a single satellite in a GEO location and initialized celestial bodies. Create a two diminsional grid with the first axis going from -pi/2 to pi/2 in 50 in increments correspnding to the latitude or declination, and the second axis going from 0 to 2 pi correseponding to longitude or right ascention in 100 steps. For each of these points, orient the pointing vector of the satellite in this direction and call the exclusion function. Place the return value in the array. Finally plot this array using plotly. Place this function in a new module separate from the one I am showing you.
+*** [2025-09-06 Sat]
+After reading an article and seeing how things were going, fed Jules the following prompt:
+
+
+**** Prompt1
+
+Without changing any of the function signatures or functionality,
+refactor the python files so that there are ideally no more than 150 lines per file.
+Update the .org and .md documentation files so they are current. Before you
+proceed give me a plan telling me what functions go in what files.I don't know
+how this is going to work: but I'm going to try it out!
+
+Took 18 minutes.  I need to review.
+
+*** [2025-09-04 Thu]
+Tried this one in Gemini but it didn't go well: will have to try again. One problem
+was that I was dragging things by hand, and even though there weren't
+many externals left out gemini created plugs to replace them.  My bad.
+I need to be careful about context.
+
+
+Consider the following two files. I would like to create a new testing function that
+creates a single satellite in a GEO location and initialized celestial bodies.
+Create a two diminsional grid with the first axis going from -pi/2 to pi/2 in 50 in increments
+correspnding to the latitude or declination, and the second axis going from 0 to 2 pi correseponding
+to longitude or right ascention in 100 steps. For each of these points, orient the pointing vector
+of the satellite in this direction and call the exclusion function. Place the return value in the array.
+Finally plot this array using plotly. Place this function in a new module separate from the one I am showing you.
 
 
 *** [2025-09-01 Wed]  Actuall did some good thinking and notes on 
@@ -265,7 +291,7 @@ Ok, lots of today has so far just been figuring out git and github and
 emacs and remembering those commands.  I think I just need to download
 a nice git single page to put in my desk references.
 
-I don't know how this is going to work: but I'm going to try it out!
+
 OK, I'm seeing that I can actually do some editing on this in github 
 itslef.  It's OK I guess.  
 
