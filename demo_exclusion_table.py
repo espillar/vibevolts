@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from demos.common import initialize_standard_simulation
+from common import initialize_standard_simulation
 from propagation import celestial_update
 from visibility import update_visibility_table
 from simulation import DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX

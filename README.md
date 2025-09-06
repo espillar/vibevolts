@@ -44,41 +44,23 @@ pip install numpy astropy jplephem sgp4 plotly scipy
 
 ## Usage and Demos
 
-The `run_demos.py` script provides a comprehensive demonstration of the toolkit's features.
+The `all_demos.py` script provides a comprehensive demonstration of the toolkit's features.
 
-### 1. Run Demos Interactively
+### 1. Run Demos from the Command Line
 
 You can run the script directly from your terminal to see the plots displayed in your browser:
 
 ```bash
-python run_demos.py
+python all_demos.py
 ```
 
-### 2. Generate an HTML Report
+### 2. Run Demos in a Jupyter Notebook
 
-To generate a single `demo_plots.html` file containing all plots, run the following command:
-
-```bash
-python -c "import run_demos; run_demos.export_all_plots_to_html()"
-```
-
-This creates a self-contained HTML file with interactive 3D plots for each demonstration scenario.
-
-### 3. Using in a Library
-
-The individual demo functions (e.g., `demo1`, `demo2`) can be imported from the `demos/` directory and used in other Python scripts or Jupyter notebooks.
-
-Example in a Jupyter Notebook:
+You can import and run the `run_all_demos` function from a Jupyter Notebook to display all plots inline.
 
 ```python
-from demos.demo1 import demo1
-
-# Generate the plot object
-my_figure = demo1()
-
-# You can now display it, modify it, or save it
-my_figure.update_layout(title="My Custom Title")
-my_figure.show()
+import all_demos
+all_demos.run_all_demos()
 ```
 
 ## Documentation
