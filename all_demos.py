@@ -10,6 +10,7 @@ from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
 from demo_exclusion_debug_print import demo_exclusion_debug_print
 from demo_lambertian import demo_lambertian
+from demo_sky_scan import demo_sky_scan
 
 def run_all_demos():
     """
@@ -26,6 +27,7 @@ def run_all_demos():
         demo_exclusion_table,
         demo_pointing_plot,
         demo_lambertian,
+        demo_sky_scan,
     ]
 
     print("--- Running All Demos ---")
