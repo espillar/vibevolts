@@ -35,7 +35,7 @@ Creating a new version of volts that runs faster using jules and other tools.
 This test needs to be applied to any potential or actual pointing.
 It should be done across the whole vector.
 - solar - is the sun within the FOV
-- lunar - is the moon within the FOV
+- lunar - is the moon within the FOV  
 - earth - for satellite is the earth within FOV, for observatory
   make it above the horizon.
 
@@ -72,8 +72,20 @@ I guess this will all be useful but I wish I hadn't killed the job!
 OK, it churns for some time- but it more or less turns out right this
 time at last.  I need to edit some thigns.
 
-Change which functions are called. Create a new function that just
+Change which functions are called. Create a new funcTion just
 creates the demo_plots file but isn't called by default (gemini).
+
+Yeah, I think I really need to pay attention on how to get some
+results more interactively after each change to see that things
+are working - probably doing this in a jupyter notebook interactively
+makes sense.  This is actually the kind of thing an AI should be able
+to do pretty well.
+
+
+
+**** prompt 3
+
+
 
 **** prompt 2
 add a function dump_detector that prints out a table with the rows
