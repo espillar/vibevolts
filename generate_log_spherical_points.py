@@ -1,6 +1,6 @@
 import numpy as np
 from datetime import datetime, timezone
-from visualization import plot_3d_scatter
+from plotting_3d import plot_3d_scatter
 
 
 def generate_log_spherical_points(
