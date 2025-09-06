@@ -134,7 +134,7 @@ This module contains functions for creating interactive 3D plots of the simulati
 
 ### 2.6. Demos
 
-The `demos/` directory contains a set of demonstration functions that showcase the capabilities of the VibeVolts toolkit. The `run_demos.py` script can be used to execute all of the demos in sequence.
+A set of demonstration functions are available as standalone scripts (e.g., `demo1.py`, `demo2.py`). The `all_demos.py` script can be used to execute all of the demos in sequence.
 
 ### 2.7. `radiometry_calcs.py`
 

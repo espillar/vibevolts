@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from demos.common import initialize_standard_simulation
+from common import initialize_standard_simulation
 from plotting_vectors import plot_pointing_vectors
 
 def demo_pointing_plot() -> go.Figure:

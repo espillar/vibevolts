@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from demos.common import initialize_standard_simulation
+from common import initialize_standard_simulation
 from propagation import celestial_update, propagate_satellites
 from plotting_3d import plot_3d_scatter
 

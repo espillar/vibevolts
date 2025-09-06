@@ -92,8 +92,9 @@ organized by module.
 
 ** 2.6. Demos
 
-The ~demos/~ directory contains demonstration scripts. The
-~run_demos.py~ script executes these demos.
+A set of demonstration functions are available as standalone scripts
+(e.g., ~demo1.py~, ~demo2.py~). The ~all_demos.py~ script can be
+used to execute all of the demos in sequence.
 
 ** 2.7. ~radiometry_calcs.py~
 
