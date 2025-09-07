@@ -11,6 +11,7 @@ from demo_pointing_plot import demo_pointing_plot
 from demo_exclusion_debug_print import demo_exclusion_debug_print
 from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
+from demo_pointing_vectors import demo_pointing_vectors
 
 def run_all_demos():
     """
@@ -28,6 +29,7 @@ def run_all_demos():
         demo_pointing_plot,
         demo_lambertian,
         demo_sky_scan,
+        demo_pointing_vectors,
     ]
 
     print("--- Running All Demos ---")

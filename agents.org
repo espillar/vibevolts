@@ -42,6 +42,11 @@ The repository has been refactored into a modular structure. The key files are:
   and `find_and_jerk_blind_satellites` uses this to re-orient satellites
   that have no visible targets.
 
+- `pointing_vectors.py`: This module contains functions for generating and
+  visualizing uniformly distributed vectors on a sphere. `pointing_vectors(n)`
+  creates `n` vectors using the Fibonacci lattice method, and
+  `plot_vectors_on_sphere` visualizes them.
+
 - `generate_log_spherical_points.py`: A utility script that creates a 3D
   point cloud of "fixed points" to be observed. These points are distributed
   with logarithmic spacing radially and uniform spacing angularly.
@@ -64,7 +69,9 @@ The repository has been refactored into a modular structure. The key files are:
   demonstration scripts. It imports and executes each `demo*.py` file.
 
 - `demo*.py`: A collection of individual scripts, each demonstrating a
-  specific feature or scenario of the simulation library.
+  specific feature or scenario of the simulation library. This includes
+  `demo_pointing_vectors.py` which shows how to generate and plot uniformly
+  distributed vectors.
 
 - `common.py`: A utility module that provides helper functions, such as
   `initialize_standard_simulation`, to set up a simulation with a
