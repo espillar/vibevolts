@@ -51,7 +51,7 @@
         <p>The toolkit uses two primary data structures to manage simulation state and physical constants.</p>
 
         <h3>1.1. Simulation State Dictionary (<code>simulation_data</code>)</h3>
-        <p>This is the central data structure, created by the <code>initializeStructures</code> function in <code>vibevolts.py</code>. It is a Python dictionary that organizes all simulation entities into categories.</p>
+        <p>This is the central data structure, created by the <code>initializeStructures</code> function in <code>simulation.py</code>. It is a Python dictionary that organizes all simulation entities into categories.</p>
         <pre><code>
 {
     'start_time': datetime,
@@ -116,7 +116,7 @@
         </ul>
 
         <h3>1.2. Radiometric Filter Data (<code>FILTER_DATA</code>)</h3>
-        <p>This dictionary, located in <code>radiometry.py</code>, provides standard data for a variety of astronomical filters, including Johnson-Cousins, SDSS, and JWST.</p>
+        <p>This dictionary, located in <code>radiometry_data.py</code>, provides standard data for a variety of astronomical filters, including Johnson-Cousins, SDSS, and JWST.</p>
         <ul>
             <li><strong><code>sun</code></strong>: The apparent magnitude of the Sun in the given filter.</li>
             <li><strong><code>sky</code></strong>: The typical dark sky brightness in magnitudes per square arcsecond.</li>
@@ -139,7 +139,7 @@
         </code></pre>
 
         <h3>1.3. Physical Constants</h3>
-        <p>The <code>radiometry.py</code> module also defines the following physical constants:</p>
+        <p>The <code>radiometry_data.py</code> module also defines the following physical constants:</p>
         <ul>
             <li><strong><code>AU_M</code></strong>: The astronomical unit in meters (<code>1.496e+11 m</code>).</li>
             <li><strong><code>RSUN_M</code></strong>: The radius of the Sun in meters (<code>6.957e+08 m</code>).</li>
@@ -148,38 +148,60 @@
         <h2>2. Existing Functions</h2>
         <p>This section describes the functions available in the toolkit, organized by module.</p>
 
-        <h3>2.1. <code>vibevolts.py</code></h3>
+        <h3>2.1. <code>simulation.py</code></h3>
         <ul>
             <li><strong><code>initializeStructures(num_satellites, num_observatories, num_red_satellites, start_time)</code></strong>: Creates and returns the main <code>simulation_data</code> dictionary.</li>
+        </ul>
+
+        <h3>2.2. <code>propagation.py</code></h3>
+        <ul>
             <li><strong><code>celestial_update(data_struct, time_date)</code></strong>: Updates the positions of the Sun and Moon for a given time using the <code>astropy</code> library.</li>
             <li><strong><code>readtle(tle_file_path)</code></strong>: Reads a Two-Line Element (TLE) file and returns a NumPy array of orbital elements and a list of epoch datetimes.</li>
             <li><strong><code>propagate_satellites(data_struct, time_date)</code></strong>: Updates satellite positions based on their orbital elements to a new time using a vectorized Keplerian propagator.</li>
-            <li><strong><code>solarexclusion(data_struct)</code></strong>: Calculates solar exclusion for all satellites based on their pointing vectors. Returns a tuple containing an <code>exclusion_vector</code> (1 for excluded, 0 for clear) and an <code>angle_vector</code> (the calculated angle in radians for each satellite).</li>
-            <li><strong><code>exclusion(data_struct, satellite_index)</code></strong>: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns <code>True</code> if the satellite's pointing vector is within the exclusion zone of the Sun, Moon, or Earth, and <code>False</code> otherwise.</li>
-            <li><strong><code>create_exclusion_table(data_struct)</code></strong>: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is excluded, and 0 means it is clear.</li>
         </ul>
 
-        <h3>2.2. <code>visualization.py</code></h3>
-        <p>This module contains functions for creating interactive 3D plots of the simulation state using the <code>plotly</code> library.</p>
+        <h3>2.3. <code>visibility.py</code></h3>
         <ul>
-            <li><strong><code>plot_3d_scatter(positions, title, plot_time, labels, marker_size, trace_name)</code></strong>: The primary function for creating 3D scatter plots. It displays object positions with Earth references and allows for customization of the marker size and trace name.</li>
-            <li><strong><code>plot_pointing_vectors(data_struct, title, plot_time)</code></strong>: Displays a 3D plot of satellites along with vectors indicating their pointing direction.</li>
+            <li><strong><code>solarexclusion(data_struct)</code></strong>: Calculates solar exclusion for all satellites based on their pointing vectors.</li>
+            <li><strong><code>exclusion(data_struct, satellite_index)</code></strong>: The primary function that checks for viewing exclusion.</li>
+            <li><strong><code>update_visibility_table(data_struct)</code></strong>: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points.</li>
         </ul>
 
-        <h3>2.3. <code>vibevolts_demo.py</code></h3>
-        <p>This module contains a set of demonstration functions that showcase the capabilities of the VibeVolts toolkit. When run as a script, it will execute all of the demos in sequence.</p>
+        <h3>2.4. <code>pointing.py</code></h3>
         <ul>
-            <li><strong><code>initialize_standard_simulation(start_time)</code></strong>: A helper function that sets up a standard simulation scenario with a predefined mix of LEO, GEO, and HEO satellites.</li>
-            <li><strong><code>demo1()</code></strong>: Runs a full demonstration of the simulation tools, including initialization, propagation, and 3D plotting.</li>
-            <li><strong><code>demo2()</code></strong>: Plots the positions of 10 LEO satellites and celestial vectors at different time steps.</li>
-            <li><strong><code>demo3()</code></strong>: Plots the trajectory of a single LEO satellite over 90 minutes.</li>
-            <li><strong><code>demo4()</code></strong>: Plots the trajectory of a single GEO satellite over 23 hours.</li>
-            <li><strong><code>demo_fixedpoints()</code></strong>: Demonstrates the <code>fixedpoints</code> data structure by plotting it in 3D.</li>
-            <li><strong><code>demo_exclusion_table()</code></strong>: Demonstrates the creation and visualization of the exclusion table.</li>
-            <li><strong><code>demo_pointing_plot()</code></strong>: Demonstrates the <code>plot_pointing_vectors</code> function.</li>
+            <li><strong><code>jerk(data_struct, satellite_number)</code></strong>: Moves the pointing vector of a specific satellite by 0.3 radians in a random direction.</li>
+            <li><strong><code>find_and_jerk_blind_satellites(data_struct)</code></strong>: Finds satellites with no visibility and applies the 'jerk' function to them.</li>
         </ul>
 
-        <h3>2.4. <code>radiometry.py</code></h3>
+        <h3>2.5. Plotting Modules</h3>
+        <ul>
+            <li><strong><code>plotting_3d.plot_3d_scatter(...)</code></strong>: The primary function for creating 3D scatter plots.</li>
+            <li><strong><code>plotting_vectors.plot_pointing_vectors(...)</code></strong>: Displays a 3D plot of satellites along with vectors indicating their pointing direction.</li>
+        </ul>
+
+        <h3>2.6. <code>pointing_vectors.py</code></h3>
+        <ul>
+            <li><strong><code>pointing_vectors(n)</code></strong>: Generates <code>n</code> equally spaced points on a unit sphere using the Fibonacci lattice algorithm.</li>
+            <li><strong><code>plot_vectors_on_sphere(vectors, title)</code></strong>: Creates a 3D plot of vectors on a sphere.</li>
+        </ul>
+
+        <h3>2.7. Demos</h3>
+        <p>The <code>demo*.py</code> scripts showcase the toolkit's capabilities:</p>
+        <ul>
+            <li><strong><code>demo1</code></strong>: Initializes a standard simulation, propagates all satellites by 1.5 hours, and plots their final positions.</li>
+            <li><strong><code>demo2</code></strong>: Plots satellite positions at T=0 and T=300s, and includes vectors indicating the direction to the Sun and Moon at both times.</li>
+            <li><strong><code>demo3</code></strong>: Plots the trajectory of a single LEO satellite over 90 minutes.</li>
+            <li><strong><code>demo4</code></strong>: Plots the trajectory of a single GEO satellite over 23 hours.</li>
+            <li><strong><code>demo_exclusion_table</code></strong>: Calculates the visibility of fixed points for all satellites and displays the result as a heatmap.</li>
+            <li><strong><code>demo_exclusion_debug_print</code></strong>: A non-plotting demo that shows the detailed debug output of the <code>exclusion</code> function for a single satellite.</li>
+            <li><strong><code>demo_fixedpoints</code></strong>: Visualizes the distribution of the generated "fixed points" (observation targets) in a 3D scatter plot.</li>
+            <li><strong><code>demo_lambertian</code></strong>: Demonstrates the <code>lambertiansphere</code> brightness calculation and plots brightness vs. phase angle.</li>
+            <li><strong><code>demo_pointing_plot</code></strong>: Shows a 3D plot of all satellites with their pointing vectors.</li>
+            <li><strong><code>demo_pointing_vectors</code></strong>: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.</li>
+            <li><strong><code>demo_sky_scan</code></strong>: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.</li>
+        </ul>
+
+        <h3>2.8. <code>radiometry_calcs.py</code></h3>
         <ul>
             <li><strong><code>mag(x)</code></strong>: Converts a linear flux ratio to an astronomical magnitude.</li>
             <li><strong><code>amag(x)</code></strong>: Converts an astronomical magnitude back to a linear flux ratio.</li>
@@ -189,19 +211,18 @@
             <li><strong><code>plot_blackbody_spectrum_visible_nir(temperature)</code></strong>: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.</li>
         </ul>
 
-        <h3>2.5. <code>lambertiansphere.py</code></h3>
+        <h3>2.9. <code>lambertian.py</code></h3>
         <ul>
             <li><strong><code>lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)</code></strong>: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.</li>
         </ul>
 
-        <h3>2.6. <code>generate_log_spherical_points.py</code></h3>
+        <h3>2.10. <code>generate_log_spherical_points.py</code></h3>
         <ul>
             <li><strong><code>generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)</code></strong>: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.</li>
         </ul>
 
         <h2>3. Dependencies</h2>
         <p>To run the VibeVolts code, the following Python modules must be installed. You can install them using pip.</p>
-        <p><strong>Note:</strong> The <code>vibevolts.py</code> module also has an internal dependency on <code>generate_log_spherical_points.py</code>, which is included in this repository.</p>
         <ul>
             <li><strong><code>numpy</code></strong>: For numerical operations and array manipulation.</li>
             <li><strong><code>astropy</code></strong>: For astronomical calculations and coordinate transformations.</li>
