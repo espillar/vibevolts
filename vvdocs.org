@@ -90,13 +90,42 @@ organized by module.
 - *plotting_3d.plot_3d_scatter(...)*: Creates 3D scatter plots.
 - *plotting_vectors.plot_pointing_vectors(...)*: Plots pointing vectors.
 
-** 2.6. Demos
+** 2.6. ~pointing_vectors.py~
 
-A set of demonstration functions are available as standalone scripts
-(e.g., ~demo1.py~, ~demo2.py~). The ~all_demos.py~ script can be
-used to execute all of the demos in sequence.
+- *pointing_vectors(n)*: Generates ~n~ equally spaced points on a
+  unit sphere using the Fibonacci lattice algorithm.
+- *plot_vectors_on_sphere(vectors, title)*: Creates a 3D plot of
+  vectors on a sphere.
 
-** 2.7. ~radiometry_calcs.py~
+** 2.7. Demos
+
+The ~demo*.py~ scripts showcase the toolkit's capabilities:
+- *demo1*: Initializes a standard simulation, propagates all
+  satellites by 1.5 hours, and plots their final positions.
+- *demo2*: Plots satellite positions at T=0 and T=300s, and
+  includes vectors indicating the direction to the Sun and Moon at
+  both times.
+- *demo3*: Plots the trajectory of a single LEO satellite over 90
+  minutes.
+- *demo4*: Plots the trajectory of a single GEO satellite over 23
+  hours.
+- *demo_exclusion_table*: Calculates the visibility of fixed points
+  for all satellites and displays the result as a heatmap.
+- *demo_exclusion_debug_print*: A non-plotting demo that shows the
+  detailed debug output of the ~exclusion~ function for a single
+  satellite.
+- *demo_fixedpoints*: Visualizes the distribution of the generated
+  "fixed points" (observation targets) in a 3D scatter plot.
+- *demo_lambertian*: Demonstrates the ~lambertiansphere~ brightness
+  calculation and plots brightness vs. phase angle.
+- *demo_pointing_plot*: Shows a 3D plot of all satellites with their
+  pointing vectors.
+- *demo_pointing_vectors*: Generates 1000 uniformly distributed
+  pointing vectors and plots them on a sphere.
+- *demo_sky_scan*: Simulates a sky scan from a GEO satellite,
+  mapping out the celestial exclusion zones as a heatmap.
+
+** 2.8. ~radiometry_calcs.py~
 
 - *mag(x)*, *amag(x)*: Magnitude conversions.
 - *blackbody_flux(...)*: Calculates blackbody flux in a band.
