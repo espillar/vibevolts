@@ -5,6 +5,37 @@ Creating a new version of volts that runs faster using jules and other tools.
 
 
 
+
+
+* Done
+** Create new points instead of red satellties
+- Do a little research to figure out how to create a nice 3d
+  space filling set of points.
+- create a nice grid of points to be observed for now. 
+
+** exclusions Satellites and observatories
+This test needs to be applied to any potential or actual pointing.
+It should be done across the whole vector.
+- solar - is the sun within the FOV
+- lunar - is the moon within the FOV  
+- earth - for satellite is the earth within FOV, for observatory
+  make it above the horizon.
+
+
+
+
+* Notes
+
+** Numpy scatter gather
+import numpy as np
+
+
+data = np.arange(18).reshape(6, 3)
+mask = np.array([True, False, True, False, True, False])
+selected_rows = data[mask]
+computed_results = selected_rows.sum(axis=1, keepdims=True)
+final_array = np.hstack([data, results_container])
+
 * Todo
 
 ** visibility
@@ -25,25 +56,44 @@ Creating a new version of volts that runs faster using jules and other tools.
   them.
   
 
-* Done
-** Create new points instead of red satellties
-- Do a little research to figure out how to create a nice 3d
-  space filling set of points.
-- create a nice grid of points to be observed for now. 
 
-** exclusions Satellites and observatories
-This test needs to be applied to any potential or actual pointing.
-It should be done across the whole vector.
-- solar - is the sun within the FOV
-- lunar - is the moon within the FOV  
-- earth - for satellite is the earth within FOV, for observatory
-  make it above the horizon.
+** Details [0/9]
+
+- [ ] At some point create a good builder function for the constellations 
+- [ ] Create the constellation
+- [ ] create the appropirate targeting grid and rules for traversing it.
+- [ ] write some testing code that shows where things are looking
+- [ ] Create the targets with brightnesses.
+- [ ] Build a function that will
+  - [ ] iterate over all pairs
+  - [ ] create a mask that includes only those things that are in field and
+    not blinded
+  - [ ] cut those out and process for limiting magnitude
+  - [ ] fill back in an array of detected
+- [ ] write some code that computes what been detected and do a 3-D map
+- [ ] iterate over some cycles and make sure things are evolving
+- [ ] next build in something that stores these thing and computs gap times
+
 
 
 * Log
 
-
 ** 2025-09
+
+
+*** [2025-09-07 Sun]
+Getting started in the afternoon. OK. Got distracted by tax reviews in the morning.
+
+Looked up scatter gather above, I think this will make calculations a lot faster.
+
+I think what I should do is work towards scoring some simple constellations, and
+get those done "by hand."  So let's write an algorithm and generate some prompts.
+Write those above in details.
+
+**** P1
+Follow instructions in agents.org.
+
+
 
 *** [2025-09-06 Sat]
 After reading an article and seeing how things were going, fed Jules the following prompt:
@@ -58,6 +108,8 @@ proceed give me a plan telling me what functions go in what files.I don't know
 how this is going to work: but I'm going to try it out!
 
 Took 18 minutes.  I need to review.
+
+Worked well!  Spend some more time thinking about how to optimize search.
 
 *** [2025-09-04 Thu]
 Tried this one in Gemini but it didn't go well: will have to try again. One problem
