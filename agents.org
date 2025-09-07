@@ -147,6 +147,8 @@ Based on the project's progression, the user's immediate to-do list includes:
    implemented. This should calculate metrics like the fraction of time a
    target is observed and the distribution of observation gap times.
 
+
+
 ** 6. Suggestions for Improvement
 
 When modifying the code, prioritize the following areas:
@@ -175,3 +177,7 @@ When modifying the code, prioritize the following areas:
 5. *Code Visualization*: Consider automatically re-creating call graphs of
    the code using tools like `pycallgraph2` and `graphviz` to help visualize
    the relationships between different modules.
+
+** Initialization
+intialize any VMs by installing the modules
+~numpy~, ~astropy~, ~jplephem~, ~sgp4~, ~plotly~, ~scipy~.
