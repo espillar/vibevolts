@@ -80,6 +80,12 @@ final_array = np.hstack([data, results_container])
 
 ** 2025-09
 
+*** [2025-09-08 Mon] 
+Try to run the same demo as yesterday in the office and here it
+runs fine.  Confusing.  I didn't take notes that were very good.
+
+OK, trying to figure out what's useful to do here. i think I'll generate a nice
+LaTeX document  I can print out to review tomorrow using Jules. 
 
 *** [2025-09-07 Sun]
 Getting started in the afternoon. OK. Got distracted by tax reviews in the morning.
