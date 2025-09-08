@@ -98,6 +98,9 @@ def initializeStructures(
             'detector': np.zeros((num_satellites, 7), dtype=float),
         },
 
+
+        # Explicitly defining pointing_spheres to resolve potential sync issues.
+
         'pointing_spheres': {},
 
         'observatories': {
