@@ -120,9 +120,6 @@ the pointingVectors function.
 In the simulations state dicionary add another variable called delta_time that
 refers to the time between time steps in the simulation.
 
-**** P3
-Created a numpy
-
 
 
 *** [2025-09-06 Sat]
