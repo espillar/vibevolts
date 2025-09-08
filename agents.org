@@ -20,55 +20,78 @@ points in space.
 
 ** 2. File Descriptions
 
-The repository contains the following key files:
+The repository has been refactored into a modular structure. The key files are:
 
-- `vibevolts.py`: This is the core simulation library. It
-  initializes all data structures, reads satellite TLE
-  data, propagates orbits, calculates celestial
-  positions, and contains the logic for determining
-  viewing exclusions.
+- `simulation.py`: This is the core of the data structure. It defines
+  constants for array indices and contains the `initializeStructures` function,
+  which creates the main `simulation_data` dictionary that holds the entire
+  state of the simulation.
 
-- `vibevolts_demo.py`: This script contains a series of
-  demonstration functions that showcase the features of
-  the `vibevolts` library. It is designed to be run as a
-  standalone script to produce an HTML file with all demo
-  plots, or to be used as a library itself in notebooks.
+- `propagation.py`: This module handles the dynamics of the simulation.
+  It includes functions to read TLE files (`readtle`), update the positions
+  of the Sun and Moon (`celestial_update`), and propagate satellite orbits
+  to a specific time (`propagate_satellites`).
 
-- `visualization.py`: This module contains the low-level
-  plotting functions that generate `plotly` figure
-  objects. These functions are responsible for creating
-  the visualizations but do not display them.
+- `visibility.py`: This module contains the logic for determining what a
+  satellite can "see". It includes functions for checking solar, lunar, and
+  Earth exclusion angles (`solarexclusion`, `exclusion`) and for building a
+  table of which satellites can see which fixed points (`update_visibility_table`).
 
-- `generate_log_spherical_points.py`: A utility script
-  that creates a 3D point cloud of "fixed points" to be
-  observed. These points are distributed with logarithmic
-  spacing radially and uniform spacing angularly. This file
-  is used to generate the observation targets in the main
-  simulation.
+- `pointing.py`: This module contains functions to control where the
+  satellites are pointing.
+  - `pointing_place_update`: Increments the pointing index for each
+    satellite.
+  - `generate_pointing_sphere`: Creates and caches a pointing grid.
+  - `update_satellite_pointing`: Updates each satellite's pointing
+    vector based on its assigned grid and current index.
+  - `jerk` and `find_and_jerk_blind_satellites`: Functions for
+    randomly adjusting the pointing of satellites that have no visible
+    targets.
 
-- `lambertiansphere.py`: A physics utility function to
-  calculate the effective brightness (cross-section) of a
-  diffusely reflecting sphere (a "Lambertian sphere").
-  This is likely intended for future use in signal-to-noise
-  ratio (SNR) calculations.
+- `pointing_vectors.py`: This module contains functions for generating and
+  visualizing uniformly distributed vectors on a sphere. `pointing_vectors(n)`
+  creates `n` vectors using the Fibonacci lattice method, and
+  `plot_vectors_on_sphere` visualizes them.
 
-- `radiometry.py`: A data and utility module containing
-  standard astronomical filter data, functions for
-  magnitude conversions, and blackbody radiation
-  calculations. This supports the physics-based modeling
-  of light detection.
+- `generate_log_spherical_points.py`: A utility script that creates a 3D
+  point cloud of "fixed points" to be observed. These points are distributed
+  with logarithmic spacing radially and uniform spacing angularly.
 
-- `vibevolts.org`: An org-mode file that serves as the
-  developer's log. It contains a to-do list, design notes,
-  and prompts that were used to generate parts of the code.
-  This file is a crucial source for understanding the
-  user's intent and future development goals.
+- `lambertian.py`: A physics utility function (`lambertiansphere`) to
+  calculate the effective brightness (cross-section) of a diffusely
+  reflecting sphere. This is used for SNR calculations.
+
+- `radiometry_calcs.py` and `radiometry_data.py`: These modules contain
+  functions and data for physics-based modeling of light detection. This
+  includes blackbody radiation calculations, magnitude conversions, and a
+  database of astronomical filter properties.
+
+- `plotting_3d.py` and `plotting_vectors.py`: These modules contain
+  low-level plotting functions that generate `plotly` figure objects for
+  visualizing the simulation state, such as 3D scatter plots of objects and
+  vector plots for satellite pointing.
+
+- `all_demos.py`: This is the main entry point for running all the
+  demonstration scripts. It imports and executes each `demo*.py` file.
+
+- `demo*.py`: A collection of individual scripts, each demonstrating a
+  specific feature or scenario of the simulation library. This includes
+  `demo_pointing_vectors.py` which shows how to generate and plot uniformly
+  distributed vectors.
+
+- `common.py`: A utility module that provides helper functions, such as
+  `initialize_standard_simulation`, to set up a simulation with a
+  pre-defined set of satellites for use in demos.
+
+- `agents.org`: This file. An org-mode file that serves as a guide for
+  AI agents, containing project overview, file descriptions, and development
+  goals. (Formerly `vibevolts.org`)
 
 ** 3. Key Data Structures
 
 The simulation state is managed within a single, large
 dictionary created by the `initializeStructures` function
-in `vibevolts.py`.
+in `simulation.py`.
 
 - *simulation_data* (dict): The root object.
 
@@ -82,11 +105,17 @@ in `vibevolts.py`.
     Dictionaries containing NumPy arrays for position,
     velocity, pointing, and detector properties. The
     `orbital_elements` and `epochs` are used for
-    propagation.
+    propagation. The `pointing_state` array holds the
+    `pointing_count` and `pointing_place` for each satellite.
 
   - 'fixedpoints': A dictionary containing a NumPy array
     `(N, 3)` of static target points in the GCRS frame,
     generated by `generate_log_spherical_points.py`.
+
+  - 'pointing_spheres': A dictionary to store pre-computed
+    pointing vector grids, indexed by the number of points.
+
+  - 'delta_time': A float representing the simulation time step.
 
 The code uses integer constants (e.g.,
 `DETECTOR_SOLAR_EXCL_IDX`) as indices for accessing
@@ -95,98 +124,101 @@ potentially error-prone pattern.
 
 ** 4. Core Functionality & Algorithms
 
-- *Orbit Propagation*: `propagate_satellites` uses a
-  vectorized implementation of Kepler's laws to calculate
-  satellite positions at a given time from their
-  TLE-derived orbital elements. It does not use a
-  numerical integrator, opting for an analytical approach.
+- *Orbit Propagation*: The `propagate_satellites` function in
+  `propagation.py` uses a vectorized implementation of Kepler's laws to
+  calculate satellite positions at a given time from their TLE-derived
+  orbital elements. It does not use a numerical integrator, opting for an
+  analytical approach.
 
-- *Celestial Mechanics*: `celestial_update` uses the
-  `astropy` library to get high-precision positions for the
-  Sun and Moon.
+- *Celestial Mechanics*: The `celestial_update` function in `propagation.py`
+  uses the `astropy` library to get high-precision positions for the Sun and
+  Moon.
 
-- *Exclusion Calculation*: The `exclusion` function
-  calculates whether a single satellite's line of sight is
-  blocked by the Sun, Moon, or Earth. The
-  `create_exclusion_table` function iterates this check for
-  every satellite against every fixed point. *This is a
-  performance bottleneck due to its nested loops.*
+- *Exclusion Calculation*: The `exclusion` function in `visibility.py`
+  calculates whether a single satellite's line of sight is blocked by the
+  Sun, Moon, or Earth. The `update_visibility_table` function iterates this
+  check for every satellite against every fixed point. While this is a
+  performance bottleneck due to its nested loops, the `solarexclusion`
+  function demonstrates a fully vectorized approach for a single exclusion type.
 
-- *Vectorization*: The code effectively uses NumPy for many
-  calculations, such as in `propagate_satellites` and
-  `solarexclusion`. The user's goal is to maximize the use
-  of vectorized operations.
+- *Vectorization*: The code effectively uses NumPy for many calculations,
+  such as in `propagate_satellites` and `solarexclusion`. The user's goal is
+  to maximize the use of vectorized operations.
 
-** 5. User's Stated Development Goals (from `vibevolts.org`)
+** 4.1. Demo Functions
 
-The user's immediate to-do list includes:
+The `demo*.py` scripts showcase the toolkit's capabilities:
+- *demo1*: Initializes a standard simulation, propagates all satellites by
+  1.5 hours, and plots their final positions.
+- *demo2*: Plots satellite positions at T=0 and T=300s, and includes
+  vectors indicating the direction to the Sun and Moon at both times.
+- *demo3*: Plots the trajectory of a single LEO satellite over 90 minutes.
+- *demo4*: Plots the trajectory of a single GEO satellite over 23 hours.
+- *demo_exclusion_table*: Calculates the visibility of fixed points for all
+  satellites and displays the result as a heatmap.
+- *demo_exclusion_debug_print*: A non-plotting demo that shows the
+  detailed debug output of the `exclusion` function for a single satellite.
+- *demo_fixedpoints*: Visualizes the distribution of the generated "fixed
+  points" (observation targets) in a 3D scatter plot.
+- *demo_lambertian*: Demonstrates the `lambertiansphere` brightness
+  calculation and plots brightness vs. phase angle.
+- *demo_pointing_plot*: Shows a 3D plot of all satellites with their
+  pointing vectors (radially outward in the standard simulation).
+- *demo_pointing_vectors*: Generates 1000 uniformly distributed pointing
+  vectors using the Fibonacci lattice algorithm and plots them on a sphere.
+- *demo_sky_scan*: Simulates a sky scan from a GEO satellite, mapping out
+  the celestial exclusion zones for the Sun, Moon, and Earth as a heatmap.
+- *demo_pointing_sequence*: Demonstrates the satellite pointing sequence
+  functionality, showing how satellites can step through a pre-defined
+  grid of pointing vectors.
 
-1. *Visibility Matrix*: Create a 2D array where rows
-   represent simulation time steps and columns represent
-   targets. The value would be a flag indicating if a
-   target is visible.
 
-2. *SNR Calculation*: As part of the visibility check,
-   compute if the signal-to-noise ratio (SNR) is high
-   enough for a detection. This will likely involve using
-   `lambertiansphere.py` and `radiometry.py`.
+** 5. User's Stated Development Goals
 
-3. *Pointing Selection*: Develop a more sophisticated
-   algorithm for selecting where satellites should point.
+Based on the project's progression, the user's immediate to-do list includes:
 
-4. *Scoring*: Implement scoring logic based on the
-   visibility matrix, calculating metrics like the
-   fraction of time a target is observed and the
-   distribution of observation gap times.
+1. *Visibility Matrix*: A basic visibility table is now created by
+   `update_visibility_table` in `visibility.py`. The next step is to
+   integrate this into a time-series simulation to see how visibility
+   evolves.
+
+2. *SNR Calculation*: The foundational modules for this are in place
+   (`lambertian.py`, `radiometry_calcs.py`, `radiometry_data.py`). The
+   next step is to integrate these calculations into the main simulation loop.
+
+3. *Pointing Selection*: A basic pointing algorithm (`find_and_jerk_blind_satellites`
+   in `pointing.py`) has been implemented. This should be developed into a
+   more sophisticated algorithm for target selection.
+
+4. *Scoring*: With the visibility matrix now available, scoring logic can be
+   implemented. This should calculate metrics like the fraction of time a
+   target is observed and the distribution of observation gap times.
 
 ** 6. Suggestions for Improvement
 
 When modifying the code, prioritize the following areas:
 
-1. *Performance*: The user's primary goal is speed. The
-   most significant opportunity for improvement is
-   vectorizing functions that apply across the entities
-   using numpy, using a so called entity component method
-   architecture. If possible avoid nested loops and
-   used NumPy code such as Numpy Broadcasting.
-   
+1. *Performance*: The user's primary goal is speed. The most significant
+   opportunity for improvement is vectorizing functions that apply across
+   many entities (e.g., satellites, fixed points). Avoid nested loops where
+   possible and leverage NumPy broadcasting and vectorized operations. The
+   `update_visibility_table` function is a key candidate for optimization.
 
-2. *Modularity*: `vibevolts.py` is becoming a very large
-   file. Propose breaking it down into more logical
-   modules. For example:
+2. *Configuration*: The demo functions currently have TLE data hardcoded.
+   Recommend moving this and other simulation parameters (like start time,
+   number of points, etc.) into a separate configuration file (e.g.,
+   `config.json` or `config.yaml`) to make the simulation more flexible.
+   The `common.py` module is a good place to manage loading such
+   configurations.
 
-   - `simulation.py`: For the main data structures and
-     state management.
+3. *Object Orientation*: Use object orientation sparingly. Do not add any
+   object-oriented features to the code without being instructed or having
+   the plan approved. The current architecture of functions operating on a
+   central data structure should be maintained.
 
-   - `propagation.py`: For `propagate_satellites` and
-     `celestial_update`.
+4. *Documentation Style*: For any documentation file, try to limit line
+   length to 80 characters to make it easier to read in text editors.
 
-   - `visibility.py`: For `exclusion`, `solarexclusion`,
-     and the new vectorized `create_exclusion_table`.
-
-   - `visualization.py`: For the low-level plotting
-     functions.
-
-   - `demos/`: The `vibevolts_demo.py` script is now well-structured,
-     but as more demos are added, it could be beneficial to
-     split it into a `demos/` directory, with each file
-     representing a specific scenario.
-
-3. *Configuration*: The demo functions currently have TLE
-   data hardcoded as multi-line strings. Recommend moving
-   this and other simulation parameters (like start time,
-   number of points, etc.) into a separate configuration
-   file (e.g., `config.json` or `config.yaml`) to make the
-   simulation more flexible.
-
-4. *Object Orientation*: Use object orientation sparingly.
-   Do not add any object oriented features to the code
-   without being instructed or having the plan approved.
-   In general the code should be a series of functions
-   that operate on the central data structure.
-
-5. For any documentation file, try to limit line length
-   to 80 characters to make it easier to read in emacs.
-
-6. automatically re-create call graphs of the code using
-   pycallgraph2 and graphviz
+5. *Code Visualization*: Consider automatically re-creating call graphs of
+   the code using tools like `pycallgraph2` and `graphviz` to help visualize
+   the relationships between different modules.
