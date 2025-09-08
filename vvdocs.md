@@ -161,7 +161,28 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 *   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
 *   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
 
-### 2.8. `radiometry_calcs.py`
+### 2.8. How to Run Demos
+
+The `all_demos.py` script provides a comprehensive demonstration of the toolkit's features.
+
+#### 1. Run Demos from the Command Line
+
+You can run the script directly from your terminal to see the plots displayed in your browser:
+
+```bash
+python all_demos.py
+```
+
+#### 2. Run Demos in a Jupyter Notebook
+
+You can import and run the `run_all_demos` function from a Jupyter Notebook to display all plots inline.
+
+```python
+import all_demos
+all_demos.run_all_demos()
+```
+
+### 2.9. `radiometry_calcs.py`
 
 *   **`mag(x)`**: Converts a linear flux ratio to an astronomical magnitude.
 *   **`amag(x)`**: Converts an astronomical magnitude back to a linear flux ratio.
@@ -170,11 +191,11 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 *   **`plot_blackbody_spectrum(temperature)`**: Plots the spectral radiance of a blackbody from 0.5 to 30 microns.
 *   **`plot_blackbody_spectrum_visible_nir(temperature)`**: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
 
-### 2.8. `lambertian.py`
+### 2.10. `lambertian.py`
 
 *   **`lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)`**: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.
 
-### 2.9. `generate_log_spherical_points.py`
+### 2.11. `generate_log_spherical_points.py`
 
 *   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.
 
