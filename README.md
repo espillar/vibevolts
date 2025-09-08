@@ -23,7 +23,25 @@ The toolkit has been refactored into a modular structure:
 *   `lambertian.py`: Lambertian sphere brightness calculations.
 *   `radiometry_data.py` & `radiometry_calcs.py`: Radiometric data and functions.
 *   `plotting_3d.py` & `plotting_vectors.py`: 3D visualization functions.
+*   `pointing_vectors.py`: Functions for generating and visualizing uniformly distributed vectors on a sphere.
 *   `generate_log_spherical_points.py`: Tools for generating 3D point clouds.
+
+## Demos
+
+The `all_demos.py` script runs a series of demonstrations to showcase the toolkit's features. Here is a list of the available demos:
+
+*   **`demo1`**: Initializes a standard simulation, propagates all satellites by 1.5 hours, and plots their final positions.
+*   **`demo2`**: Plots satellite positions at T=0 and T=300s, and includes vectors indicating the direction to the Sun and Moon at both times.
+*   **`demo3`**: Plots the trajectory of a single LEO satellite over 90 minutes.
+*   **`demo4`**: Plots the trajectory of a single GEO satellite over 23 hours.
+*   **`demo_exclusion_table`**: Calculates the visibility of fixed points for all satellites and displays the result as a heatmap.
+*   **`demo_exclusion_debug_print`**: A non-plotting demo that shows the detailed debug output of the `exclusion` function for a single satellite.
+*   **`demo_fixedpoints`**: Visualizes the distribution of the generated "fixed points" (observation targets) in a 3D scatter plot.
+*   **`demo_lambertian`**: Demonstrates the `lambertiansphere` brightness calculation and plots brightness vs. phase angle.
+*   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their pointing vectors.
+*   **`demo_pointing_vectors`**: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.
+*   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
+*   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
 
 ## Dependencies
 

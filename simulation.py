@@ -2,38 +2,15 @@ import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Any
 from generate_log_spherical_points import generate_log_spherical_points
-
-# --- Global Constants for Array Indices ---
-# These constants define column indices for numpy arrays, making the
-# code more readable and preventing errors from using "magic numbers".
-
-# -- Radii in Meters --
-EARTH_RADIUS = 6378137.0
-MOON_RADIUS = 1737400.0
-
-# -- Detector Array Indices --
-DETECTOR_APERTURE_IDX = 0      # Aperture size in meters
-DETECTOR_PIXEL_SIZE_IDX = 1    # Pixel size in radians
-DETECTOR_QE_IDX = 2            # Quantum efficiency as a fraction (0.0 to 1.0)
-DETECTOR_PIXELS_IDX = 3        # Total number of pixels in the detector (count)
-DETECTOR_SOLAR_EXCL_IDX = 4    # Solar exclusion angle in radians
-DETECTOR_LUNAR_EXCL_IDX = 5    # Lunar exclusion angle in radians
-DETECTOR_EARTH_EXCL_IDX = 6    # Earth exclusion angle (above the limb) in radians
-
-# -- Orbital Elements Array Indices --
-ORBITAL_A_IDX = 0              # Semi-major axis in meters
-ORBITAL_E_IDX = 1              # Eccentricity (dimensionless)
-ORBITAL_I_IDX = 2              # Inclination in radians
-ORBITAL_RAAN_IDX = 3           # Right Ascension of the Ascending Node in radians
-ORBITAL_ARGP_IDX = 4           # Argument of Perigee in radians
-ORBITAL_M_IDX = 5              # Mean Anomaly in radians
+from constants import *
 
 
 def initializeStructures(
     num_satellites: int,
     num_observatories: int,
     num_red_satellites: int,
-    start_time: datetime
+    start_time: datetime,
+    delta_time: float = 60.0
 ) -> Dict[str, Any]:
     """
     Initializes categorized data structures for a space simulation.
@@ -95,6 +72,7 @@ def initializeStructures(
     # --- Main Data Structure ---
     simulation_data: Dict[str, Any] = {
         'start_time': start_time,
+        'delta_time': delta_time,
         'counts': {
             'celestial': 2,  # Sun and Moon
             'satellites': num_satellites,
@@ -116,8 +94,12 @@ def initializeStructures(
             'orbital_elements': np.zeros((num_satellites, 6), dtype=float),
             'epochs': [], # List to store datetime epochs for each satellite
             'pointing': np.zeros((num_satellites, 3), dtype=float),
+            'pointing_state': np.zeros((num_satellites, 2), dtype=int),
             'detector': np.zeros((num_satellites, 7), dtype=float),
         },
+
+        # Explicitly defining pointing_spheres to resolve potential sync issues.
+        'pointing_spheres': {},
 
         'observatories': {
             'position': np.zeros((num_observatories, 3), dtype=float),
