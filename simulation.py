@@ -1,6 +1,7 @@
 import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Any
+# Assuming generate_log_spherical_points is in the same directory or accessible
 from generate_log_spherical_points import generate_log_spherical_points
 from constants import *
 
@@ -98,10 +99,8 @@ def initializeStructures(
             'detector': np.zeros((num_satellites, 7), dtype=float),
         },
 
-
-        # Explicitly defining pointing_spheres to resolve potential sync issues.
-
-        'pointing_spheres': {},
+        # FIX: Added the 'pointing_spheres' key, initialized as an empty dictionary.
+        'pointing_spheres': { } ,
 
         'observatories': {
             'position': np.zeros((num_observatories, 3), dtype=float),
@@ -132,5 +131,7 @@ def initializeStructures(
             'visibility': np.zeros((num_fixed_points, num_satellites), dtype=int)
         }
     }
+
+    generate_pointing_sphere(simulation_data,100)
 
     return simulation_data
