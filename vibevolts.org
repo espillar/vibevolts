@@ -1,0 +1,400 @@
+
+* Vibevolts
+
+Creating a new version of volts that runs faster using jules and other tools.
+
+
+
+
+
+* Done
+** Create new points instead of red satellties
+- Do a little research to figure out how to create a nice 3d
+  space filling set of points.
+- create a nice grid of points to be observed for now. 
+
+** exclusions Satellites and observatories
+This test needs to be applied to any potential or actual pointing.
+It should be done across the whole vector.
+- solar - is the sun within the FOV
+- lunar - is the moon within the FOV  
+- earth - for satellite is the earth within FOV, for observatory
+  make it above the horizon.
+
+
+
+
+* Notes
+
+** Numpy scatter gather
+import numpy as np
+
+
+data = np.arange(18).reshape(6, 3)
+mask = np.array([True, False, True, False, True, False])
+selected_rows = data[mask]
+computed_results = selected_rows.sum(axis=1, keepdims=True)
+final_array = np.hstack([data, results_container])
+
+* Todo
+
+** visibility
+- Create a 2-d array that has a flag for each time the satellite
+  might be observed, a row for each time in the simulaton,
+  and a  vector of the times for the rows.
+- for each target, compute if its within anyones FOV, if the
+  observer isn't blinded, and the SNR is high enough.
+
+** Pointing selections (OK, this one will take some developement!)
+
+** Scoring
+- use the visibilty matrix above
+- take the visibility vector and calculate the fraction
+  of the time that the thing is observed
+- Calculate the gap times- basically for each column,
+  compute the interobservation distances and histogram
+  them.
+  
+
+
+** Details [0/9]
+
+- [ ] At some point create a good builder function for the constellations 
+- [ ] Create the constellation
+- [ ] create the appropirate targeting grid and rules for traversing it.
+- [ ] write some testing code that shows where things are looking
+- [ ] Create the targets with brightnesses.
+- [ ] Build a function that will
+  - [ ] iterate over all pairs
+  - [ ] create a mask that includes only those things that are in field and
+    not blinded
+  - [ ] cut those out and process for limiting magnitude
+  - [ ] fill back in an array of detected
+- [ ] write some code that computes what been detected and do a 3-D map
+- [ ] iterate over some cycles and make sure things are evolving
+- [ ] next build in something that stores these thing and computs gap times
+
+
+
+* Log
+
+** 2025-09
+
+
+*** [2025-09-07 Sun]
+Getting started in the afternoon. OK. Got distracted by tax reviews in the morning.
+
+Looked up scatter gather above, I think this will make calculations a lot faster.
+
+I think what I should do is work towards scoring some simple constellations, and
+get those done "by hand."  So let's write an algorithm and generate some prompts.
+Write those above in details.
+
+**** P1
+Follow instructions in agents.org.
+ 
+=======
+Create a new module called pointing vectors. In it
+create a new function called pointing_vectors(n) which creates n equally spaced
+points on the sphere using the fibonacci sphere algorhtm, and return the
+3 dimensional points in an n by 3 numpy array.
+Also add a function to the module which draws the points on a 3-d sphere using
+plotly.
+Add a demo funciton to the demos that calls this function and displays it.
+
+**** P2
+Follow  the instructions in agents.org.
+For each satellite, add two more parameters:  first a "pointing count" which
+indicates what spherical pointing grid will be used.  Second "pointing place"
+which indicates where in the sequence of pointing we are currently at.
+Create a function "pointing place update" that increments the pointing place
+value for all of the satellites, and if the pointing place is greater than or
+equal to pointing count resets pointing place to 0.
+
+Create another dictionary in the simulations state dictionary called
+pointing spheres.  Entries will be indexed by the number of points the
+sphere is divided into, and the content will be numpy arrays created by
+the pointingVectors function.
+
+In the simulations state dicionary add another variable called delta_time that
+refers to the time between time steps in the simulation.
+ 
+
+
+
+*** [2025-09-06 Sat]
+After reading an article and seeing how things were going, fed Jules the following prompt:
+
+
+**** Prompt1
+
+Without changing any of the function signatures or functionality,
+refactor the python files so that there are ideally no more than 150 lines per file.
+Update the .org and .md documentation files so they are current. Before you
+proceed give me a plan telling me what functions go in what files.I don't know
+how this is going to work: but I'm going to try it out!
+
+Took 18 minutes.  I need to review.
+
+Worked well!  Spend some more time thinking about how to optimize search.
+
+*** [2025-09-04 Thu]
+Tried this one in Gemini but it didn't go well: will have to try again. One problem
+was that I was dragging things by hand, and even though there weren't
+many externals left out gemini created plugs to replace them.  My bad.
+I need to be careful about context.
+
+
+Consider the following two files. I would like to create a new testing function that
+creates a single satellite in a GEO location and initialized celestial bodies.
+Create a two diminsional grid with the first axis going from -pi/2 to pi/2 in 50 in increments
+correspnding to the latitude or declination, and the second axis going from 0 to 2 pi correseponding
+to longitude or right ascention in 100 steps. For each of these points, orient the pointing vector
+of the satellite in this direction and call the exclusion function. Place the return value in the array.
+Finally plot this array using plotly. Place this function in a new module separate from the one I am showing you.
+
+
+*** [2025-09-01 Wed]  Actuall did some good thinking and notes on 
+things to do.  Started implementing thu.
+
+*** [2025-09-02 Tue]
+Made a little progress getting things working in the cloud on the
+work computer.  Things needed to be moved.
+
+*** [2025-09-01 Mon] Labor day.
+I had left a thing running last night in jules, but it didn't finish
+right- it could be that things timed out so things didn't get synced.
+Anyway, asking it to fix the bug with graphics not being called right
+again.  Prompt 2 from yesterday wasn't running.
+
+I think I've been running too fast. Time to look at the code a little.
+
+OK. Waste some time here. git mv rename this file. Figure out ^tab gets you
+between tabs in safari.  Accidentally kill the Jules job I had fixing
+the error listed above. Figure out how to close a "window" in emacs.
+I guess this will all be useful but I wish I hadn't killed the job!
+
+OK, it churns for some time- but it more or less turns out right this
+time at last.  I need to edit some thigns.
+
+Change which functions are called. Create a new funcTion just
+creates the demo_plots file but isn't called by default (gemini).
+
+Yeah, I think I really need to pay attention on how to get some
+results more interactively after each change to see that things
+are working - probably doing this in a jupyter notebook interactively
+makes sense.  This is actually the kind of thing an AI should be able
+to do pretty well.
+
+
+
+**** prompt 3
+
+
+
+**** prompt 2
+add a function dump_detector that prints out a table with the rows
+representing all the detectors and the labeled columns being the different
+aspects of that detector.
+
+
+
+
+**** prompt 1
+- Write function called jerk(satellite_number) that takes takes the satellite
+  indicated by that number and moves the pointing vector 0.3 radians in
+  any direction.
+- write  function that examines the exclusion_table, finds any satellite
+  (column) which entirely 0, and applies the function jerk to that satellite.
+- create a new demo function that initializes the simulation,
+  then creates and plots an exclusion_table, then applies the function
+  just mentioned, and then creates and plots a new exclusion_table. 
+
+
+
+** 2025-08
+
+
+*** [2025-08-31 Sun]
+OK, lets get serious.
+
+
+**** prompt 2 - ran overnight and didn't work
+- take all the demos that create plots in plotly, wrap them up in a new
+  function that you run when you are testing things on the jules server
+  and place the outputs in a new html file placed in the repo that
+  can be viewed stand alone in the browswer.
+- neglected to tell it to leave the original demos there- got that in there
+  on the prompt.
+
+**** Prompt 1 - this is sort of a repeat  worked after I changed it to not do so much testing.
+-read in and follow the instructions in agents.org file.
+-Modify the number of fixed points created is only 100 for the moment.
+-report any time you violate these instructions.
+-Create another array visibility in overall structures that will have a number of columns equal to the number of satellites and a number of rows equal to the number of fixed points. It will be extended into a third dimension as the simulation proceeds.
+-change the function exclusion so that it returns a 0 if pointing is exclueded and 1 if it is not excluded.
+-check that the function create_exclusion_table works with this new array and fills its elements by calling the fuction exclusion.
+-do not run all the demos, give me a change for GitHub.
+
+
+*** [2025-08-30 Sat]
+Well, that was a couple of weeks with not much going on.  Got to stop that.
+
+- An interesting idea that Hayden came up was that I might actually run some diagnostics
+  in the virtual jules VM (or wherever, I guess!) and post them back to git.  I kinda like that.
+- i need to review status
+
+Futzing around trying to get jules to autogenerate some good graphs of the code.
+Clearly this is some sort of yak shaving
+
+*** [2025-08-23 Sat]
+Hmm.  Too bad I left some dead time here.
+
+- Have vibevolts update all the documentation.
+
+*** [2025-08-18 Mon]
+Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
+Hmm.
+Well, that's kinda working, but somehow I am having some challenges getting git
+to the way I want it too. Ther are some edge cases i guess.
+
+Later work a little when I get home, still maybe some problems.
+
+OK, well, later, clone it on to neptune, which isn't too demanding intellectually,
+but a good thing to do if I'm going to work this in the long run.
+Establish a nice ssh key for push and pull in git and on the local machine
+and in the repo.  Git copilot helped with that!
+
+Well I think I'm getting the hang of it, but I really ought to write it down.
+For now, what's the next useful step I can take?
+
+OK, I think I did something to do some visibility calculations. I haven't really
+RUN it though to check if things are working. Next.
+
+*** [2025-08-17 Sun]
+
+OK, I need to collect observations now.  Let's get a prompt.  Maybe see if jules
+can do this since it's across several files now.
+
+*** Prompt
+use the python tools currently in the repository, but don't change them
+un-necessarily.
+Create a new central data structure in vibevolts.py
+called fixedpoints that is
+initialized using the generate_log_spherical_points including
+points from 2000000 meters to tice geodistances.  Add
+a new demo functino that plots this data in a plotly.
+
+Did some reading on git- I thought it was all in my head, put creating
+local branches of remote things, switching branches, restoring older
+versions of files, and newer commans switch and resotre were not
+in my vocabulary.
+
+*** [2025-08-16 Sat]
+Last Socorro Vacation Day. Testing out working copy. Seems really good
+for some things! Took me 7 minutes to get my environment up.
+
+OK, I need to take in to account points of view that are blocked by
+earth or blinded by the sun moon or earth.  It would be nice
+to make this an ECS function- but let's start simple
+
+**** Prompt - this appears to have mostly worked. a
+
+Based on the existing code you've just read, create a new
+python function exclusion  in a new file that does the following.
+
+Add two global variables, earth_radius and moon_radius that contain
+those radii in meters.
+Create for me a function that takes an index number into the satellites
+array, and extracts position for the satellite, the pointing
+vector for the satellite, and also collects positions of the sun
+and the moon.
+Compute the unit vectors to the sun, the moon, and the earth from
+satellite position.
+
+For the sun, compute the angle betwen the vector to the sun and
+the pointing vector, and set a flag if the angle is less than
+the solar exclusion angle.
+
+For the moon and the earth, calculate the angle between the
+vector to the objects and the pointing angle, subtract
+the arctangent of the  radius of the object and the distance to
+to the object, and set flags if either is less than the
+appropriate exclusion angle.
+
+Set a global exclusion flag if any of these three flags is
+set and return this flag, either true of false.
+
+
+For testing, create a function that that does some displays in
+plotly.  The function should initialize the positions of the
+sun and moon.  It should create a 100 satellites in random
+positions between leo out to geo each pointing in a random
+direction. Call the exclusion function.  For each of these
+cases, using plotly, create a plot containing the earth,
+the satellites position with a pointing vector pointing away
+from it, and vectors to the moon, sun, and earth, together with
+an indication if the view was excluded or not.
+
+
+*** [2025-08-15 Fri]
+
+Summary:  I actually did get a nice function to generate evenly
+spaced 3d points in, and get it tested.  Working well with github.
+
+
+Looking at the plan above, I wrote a prompt for gemini to create
+the space filling data.
+That worked, and I added a function to check it.  There
+was a bug in that the radial distribution wasn't applired randomly
+in az and el, but gemini found that once I mentioned it.
+Checking in with git.
+
+**** Prompt for Gemini
+I need an algorithm that will create a set of points in 3d space.
+Relative to a central point, they should be space logarithmically
+spaced in distance from the central point, but equally spaced in
+angle in any range of distances. Subject to these constraints the
+points should lie between an inner and an outer radius. Find this
+algorithm, and if possible give me code to execute it.
+
+take the function we just generated and add a new function that creates
+4 plots: first, a 3d plot using plotly that displays the points
+(assuming we are in a Jupyter notebook), a plot that histograms the
+radii of the points, and plots that display the angular distributions
+of the points in terms of latitude and longitude. Display the function
+so I can copy it.
+
+*** [2025-08-14 Thu]
+Ok, lots of today has so far just been figuring out git and github and
+emacs and remembering those commands.  I think I just need to download
+a nice git single page to put in my desk references.
+
+
+OK, I'm seeing that I can actually do some editing on this in github 
+itslef.  It's OK I guess.  
+
+It's rather interesting to be moving these things around between github
+and other locations so quickly, and being able to edit thigns everywhere.
+
+OK, the next action I need to do is to actually get radiometry working,
+and stuff like that. 
+
+**** Prompt1
+Create a function called solarexclusion.
+Create an exclusion numpy vector. the same length as the number of
+satellites.
+Create a function which operates on all the satellites in
+the list of satellites in a vectorized manner.
+create a vector from the satellite to the sun and the vector
+representing the satellite pointing.  If the angle between these
+two is less than the solar exclusion angle for the satellite,
+place a 1 in the exclusion list, othewise leave it as 0.
+Return this vector as well as a vector of the angle from
+the function.
+
+Create a test function that prints these two vectors out.
+
+
+
+

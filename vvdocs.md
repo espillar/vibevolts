@@ -2,13 +2,17 @@
 
 This document provides an overview of the data structures, functions, and dependencies for the VibeVolts simulation toolkit.
 
+## HTML Wiki
+
+A pure HTML version of this documentation is available in the file [wiki.html](wiki.html).
+
 ## 1. Common Data Structures
 
 The toolkit uses two primary data structures to manage simulation state and physical constants.
 
 ### 1.1. Simulation State Dictionary (`simulation_data`)
 
-This is the central data structure, created by the `initializeStructures` function in `vibevolts.py`. It is a Python dictionary that organizes all simulation entities into categories.
+This is the central data structure, created by the `initializeStructures` function in `simulation.py`. It is a Python dictionary that organizes all simulation entities into categories.
 
 ```python
 {
@@ -36,8 +40,11 @@ This is the central data structure, created by the `initializeStructures` functi
     'observatories': { ... },
     'red_satellites': { ... },
     'fixedpoints': {
-        'position': np.zeros((num_points, 3))
-    }
+        'position': np.zeros((num_points, 3)),
+        'size': np.zeros((num_points,))
+    },
+    'pointing_spheres': {},
+    'delta_time': 60.0
 }
 ```
 
@@ -60,42 +67,101 @@ This is the central data structure, created by the `initializeStructures` functi
     *   `5`: Lunar exclusion angle (radians)
     *   `6`: Earth exclusion angle (radians)
 
-*   **`fixedpoints`**: A dictionary containing a single key, `position`, which holds a NumPy array (`num_points x 3`) of static 3D points in the GCRS frame. These points are generated with a logarithmic radial distribution and are intended for fixed-point calculations or as a reference grid.
+*   **`fixedpoints`**: A dictionary containing the properties of the static points in space used as observation targets.
+    *   `position`: A NumPy array (`num_points x 3`) of static 3D points in the GCRS frame.
+    *   `size`: A NumPy array (`num_points`,) of the size of each object in meters.
+*   **`pointing_state`**: A NumPy array (`n x 2`) containing the pointing control state for each satellite.
+    *   `0`: Pointing Count (number of points in the pointing grid)
+    *   `1`: Pointing Place (current index in the pointing sequence)
 
 ### 1.2. Radiometric Filter Data (`FILTER_DATA`)
 
-This dictionary from `radiometry.py` contains standard data for various astronomical filters.
+This dictionary, located in `radiometry_data.py`, provides standard data for a variety of astronomical filters, including Johnson-Cousins, SDSS, and JWST.
+
+*   **`sun`**: The apparent magnitude of the Sun in the given filter.
+*   **`sky`**: The typical dark sky brightness in magnitudes per square arcsecond.
+*   **`central_wavelength`**: The central wavelength of the filter passband in nanometers (nm).
+*   **`bandwidth`**: The effective width of the filter passband in nanometers (nm).
+*   **`zero_point`**: The photon flux (in photons/sec/m²) corresponding to a 0-magnitude star.
 
 ```python
 {
     'U': {
-        'sun': -26.03,              # Apparent magnitude of the Sun
-        'sky': 22.0,                # Sky brightness (mag/arcsec^2)
-        'central_wavelength': 365.0, # in nm
-        'bandwidth': 66.0,          # in nm
-        'zero_point': 4.96e9,       # Photon flux for mag=0 object
+        'sun': -26.03,
+        'sky': 22.0,
+        'central_wavelength': 365.0,
+        'bandwidth': 66.0,
+        'zero_point': 4.96e9,
     },
     'B': { ... },
     # ... and so on for V, R, I, J, H, K, g, r, i, z, L, M, N, and JWST filters.
 }
 ```
 
+### 1.3. Physical Constants
+
+The `radiometry_data.py` module also defines the following physical constants:
+
+*   **`AU_M`**: The astronomical unit in meters (`1.496e+11 m`).
+*   **`RSUN_M`**: The radius of the Sun in meters (`6.957e+08 m`).
+
 ## 2. Existing Functions
 
 This section describes the functions available in the toolkit, organized by module.
 
-### 2.1. `vibevolts.py`
+### 2.1. `simulation.py`
 
 *   **`initializeStructures(num_satellites, num_observatories, num_red_satellites, start_time)`**: Creates and returns the main `simulation_data` dictionary.
+
+### 2.2. `propagation.py`
+
 *   **`celestial_update(data_struct, time_date)`**: Updates the positions of the Sun and Moon for a given time using the `astropy` library.
 *   **`readtle(tle_file_path)`**: Reads a Two-Line Element (TLE) file and returns a NumPy array of orbital elements and a list of epoch datetimes.
 *   **`propagate_satellites(data_struct, time_date)`**: Updates satellite positions based on their orbital elements to a new time using a vectorized Keplerian propagator.
-*   **`plot_positions_3d(positions, title, plot_time, labels)`**: Displays an interactive 3D plot of object positions using `plotly`.
-*   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors.
-*   **`demo1()`, `demo2()`, `demo3()`, `demo4()`, `demo5()`**: Demonstration functions that run pre-configured simulations and generate plots.
-*   **`demo_fixedpoints()`**: Demonstrates the `fixedpoints` data structure by plotting it in 3D.
 
-### 2.2. `radiometry.py`
+### 2.3. `visibility.py`
+
+*   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors. Returns a tuple containing an `exclusion_vector` (1 for excluded, 0 for clear) and an `angle_vector` (the calculated angle in radians for each satellite).
+*   **`exclusion(data_struct, satellite_index)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `0` if the satellite's view is excluded, and `1` otherwise.
+*   **`update_visibility_table(data_struct)`**: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is clear, and 0 means it is excluded.
+
+### 2.4. `pointing.py`
+
+*   **`jerk(data_struct, satellite_number)`**: Moves the pointing vector of a specific satellite by 0.3 radians in a random direction.
+*   **`find_and_jerk_blind_satellites(data_struct)`**: Finds satellites with no visibility and applies the 'jerk' function to them.
+*   **`pointing_place_update(data_struct)`**: Increments the pointing place for all satellites, wrapping around if necessary.
+*   **`generate_pointing_sphere(data_struct, n_points)`**: Generates a pointing sphere with n_points and stores it in the data_struct.
+*   **`update_satellite_pointing(data_struct)`**: Updates the pointing vector for each satellite based on its pointing state.
+
+### 2.5. Plotting Modules
+
+This module contains functions for creating interactive 3D plots of the simulation state using the `plotly` library.
+
+*   **`plotting_3d.plot_3d_scatter(positions, title, plot_time, labels, marker_size, trace_name)`**: The primary function for creating 3D scatter plots. It displays object positions with Earth references and allows for customization of the marker size and trace name.
+*   **`plotting_vectors.plot_pointing_vectors(data_struct, title, plot_time)`**: Displays a 3D plot of satellites along with vectors indicating their pointing direction.
+
+### 2.6. `pointing_vectors.py`
+
+*   **`pointing_vectors(n)`**: Generates `n` equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
+*   **`plot_vectors_on_sphere(vectors, title)`**: Creates a 3D plot of vectors on a sphere.
+
+### 2.7. Demos
+
+The `demo*.py` scripts showcase the toolkit's capabilities:
+*   **`demo1`**: Initializes a standard simulation, propagates all satellites by 1.5 hours, and plots their final positions.
+*   **`demo2`**: Plots satellite positions at T=0 and T=300s, and includes vectors indicating the direction to the Sun and Moon at both times.
+*   **`demo3`**: Plots the trajectory of a single LEO satellite over 90 minutes.
+*   **`demo4`**: Plots the trajectory of a single GEO satellite over 23 hours.
+*   **`demo_exclusion_table`**: Calculates the visibility of fixed points for all satellites and displays the result as a heatmap.
+*   **`demo_exclusion_debug_print`**: A non-plotting demo that shows the detailed debug output of the `exclusion` function for a single satellite.
+*   **`demo_fixedpoints`**: Visualizes the distribution of the generated "fixed points" (observation targets) in a 3D scatter plot.
+*   **`demo_lambertian`**: Demonstrates the `lambertiansphere` brightness calculation and plots brightness vs. phase angle.
+*   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their pointing vectors.
+*   **`demo_pointing_vectors`**: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.
+*   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
+*   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
+
+### 2.8. `radiometry_calcs.py`
 
 *   **`mag(x)`**: Converts a linear flux ratio to an astronomical magnitude.
 *   **`amag(x)`**: Converts an astronomical magnitude back to a linear flux ratio.
@@ -104,21 +170,13 @@ This section describes the functions available in the toolkit, organized by modu
 *   **`plot_blackbody_spectrum(temperature)`**: Plots the spectral radiance of a blackbody from 0.5 to 30 microns.
 *   **`plot_blackbody_spectrum_visible_nir(temperature)`**: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
 
-### 2.3. `lambertiansphere.py`
+### 2.8. `lambertian.py`
 
 *   **`lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)`**: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.
 
-### 2.4. `exclusion.py`
+### 2.9. `generate_log_spherical_points.py`
 
-This module provides functions to determine if a satellite's line of sight is obstructed by major celestial bodies (Sun, Moon, Earth).
-
-*   **`exclusion(data_struct, satellite_index)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `True` if the satellite's pointing vector is within the exclusion zone of the Sun, Moon, or Earth, and `False` otherwise. The exclusion angles are retrieved from the satellite's `detector` properties.
-*   **`test_exclusion_plot()`**: A demonstration and testing function that creates a scenario with 100 satellites with random orbits and pointing vectors. It runs the `exclusion` check on them and generates interactive 3D plots for the first 15 satellites to visually verify the results.
-
-### 2.5. `generate_log_spherical_points.py`
-
-*   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution.
-*   **`visualize_point_distribution(points)`**: Visualizes the distribution of a 3D point cloud with four plots.
+*   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.
 
 ## 3. Dependencies
 

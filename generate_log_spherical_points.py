@@ -1,34 +1,36 @@
 import numpy as np
-import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
+from datetime import datetime, timezone
+from plotting_3d import plot_3d_scatter
+
 
 def generate_log_spherical_points(
-    num_points: int, 
-    inner_radius: float, 
+    num_points: int,
+    inner_radius: float,
     outer_radius: float,
+    object_size_m: float = 1.0,
     seed: int = None
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Generates a set of 3D points with logarithmic radial and uniform angular distribution.
+    Generates 3D points with logarithmic radial and uniform angular distribution.
 
-    The function creates a point cloud where the distances of points from the origin
-    are logarithmically spaced between an inner and outer radius. For any given
-    radius, the points on the corresponding spherical shell are distributed
-    uniformly using the Fibonacci lattice method, which ensures an equal-area
-    distribution.
+    This function creates a point cloud where point distances from the origin are
+    logarithmically spaced. On any given spherical shell, points are distributed
+    uniformly using the Fibonacci lattice method. Each point is associated with a
+    specified object size.
 
     Args:
         num_points: The total number of points to generate.
-        inner_radius: The minimum distance from the origin. Must be positive.
-        outer_radius: The maximum distance from the origin. Must be greater than
-                      or equal to inner_radius.
+        inner_radius: The minimum distance from the origin (must be positive).
+        outer_radius: The maximum distance from the origin (must be >= inner_radius).
+        object_size_m: The size in meters to be associated with each point.
+                       Defaults to 1.0.
         seed: An optional integer to seed the random number generator for
               reproducible shuffling.
 
     Returns:
-        A NumPy array of shape (num_points, 3) containing the Cartesian
-        coordinates (x, y, z) of the generated points.
+        A tuple containing:
+        - A NumPy array of shape (num_points, 3) for the Cartesian coordinates.
+        - A NumPy array of shape (num_points,) for the object size in meters.
     """
     # Input validation
     if not isinstance(num_points, int) or num_points <= 0:
@@ -75,110 +77,36 @@ def generate_log_spherical_points(
     # Reshape radii to (N, 1) to broadcast with (N, 3) unit_vectors
     points = unit_vectors * radii[:, np.newaxis]
 
-    return points
+    # --- 5. Create an array for the object sizes ---
+    sizes = np.full(num_points, object_size_m, dtype=float)
 
-def visualize_point_distribution(points: np.ndarray):
-    """
-    Visualizes the distribution of a 3D point cloud with plots.
-
-    This function generates and displays plots for analysis:
-    1. A 3D interactive scatter plot of the points.
-    2. Histograms of the radial, longitude, and latitude distributions.
-
-    Args:
-        points: A NumPy array of shape (num_points, 3) with Cartesian coordinates.
-    """
-    if not isinstance(points, np.ndarray) or points.ndim != 2 or points.shape[1] != 3:
-        raise ValueError("Input 'points' must be a NumPy array of shape (N, 3).")
-
-    # --- 1. Display a sample of the data points ---
-    print("--- Sample of Generated Points (X, Y, Z, Radius) ---")
-    radii = np.linalg.norm(points, axis=1)
-    sample_data = np.hstack((points[:15], radii[:15, np.newaxis]))
-    for row in sample_data:
-        print(f"[{row[0]:>8.2f} {row[1]:>8.2f} {row[2]:>8.2f} | {row[3]:>8.2f}]")
-    print("-" * 45 + "\n")
-
-
-    # --- 2. 3D Scatter Plot using Plotly ---
-    print("Displaying 3D scatter plot...")
-    fig_3d = px.scatter_3d(
-        x=points[:, 0], 
-        y=points[:, 1], 
-        z=points[:, 2],
-        color=radii,
-        title="3D Scatter Plot of Generated Points",
-        labels={'x': 'X-axis', 'y': 'Y-axis', 'z': 'Z-axis', 'color': 'Radius'},
-        color_continuous_scale=px.colors.sequential.Viridis
-    )
-    fig_3d.update_traces(marker=dict(size=2))
-    fig_3d.update_layout(
-        scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z'),
-        margin=dict(l=0, r=0, b=0, t=40)
-    )
-    fig_3d.show()
-
-    # --- 3. Calculate Spherical Coordinates for Histograms ---
-    # Longitude (Azimuthal angle, theta) from -180 to 180 degrees
-    longitude_deg = np.degrees(np.arctan2(points[:, 1], points[:, 0]))
-    # Latitude (Polar angle, phi) from -90 to 90 degrees
-    polar_angle = np.arccos(points[:, 2] / radii)
-    latitude_deg = np.degrees(np.pi / 2 - polar_angle)
-
-    # --- 4. Create Histograms using Plotly ---
-    print("Displaying distribution histograms...")
-    fig_hist = make_subplots(
-        rows=1, cols=3,
-        subplot_titles=(
-            'Distribution of Radial Distances',
-            'Distribution of Longitude',
-            'Distribution of Latitude'
-        )
-    )
-
-    # Radii Histogram
-    fig_hist.add_trace(
-        go.Histogram(x=radii, nbinsx=50, name='Radius', marker_color='skyblue'),
-        row=1, col=1
-    )
-    # Longitude Histogram
-    fig_hist.add_trace(
-        go.Histogram(x=longitude_deg, nbinsx=50, name='Longitude', marker_color='salmon'),
-        row=1, col=2
-    )
-    # Latitude Histogram
-    fig_hist.add_trace(
-        go.Histogram(x=latitude_deg, nbinsx=50, name='Latitude', marker_color='lightgreen'),
-        row=1, col=3
-    )
-
-    fig_hist.update_layout(
-        title_text='Analysis of Point Cloud Distribution',
-        xaxis1_title='Radius', yaxis1_title='Frequency',
-        xaxis2_title='Longitude (Degrees)', yaxis2_title='Frequency',
-        xaxis3_title='Latitude (Degrees)', yaxis3_title='Frequency',
-        showlegend=False,
-        height=500
-    )
-    fig_hist.show()
-
+    return points, sizes
 
 if __name__ == '__main__':
-    # --- Example Usage ---
-    # Define parameters for the point cloud
-    NUM_POINTS = 5000
-    INNER_RADIUS = 10.0
-    OUTER_RADIUS = 100.0
+    # --- Demo of Point Generation and Visualization ---
+    # This provides a consistent demonstration entry point, matching vibevolts_demo.py
+    NUM_POINTS = 100
+    # Using the same radii as the main simulation for consistency
+    INNER_RADIUS = 2000000
+    OUTER_RADIUS = 84328000
+    OBJECT_SIZE = 1.0
 
-    # Generate the points
     print(f"Generating {NUM_POINTS} points from radius {INNER_RADIUS} to {OUTER_RADIUS}...")
-    generated_points = generate_log_spherical_points(
+    generated_points, _ = generate_log_spherical_points(
         num_points=NUM_POINTS,
         inner_radius=INNER_RADIUS,
         outer_radius=OUTER_RADIUS,
-        seed=42 # Add seed for reproducibility
+        object_size_m=OBJECT_SIZE,
+        seed=42
     )
     print("Point generation complete.\n")
 
-    # Visualize the generated points
-    visualize_point_distribution(generated_points)
+    # Use the unified visualization function
+    plot_3d_scatter(
+        positions=generated_points,
+        title="Fixed Points Distribution (from generate_log_spherical_points.py)",
+        plot_time=datetime.now(timezone.utc),
+        labels=[f"Point {i}" for i in range(len(generated_points))],
+        marker_size=1,
+        trace_name='Fixed Points'
+    )

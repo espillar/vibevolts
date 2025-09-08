@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeVolts Code Graphs</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        .mermaid {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VibeVolts Code Graphs</h1>
+
+        <h2>Control Flow Diagram</h2>
+        <p>This diagram shows the execution flow of the main demo script (<code>vibevolts_demo.py</code>).</p>
+        <div class="mermaid">
+            graph TD
+                A[Start] --> B(demo1);
+                B --> C(demo2);
+                C --> D(demo3);
+                D --> E(demo4);
+                E --> F(demo_fixedpoints);
+                F --> G(demo_exclusion_table);
+                G --> H(demo_pointing_plot);
+                H --> I[End];
+        </div>
+
+        <h2>Function Call Graph (Corrected)</h2>
+        <p>This diagram shows which functions are called by other functions across the different modules.</p>
+        <div class="mermaid">
+            graph TD
+                subgraph vibevolts_demo.py
+                    demo_main("if __name__ == '__main__'")
+                    demo_main --> demo1("demo1()")
+                    demo_main --> demo2("demo2()")
+                    demo_main --> demo3("demo3()")
+                    demo_main --> demo4("demo4()")
+                    demo_main --> demo_fixedpoints("demo_fixedpoints()")
+                    demo_main --> demo_exclusion_table("demo_exclusion_table()")
+                    demo_main --> demo_pointing_plot("demo_pointing_plot()")
+
+                    demo1 --> initialize_standard_simulation
+                    demo2 --> initialize_standard_simulation
+                    demo_exclusion_table --> initialize_standard_simulation
+                    demo_pointing_plot --> initialize_standard_simulation
+
+                    initialize_standard_simulation("initialize_standard_simulation()")
+                    initialize_standard_simulation --> vv_readtle
+                    initialize_standard_simulation --> vv_initializeStructures
+                    initialize_standard_simulation --> vv_propagate_satellites
+
+                    demo1 --> vv_celestial_update
+                    demo1 --> vv_propagate_satellites
+                    demo1 --> viz_plot_3d_scatter
+
+                    demo2 --> vv_celestial_update
+                    demo2 --> vv_propagate_satellites
+                    demo2 --> plotly_Figure("plotly.graph_objects.Figure")
+
+                    demo3 --> vv_readtle
+                    demo3 --> vv_initializeStructures
+                    demo3 --> vv_propagate_satellites
+                    demo3 --> plotly_Figure
+
+                    demo4 --> vv_readtle
+                    demo4 --> vv_initializeStructures
+                    demo4 --> vv_propagate_satellites
+                    demo4 --> plotly_Figure
+
+                    demo_fixedpoints --> vv_initializeStructures
+                    demo_fixedpoints --> viz_plot_3d_scatter
+
+                    demo_exclusion_table --> vv_celestial_update
+                    demo_exclusion_table --> vv_create_exclusion_table
+                    demo_exclusion_table --> plotly_Figure
+
+                    demo_pointing_plot --> viz_plot_pointing_vectors
+                end
+
+                subgraph vibevolts.py
+                    vv_readtle("readtle()")
+                    vv_initializeStructures("initializeStructures()")
+                    vv_propagate_satellites("propagate_satellites()")
+                    vv_celestial_update("celestial_update()")
+                    vv_create_exclusion_table("create_exclusion_table()")
+                    vv_exclusion("exclusion()")
+
+                    vv_initializeStructures --> glsp_generate_log_spherical_points
+                    vv_create_exclusion_table --> vv_exclusion
+                    vv_readtle --> sgp4("sgp4.api.Satrec.twoline2rv")
+                    vv_celestial_update --> astropy("astropy")
+                end
+
+                subgraph visualization.py
+                    viz_plot_3d_scatter("plot_3d_scatter()")
+                    viz_plot_pointing_vectors("plot_pointing_vectors()")
+
+                    viz_plot_3d_scatter --> plotly_Figure
+                    viz_plot_pointing_vectors --> plotly_Figure
+                end
+
+                subgraph generate_log_spherical_points.py
+                    glsp_generate_log_spherical_points("generate_log_spherical_points()")
+                end
+
+                subgraph "External Libraries"
+                    plotly_Figure
+                    sgp4
+                    astropy
+                end
+        </div>
+    </div>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>
