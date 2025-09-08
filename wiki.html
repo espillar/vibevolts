@@ -179,9 +179,11 @@
         <ul>
             <li><strong><code>jerk(data_struct, satellite_number)</code></strong>: Moves the pointing vector of a specific satellite by 0.3 radians in a random direction.</li>
             <li><strong><code>find_and_jerk_blind_satellites(data_struct)</code></strong>: Finds satellites with no visibility and applies the 'jerk' function to them.</li>
+
             <li><strong><code>pointing_place_update(data_struct)</code></strong>: Increments the pointing place for all satellites, wrapping around if necessary.</li>
             <li><strong><code>generate_pointing_sphere(data_struct, n_points)</code></strong>: Generates a pointing sphere with n_points and stores it in the data_struct.</li>
             <li><strong><code>update_satellite_pointing(data_struct)</code></strong>: Updates the pointing vector for each satellite based on its pointing state.</li>
+
         </ul>
 
         <h3>2.5. Plotting Modules</h3>
@@ -210,7 +212,9 @@
             <li><strong><code>demo_pointing_plot</code></strong>: Shows a 3D plot of all satellites with their pointing vectors.</li>
             <li><strong><code>demo_pointing_vectors</code></strong>: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.</li>
             <li><strong><code>demo_sky_scan</code></strong>: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.</li>
+
             <li><strong><code>demo_pointing_sequence</code></strong>: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.</li>
+
         </ul>
 
         <h3>2.8. <code>radiometry_calcs.py</code></h3>

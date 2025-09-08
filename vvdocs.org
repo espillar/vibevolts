@@ -134,6 +134,7 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
   pointing vectors and plots them on a sphere.
 - *demo_sky_scan*: Simulates a sky scan from a GEO satellite,
   mapping out the celestial exclusion zones as a heatmap.
+
 - *demo_pointing_sequence*: Demonstrates the satellite pointing
   sequence functionality.
 

@@ -57,11 +57,11 @@ final_array = np.hstack([data, results_container])
   
 
 
-** Details [0/9]
+** Details [1/9]
 
+- [X] create the appropirate targeting grid and rules for traversing it.
 - [ ] At some point create a good builder function for the constellations 
 - [ ] Create the constellation
-- [ ] create the appropirate targeting grid and rules for traversing it.
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
 - [ ] Build a function that will
@@ -90,8 +90,38 @@ I think what I should do is work towards scoring some simple constellations, and
 get those done "by hand."  So let's write an algorithm and generate some prompts.
 Write those above in details.
 
+**** P0
+Udpate agents.org so it's up to date.
+
 **** P1
 Follow instructions in agents.org.
+Create a new module called pointing vectors. In it
+create a new function called pointing_vectors(n) which creates n equally spaced
+points on the sphere using the fibonacci sphere algorhtm, and return the
+3 dimensional points in an n by 3 numpy array.
+Also add a function to the module which draws the points on a 3-d sphere using
+plotly.
+Add a demo funciton to the demos that calls this function and displays it.
+
+**** P2
+Follow  the instructions in agents.org.
+For each satellite, add two more parameters:  first a "pointing count" which
+indicates what spherical pointing grid will be used.  Second "pointing place"
+which indicates where in the sequence of pointing we are currently at.
+Create a function "pointing place update" that increments the pointing place
+value for all of the satellites, and if the pointing place is greater than or
+equal to pointing count resets pointing place to 0.
+
+Create another dictionary in the simulations state dictionary called
+pointing spheres.  Entries will be indexed by the number of points the
+sphere is divided into, and the content will be numpy arrays created by
+the pointingVectors function.
+
+In the simulations state dicionary add another variable called delta_time that
+refers to the time between time steps in the simulation.
+
+**** P3
+Created a numpy
 
 
 

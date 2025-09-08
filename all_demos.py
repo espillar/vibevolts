@@ -12,7 +12,9 @@ from demo_exclusion_debug_print import demo_exclusion_debug_print
 from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
 from demo_pointing_vectors import demo_pointing_vectors
+
 from demo_pointing_sequence import demo_pointing_sequence
+
 
 def run_all_demos():
     """
