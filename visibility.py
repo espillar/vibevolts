@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Dict, Any, Tuple, Optional
 
-from simulation import (
+from constants import (
     EARTH_RADIUS, MOON_RADIUS, DETECTOR_SOLAR_EXCL_IDX,
     DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
 )

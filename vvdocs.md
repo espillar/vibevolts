@@ -159,9 +159,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 *   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their pointing vectors.
 *   **`demo_pointing_vectors`**: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.
 *   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
-
 *   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
-
 
 ### 2.8. `radiometry_calcs.py`
 

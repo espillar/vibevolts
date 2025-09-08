@@ -57,11 +57,11 @@ final_array = np.hstack([data, results_container])
   
 
 
-** Details [1/9]
+** Details [0/9]
 
-- [X] create the appropirate targeting grid and rules for traversing it.
 - [ ] At some point create a good builder function for the constellations 
 - [ ] Create the constellation
+- [ ] create the appropirate targeting grid and rules for traversing it.
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
 - [ ] Build a function that will
@@ -90,11 +90,10 @@ I think what I should do is work towards scoring some simple constellations, and
 get those done "by hand."  So let's write an algorithm and generate some prompts.
 Write those above in details.
 
-**** P0
-Udpate agents.org so it's up to date.
-
 **** P1
 Follow instructions in agents.org.
+ 
+=======
 Create a new module called pointing vectors. In it
 create a new function called pointing_vectors(n) which creates n equally spaced
 points on the sphere using the fibonacci sphere algorhtm, and return the
@@ -119,6 +118,7 @@ the pointingVectors function.
 
 In the simulations state dicionary add another variable called delta_time that
 refers to the time between time steps in the simulation.
+ 
 
 
 

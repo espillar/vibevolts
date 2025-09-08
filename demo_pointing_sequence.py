@@ -2,7 +2,8 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from simulation import initializeStructures, POINTING_COUNT_IDX, POINTING_PLACE_IDX
+from simulation import initializeStructures
+from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from pointing import generate_pointing_sphere, update_satellite_pointing, pointing_place_update
 from plotting_vectors import plot_pointing_vectors
 

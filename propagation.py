@@ -6,7 +6,7 @@ from astropy.time import Time
 from astropy.coordinates import get_body, GCRS
 import astropy.units as u
 
-from simulation import (
+from constants import (
     ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
     ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX
 )
