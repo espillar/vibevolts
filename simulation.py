@@ -28,12 +28,17 @@ ORBITAL_RAAN_IDX = 3           # Right Ascension of the Ascending Node in radian
 ORBITAL_ARGP_IDX = 4           # Argument of Perigee in radians
 ORBITAL_M_IDX = 5              # Mean Anomaly in radians
 
+# -- Pointing State Array Indices --
+POINTING_COUNT_IDX = 0         # Number of points in the pointing grid
+POINTING_PLACE_IDX = 1         # Current index in the pointing sequence
+
 
 def initializeStructures(
     num_satellites: int,
     num_observatories: int,
     num_red_satellites: int,
-    start_time: datetime
+    start_time: datetime,
+    delta_time: float = 60.0
 ) -> Dict[str, Any]:
     """
     Initializes categorized data structures for a space simulation.
@@ -95,6 +100,7 @@ def initializeStructures(
     # --- Main Data Structure ---
     simulation_data: Dict[str, Any] = {
         'start_time': start_time,
+        'delta_time': delta_time,
         'counts': {
             'celestial': 2,  # Sun and Moon
             'satellites': num_satellites,
@@ -116,8 +122,11 @@ def initializeStructures(
             'orbital_elements': np.zeros((num_satellites, 6), dtype=float),
             'epochs': [], # List to store datetime epochs for each satellite
             'pointing': np.zeros((num_satellites, 3), dtype=float),
+            'pointing_state': np.zeros((num_satellites, 2), dtype=int),
             'detector': np.zeros((num_satellites, 7), dtype=float),
         },
+
+        'pointing_spheres': {},
 
         'observatories': {
             'position': np.zeros((num_observatories, 3), dtype=float),

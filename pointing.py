@@ -1,6 +1,23 @@
 import numpy as np
 from typing import Dict, Any
 
+from simulation import POINTING_COUNT_IDX, POINTING_PLACE_IDX
+from pointing_vectors import pointing_vectors
+
+def pointing_place_update(data_struct: Dict[str, Any]) -> None:
+    """
+    Increments the pointing place for all satellites, wrapping around if necessary.
+    """
+    pointing_state = data_struct['satellites']['pointing_state']
+    pointing_counts = pointing_state[:, POINTING_COUNT_IDX]
+
+    # Increment pointing place
+    pointing_state[:, POINTING_PLACE_IDX] += 1
+
+    # Wrap around where place >= count
+    wrap_around_indices = np.where(pointing_state[:, POINTING_PLACE_IDX] >= pointing_counts)
+    pointing_state[wrap_around_indices, POINTING_PLACE_IDX] = 0
+
 def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
     """
     Moves the pointing vector of a specific satellite by 0.3 radians in a
@@ -36,6 +53,37 @@ def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
     data_struct['satellites']['pointing'][satellite_number] = p_new / np.linalg.norm(p_new)
 
     return data_struct
+
+def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
+    """
+    Generates a pointing sphere with n_points and stores it in the data_struct.
+    If a sphere with the same number of points already exists, this function does nothing.
+    """
+    if n_points not in data_struct['pointing_spheres']:
+        print(f"Generating pointing sphere with {n_points} points...")
+        data_struct['pointing_spheres'][n_points] = pointing_vectors(n_points)
+
+def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
+    """
+    Updates the pointing vector for each satellite based on its pointing state.
+    """
+    num_sats = data_struct['counts']['satellites']
+    if num_sats == 0:
+        return
+
+    pointing_state = data_struct['satellites']['pointing_state']
+    pointing_vectors_all = data_struct['satellites']['pointing']
+
+    for i in range(num_sats):
+        count = pointing_state[i, POINTING_COUNT_IDX]
+        place = pointing_state[i, POINTING_PLACE_IDX]
+
+        if count > 0:
+            if count not in data_struct['pointing_spheres']:
+                raise ValueError(f"Pointing sphere for {count} points not generated.")
+
+            grid = data_struct['pointing_spheres'][count]
+            pointing_vectors_all[i] = grid[place]
 
 def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]:
     """

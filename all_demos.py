@@ -13,6 +13,9 @@ from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
 from demo_pointing_vectors import demo_pointing_vectors
 
+from demo_pointing_sequence import demo_pointing_sequence
+
+
 def run_all_demos():
     """
     Runs all demo functions and displays their plots.
@@ -30,6 +33,7 @@ def run_all_demos():
         demo_lambertian,
         demo_sky_scan,
         demo_pointing_vectors,
+        demo_pointing_sequence,
     ]
 
     print("--- Running All Demos ---")

@@ -42,7 +42,9 @@ This is the central data structure, created by the `initializeStructures` functi
     'fixedpoints': {
         'position': np.zeros((num_points, 3)),
         'size': np.zeros((num_points,))
-    }
+    },
+    'pointing_spheres': {},
+    'delta_time': 60.0
 }
 ```
 
@@ -68,6 +70,9 @@ This is the central data structure, created by the `initializeStructures` functi
 *   **`fixedpoints`**: A dictionary containing the properties of the static points in space used as observation targets.
     *   `position`: A NumPy array (`num_points x 3`) of static 3D points in the GCRS frame.
     *   `size`: A NumPy array (`num_points`,) of the size of each object in meters.
+*   **`pointing_state`**: A NumPy array (`n x 2`) containing the pointing control state for each satellite.
+    *   `0`: Pointing Count (number of points in the pointing grid)
+    *   `1`: Pointing Place (current index in the pointing sequence)
 
 ### 1.2. Radiometric Filter Data (`FILTER_DATA`)
 
@@ -124,6 +129,9 @@ This section describes the functions available in the toolkit, organized by modu
 
 *   **`jerk(data_struct, satellite_number)`**: Moves the pointing vector of a specific satellite by 0.3 radians in a random direction.
 *   **`find_and_jerk_blind_satellites(data_struct)`**: Finds satellites with no visibility and applies the 'jerk' function to them.
+*   **`pointing_place_update(data_struct)`**: Increments the pointing place for all satellites, wrapping around if necessary.
+*   **`generate_pointing_sphere(data_struct, n_points)`**: Generates a pointing sphere with n_points and stores it in the data_struct.
+*   **`update_satellite_pointing(data_struct)`**: Updates the pointing vector for each satellite based on its pointing state.
 
 ### 2.5. Plotting Modules
 
@@ -151,6 +159,9 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 *   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their pointing vectors.
 *   **`demo_pointing_vectors`**: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.
 *   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
+
+*   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
+
 
 ### 2.8. `radiometry_calcs.py`
 

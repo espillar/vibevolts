@@ -42,6 +42,9 @@ The `all_demos.py` script runs a series of demonstrations to showcase the toolki
 *   **`demo_pointing_vectors`**: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.
 *   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
 
+*   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
+
+
 ## Dependencies
 
 VibeVolts requires the following Python libraries:
