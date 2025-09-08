@@ -4,6 +4,7 @@ from typing import Dict, Any
 # Assuming generate_log_spherical_points is in the same directory or accessible
 from generate_log_spherical_points import generate_log_spherical_points
 from constants import *
+from pointing import generate_pointing_sphere
 
 
 def initializeStructures(
