@@ -47,7 +47,9 @@ dictionary that organizes all simulation entities into categories.
 - */pointing_state/*: A NumPy array (~n x 2~) containing the
   pointing control state for each satellite.
 - */fixedpoints/*: A dictionary containing the properties of the
-  static points in space used as observation targets.
+  static points in space used as observation targets. It includes a
+  `visibility` table.
+- */pointing_spheres/*: A cache for pre-generated pointing grids.
 
 ** 1.2. Radiometric Filter Data (~FILTER_DATA~)
 
@@ -86,8 +88,10 @@ organized by module.
 
 ** 2.4. ~pointing.py~
 
-- *jerk(...)*: Randomly adjusts a satellite's pointing.
-- *find_and_jerk_blind_satellites(...)*: Finds and jerks blind satellites.
+- *jerk(...)*: Moves the pointing vector of a specific satellite by 0.3
+  radians in a random direction.
+- *find_and_jerk_blind_satellites(...)*: Finds satellites with no
+  visibility and applies the 'jerk' function to them.
 - *pointing_place_update(...)*: Increments the pointing place for all
   satellites.
 - *generate_pointing_sphere(...)*: Generates and caches a pointing
@@ -95,19 +99,27 @@ organized by module.
 - *update_satellite_pointing(...)*: Updates satellite pointing vectors
   based on their state.
 
-** 2.5. Plotting Modules
+** 2.5. ~common.py~
+- *initialize_standard_simulation(...)*: A helper function to set up
+  a standard simulation scenario.
+
+** 2.6. ~constants.py~
+- This module contains global constants for array indices to improve
+  code readability.
+
+** 2.7. Plotting Modules
 
 - *plotting_3d.plot_3d_scatter(...)*: Creates 3D scatter plots.
 - *plotting_vectors.plot_pointing_vectors(...)*: Plots pointing vectors.
 
-** 2.6. ~pointing_vectors.py~
+** 2.8. ~pointing_vectors.py~
 
 - *pointing_vectors(n)*: Generates ~n~ equally spaced points on a
   unit sphere using the Fibonacci lattice algorithm.
 - *plot_vectors_on_sphere(vectors, title)*: Creates a 3D plot of
   vectors on a sphere.
 
-** 2.7. Demos
+** 2.9. Demos
 
 The ~demo*.py~ scripts showcase the toolkit's capabilities:
 - *demo1*: Initializes a standard simulation, propagates all
@@ -137,19 +149,19 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
 - *demo_pointing_sequence*: Demonstrates the satellite pointing
   sequence functionality.
 
-** 2.8. ~radiometry_calcs.py~
+** 2.10. ~radiometry_calcs.py~
 
 - *mag(x)*, *amag(x)*: Magnitude conversions.
 - *blackbody_flux(...)*: Calculates blackbody flux in a band.
 - *stefan_boltzmann_law(...)*: Calculates total radiated power.
 - *plot_blackbody_spectrum(...)*: Plots blackbody spectrum.
 
-** 2.8. ~lambertian.py~
+** 2.11. ~lambertian.py~
 
 - *lambertiansphere(...)*: Calculates brightness of a
   Lambertian sphere.
 
-** 2.9. ~generate_log_spherical_points.py~
+** 2.12. ~generate_log_spherical_points.py~
 
 - *generate_log_spherical_points(...)*: Generates 3D points.
 
