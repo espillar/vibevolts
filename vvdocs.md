@@ -35,13 +35,14 @@ This is the central data structure, created by the `initializeStructures` functi
         'orbital_elements': np.zeros((num_satellites, 6)),
         'epochs': [],
         'pointing': np.zeros((num_satellites, 3)),
+        'pointing_state': np.zeros((num_satellites, 2), dtype=int),
         'detector': np.zeros((num_satellites, 7)),
     },
     'observatories': { ... },
     'red_satellites': { ... },
     'fixedpoints': {
         'position': np.zeros((num_points, 3)),
-        'size': np.zeros((num_points,))
+        'visibility': np.zeros((num_points, num_satellites), dtype=int)
     },
     'pointing_spheres': {},
     'delta_time': 60.0
@@ -50,29 +51,17 @@ This is the central data structure, created by the `initializeStructures` functi
 
 #### Key Components:
 
-*   **`orbital_elements`**: A NumPy array (`n x 6`) containing the classical orbital elements for each satellite. The columns are:
-    *   `0`: Semi-major axis (meters)
-    *   `1`: Eccentricity
-    *   `2`: Inclination (radians)
-    *   `3`: Right Ascension of the Ascending Node (radians)
-    *   `4`: Argument of Perigee (radians)
-    *   `5`: Mean Anomaly (radians)
+*   **`orbital_elements`**: A NumPy array (`n x 6`) containing the classical orbital elements for each satellite. The column indices for this array are defined as constants in the `constants.py` module (e.g., `ORBITAL_A_IDX`, `ORBITAL_E_IDX`).
 
-*   **`detector`**: A NumPy array (`n x 7`) containing the properties of each sensor. The columns are:
-    *   `0`: Aperture size (meters)
-    *   `1`: Pixel size (radians)
-    *   `2`: Quantum Efficiency (fraction)
-    *   `3`: Pixel count
-    *   `4`: Solar exclusion angle (radians)
-    *   `5`: Lunar exclusion angle (radians)
-    *   `6`: Earth exclusion angle (radians)
+*   **`detector`**: A NumPy array (`n x 7`) containing the properties of each sensor. The column indices for this array are defined as constants in the `constants.py` module (e.g., `DETECTOR_APERTURE_IDX`, `DETECTOR_PIXEL_SIZE_IDX`).
 
-*   **`fixedpoints`**: A dictionary containing the properties of the static points in space used as observation targets.
+*   **`fixedpoints`**: A dictionary containing the properties of the static points in space used as observation targets. By default, 100 points are generated.
     *   `position`: A NumPy array (`num_points x 3`) of static 3D points in the GCRS frame.
-    *   `size`: A NumPy array (`num_points`,) of the size of each object in meters.
-*   **`pointing_state`**: A NumPy array (`n x 2`) containing the pointing control state for each satellite.
-    *   `0`: Pointing Count (number of points in the pointing grid)
-    *   `1`: Pointing Place (current index in the pointing sequence)
+    *   `visibility`: A NumPy array (`num_points x num_satellites`) used to store whether a point is visible to a satellite.
+
+*   **`pointing_state`**: A NumPy array (`n x 2`) containing the pointing control state for each satellite. The column indices are defined in `constants.py` (`POINTING_COUNT_IDX`, `POINTING_PLACE_IDX`).
+
+*   **`pointing_spheres`**: A dictionary used to cache pre-generated pointing vector grids, indexed by the number of points in the grid. This prevents redundant calculations.
 
 ### 1.2. Radiometric Filter Data (`FILTER_DATA`)
 
@@ -122,8 +111,8 @@ This section describes the functions available in the toolkit, organized by modu
 ### 2.3. `visibility.py`
 
 *   **`solarexclusion(data_struct)`**: Calculates solar exclusion for all satellites based on their pointing vectors. Returns a tuple containing an `exclusion_vector` (1 for excluded, 0 for clear) and an `angle_vector` (the calculated angle in radians for each satellite).
-*   **`exclusion(data_struct, satellite_index)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `0` if the satellite's view is excluded, and `1` otherwise.
-*   **`update_visibility_table(data_struct)`**: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is clear, and 0 means it is excluded.
+*   **`exclusion(data_struct, satellite_index, print_debug=False)`**: The primary function that checks for viewing exclusion. It takes the main simulation data structure and a satellite index and returns `0` if the satellite's view is excluded, and `1` otherwise. The optional `print_debug` flag enables detailed console output.
+*   **`update_visibility_table(data_struct, print_debug_for_sat=None)`**: Creates a 2D NumPy array where rows correspond to satellites and columns correspond to fixed points. A cell value of 1 means the view is clear, and 0 means it is excluded. The optional `print_debug_for_sat` argument can be used to enable debug printing for a specific satellite.
 
 ### 2.4. `pointing.py`
 
@@ -163,7 +152,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 
 ### 2.8. How to Run Demos
 
-The `all_demos.py` script provides a comprehensive demonstration of the toolkit's features.
+The `all_demos.py` script provides a comprehensive demonstration of the toolkit's features. The demos now use the `initialize_standard_simulation` helper function from the `common.py` module to set up a consistent simulation state.
 
 #### 1. Run Demos from the Command Line
 
@@ -182,7 +171,19 @@ import all_demos
 all_demos.run_all_demos()
 ```
 
-### 2.9. `radiometry_calcs.py`
+### 2.9. `common.py`
+
+*   **`initialize_standard_simulation(start_time)`**: A helper function that sets up a standard simulation scenario. It loads a predefined set of TLEs from `standard_tle.txt`, initializes the data structures, and propagates all satellites to the given start time. This is the recommended starting point for most simulations and is used by all demo scripts.
+
+### 2.10. `constants.py`
+
+This module centralizes the definition of numerical constants used throughout the toolkit, particularly for array indexing. This improves readability and maintainability by replacing "magic numbers" with descriptive names. Key constants include:
+*   `EARTH_RADIUS`, `MOON_RADIUS`: Radii in meters.
+*   `DETECTOR_*_IDX`: Column indices for the `detector` NumPy array.
+*   `ORBITAL_*_IDX`: Column indices for the `orbital_elements` NumPy array.
+*   `POINTING_*_IDX`: Column indices for the `pointing_state` NumPy array.
+
+### 2.11. `radiometry_calcs.py`
 
 *   **`mag(x)`**: Converts a linear flux ratio to an astronomical magnitude.
 *   **`amag(x)`**: Converts an astronomical magnitude back to a linear flux ratio.
@@ -191,11 +192,11 @@ all_demos.run_all_demos()
 *   **`plot_blackbody_spectrum(temperature)`**: Plots the spectral radiance of a blackbody from 0.5 to 30 microns.
 *   **`plot_blackbody_spectrum_visible_nir(temperature)`**: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
 
-### 2.10. `lambertian.py`
+### 2.12. `lambertian.py`
 
 *   **`lambertiansphere(vec_from_sphere_to_light, vec_from_sphere_to_observer, albedo, radius)`**: Calculates the effective brightness cross-section (in square meters) of a diffusely reflecting (Lambertian) sphere based on illumination geometry, albedo, and size.
 
-### 2.11. `generate_log_spherical_points.py`
+### 2.13. `generate_log_spherical_points.py`
 
 *   **`generate_log_spherical_points(num_points, inner_radius, outer_radius, object_size_m, seed)`**: Generates a set of 3D points with logarithmic radial and uniform angular distribution. Returns a tuple containing the points array and a sizes array.
 
