@@ -81,6 +81,13 @@ final_array = np.hstack([data, results_container])
 
 ** 2025-09
 
+*** [2025-09-15 Mon] 
+No gemini-cli installed on GCE by default. 
+
+Well, I'm looking at things, but I'm not clear on the code,
+so I'm spending too much time thrashing.
+
+
 *** [2025-09-14 Sun]
 Long week without getting enough done. Looks like the first thing to try is
 the demo, which runs "in the office" (on GCE?) but not at home?
@@ -111,12 +118,15 @@ Follow instructions in agents.org.
  
 =======
 Create a new module called pointing vectors. In it
-create a new function called pointing_vectors(n) which creates n equally spaced
+create a new function called pointing_vectors(n) which 
+creates n equally spaced
 points on the sphere using the fibonacci sphere algorhtm, and return the
 3 dimensional points in an n by 3 numpy array.
-Also add a function to the module which draws the points on a 3-d sphere using
+Also add a function to the module which draws the points 
+on a 3-d sphere using
 plotly.
-Add a demo funciton to the demos that calls this function and displays it.
+Add a demo funciton to the demos that calls this function and 
+displays it.
 
 **** P2
 Follow  the instructions in agents.org.
