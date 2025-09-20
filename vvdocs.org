@@ -15,25 +15,29 @@ state and physical constants.
 
 ** 1.1. Simulation State Dictionary (~simulation_data~)
 
-This is the central data structure, created by composition. A minimal simulation is created with ~create_empty_simulation~ and then populated by functions like ~add_satellites_from_tle~, ~add_observatories~, etc.
+This is the central data structure, created by composition.
+A minimal simulation is created with ~create_empty_simulation~ and then
+populated by functions like ~add_satellites_from_tle~, ~add_observatories~, etc.
+
+*** Example Initialization
 
 #+BEGIN_SRC python
-{
-    'start_time': datetime,
-    'counts': {
-        'celestial': 2,
-        'satellites': num_satellites,
-        'observatories': num_observatories,
-        'red_satellites': num_red_satellites
-    },
-    'celestial': { ... },
-    'satellites': { ... },
-    'observatories': { ... },
-    'red_satellites': { ... },
-    'fixedpoints': { ... },
-    'pointing_spheres': {},
-    'delta_time': 60.0
-}
+from datetime import datetime, timezone
+from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
+from propagation import add_satellites_from_tle
+from observatories import add_observatories
+
+# 1. Create an empty simulation with a start time
+start_time = datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+sim_data = create_empty_simulation(start_time)
+
+# 2. Add components to the simulation
+add_satellites_from_tle(sim_data, 'tle/my_sats.txt', 'satellites')
+add_observatories(sim_data, 5)
+add_celestial_bodies(sim_data)
+add_fixed_points(sim_data, 1000)
+
+# The sim_data dictionary is now fully populated.
 #+END_SRC
 
 *** Key Components:
