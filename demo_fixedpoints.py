@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import initializeStructures
+from simulation import create_empty_simulation, add_fixed_points
 from plotting_3d import plot_3d_scatter
 
 def demo_fixedpoints() -> go.Figure:
@@ -17,12 +17,8 @@ def demo_fixedpoints() -> go.Figure:
     print("\n--- Starting Demo Fixedpoints ---")
     sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
 
-    sim_data = initializeStructures(
-        num_satellites=0,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
+    sim_data = create_empty_simulation(sim_start_time)
+    add_fixed_points(sim_data, 10000)
 
     fixed_positions = sim_data['fixedpoints']['position']
 

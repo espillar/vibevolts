@@ -2,7 +2,9 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from simulation import initializeStructures
+from simulation import create_empty_simulation
+from observatories import add_observatories
+from propagation import add_satellites_from_tle
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from pointing import generate_pointing_sphere, update_satellite_pointing, pointing_place_update
 from plotting_vectors import plot_pointing_vectors
@@ -15,12 +17,24 @@ def demo_pointing_sequence() -> go.Figure:
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
 
     # Initialize a simulation with 3 satellites
-    sim_data = initializeStructures(
-        num_satellites=3,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
+    sim_data = create_empty_simulation(sim_start_time)
+    
+    # Create a dummy TLE file for 3 satellites
+    tle_data = """SAT-1
+1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90401   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+SAT-2
+1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90402   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+SAT-3
+1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90403   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+"""
+    dummy_tle_path = "dummy_tle_pointing.txt"
+    with open(dummy_tle_path, "w") as f:
+        f.write(tle_data)
+
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
 
     # Generate pointing spheres
     generate_pointing_sphere(sim_data, 10)

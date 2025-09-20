@@ -11,39 +11,43 @@ from constants import (
     ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX
 )
 
+def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
+    """
+    Adds and initializes a category of satellites from a TLE file.
+
+    Args:
+        sim_data: The main simulation data dictionary.
+        tle_file_path: Path to the TLE file.
+        sat_category: The key for this satellite category (e.g., 'satellites').
+    """
+    orbital_elements, epochs = readtle(tle_file_path)
+    num_sats = len(epochs)
+
+    sim_data['counts'][sat_category] = num_sats
+    sim_data[sat_category] = {
+        'position': np.zeros((num_sats, 3), dtype=float),
+        'velocity': np.zeros((num_sats, 3), dtype=float),
+        'acceleration': np.zeros((num_sats, 3), dtype=float),
+        'orbital_elements': orbital_elements,
+        'epochs': epochs,
+        'pointing': np.zeros((num_sats, 3), dtype=float),
+        'pointing_state': np.zeros((num_sats, 2), dtype=int),
+        'detector': np.zeros((num_sats, 7), dtype=float),
+    }
+
 def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
     """
     Calculates and updates the positions of the Sun and Moon.
-
-    This function uses the astropy library to get the precise GCRS coordinates
-    of the Sun and Moon for the given time, and updates the 'celestial' position
-    component in the main data structure. Velocities and accelerations are not
-    calculated and remain zero.
-
-    Args:
-        data_struct: The main simulation data dictionary from initializeStructures.
-        time_date: The timezone-aware datetime object (in UTC) for the calculation.
-
-    Returns:
-        The modified data_struct with updated celestial positions.
     """
     if time_date.tzinfo is None:
         raise ValueError("time_date must be timezone-aware.")
 
-    # Convert the python datetime object to an astropy Time object
     astro_time = Time(time_date)
-
-    # Get Sun position in the GCRS frame using the modern get_body function
     sun_coords = get_body("sun", astro_time)
     sun_gcrs = sun_coords.transform_to(GCRS(obstime=astro_time))
-
-    # Get Moon position in the GCRS frame using the modern get_body function
     moon_coords = get_body("moon", astro_time)
     moon_gcrs = moon_coords.transform_to(GCRS(obstime=astro_time))
 
-    # Update the celestial data arrays (index 0 for Sun, 1 for Moon)
-    # Position data is converted from astropy's representation to a simple
-    # numpy array in meters.
     celestial_pos = data_struct['celestial']['position']
     celestial_pos[0] = sun_gcrs.cartesian.xyz.to(u.m).value
     celestial_pos[1] = moon_gcrs.cartesian.xyz.to(u.m).value
@@ -53,14 +57,6 @@ def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[s
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
     """
     Reads a TLE file and extracts orbital elements and epochs for each satellite.
-
-    Args:
-        tle_file_path: The path to the TLE file.
-
-    Returns:
-        A tuple containing:
-        - A NumPy array of orbital elements.
-        - A list of datetime objects representing the epoch for each satellite.
     """
     orbital_elements_list = []
     epochs_list = []
@@ -98,25 +94,12 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
 def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
     """
     Updates satellite positions and pointing vectors based on their orbital elements.
-
-    This function propagates the orbits of all satellites ('satellites' and
-    'red_satellites') from their TLE epoch to the specified time_date
-    using Kepler's laws. After calculating the new position, it sets the
-    satellite's pointing vector to be radially outward from the Earth's center.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        time_date: The timezone-aware datetime object (in UTC) to propagate to.
-
-    Returns:
-        The modified data_struct with updated satellite positions and pointing vectors.
     """
     MU_EARTH = 3.986004418e14
-
     time_date_timestamp = time_date.timestamp()
 
     for sat_category in ['satellites', 'red_satellites']:
-        if data_struct['counts'][sat_category] == 0:
+        if sat_category not in data_struct['counts'] or data_struct['counts'][sat_category] == 0:
             continue
 
         elements = data_struct[sat_category]['orbital_elements']

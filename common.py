@@ -4,8 +4,9 @@ from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
 
 # Adjusting import paths for the new project structure
-from propagation import readtle, propagate_satellites
-from simulation import initializeStructures
+from propagation import add_satellites_from_tle, propagate_satellites
+from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
+from observatories import add_observatories
 
 def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:
     """
@@ -97,20 +98,14 @@ LEO-05
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
 
-    orbital_elements, epochs = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements)
+    sim_data = create_empty_simulation(start_time)
 
-    print(f"Initializing standard simulation with {num_sats} satellites.")
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+    add_observatories(sim_data, 0)
+    add_celestial_bodies(sim_data)
+    add_fixed_points(sim_data, 100)
 
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=start_time
-    )
-
-    sim_data['satellites']['orbital_elements'] = orbital_elements
-    sim_data['satellites']['epochs'] = epochs
+    print(f"Initializing standard simulation with {sim_data['counts']['satellites']} satellites.")
 
     solar_system_ephemeris.set('jpl')
 

@@ -139,6 +139,11 @@ def update_visibility_table(
     num_fixed_points = len(fixed_points)
     visibility_table = data_struct['fixedpoints']['visibility']
 
+    # Ensure the visibility table has the correct shape
+    if visibility_table.shape != (num_fixed_points, num_satellites):
+        data_struct['fixedpoints']['visibility'] = np.zeros((num_fixed_points, num_satellites), dtype=int)
+        visibility_table = data_struct['fixedpoints']['visibility']
+
     if num_satellites == 0 or num_fixed_points == 0:
         return
 

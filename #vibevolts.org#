@@ -113,6 +113,7 @@ OK, I think it's time to make the master structure an  empty dictionary to start
 have the various functions populate their pieces and add to the global.
 Ask gemini-cli to do this. This is the kind of refactoring that's irritating
 and problematic.  I'ld like to see if gemini can do this!
+Interesting, it's even going through all the demos and revising them.
 
 *** [2025-09-08 Mon] 
 Try to run the same demo as yesterday in the office and here it

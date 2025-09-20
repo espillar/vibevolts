@@ -1,0 +1,167 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\title{GCLI.md}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\section*{all\_demos.py}
+\subsection*{run\_all\_demos()}
+Runs all demo functions and displays their plots. This function is designed to be called from a Jupyter notebook or another script.
+
+\section*{common.py}
+\subsection*{initialize\_standard\_simulation(start\_time: datetime)}
+Initializes a standard simulation with a predefined set of satellites. It consolidates TLE data, initializes the main data structure, and propagates satellites to their initial positions.
+
+\section*{constants.py}
+This file defines global constants used as indices for NumPy arrays throughout the simulation. This avoids using "magic numbers" and makes the code more readable. It includes:
+\begin{itemize}
+\item Radii for Earth and Moon in meters.
+\item Detector array indices for properties like aperture, pixel size, quantum efficiency, etc.
+\item Orbital elements array indices for semi-major axis, eccentricity, inclination, etc.
+\item Pointing state array indices for pointing count and place.
+\end{itemize}
+
+\section*{demo1.py}
+\subsection*{demo1()}
+Runs a full demonstration of the simulation tools. It generates and returns a Plotly figure object for the satellite positions plot.
+
+\section*{demo2.py}
+\subsection*{demo2()}
+Runs a demonstration plotting satellite and celestial positions at two different times. It returns a Plotly figure object.
+
+\section*{demo3.py}
+\subsection*{demo3()}
+Runs a demonstration plotting a single LEO satellite trajectory over 90 minutes. It returns a Plotly figure object.
+
+\section*{demo4.py}
+\subsection*{demo4()}
+Runs a demonstration plotting a single GEO satellite trajectory over 23 hours. It returns a Plotly figure object.
+
+\section*{demo\_exclusion\_debug\_print.py}
+\subsection*{demo\_exclusion\_debug\_print()}
+Demonstrates the debug printing feature of the exclusion function. It runs an exclusion check and prints detailed debug output.
+
+\section*{demo\_exclusion\_table.py}
+\subsection*{demo\_exclusion\_table()}
+Demonstrates the creation and visualization of the exclusion table. It generates and returns a Plotly heatmap figure.
+
+\section*{demo\_fixedpoints.py}
+\subsection*{demo\_fixedpoints()}
+Demonstrates the fixedpoints data structure by plotting it in 3D. It returns a Plotly figure object.
+
+\section*{demo\_lambertian.py}
+\subsection*{demo\_lambertian()}
+Runs a demonstration of the lambertiansphere function, including example calculations and a plot of brightness vs. phase angle.
+
+\section*{demo\_pointing\_plot.py}
+\subsection*{demo\_pointing\_plot()}
+Demonstrates the plot\_pointing\_vectors function. It returns a Plotly figure object showing satellite positions with pointing vectors.
+
+\section*{demo\_pointing\_sequence.py}
+\subsection*{demo\_pointing\_sequence()}
+Demonstrates the satellite pointing sequence functionality. It animates the pointing vectors of satellites over several time steps.
+
+\section*{demo\_pointing\_vectors.py}
+\subsection*{demo\_pointing\_vectors()}
+Demonstrates the generation and plotting of pointing vectors. It generates a number of vectors and plots them on a sphere.
+
+\section*{demo\_sky\_scan.py}
+\subsection*{demo\_sky\_scan()}
+Performs a sky scan from a GEO satellite to map celestial exclusion zones. It generates a heatmap of the sky showing clear and excluded areas.
+
+\section*{generate\_log\_spherical\_points.py}
+\subsection*{generate\_log\_spherical\_points(num\_points: int, inner\_radius: float, outer\_radius: float, object\_size\_m: float = 1.0, seed: int = None)}
+Generates 3D points with logarithmic radial and uniform angular distribution. It creates a point cloud for use as fixed points in the simulation.
+
+\section*{generate\_report.py}
+\subsection*{generate\_demo\_html\_report()}
+Runs all plotting demos and saves the output to a single HTML file named demo\_plots.html.
+
+\section*{lambertian.py}
+\subsection*{lambertianSphere(vec\_from\_sphere\_to\_light: np.ndarray, vec\_from\_sphere\_to\_observer: np.ndarray, albedo: float, radius: float)}
+Calculates the effective brightness of a Lambertian sphere. It determines the apparent brightness based on the angle between the light source and the observer.
+
+\section*{plotting\_3d.py}
+\subsection*{plot\_3d\_scatter(positions: np.ndarray, title: str, plot\_time: datetime, labels: Optional[List[str]] = None, marker\_size: int = 1, trace\_name: str = 'Points')}
+Creates a 3D plot of object positions. It can plot any set of 3D points and includes a representation of the Earth.
+
+\section*{plotting\_vectors.py}
+\subsection*{plot\_pointing\_vectors(data\_struct: Dict[str, Any], title: str, plot\_time: datetime)}
+Creates a 3D plot of satellites with their pointing vectors. It shows the direction each satellite is pointing.
+
+\section*{pointing.py}
+\subsection*{pointing\_place\_update(data\_struct: Dict[str, Any])}
+Increments the pointing place for all satellites, wrapping around if necessary.
+\subsection*{jerk(data\_struct: Dict[str, Any], satellite\_number: int)}
+Moves the pointing vector of a specific satellite by 0.3 radians in a random direction.
+\subsection*{generate\_pointing\_sphere(data\_struct: Dict[str, Any], n\_points: int)}
+Generates a pointing sphere with n\_points and stores it in the data\_struct.
+\subsection*{update\_satellite\_pointing(data\_struct: Dict[str, Any])}
+Updates the pointing vector for each satellite based on its pointing state.
+\subsection*{find\_and\_jerk\_blind\_satellites(data\_struct: Dict[str, Any])}
+Finds satellites with no visibility and applies the 'jerk' function to them.
+
+\section*{pointing\_vectors.py}
+\subsection*{pointing\_vectors(n: int)}
+Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
+\subsection*{plot\_vectors\_on\_sphere(vectors: np.ndarray, title: str)}
+Creates a 3D plot of vectors on a sphere.
+
+\section*{propagation.py}
+\subsection*{celestial\_update(data\_struct: Dict[str, Any], time\_date: datetime)}
+Calculates and updates the positions of the Sun and Moon for a given time.
+\subsection*{readtle(tle\_file\_path: str)}
+Reads a TLE file and extracts orbital elements and epochs for each satellite.
+\subsection*{propagate\_satellites(data\_struct: Dict[str, Any], time\_date: datetime)}
+Updates satellite positions and pointing vectors based on their orbital elements to a specified time.
+
+\section*{radiometry\_calcs.py}
+\subsection*{mag(x: float)}
+Calculates a magnitude value from a linear ratio.
+\subsection*{amag(x: float)}
+Calculates the linear ratio from a magnitude value.
+\subsection*{\_planck\_law(wav\_m: float, temp\_k: float)}
+Helper function for Planck's law for spectral radiance.
+\subsection*{blackbody\_flux(temperature: float, lambda\_short: float, lambda\_long: float)}
+Numerically computes the integrated spectral radiance of a blackbody over a given wavelength band.
+\subsection*{stefan\_boltzmann\_law(temperature: float)}
+Calculates the total power radiated per unit area by a blackbody.
+\subsection*{plot\_blackbody\_spectrum(temperature: float)}
+Plots the spectral radiance of a blackbody from 0.5 to 30 microns.
+\subsection*{plot\_blackbody\_spectrum\_visible\_nir(temperature: float)}
+Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
+
+\section*{radiometry\_data.py}
+This file contains radiometric data and physical constants.
+\begin{itemize}
+\item \texttt{AU\_M}: Astronomical Unit in meters.
+\item \texttt{RSUN\_M}: Radius of the Sun in meters.
+\item \texttt{FILTER\_DATA}: A dictionary containing data for standard astronomical filters (Johnson-Cousins, NIR, SDSS, Mid-IR, JWST MIRI).
+\begin{itemize}
+\item For each filter, it provides:
+\begin{itemize}
+\item \texttt{sun}: Apparent magnitude of the sun.
+\item \texttt{sky}: Sky brightness in magnitudes per square arcsecond.
+\item \texttt{central\_wavelength}: Central wavelength in nanometers.
+\item \texttt{bandwidth}: Bandwidth in nanometers.
+\item \texttt{zero\_point}: Photon flux for a 0-magnitude object.
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\section*{simulation.py}
+\subsection*{initializeStructures(num\_satellites: int, num\_observatories: int, num\_red\_satellites: int, start\_time: datetime, delta\_time: float = 60.0)}
+Initializes categorized data structures for a space simulation, including satellites, observatories, and fixed points.
+
+\section*{visibility.py}
+\subsection*{solarexclusion(data\_struct: Dict[str, Any])}
+Calculates solar exclusion for all satellites based on their pointing vectors.
+\subsection*{exclusion(data\_struct: Dict[str, Any], satellite\_index: int, print\_debug: bool = False)}
+Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
+\subsection*{update\_visibility\_table(data\_struct: Dict[str, Any], print\_debug\_for\_sat: Optional[int] = None)}
+Updates the visibility table for each satellite against each fixed point.
+
+\end{document}

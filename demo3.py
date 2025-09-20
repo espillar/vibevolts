@@ -2,8 +2,8 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from propagation import readtle, propagate_satellites
-from simulation import initializeStructures
+from propagation import add_satellites_from_tle, propagate_satellites
+from simulation import create_empty_simulation
 
 def demo3() -> go.Figure:
     """
@@ -25,20 +25,12 @@ def demo3() -> go.Figure:
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
 
-    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements_from_tle)
-
     print(f"\n--- Starting Demo 3 ---")
-    print(f"Initializing structures for {num_sats} LEO satellite.")
 
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
-    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
-    sim_data['satellites']['epochs'] = epochs_from_tle
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+
+    print(f"Initializing structures for {sim_data['counts']['satellites']} LEO satellite.")
 
     positions_over_time = []
     time_steps = np.arange(0, 91, 10)
