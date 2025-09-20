@@ -17,9 +17,7 @@ The toolkit uses two primary data structures to manage simulation state and phys
 
 ### 1.1. Simulation State Dictionary (`simulation_data`)
 
-This is the central data structure, created by the `initializeStructures`
-function in `simulation.py`. It is a Python dictionary that organizes all
-simulation entities into categories.
+This is the central data structure, created by composition. A minimal simulation is created with `create_empty_simulation` and then populated by functions like `add_satellites_from_tle`, `add_observatories`, etc.
 
 ```python
 {
@@ -126,9 +124,9 @@ This section describes the functions available in the toolkit, organized by modu
 
 ### 2.1. `simulation.py`
 
-*   **`initializeStructures(num_satellites, num_observatories,
-    num_red_satellites, start_time)`**: Creates and returns the main
-    `simulation_data` dictionary.
+*   **`create_empty_simulation(start_time)`**: Creates a minimal, empty data structure for a space simulation.
+*   **`add_celestial_bodies(sim_data)`**: Adds celestial body structures (for Sun and Moon) to the simulation data.
+*   **`add_fixed_points(sim_data, num_points)`**: Adds a structure for fixed reference points in the GCRS frame.
 
 ### 2.2. `propagation.py`
 

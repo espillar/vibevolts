@@ -49,7 +49,7 @@
 
 VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. The project's primary goal is to create a fast and efficient simulation tool for modeling satellite and observatory visibility of objects in space, with a focus on performance by leveraging vectorized operations with NumPy.
 
-The toolkit is structured into several core modules, each responsible for a specific part of the simulation, such as orbit propagation (`propagation.py`), visibility calculations (`visibility.py`), and satellite pointing (`pointing.py`). The entire simulation state is managed within a single dictionary, `simulation\_data`, which is initialized by the `simulation.py` module.
+The toolkit is structured into several core modules, each responsible for a specific part of the simulation, such as orbit propagation (`propagation.py`), visibility calculations (`visibility.py`), and satellite pointing (`pointing.py`). The entire simulation state is managed within a single dictionary, `simulation_data`, which is initialized by composition. A minimal simulation is created with `create_empty_simulation` and then populated by functions like `add_satellites_from_tle`, `add_observatories`, etc.
 
 VibeVolts includes a number of demonstration scripts that showcase its features. These demos cover everything from basic satellite propagation to more complex scenarios like sky scans and exclusion zone calculations. The `all\_demos.py` script provides a convenient way to run all the demonstrations.
 
@@ -117,8 +117,9 @@ from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
 
 # Adjusting import paths for the new project structure
-from propagation import readtle, propagate_satellites
-from simulation import initializeStructures
+from propagation import add_satellites_from_tle, propagate_satellites
+from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
+from observatories import add_observatories
 
 def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:
     """
@@ -210,20 +211,14 @@ LEO-05
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
 
-    orbital_elements, epochs = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements)
+    sim_data = create_empty_simulation(start_time)
 
-    print(f"Initializing standard simulation with {num_sats} satellites.")
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+    add_observatories(sim_data, 0)
+    add_celestial_bodies(sim_data)
+    add_fixed_points(sim_data, 100)
 
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=start_time
-    )
-
-    sim_data['satellites']['orbital_elements'] = orbital_elements
-    sim_data['satellites']['epochs'] = epochs
+    print(f"Initializing standard simulation with {sim_data['counts']['satellites']} satellites.")
 
     solar_system_ephemeris.set('jpl')
 
@@ -388,8 +383,8 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from propagation import readtle, propagate_satellites
-from simulation import initializeStructures
+from propagation import add_satellites_from_tle, propagate_satellites
+from simulation import create_empty_simulation
 
 def demo3() -> go.Figure:
     """
@@ -411,20 +406,12 @@ def demo3() -> go.Figure:
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
 
-    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements_from_tle)
-
     print(f"\n--- Starting Demo 3 ---")
-    print(f"Initializing structures for {num_sats} LEO satellite.")
 
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
-    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
-    sim_data['satellites']['epochs'] = epochs_from_tle
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+
+    print(f"Initializing structures for {sim_data['counts']['satellites']} LEO satellite.")
 
     positions_over_time = []
     time_steps = np.arange(0, 91, 10)
@@ -474,8 +461,8 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from propagation import readtle, propagate_satellites
-from simulation import initializeStructures
+from propagation import add_satellites_from_tle, propagate_satellites
+from simulation import create_empty_simulation
 
 def demo4() -> go.Figure:
     """
@@ -497,20 +484,12 @@ def demo4() -> go.Figure:
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
 
-    orbital_elements_from_tle, epochs_from_tle = readtle(dummy_tle_path)
-    num_sats = len(orbital_elements_from_tle)
-
     print(f"\n--- Starting Demo 4 ---")
-    print(f"Initializing structures for {num_sats} GEO satellite.")
 
-    sim_data = initializeStructures(
-        num_satellites=num_sats,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
-    sim_data['satellites']['orbital_elements'] = orbital_elements_from_tle
-    sim_data['satellites']['epochs'] = epochs_from_tle
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+
+    print(f"Initializing structures for {sim_data['counts']['satellites']} GEO satellite.")
 
     positions_over_time = []
     time_steps = np.arange(0, 24, 1)
@@ -657,7 +636,7 @@ def demo_exclusion_table() -> go.Figure:
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import initializeStructures
+from simulation import create_empty_simulation, add_fixed_points
 from plotting_3d import plot_3d_scatter
 
 def demo_fixedpoints() -> go.Figure:
@@ -673,12 +652,8 @@ def demo_fixedpoints() -> go.Figure:
     print("\n--- Starting Demo Fixedpoints ---")
     sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
 
-    sim_data = initializeStructures(
-        num_satellites=0,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
+    sim_data = create_empty_simulation(sim_start_time)
+    add_fixed_points(sim_data, 10000)
 
     fixed_positions = sim_data['fixedpoints']['position']
 
@@ -800,7 +775,9 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from simulation import initializeStructures
+from simulation import create_empty_simulation
+from observatories import add_observatories
+from propagation import add_satellites_from_tle
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from pointing import generate_pointing_sphere, update_satellite_pointing, pointing_place_update
 from plotting_vectors import plot_pointing_vectors
@@ -813,12 +790,24 @@ def demo_pointing_sequence() -> go.Figure:
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
 
     # Initialize a simulation with 3 satellites
-    sim_data = initializeStructures(
-        num_satellites=3,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
+    sim_data = create_empty_simulation(sim_start_time)
+    
+    # Create a dummy TLE file for 3 satellites
+    tle_data = """SAT-1
+1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90401   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+SAT-2
+1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90402   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+SAT-3
+1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90403   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+"""
+    dummy_tle_path = "dummy_tle_pointing.txt"
+    with open(dummy_tle_path, "w") as f:
+        f.write(tle_data)
+
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
 
     # Generate pointing spheres
     generate_pointing_sphere(sim_data, 10)
@@ -914,8 +903,8 @@ import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import initializeStructures, DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
-from propagation import readtle, propagate_satellites, celestial_update
+from simulation import create_empty_simulation, add_celestial_bodies, DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
+from propagation import add_satellites_from_tle, propagate_satellites, celestial_update
 from visibility import exclusion
 
 def demo_sky_scan() -> go.Figure:
@@ -934,15 +923,9 @@ def demo_sky_scan() -> go.Figure:
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
 
-    orbital_elements, epochs = readtle(dummy_tle_path)
-    sim_data = initializeStructures(
-        num_satellites=1,
-        num_observatories=0,
-        num_red_satellites=0,
-        start_time=sim_start_time
-    )
-    sim_data['satellites']['orbital_elements'] = orbital_elements
-    sim_data['satellites']['epochs'] = epochs
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+    add_celestial_bodies(sim_data)
 
     # Set some reasonable exclusion angles
     sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
@@ -2087,143 +2070,65 @@ FILTER_DATA = {
 import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Any
-# Assuming generate_log_spherical_points is in the same directory or accessible
 from generate_log_spherical_points import generate_log_spherical_points
 from constants import *
 
-from pointing import generate_pointing_sphere
-
-
-
-def initializeStructures(
-    num_satellites: int,
-    num_observatories: int,
-    num_red_satellites: int,
-    start_time: datetime,
-    delta_time: float = 60.0
-) -> Dict[str, Any]:
+def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> Dict[str, Any]:
     """
-    Initializes categorized data structures for a space simulation.
-
-    This function creates distinct sets of data components for different categories
-    of entities. It includes kinematic data, orbital elements, sensor pointing
-    information, and detailed detector characteristics.
-
-    The 'orbital_elements' component contains the following columns:
-    - 0: Semi-major axis (meters)
-    - 1: Eccentricity
-    - 2: Inclination (radians)
-    - 3: Right Ascension of the Ascending Node (radians)
-    - 4: Argument of Perigee (radians)
-    - 5: Mean Anomaly (radians)
-
-    The 'detector' component contains the following columns:
-    - 0: Aperture size (meters)
-    - 1: Pixel size (radians)
-    - 2: Quantum Efficiency (fraction)
-    - 3: Pixel count (total number)
-    - 4: Solar exclusion angle (radians)
-    - 5: Lunar exclusion angle (radians)
-    - 6: Earth exclusion angle (radians, above the limb)
-
-    The 'fixedpoints' component is initialized with a set of 10,000 static points
-    in the GCRS frame, generated by `generate_log_spherical_points`. These
-    points have a logarithmic radial distribution and are intended for various
-    fixed-point calculations or as a reference grid.
-
-    All kinematic data is for the Geocentric Celestial Reference System (GCRS).
-    Angles are relative to the International Celestial Reference System (ICRS).
-    Distances are in meters, angles in radians, and time in seconds.
+    Initializes a minimal, empty data structure for a space simulation.
 
     Args:
-        num_satellites: The number of regular space-based sensors.
-        num_observatories: The number of ground-based sensors.
-        num_red_satellites: The number of special "red" satellites.
         start_time: The starting time and date of the simulation. This must be a
                     timezone-aware datetime object set to UTC.
+        delta_time: The time step for the simulation in seconds.
 
     Returns:
-        A dictionary representing the simulation state, containing categorized data.
+        A dictionary representing the basic simulation state.
     """
-    # --- Input Validation ---
-    if not isinstance(num_satellites, int) or num_satellites < 0:
-        raise ValueError("num_satellites must be a non-negative integer.")
-    if not isinstance(num_observatories, int) or num_observatories < 0:
-        raise ValueError("num_observatories must be a non-negative integer.")
-    if not isinstance(num_red_satellites, int) or num_red_satellites < 0:
-        raise ValueError("num_red_satellites must be a non-negative integer.")
     if not isinstance(start_time, datetime):
         raise TypeError("start_time must be a datetime object.")
     if start_time.tzinfo is None:
         raise ValueError("start_time must be timezone-aware. Please set tzinfo.")
 
-    num_fixed_points = 100
-
-    # --- Main Data Structure ---
     simulation_data: Dict[str, Any] = {
         'start_time': start_time,
         'delta_time': delta_time,
-        'counts': {
-            'celestial': 2,  # Sun and Moon
-            'satellites': num_satellites,
-            'observatories': num_observatories,
-            'red_satellites': num_red_satellites,
-            'fixedpoints': num_fixed_points
-        },
+        'counts': {},
+        'pointing_spheres': {},
+    }
+    return simulation_data
 
-        'celestial': {
-            'position': np.zeros((2, 3), dtype=float),
-            'velocity': np.zeros((2, 3), dtype=float),
-            'acceleration': np.zeros((2, 3), dtype=float),
-        },
+def add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
+    """
+    Adds celestial body structures (for Sun and Moon) to the simulation data.
 
-        'satellites': {
-            'position': np.zeros((num_satellites, 3), dtype=float),
-            'velocity': np.zeros((num_satellites, 3), dtype=float),
-            'acceleration': np.zeros((num_satellites, 3), dtype=float),
-            'orbital_elements': np.zeros((num_satellites, 6), dtype=float),
-            'epochs': [], # List to store datetime epochs for each satellite
-            'pointing': np.zeros((num_satellites, 3), dtype=float),
-            'pointing_state': np.zeros((num_satellites, 2), dtype=int),
-            'detector': np.zeros((num_satellites, 7), dtype=float),
-        },
-
-        # FIX: Added the 'pointing_spheres' key, initialized as an empty dictionary.
-        'pointing_spheres': { } ,
-
-        'observatories': {
-            'position': np.zeros((num_observatories, 3), dtype=float),
-            'velocity': np.zeros((num_observatories, 3), dtype=float),
-            'acceleration': np.zeros((num_observatories, 3), dtype=float),
-            'pointing': np.zeros((num_observatories, 3), dtype=float),
-            'detector': np.zeros((num_observatories, 7), dtype=float),
-        },
-
-        'red_satellites': {
-            'position': np.zeros((num_red_satellites, 3), dtype=float),
-            'velocity': np.zeros((num_red_satellites, 3), dtype=float),
-            'acceleration': np.zeros((num_red_satellites, 3), dtype=float),
-            'orbital_elements': np.zeros((num_red_satellites, 6), dtype=float),
-            'epochs': [],
-            'pointing': np.zeros((num_red_satellites, 3), dtype=float),
-            'detector': np.zeros((num_red_satellites, 7), dtype=float),
-        },
-
-        'fixedpoints': {
-            'position': generate_log_spherical_points(
-                num_points=num_fixed_points,
-                inner_radius=2000000,
-                # Outer radius is 2 * geostationary radius (42,164 km)
-                # This is an interpretation of "tice geodistances".
-                outer_radius=84328000
-            )[0], # Only get the positions, not the sizes
-            'visibility': np.zeros((num_fixed_points, num_satellites), dtype=int)
-        }
+    Args:
+        sim_data: The simulation data dictionary.
+    """
+    sim_data['counts']['celestial'] = 2  # Sun and Moon
+    sim_data['celestial'] = {
+        'position': np.zeros((2, 3), dtype=float),
+        'velocity': np.zeros((2, 3), dtype=float),
+        'acceleration': np.zeros((2, 3), dtype=float),
     }
 
-    generate_pointing_sphere(simulation_data,100)
+def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None:
+    """
+    Adds a structure for fixed reference points in the GCRS frame.
 
-    return simulation_data
+    Args:
+        sim_data: The simulation data dictionary.
+        num_points: The number of fixed points to generate.
+    """
+    sim_data['counts']['fixedpoints'] = num_points
+    sim_data['fixedpoints'] = {
+        'position': generate_log_spherical_points(
+            num_points=num_points,
+            inner_radius=2000000,
+            outer_radius=84328000
+        )[0],
+        'visibility': np.zeros((num_points, 0), dtype=int) # Visibility will be resized later
+    }
 \end{lstlisting}
 
 \subsection{visibility.py}

@@ -139,7 +139,13 @@ This file contains radiometric data and physical constants.
 
 # simulation.py
 ## initializeStructures(num_satellites: int, num_observatories: int, num_red_satellites: int, start_time: datetime, delta_time: float = 60.0)
-Initializes categorized data structures for a space simulation, including satellites, observatories, and fixed points.
+Initializes a minimal, empty data structure for a space simulation.
+
+### add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
+Adds celestial body structures (for Sun and Moon) to the simulation data.
+
+### add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None:
+Adds a structure for fixed reference points in the GCRS frame.
 
 # visibility.py
 ## solarexclusion(data_struct: Dict[str, Any])

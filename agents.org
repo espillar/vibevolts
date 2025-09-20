@@ -23,9 +23,9 @@ points in space.
 The repository has been refactored into a modular structure. The key files are:
 
 - `simulation.py`: This is the core of the data structure. It defines
-  constants for array indices and contains the `initializeStructures` function,
-  which creates the main `simulation_data` dictionary that holds the entire
-  state of the simulation.
+  constants for array indices and contains functions like `create_empty_simulation`,
+  `add_celestial_bodies`, and `add_fixed_points` which are used to build the main
+  `simulation_data` dictionary that holds the entire state of the simulation.
 
 - `propagation.py`: This module handles the dynamics of the simulation.
   It includes functions to read TLE files (`readtle`), update the positions
@@ -90,8 +90,9 @@ The repository has been refactored into a modular structure. The key files are:
 ** 3. Key Data Structures
 
 The simulation state is managed within a single, large
-dictionary created by the `initializeStructures` function
-in `simulation.py`.
+dictionary created by composition. A minimal simulation is created with
+`create_empty_simulation` and then populated by functions like
+`add_satellites_from_tle`, `add_observatories`, etc.
 
 - *simulation_data* (dict): The root object.
 

@@ -16,8 +16,9 @@ VibeVolts is a Python-based simulation toolkit for space environment modeling. I
 
 The toolkit has been refactored into a modular structure:
 
-*   `simulation.py`: Core data structures and initialization.
-*   `propagation.py`: Orbit propagation and celestial mechanics.
+*   `simulation.py`: Functions to create the simulation data structure and add celestial bodies/fixed points.
+*   `propagation.py`: Orbit propagation, celestial mechanics, and adding satellites from TLE files.
+*   `observatories.py`: Functions to add ground-based observatories.
 *   `visibility.py`: Line-of-sight and exclusion calculations.
 *   `pointing.py`: Satellite pointing control.
 *   `lambertian.py`: Lambertian sphere brightness calculations.

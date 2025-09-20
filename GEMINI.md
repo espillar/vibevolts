@@ -6,8 +6,9 @@ VibeVolts is a Python-based simulation toolkit for space environment modeling. I
 
 The core of the simulation is a data structure that represents the state of the simulation at a given time. This data structure is initialized and updated by a set of functions that are organized into the following modules:
 
-*   **`simulation.py`**: Defines the core data structures and initialization functions.
-*   **`propagation.py`**: Handles orbit propagation and celestial mechanics.
+*   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
+*   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
+*   **`observatories.py`**: Defines functions to add ground-based observatories to the simulation.
 *   **`visibility.py`**: Performs line-of-sight and exclusion calculations.
 *   **`pointing.py`**: Manages satellite pointing control.
 *   **`lambertian.py`**: Calculates Lambertian sphere brightness.
@@ -52,7 +53,7 @@ all_demos.run_all_demos()
 
 ## Development Conventions
 
-*   **Data Structures**: The simulation state is managed in a central dictionary, which is passed to and modified by the various functions. This dictionary is defined in `simulation.py`.
+*   **Data Structures**: The simulation state is managed in a central dictionary. This dictionary is initialized as a minimal structure using `create_empty_simulation` from `simulation.py`. Components like satellites, observatories, and celestial bodies are then added incrementally using dedicated functions (e.g., `add_satellites_from_tle`, `add_observatories`), making the structure highly modular and flexible.
 *   **Modularity**: The code is organized into modules, each with a specific responsibility. This makes the code easy to understand, maintain, and extend.
 *   **Vectorization**: The code makes extensive use of NumPy for vectorized operations, which provides a significant performance improvement over iterating through lists.
 *   **Type Hinting**: The code uses type hints to improve readability and allow for static analysis.
