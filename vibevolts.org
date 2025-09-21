@@ -94,7 +94,6 @@ Since underscores are interpreted differently in latex, be sure to escape any of
 section using a backslash.
 
 
-
 *** [2025-09-21 Sun]
 OK logging in and fixing up a glitch in the GEMINI.md documentation "automatgically"
 after syncing things in.  My set up was still going from yesterday.
@@ -105,7 +104,8 @@ OK, what is next.  I guess the next thing in my list above was creating a good b
 function for the constellations.  Spent a little time reading up on the propagation.py
 module, documenting it. 
 
-
+Vibe coded something to create a constellation, at least put the GEOs in place.
+Renamed 
 
 *** [2025-09-20 Sat]
 It's been a bad couple of weeks in terms of making progress.  I really need to review

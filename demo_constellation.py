@@ -2,7 +2,7 @@
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from common import initialize_standard_simulation
+from demo_common import initialize_standard_simulation
 from propagation import propagate_satellites
 from plotting_3d import plot_3d_scatter
 from constellation import geos

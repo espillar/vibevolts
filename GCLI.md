@@ -4,7 +4,7 @@
 ## run_all_demos()
 Runs all demo functions and displays their plots. This function is designed to be called from a Jupyter notebook or another script.
 
-# common.py
+# demo_common.py
 ## initialize_standard_simulation(start_time: datetime)
 Initializes a standard simulation with a predefined set of satellites. It consolidates TLE data, initializes the main data structure, and propagates satellites to their initial positions.
 

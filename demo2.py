@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from common import initialize_standard_simulation
+from demo_common import initialize_standard_simulation
 from propagation import celestial_update, propagate_satellites
 
 def demo2() -> go.Figure:

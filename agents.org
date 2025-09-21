@@ -79,7 +79,7 @@ The repository has been refactored into a modular structure. The key files are:
   `demo_pointing_vectors.py` which shows how to generate and plot uniformly
   distributed vectors.
 
-- `common.py`: A utility module that provides helper functions, such as
+- `demo_common.py`: A utility module that provides helper functions, such as
   `initialize_standard_simulation`, to set up a simulation with a
   pre-defined set of satellites for use in demos.
 

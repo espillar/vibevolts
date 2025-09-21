@@ -103,7 +103,7 @@ organized by module.
 - *update_satellite_pointing(data_struct: Dict[str, Any])*: Updates satellite pointing vectors
   based on their state.
 
-** 2.5. ~common.py~
+** 2.5. ~demo_common.py~
 - *initialize_standard_simulation(...)*: A helper function to set up
   a standard simulation scenario.
 

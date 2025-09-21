@@ -220,7 +220,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 
 The `all_demos.py` script provides a comprehensive demonstration of the
 toolkit's features. The demos now use the `initialize_standard_simulation`
-helper function from the `common.py` module to set up a consistent simulation
+helper function from the `demo_common.py` module to set up a consistent simulation
 state.
 
 #### 1. Run Demos from the Command Line
@@ -240,7 +240,7 @@ import all_demos
 all_demos.run_all_demos()
 ```
 
-### 2.9. `common.py`
+### 2.9. `demo_common.py`
 
 *   **`initialize_standard_simulation(start_time)`**: A helper function that
     sets up a standard simulation scenario. It loads a predefined set of TLEs
