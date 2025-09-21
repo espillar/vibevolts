@@ -105,7 +105,14 @@ function for the constellations.  Spent a little time reading up on the propagat
 module, documenting it. 
 
 Vibe coded something to create a constellation, at least put the GEOs in place.
-Renamed 
+
+Later lets do some work on making a scan pattern thingy. Actually first,
+I think I want to make a global list of constellations to propogate.  Actually
+let's save that for a little later.
+
+Vibe code something to change the positions and a demo, but the pointing vector isnt
+getting updatd. I need to work on this next.  I think it's time for a shower.
+
 
 *** [2025-09-20 Sat]
 It's been a bad couple of weeks in terms of making progress.  I really need to review
