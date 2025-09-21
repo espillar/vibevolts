@@ -14,11 +14,20 @@ from constants import (
 def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
     """
     Adds and initializes a category of satellites from a TLE file.
+    Mote although the TLEs are loaded, positions etc. are not.
 
     Args:
         sim_data: The main simulation data dictionary.
         tle_file_path: Path to the TLE file.
         sat_category: The key for this satellite category (e.g., 'satellites').
+
+    Data added to the set_category element of sim_data
+    position
+    velocity
+    acceleration
+    orbital_elements
+    epochs
+    pointing
     """
     orbital_elements, epochs = readtle(tle_file_path)
     num_sats = len(epochs)
@@ -57,6 +66,8 @@ def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[s
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
     """
     Reads a TLE file and extracts orbital elements and epochs for each satellite.
+
+    The array returned ahd the orbital elements in "canonical" order.
     """
     orbital_elements_list = []
     epochs_list = []
