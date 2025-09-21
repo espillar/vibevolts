@@ -73,33 +73,34 @@ organized by module.
 
 ** 2.1. ~simulation.py~
 
-- *create_empty_simulation(...)*: Creates a minimal, empty data structure for a space simulation.
-- *add_celestial_bodies(...)*: Adds celestial body structures (for Sun and Moon) to the simulation data.
-- *add_fixed_points(...)*: Adds a structure for fixed reference points in the GCRS frame.
+- *create_empty_simulation(start_time: datetime, delta_time: float = 60.0)*: Creates a minimal, empty data structure for a space simulation.
+- *add_celestial_bodies(sim_data: Dict[str, Any])*: Adds celestial body structures (for Sun and Moon) to the simulation data.
+- *add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100)*: Adds a structure for fixed reference points in the GCRS frame.
 
 ** 2.2. ~propagation.py~
 
-- *celestial_update(...)*: Updates Sun and Moon positions.
-- *readtle(...)*: Reads a TLE file.
-- *propagate_satellites(...)*: Propagates satellite orbits.
+- *add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str)*: Adds and initializes a category of satellites from a TLE file.
+- *celestial_update(data_struct: Dict[str, Any], time_date: datetime)*: Updates Sun and Moon positions.
+- *readtle(tle_file_path: str)*: Reads a TLE file.
+- *propagate_satellites(data_struct: Dict[str, Any], time_date: datetime)*: Propagates satellite orbits.
 
 ** 2.3. ~visibility.py~
 
-- *solarexclusion(...)*: Calculates solar exclusion for all satellites.
-- *exclusion(...)*: Checks for Sun, Moon, and Earth exclusion.
-- *update_visibility_table(...)*: Updates the visibility table.
+- *solarexclusion(data_struct: Dict[str, Any])*: Calculates solar exclusion for all satellites.
+- *exclusion(data_struct: Dict[str, Any], satellite_index: int, print_debug: bool = False)*: Checks for Sun, Moon, and Earth exclusion.
+- *update_visibility_table(data_struct: Dict[str, Any], print_debug_for_sat: Optional[int] = None)*: Updates the visibility table.
 
 ** 2.4. ~pointing.py~
 
-- *jerk(...)*: Moves the pointing vector of a specific satellite by 0.3
+- *jerk(data_struct: Dict[str, Any], satellite_number: int)*: Moves the pointing vector of a specific satellite by 0.3
   radians in a random direction.
-- *find_and_jerk_blind_satellites(...)*: Finds satellites with no
+- *find_and_jerk_blind_satellites(data_struct: Dict[str, Any])*: Finds satellites with no
   visibility and applies the 'jerk' function to them.
-- *pointing_place_update(...)*: Increments the pointing place for all
+- *pointing_place_update(data_struct: Dict[str, Any])*: Increments the pointing place for all
   satellites.
-- *generate_pointing_sphere(...)*: Generates and caches a pointing
+- *generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int)*: Generates and caches a pointing
   sphere.
-- *update_satellite_pointing(...)*: Updates satellite pointing vectors
+- *update_satellite_pointing(data_struct: Dict[str, Any])*: Updates satellite pointing vectors
   based on their state.
 
 ** 2.5. ~common.py~
@@ -112,14 +113,14 @@ organized by module.
 
 ** 2.7. Plotting Modules
 
-- *plotting_3d.plot_3d_scatter(...)*: Creates 3D scatter plots.
-- *plotting_vectors.plot_pointing_vectors(...)*: Plots pointing vectors.
+- *plotting_3d.plot_3d_scatter(positions: np.ndarray, title: str, plot_time: datetime, labels: Optional[List[str]] = None, marker_size: int = 1, trace_name: str = 'Points')*: Creates 3D scatter plots.
+- *plotting_vectors.plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: datetime)*: Plots pointing vectors.
 
 ** 2.8. ~pointing_vectors.py~
 
-- *pointing_vectors(n)*: Generates ~n~ equally spaced points on a
+- *pointing_vectors(n: int)*: Generates ~n~ equally spaced points on a
   unit sphere using the Fibonacci lattice algorithm.
-- *plot_vectors_on_sphere(vectors, title)*: Creates a 3D plot of
+- *plot_vectors_on_sphere(vectors: np.ndarray, title: str)*: Creates a 3D plot of
   vectors on a sphere.
 
 ** 2.9. Demos
@@ -154,19 +155,20 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
 
 ** 2.10. ~radiometry_calcs.py~
 
-- *mag(x)*, *amag(x)*: Magnitude conversions.
-- *blackbody_flux(...)*: Calculates blackbody flux in a band.
-- *stefan_boltzmann_law(...)*: Calculates total radiated power.
-- *plot_blackbody_spectrum(...)*: Plots blackbody spectrum.
+- *mag(x: float)*, *amag(x: float)*: Magnitude conversions.
+- *blackbody_flux(temperature: float, lambda_short: float, lambda_long: float)*: Calculates blackbody flux in a band.
+- *stefan_boltzmann_law(temperature: float)*: Calculates total radiated power.
+- *plot_blackbody_spectrum(temperature: float)*: Plots blackbody spectrum.
+- *plot_blackbody_spectrum_visible_nir(temperature: float)*: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
 
 ** 2.11. ~lambertian.py~
 
-- *lambertiansphere(...)*: Calculates brightness of a
+- *lambertiansphere(vec_from_sphere_to_light: np.ndarray, vec_from_sphere_to_observer: np.ndarray, albedo: float, radius: float)*: Calculates brightness of a
   Lambertian sphere.
 
 ** 2.12. ~generate_log_spherical_points.py~
 
-- *generate_log_spherical_points(...)*: Generates 3D points.
+- *generate_log_spherical_points(num_points: int, inner_radius: float, outer_radius: float, object_size_m: float = 1.0, seed: int = None)*: Generates 3D points.
 
 * 3. Dependencies
 

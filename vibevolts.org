@@ -81,6 +81,22 @@ final_array = np.hstack([data, results_container])
 
 ** 2025-09
 
+
+*** Create a latex documentation file called vibevolts.tex. It should have the following sections:
+It should start with a table of contents.
+The next section should be the contents of this file.
+The next section should give a sample of the initialization of the data structures using all the tools
+The next section should go through the pyton files one at a time. For each file it should
+list all the functions in the file, and include the docstring documentation for each function
+in the file.
+The final sections should be listings of all the files in detail.
+Since underscores are interpreted differently in latex, be sure to escape any of those not in a math
+section using a backslash.
+
+
+
+*** [2025-09-21 Sun]
+
 *** [2025-09-20 Sat]
 It's been a bad couple of weeks in terms of making progress.  I really need to review
 the code I have and then move forward. Working on Neptune, syncing stuff down to
@@ -91,7 +107,9 @@ get things up to date.
 - Watch some ER
 -  Reinstall node from nodes.org.   Install gemini-cli.  Things are working now, back to where I was!  
 
-
+- Later in the evening actually install and things all up on golden adorable.  Try to get
+  strong tex file up, but that didn't work.  I need to try that again.
+  
 
 *** [2025-09-15 Mon] 
 No gemini-cli installed on GCE by default. 

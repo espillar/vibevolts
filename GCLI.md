@@ -138,7 +138,7 @@ This file contains radiometric data and physical constants.
     - `zero_point`: Photon flux for a 0-magnitude object.
 
 # simulation.py
-## initializeStructures(num_satellites: int, num_observatories: int, num_red_satellites: int, start_time: datetime, delta_time: float = 60.0)
+## create_empty_simulation(start_time: datetime, delta_time: float = 60.0)
 Initializes a minimal, empty data structure for a space simulation.
 
 ### add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
