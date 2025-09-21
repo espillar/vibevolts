@@ -51,6 +51,19 @@ import all_demos
 all_demos.run_all_demos()
 ```
 
+
+## Documentation
+* Create a latex documentation file called vibevolts.tex. It should have the following sections:
+It should start with a table of contents.
+The next section should be the contents of this file.
+The next section should give a sample of the initialization of the data structures using all the tools
+The next section should go through the pyton files one at a time. For each file it should
+list all the functions in the file, and include the docstring documentation for each function
+in the file.
+The final sections should be listings of all the files in detail.
+Since underscores are interpreted differently in latex, be sure to escape any of those not in a math
+section using a backslash.
+
 ## Development Conventions
 *  **Text Files**: All purely text file have lines that are no more than 100 charcters long to aid reading.
 *   **Data Structures**: The simulation state is managed in a central dictionary. This dictionary is initialized as a minimal structure using `create_empty_simulation` from `simulation.py`. Components like satellites, observatories, and celestial bodies are then added incrementally using dedicated functions (e.g., `add_satellites_from_tle`, `add_observatories`), making the structure highly modular and flexible.
