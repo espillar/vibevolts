@@ -7,7 +7,10 @@ from pointing_vectors import pointing_vectors
 def pointing_place_update(data_struct: Dict[str, Any]) -> None:
     """
     Increments the pointing place for all satellites, wrapping around if necessary.
+    Basically this usges data_struct['satellites']['pointing_state'] and wraps to
+    0 if its     POINTING_COUNT_IDX or greater.
     """
+
     pointing_state = data_struct['satellites']['pointing_state']
     pointing_counts = pointing_state[:, POINTING_COUNT_IDX]
 
@@ -75,8 +78,8 @@ def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
     pointing_vectors_all = data_struct['satellites']['pointing']
 
     for i in range(num_sats):
-        count = pointing_state[i, POINTING_COUNT_IDX]
-        place = pointing_state[i, POINTING_PLACE_IDX]
+        count = int(pointing_state[i, POINTING_COUNT_IDX])
+        place = int(pointing_state[i, POINTING_PLACE_IDX])
 
         if count > 0:
             if count not in data_struct['pointing_spheres']:

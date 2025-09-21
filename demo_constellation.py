@@ -21,14 +21,14 @@ def demo_constellation() -> go.Figure:
     sim_data = initialize_standard_simulation(sim_start_time)
 
     # Create a constellation of 10 GEO satellites
-    geos(sim_data, 10, 'satellites')
+    geos(sim_data, 10, 'geo_constellation', 0.1)
 
     # Propagate the satellites for 1 hour
     time_t1 = sim_start_time + timedelta(hours=1)
     sim_data = propagate_satellites(sim_data, time_t1)
     
     fig = plot_3d_scatter(
-        positions=sim_data['satellites']['position'],
+        positions=sim_data['geo_constellation']['position'],
         title=f"GEO Constellation at {time_t1.isoformat()}",
         plot_time=time_t1,
         marker_size=5,

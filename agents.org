@@ -22,6 +22,10 @@ points in space.
 
 The repository has been refactored into a modular structure. The key files are:
 
+- `constellation.py`: This module contains functions for creating and managing satellite constellations.
+
+- `generate_report.py`: This script generates a PDF report of the project.
+
 - `simulation.py`: This is the core of the data structure. It defines
   constants for array indices and contains functions like `create_empty_simulation`,
   `add_celestial_bodies`, and `add_fixed_points` which are used to build the main
@@ -155,6 +159,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
   vectors indicating the direction to the Sun and Moon at both times.
 - *demo3*: Plots the trajectory of a single LEO satellite over 90 minutes.
 - *demo4*: Plots the trajectory of a single GEO satellite over 23 hours.
+- *demo_constellation*: Demonstrates the creation of a GEO satellite constellation.
 - *demo_exclusion_table*: Calculates the visibility of fixed points for all
   satellites and displays the result as a heatmap.
 - *demo_exclusion_debug_print*: A non-plotting demo that shows the

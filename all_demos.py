@@ -14,6 +14,7 @@ from demo_sky_scan import demo_sky_scan
 from demo_pointing_vectors import demo_pointing_vectors
 from demo_pointing_sequence import demo_pointing_sequence
 from demo_constellation import demo_constellation
+from demo_geo_search import geo_search_demo
 
 def run_all_demos():
     """
@@ -34,6 +35,7 @@ def run_all_demos():
         demo_pointing_vectors,
         demo_pointing_sequence,
         demo_constellation,
+        geo_search_demo,
     ]
 
     print("--- Running All Demos ---")
@@ -42,6 +44,10 @@ def run_all_demos():
         result = func()
         if isinstance(result, go.Figure):
             result.show()
+        elif isinstance(result, tuple):
+            for fig in result:
+                if isinstance(fig, go.Figure):
+                    fig.show()
 
     # Also run the non-plotting demo
 #    demo_exclusion_debug_print()

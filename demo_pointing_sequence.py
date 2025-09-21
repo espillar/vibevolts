@@ -64,6 +64,8 @@ SAT-3
     # Simulation loop
     for t in range(1, 5):
         print(f"\n--- Time Step {t} ---")
+        print("Pointing state:")
+        print(sim_data['satellites']['pointing_state'])
         pointing_place_update(sim_data)
         update_satellite_pointing(sim_data)
         print("Pointing vectors:")

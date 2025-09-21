@@ -198,12 +198,15 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 *   **`demo3`**: Plots the trajectory of a single LEO satellite over 90
     minutes.
 *   **`demo4`**: Plots the trajectory of a single GEO satellite over 23 hours.
+*   **`demo_constellation`**: Demonstrates the creation of a GEO satellite
+    constellation.
 *   **`demo_exclusion_table`**: Calculates the visibility of fixed points for
     all satellites and displays the result as a heatmap.
 *   **`demo_exclusion_debug_print`**: A non-plotting demo that shows the
     detailed debug output of the `exclusion` function for a single satellite.
 *   **`demo_fixedpoints`**: Visualizes the distribution of the generated "fixed
     points" (observation targets) in a 3D scatter plot.
+*   **`demo_geo_search`**: A demo that performs a geometric search for satellites.
 *   **`demo_lambertian`**: Demonstrates the `lambertiansphere` brightness
     calculation and plots brightness vs. phase angle.
 *   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their
@@ -284,6 +287,14 @@ constants include:
 *   **`generate_log_spherical_points(num_points: int, inner_radius: float, outer_radius: float, object_size_m: float = 1.0, seed: int = None)`**: Generates a set of 3D points with logarithmic
     radial and uniform angular distribution. Returns a tuple containing the
     points array and a sizes array.
+
+### 2.14. `constellation.py`
+
+*   **`geos(sim_data: Dict[str, Any], n: int, constellation: str, fov: float)`**: Creates `n` equally spaced satellites in GEO and adds them to the simulation.
+
+### 2.15. `generate_report.py`
+
+*   This script generates a PDF report of the project.
 
 ## 3. Dependencies
 

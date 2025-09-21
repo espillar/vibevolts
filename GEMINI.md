@@ -9,6 +9,7 @@ The core of the simulation is a data structure that represents the state of the 
 *   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
 *   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
 *   **`observatories.py`**: Defines functions to add ground-based observatories to the simulation.
+*   **`constellation.py`**: Defines functions for creating and managing satellite constellations.
 *   **`visibility.py`**: Performs line-of-sight and exclusion calculations.
 *   **`pointing.py`**: Manages satellite pointing control.
 *   **`lambertian.py`**: Calculates Lambertian sphere brightness.
@@ -16,6 +17,12 @@ The core of the simulation is a data structure that represents the state of the 
 *   **`plotting_3d.py` & `plotting_vectors.py`**: Contain 3D visualization functions.
 *   **`pointing_vectors.py`**: Includes functions for generating and visualizing uniformly distributed vectors on a sphere.
 *   **`generate_log_spherical_points.py`**: Provides tools for generating 3D point clouds.
+*   **`demo_common.py`**: A utility module that provides helper functions for the demo scripts.
+*   **`demo_constellation.py`**: A demo script for creating and visualizing satellite constellations.
+*   **`demo_geo_search.py`**: A demo script for performing a geometric search for satellites.
+*   **`demo_pointing_sequence.py`**: A demo script for demonstrating the satellite pointing sequence functionality.
+*   **`demo_sky_scan.py`**: A demo script for simulating a sky scan from a satellite.
+*   **`generate_report.py`**: A script for generating a PDF report of the project.
 
 ## Building and Running
 
