@@ -96,6 +96,16 @@ section using a backslash.
 
 
 *** [2025-09-21 Sun]
+OK logging in and fixing up a glitch in the GEMINI.md documentation "automatgically"
+after syncing things in.  My set up was still going from yesterday.
+
+Improving documentation, it seems like some type hints are being added.  Good!
+
+OK, what is next.  I guess the next thing in my list above was creating a good builder
+function for the constellations.  Spent a little time reading up on the propagation.py
+module, documenting it. 
+
+
 
 *** [2025-09-20 Sat]
 It's been a bad couple of weeks in terms of making progress.  I really need to review
