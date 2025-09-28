@@ -135,9 +135,9 @@ This section describes the functions available in the toolkit, organized by modu
     the Sun and Moon for a given time using the `astropy` library.
 *   **`readtle(tle_file_path: str)`**: Reads a Two-Line Element (TLE) file and
     returns a NumPy array of orbital elements and a list of epoch datetimes.
-*   **`propagate_satellites(data_struct: Dict[str, Any], time_date: datetime)`**: Updates satellite
-    positions based on their orbital elements to a new time using a vectorized
-    Keplerian propagator.
+*   **`propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None)`**: Updates satellite
+    positions and pointing vectors based on their orbital elements to a new time using a vectorized
+    Keplerian propagator. If `sat_category` is specified, only that category is propagated, otherwise all satellite categories are propagated.
 
 ### 2.3. `visibility.py`
 
