@@ -1,5 +1,8 @@
 You are an expert in LaTeX and scientific writing. Your task is to generate a comprehensive LaTeX document that summarizes the VibeVolts project, a Python-based simulation toolkit for space environment modeling. Use the information provided below, which is sourced from the project's official documentation, to construct the document.
 
+Since in the main section of the document, the underscores that are part of many file names are interpreted as
+subscripting in latex, be sure to escape them with backslashes.
+
 **Document Specifications:**
 
 1.  **Document Class:** Use the `article` class with a font size of 11pt.
@@ -71,5 +74,11 @@ You are an expert in LaTeX and scientific writing. Your task is to generate a co
 **8. Section 5: Dependencies:**
    - List the required Python libraries: `numpy`, `astropy`, `jplephem`, `sgp4`, `plotly`, `scipy`, and `ipython`.
    - Provide the `pip install` command in a `minted` block.
+
+**9. Section 6: Complete Listings**
+ For this section, since the text will be verbatim, do NOT escape the underscores with backslashes.
+ For each python file, text the text, wrap around any lines longer than 100 characters, and create a new
+ section for the file.  In that section include a verbatim copy of the code, with lines longer than 100
+ characters line wrapped.
 
 Please generate the complete LaTeX source code based on these instructions. Ensure the output is a single, valid `.tex` file.
