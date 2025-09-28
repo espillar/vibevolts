@@ -60,6 +60,7 @@ def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
 def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
     """
     Generates a pointing sphere with n_points and stores it in the data_struct.
+    The index is ['pointing_spheres'][n] 
     If a sphere with the same number of points already exists, this function does nothing.
     """
     if n_points not in data_struct['pointing_spheres']:

@@ -4,7 +4,7 @@ from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
 
 # Adjusting import paths for the new project structure
-from propagation import add_satellites_from_tle, propagate_satellites
+from propagation import add_satellites_from_tle, propagate_satellites_new
 from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
 from observatories import add_observatories
 
@@ -110,6 +110,6 @@ LEO-05
     solar_system_ephemeris.set('jpl')
 
     print(f"Propagating satellites to start time: {start_time.isoformat()} to set initial state.")
-    sim_data = propagate_satellites(sim_data, start_time)
+    sim_data = propagate_satellites_new(sim_data, start_time)
 
     return sim_data

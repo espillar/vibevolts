@@ -202,11 +202,10 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
     constellation.
 *   **`demo_exclusion_table`**: Calculates the visibility of fixed points for
     all satellites and displays the result as a heatmap.
-*   **`demo_exclusion_debug_print`**: A non-plotting demo that shows the
-    detailed debug output of the `exclusion` function for a single satellite.
+
 *   **`demo_fixedpoints`**: Visualizes the distribution of the generated "fixed
     points" (observation targets) in a 3D scatter plot.
-*   **`demo_geo_search`**: A demo that performs a geometric search for satellites.
+*   **`show_geo_search`**: A demo that performs a geometric search for satellites using a GEO constellation.
 *   **`demo_lambertian`**: Demonstrates the `lambertiansphere` brightness
     calculation and plots brightness vs. phase angle.
 *   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their
@@ -290,7 +289,7 @@ constants include:
 
 ### 2.14. `constellation.py`
 
-*   **`geos(sim_data: Dict[str, Any], n: int, constellation: str, fov: float)`**: Creates `n` equally spaced satellites in GEO and adds them to the simulation.
+*   **`geos(sim_data: Dict[str, Any], n: int, fov: float)`**: Creates `n` equally spaced satellites in GEO and adds them to the 'satellites' group in the simulation.
 
 ### 2.15. `generate_report.py`
 

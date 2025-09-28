@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
 from demo_common import initialize_standard_simulation
-from propagation import celestial_update, propagate_satellites
+from propagation import celestial_update, propagate_satellites_new
 
 def demo2() -> go.Figure:
     """
@@ -24,7 +24,7 @@ def demo2() -> go.Figure:
     celestial_pos_t0 = sim_data['celestial']['position'].copy()
 
     time_t1 = sim_start_time + timedelta(seconds=300)
-    sim_data = propagate_satellites(sim_data, time_t1)
+    sim_data = propagate_satellites_new(sim_data, time_t1)
     positions_t1 = sim_data['satellites']['position'].copy()
     sim_data = celestial_update(sim_data, time_t1)
     celestial_pos_t1 = sim_data['celestial']['position'].copy()

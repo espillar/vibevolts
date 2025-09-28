@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
 
+
 # Import all the demo functions
 from demo1 import demo1
 from demo2 import demo2
@@ -8,13 +9,15 @@ from demo4 import demo4
 from demo_fixedpoints import demo_fixedpoints
 from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
-from demo_exclusion_debug_print import demo_exclusion_debug_print
+
 from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
 from demo_pointing_vectors import demo_pointing_vectors
 from demo_pointing_sequence import demo_pointing_sequence
 from demo_constellation import demo_constellation
-from demo_geo_search import geo_search_demo
+from show_geo_search import show_geo_search
+
+
 
 def run_all_demos():
     """
@@ -35,12 +38,13 @@ def run_all_demos():
         demo_pointing_vectors,
         demo_pointing_sequence,
         demo_constellation,
-        geo_search_demo,
+        show_geo_search,
+
     ]
 
     print("--- Running All Demos ---")
     for func in demo_functions:
-        print(f"\n... Executing {func.__name__} ...")
+        print(f"\n\033[91m--- Executing {func.__name__} ---\033[0m")
         result = func()
         if isinstance(result, go.Figure):
             result.show()
@@ -49,8 +53,7 @@ def run_all_demos():
                 if isinstance(fig, go.Figure):
                     fig.show()
 
-    # Also run the non-plotting demo
-#    demo_exclusion_debug_print()
+
 
     print("\n--- All demos complete. ---")
 

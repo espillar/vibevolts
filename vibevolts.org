@@ -60,9 +60,13 @@ final_array = np.hstack([data, results_container])
 
 ** Details [0/9]
 
-- [ ] At some point create a good builder function for the constellations 
-- [ ] Create the constellation
-- [ ] create the appropirate targeting grid and rules for traversing it.
+*** Coding
+- [X] At some point create a good builder function for the constellations 
+- [X] Create the constellation
+- [X] create the appropirate targeting grid and rules for traversing it.
+- [X] Set up pytest 
+- [ ] first stage testing that displays things 
+- [ ] Get the timing in there as well
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
 - [ ] Build a function that will
@@ -71,16 +75,17 @@ final_array = np.hstack([data, results_container])
     not blinded
   - [ ] cut those out and process for limiting magnitude
   - [ ] fill back in an array of detected
+- [ ] resolve issues with having multiple constellations, potentially with
+  different names etc.
 - [ ] write some code that computes what been detected and do a 3-D map
 - [ ] iterate over some cycles and make sure things are evolving
 - [ ] next build in something that stores these thing and computs gap times
 
+*** Infrastructure [1/1]
+- [X] update your brew or whatever and get the google vetted gemini installed on
+  Neptune. 
 
-
-* Log
-
-** 2025-09
-
+* Prompts
 
 *** Create a latex documentation file called vibevolts.tex. It should have the following sections:
 It should start with a table of contents.
@@ -93,6 +98,27 @@ The final sections should be listings of all the files in detail.
 Since underscores are interpreted differently in latex, be sure to escape any of those not in a math
 section using a backslash.
 
+
+* Log
+
+** 2025-09
+
+
+
+*** [2025-09-28 Sun]
+It's been a week with not as much done as I wanted.
+Hmm, gemini says there's an update so I brew update, which is taking a while- looks
+like node wants to do a bunch of stuff.
+rename the old gemini-cli to gemini and updated node.  That all took 16 minutes.  Grrrr.
+Well, I hope I'm set up now.
+
+Cogitation. I want the simplest thing that will work. So create a single grid for 20 deg FOV
+
+Constellation.py needs to manage the creation of a constellation, which includes
+generating the satellites and their pointing characterisics.
+
+Making some reasonable progress- well maybe not. I seem to be stuck on not getting
+the right argument to geos, which is confusing. Maybe I should start spyder.
 
 *** [2025-09-21 Sun]
 OK logging in and fixing up a glitch in the GEMINI.md documentation "automatgically"

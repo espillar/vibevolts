@@ -102,19 +102,24 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
 
     return np.array(orbital_elements_list, dtype=float), epochs_list
 
-def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
+def propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None) -> Dict[str, Any]:
     """
     Updates satellite positions and pointing vectors based on their orbital elements.
     """
     MU_EARTH = 3.986004418e14
     time_date_timestamp = time_date.timestamp()
 
-    for sat_category in ['satellites', 'red_satellites']:
-        if sat_category not in data_struct['counts'] or data_struct['counts'][sat_category] == 0:
+    if sat_category:
+        categories = [sat_category]
+    else:
+        categories = ['satellites', 'red_satellites']
+
+    for category in categories:
+        if category not in data_struct['counts'] or data_struct['counts'][category] == 0:
             continue
 
-        elements = data_struct[sat_category]['orbital_elements']
-        epochs = data_struct[sat_category]['epochs']
+        elements = data_struct[category]['orbital_elements']
+        epochs = data_struct[category]['epochs']
 
         epoch_timestamps = np.array([e.timestamp() for e in epochs])
         delta_t_array = time_date_timestamp - epoch_timestamps
@@ -164,10 +169,10 @@ def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime) -> Di
         z_gcrs = x_pqw * P_z + y_pqw * Q_z
 
         positions = np.vstack((x_gcrs, y_gcrs, z_gcrs)).T
-        data_struct[sat_category]['position'] = positions
+        data_struct[category]['position'] = positions
 
         norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
         norms[norms == 0] = 1.0
-        data_struct[sat_category]['pointing'] = positions / norms
+        data_struct[category]['pointing'] = positions / norms
 
     return data_struct
