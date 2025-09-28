@@ -82,7 +82,7 @@ organized by module.
 - *add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str)*: Adds and initializes a category of satellites from a TLE file.
 - *celestial_update(data_struct: Dict[str, Any], time_date: datetime)*: Updates Sun and Moon positions.
 - *readtle(tle_file_path: str)*: Reads a TLE file.
-- *propagate_satellites(data_struct: Dict[str, Any], time_date: datetime)*: Propagates satellite orbits.
+- *propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None)*: Updates satellite positions and pointing vectors based on their orbital elements to a new time using a vectorized Keplerian propagator. If `sat_category` is specified, only that category is propagated, otherwise all satellite categories are propagated.
 
 ** 2.3. ~visibility.py~
 
