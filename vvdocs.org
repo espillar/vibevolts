@@ -144,7 +144,7 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
   satellite.
 - *demo_fixedpoints*: Visualizes the distribution of the generated
   "fixed points" (observation targets) in a 3D scatter plot.
-- *demo_geo_search*: A demo that performs a geometric search for satellites.
+- *demo_geo_search*: A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 - *demo_lambertian*: Demonstrates the ~lambertiansphere~ brightness
   calculation and plots brightness vs. phase angle.
 - *demo_pointing_plot*: Shows a 3D plot of all satellites with their

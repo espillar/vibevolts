@@ -2,7 +2,7 @@
 
 # all_demos.py
 ## run_all_demos()
-Runs all demo functions and displays their plots. This function is designed to be called from a Jupyter notebook or another script.
+Runs all demo functions, and either shows them inline or saves them to a single HTML file.
 
 # demo_common.py
 ## initialize_standard_simulation(start_time: datetime)
@@ -62,6 +62,10 @@ Demonstrates the generation and plotting of pointing vectors. It generates a num
 # demo_sky_scan.py
 ## demo_sky_scan()
 Performs a sky scan from a GEO satellite to map celestial exclusion zones. It generates a heatmap of the sky showing clear and excluded areas.
+
+# show_geo_search.py
+## show_geo_search()
+A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 
 # generate_log_spherical_points.py
 ## generate_log_spherical_points(num_points: int, inner_radius: float, outer_radius: float, object_size_m: float = 1.0, seed: int = None)

@@ -205,7 +205,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 
 *   **`demo_fixedpoints`**: Visualizes the distribution of the generated "fixed
     points" (observation targets) in a 3D scatter plot.
-*   **`show_geo_search`**: A demo that performs a geometric search for satellites using a GEO constellation.
+*   **`show_geo_search`**: A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 *   **`demo_lambertian`**: Demonstrates the `lambertiansphere` brightness
     calculation and plots brightness vs. phase angle.
 *   **`demo_pointing_plot`**: Shows a 3D plot of all satellites with their
@@ -220,10 +220,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 
 ### 2.8. How to Run Demos
 
-The `all_demos.py` script provides a comprehensive demonstration of the
-toolkit's features. The demos now use the `initialize_standard_simulation`
-helper function from the `demo_common.py` module to set up a consistent simulation
-state.
+The `all_demos.py` script provides a comprehensive demonstration of the toolkit's features.
 
 #### 1. Run Demos from the Command Line
 
@@ -240,6 +237,13 @@ You can import and run the `run_all_demos` function from a Jupyter Notebook to d
 ```python
 import all_demos
 all_demos.run_all_demos()
+```
+
+To save all the demo plots to a single HTML file named `all_demo_plots.html`, run the following from a Python script or notebook:
+
+```python
+import all_demos
+all_demos.run_all_demos(save_html=True)
 ```
 
 ### 2.9. `demo_common.py`
@@ -307,8 +311,9 @@ can install them using pip.
 *   **`plotly`**: For creating interactive 3D plots.
 *   **`scipy`**: For scientific computations, specifically numerical integration
     in `radiometry.py`.
+*   **`ipython`**: For displaying plots inline in Jupyter notebooks.
 
 Example installation command:
 ```bash
-pip install numpy astropy jplephem sgp4 plotly scipy
+pip install numpy astropy jplephem sgp4 plotly scipy ipython
 ```

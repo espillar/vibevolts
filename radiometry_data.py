@@ -22,6 +22,7 @@ FILTER_DATA = {
     'U': {
         'sun': -26.03,
         'sky': 22.0,
+        'space': 22.9,
         'central_wavelength': 365.0,
         'bandwidth': 66.0,
         'zero_point': 4.96e9,
@@ -29,6 +30,7 @@ FILTER_DATA = {
     'B': {
         'sun': -26.13,
         'sky': 22.7,
+        'space': 23.3,
         'central_wavelength': 445.0,
         'bandwidth': 94.0,
         'zero_point': 1.36e10,
@@ -36,6 +38,7 @@ FILTER_DATA = {
     'V': {
         'sun': -26.78,
         'sky': 21.9,
+        'space': 23,
         'central_wavelength': 551.0,
         'bandwidth': 88.0,
         'zero_point': 8.79e9,
@@ -43,6 +46,7 @@ FILTER_DATA = {
     'R': {
         'sun': -27.11,
         'sky': 21.0,
+        'space': 22.0,
         'central_wavelength': 658.0,
         'bandwidth': 138.0,
         'zero_point': 9.74e9,
@@ -50,6 +54,7 @@ FILTER_DATA = {
     'I': {
         'sun': -27.47,
         'sky': 20.0,
+        'space': 21.2,
         'central_wavelength': 806.0,
         'bandwidth': 149.0,
         'zero_point': 7.11e9,
@@ -58,6 +63,7 @@ FILTER_DATA = {
     'J': {
         'sun': -27.91,
         'sky': 16.0,
+        'space': 21.5,
         'central_wavelength': 1235.0,
         'bandwidth': 162.0,
         'zero_point': 3.15e9,
@@ -65,6 +71,7 @@ FILTER_DATA = {
     'H': {
         'sun': -28.25,
         'sky': 14.0,
+        'space': 20.5,
         'central_wavelength': 1646.0,
         'bandwidth': 251.0,
         'zero_point': 2.35e9,
@@ -72,6 +79,7 @@ FILTER_DATA = {
     'K': {
         'sun': -28.29,
         'sky': 13.0,
+        'space': 19.5,
         'central_wavelength': 2159.0,
         'bandwidth': 262.0,
         'zero_point': 1.17e9,
@@ -80,6 +88,7 @@ FILTER_DATA = {
     'g': {
         'sun': -26.47,
         'sky': 21.8,
+        'space': 23.0,
         'central_wavelength': 477.0,
         'bandwidth': 137.9,
         'zero_point': 1.582e10,
@@ -87,6 +96,7 @@ FILTER_DATA = {
     'r': {
         'sun': -26.93,
         'sky': 20.8,
+        'space': 22.2,
         'central_wavelength': 623.1,
         'bandwidth': 138.2,
         'zero_point': 1.214e10,
@@ -94,6 +104,7 @@ FILTER_DATA = {
     'i': {
         'sun': -27.05,
         'sky': 20.2,
+        'space': 21.5,
         'central_wavelength': 762.5,
         'bandwidth': 153.5,
         'zero_point': 1.103e10,
@@ -101,6 +112,7 @@ FILTER_DATA = {
     'z': {
         'sun': -27.07,
         'sky': 19.0,
+        'space': 20.8,
         'central_wavelength': 913.4,
         'bandwidth': 140.9,
         'zero_point': 8.455e9,

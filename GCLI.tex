@@ -9,7 +9,7 @@
 \maketitle
 \section*{all\_demos.py}
 \subsection*{run\_all\_demos()}
-Runs all demo functions and displays their plots. This function is designed to be called from a Jupyter notebook or another script.
+Runs all demo functions, and either shows them inline or saves them to a single HTML file.
 
 \section*{common.py}
 \subsection*{initialize\_standard\_simulation(start\_time: datetime)}
@@ -71,6 +71,10 @@ Demonstrates the generation and plotting of pointing vectors. It generates a num
 \section*{demo\_sky\_scan.py}
 \subsection*{demo\_sky\_scan()}
 Performs a sky scan from a GEO satellite to map celestial exclusion zones. It generates a heatmap of the sky showing clear and excluded areas.
+
+\section*{show\_geo\_search.py}
+\subsection*{show\_geo\_search()}
+A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 
 \section*{generate\_log\_spherical\_points.py}
 \subsection*{generate\_log\_spherical\_points(num\_points: int, inner\_radius: float, outer\_radius: float, object\_size\_m: float = 1.0, seed: int = None)}

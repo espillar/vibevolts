@@ -43,6 +43,7 @@ The `all_demos.py` script runs a series of demonstrations to showcase the toolki
 *   **`demo_pointing_vectors`**: Generates 1000 uniformly distributed pointing vectors and plots them on a sphere.
 *   **`demo_sky_scan`**: Simulates a sky scan from a GEO satellite, mapping out the celestial exclusion zones as a heatmap.
 *   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence functionality, showing how satellites can step through a pre-defined grid of pointing vectors.
+*   **`show_geo_search`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 
 ## Dependencies
 
@@ -54,11 +55,12 @@ VibeVolts requires the following Python libraries:
 *   `sgp4`
 *   `plotly`
 *   `scipy`
+*   `ipython`
 
 You can install them using pip:
 
 ```bash
-pip install numpy astropy jplephem sgp4 plotly scipy
+pip install numpy astropy jplephem sgp4 plotly scipy ipython
 ```
 
 ## Usage and Demos
@@ -80,6 +82,13 @@ You can import and run the `run_all_demos` function from a Jupyter Notebook to d
 ```python
 import all_demos
 all_demos.run_all_demos()
+```
+
+To save all the demo plots to a single HTML file named `all_demo_plots.html`, run the following from a Python script or notebook:
+
+```python
+import all_demos
+all_demos.run_all_demos(save_html=True)
 ```
 
 ## Documentation

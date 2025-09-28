@@ -58,8 +58,5 @@ def demo_lambertian():
         yaxis=dict(range=[0, max(brightness_values) * 1.1])
     )
 
-    print("\n--- Displaying Plot ---")
-    fig.show()
-
-if __name__ == '__main__':
-    demo_lambertian()
+    print("\n--- Returning Plot ---")
+    return fig

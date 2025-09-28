@@ -65,7 +65,7 @@ final_array = np.hstack([data, results_container])
 - [X] Create the constellation
 - [X] create the appropirate targeting grid and rules for traversing it.
 - [X] Set up pytest 
-- [ ] first stage testing that displays things 
+- [X] first stage testing that displays things 
 - [ ] Get the timing in there as well
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
@@ -119,6 +119,15 @@ generating the satellites and their pointing characterisics.
 
 Making some reasonable progress- well maybe not. I seem to be stuck on not getting
 the right argument to geos, which is confusing. Maybe I should start spyder.
+
+- lunch
+
+Dumped everything from the system over lunch now everything works now.  Very odd.
+I wonder what was sticking? Add a new test that plots the RA and DEC vs time as we march
+through the space.  That works.  Somehow the plotting got messed up and wasted 20min
+making plots come out right.
+
+Interesting.  I think the word results or result was being overloaded somehow.
 
 *** [2025-09-21 Sun]
 OK logging in and fixing up a glitch in the GEMINI.md documentation "automatgically"

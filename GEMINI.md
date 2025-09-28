@@ -19,7 +19,7 @@ The core of the simulation is a data structure that represents the state of the 
 *   **`generate_log_spherical_points.py`**: Provides tools for generating 3D point clouds.
 *   **`demo_common.py`**: A utility module that provides helper functions for the demo scripts.
 *   **`demo_constellation.py`**: A demo script for creating and visualizing satellite constellations.
-*   **`show_geo_search.py`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation.
+*   **`show_geo_search.py`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 *   **`demo_pointing_sequence.py`**: A demo script for demonstrating the satellite pointing sequence functionality.
 *   **`demo_sky_scan.py`**: A demo script for simulating a sky scan from a satellite.
 *   **`generate_report.py`**: A script for generating a PDF report of the project.
@@ -36,11 +36,12 @@ VibeVolts requires the following Python libraries:
 *   `sgp4`
 *   `plotly`
 *   `scipy`
+*   `ipython`
 
 You can install them using pip:
 
 ```bash
-pip install numpy astropy jplephem sgp4 plotly scipy
+pip install numpy astropy jplephem sgp4 plotly scipy ipython
 ```
 
 ### Running the Demos
@@ -56,6 +57,13 @@ You can also import and run the `run_all_demos` function from a Jupyter Notebook
 ```python
 import all_demos
 all_demos.run_all_demos()
+```
+
+To save all the demo plots to a single HTML file named `all_demo_plots.html`, run the following from a Python script or notebook:
+
+```python
+import all_demos
+all_demos.run_all_demos(save_html=True)
 ```
 
 
