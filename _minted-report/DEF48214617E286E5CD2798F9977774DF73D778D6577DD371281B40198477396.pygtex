@@ -1,0 +1,34 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{p}{\PYGZob{}}
+    \PYG{l+s+s1}{\PYGZsq{}start\PYGZus{}time\PYGZsq{}}\PYG{p}{:} \PYG{n}{datetime}\PYG{p}{,}
+    \PYG{l+s+s1}{\PYGZsq{}counts\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s1}{\PYGZsq{}celestial\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mi}{2}\PYG{p}{,}
+        \PYG{l+s+s1}{\PYGZsq{}satellites\PYGZsq{}}\PYG{p}{:} \PYG{n}{num\PYGZus{}satellites}\PYG{p}{,}
+        \PYG{l+s+s1}{\PYGZsq{}observatories\PYGZsq{}}\PYG{p}{:} \PYG{n}{num\PYGZus{}observatories}\PYG{p}{,}
+        \PYG{l+s+s1}{\PYGZsq{}red\PYGZus{}satellites\PYGZsq{}}\PYG{p}{:} \PYG{n}{num\PYGZus{}red\PYGZus{}satellites}
+    \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}celestial\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s1}{\PYGZsq{}position\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}velocity\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}acceleration\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+    \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}satellites\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s1}{\PYGZsq{}position\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}velocity\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}acceleration\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}orbital\PYGZus{}elements\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{6}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}epochs\PYGZsq{}}\PYG{p}{:} \PYG{p}{[],}
+        \PYG{l+s+s1}{\PYGZsq{}pointing\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}pointing\PYGZus{}state\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{),} \PYG{n}{dtype}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}detector\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}satellites}\PYG{p}{,} \PYG{l+m+mi}{7}\PYG{p}{)),}
+    \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}observatories\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}} \PYG{o}{...} \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}red\PYGZus{}satellites\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}} \PYG{o}{...} \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}fixedpoints\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s1}{\PYGZsq{}position\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}points}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)),}
+        \PYG{l+s+s1}{\PYGZsq{}visibility\PYGZsq{}}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{num\PYGZus{}points}\PYG{p}{,} \PYG{n}{num\PYGZus{}satellites}\PYG{p}{),} \PYG{n}{dtype}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{)}
+    \PYG{p}{\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}pointing\PYGZus{}spheres\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}\PYGZcb{},}
+    \PYG{l+s+s1}{\PYGZsq{}delta\PYGZus{}time\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mf}{60.0}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

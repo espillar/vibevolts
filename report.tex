@@ -1,63 +1,173 @@
-\documentclass{article}
-\usepackage{geometry}
-\usepackage{fancyhdr}
+\documentclass[11pt]{article}
+\usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage{listings}
+\usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
-\usepackage{verbatim}
-\usepackage{color}
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\usepackage{minted}
+\usepackage{tocloft}
+\usepackage{inconsolata}
+\usepackage{xcolor}
+\usepackage{etoolbox}
+\usepackage{fancyvrb}
 
-\lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\footnotesize\ttfamily,
-    breakatwhitespace=false,
-    breaklines=true,
-    captionpos=b,
-    keepspaces=true,
-    numbers=left,
-    numbersep=5pt,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    tabsize=2,
-    language=Python
-}
-\lstset{style=mystyle}
 
-\geometry{a4paper, margin=1in}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
 
-\title{VibeVolts Project Documentation}
-\author{Jules the Pirate Engineer}
+% Make the background color of minted listings this color
+\setminted{bgcolor=bg}
+
+% Add a frame around the listing
+\setminted{frame=lines, framerule=1pt}
+
+% Add a bit of space between the frame and the code
+\setminted{framesep=5pt}
+
+% Make the font size a bit smaller
+\setminted{fontsize=\small}
+
+\RecustomVerbatimEnvironment{Verbatim}{Verbatim}{fontsize=\small, frame=lines, framerule=1pt, framesep=5pt}
+
+
+\title{VibeVolts: A Python-Based Toolkit for Space Environment Simulation}
+\author{Jules, AI Software Engineer}
 \date{\today}
 
 \begin{document}
 
 \maketitle
 
+\begin{abstract}
+VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. Key features include orbit propagation, exclusion analysis, and 3D visualization. The toolkit is designed with a modular, performance-oriented architecture that heavily leverages NumPy for vectorized operations.
+\end{abstract}
+
 \tableofcontents
-\newpage
 
-\section{Summary}
+\section{Introduction}
+VibeVolts is a fast and efficient tool for simulating the visibility of space-based assets. It has been refactored into a modular structure with a focus on performance, leveraging established astronomical libraries like \texttt{astropy}. The core capabilities of the toolkit include satellite propagation from TLE data, celestial body positioning, viewing exclusion analysis (from the Sun, Moon, and Earth), and interactive 3D visualization of simulation scenarios using \texttt{plotly}.
 
-VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. The project's primary goal is to create a fast and efficient simulation tool for modeling satellite and observatory visibility of objects in space, with a focus on performance by leveraging vectorized operations with NumPy.
+\section{Core Data Structures}
+The simulation state is managed within a single, large dictionary created by composition.
 
-The toolkit is structured into several core modules, each responsible for a specific part of the simulation, such as orbit propagation (`propagation.py`), visibility calculations (`visibility.py`), and satellite pointing (`pointing.py`). The entire simulation state is managed within a single dictionary, `simulation_data`, which is initialized by composition. A minimal simulation is created with `create_empty_simulation` and then populated by functions like `add_satellites_from_tle`, `add_observatories`, etc.
+\subsection{The \texttt{simulation\_data} Dictionary}
+This is the central, composable data structure that holds the entire simulation state. A minimal simulation is created with \texttt{create\_empty\_simulation} and then populated by other functions.
 
-VibeVolts includes a number of demonstration scripts that showcase its features. These demos cover everything from basic satellite propagation to more complex scenarios like sky scans and exclusion zone calculations. The `all\_demos.py` script provides a convenient way to run all the demonstrations.
+\begin{minted}{python}
+{
+    'start_time': datetime,
+    'counts': {
+        'celestial': 2,
+        'satellites': num_satellites,
+        'observatories': num_observatories,
+        'red_satellites': num_red_satellites
+    },
+    'celestial': {
+        'position': np.zeros((2, 3)),
+        'velocity': np.zeros((2, 3)),
+        'acceleration': np.zeros((2, 3)),
+    },
+    'satellites': {
+        'position': np.zeros((num_satellites, 3)),
+        'velocity': np.zeros((num_satellites, 3)),
+        'acceleration': np.zeros((num_satellites, 3)),
+        'orbital_elements': np.zeros((num_satellites, 6)),
+        'epochs': [],
+        'pointing': np.zeros((num_satellites, 3)),
+        'pointing_state': np.zeros((num_satellites, 2), dtype=int),
+        'detector': np.zeros((num_satellites, 7)),
+    },
+    'observatories': { ... },
+    'red_satellites': { ... },
+    'fixedpoints': {
+        'position': np.zeros((num_points, 3)),
+        'visibility': np.zeros((num_points, num_satellites), dtype=int)
+    },
+    'pointing_spheres': {},
+    'delta_time': 60.0
+}
+\end{minted}
 
-\section{Python Code Listings}
+Key components include:
+\begin{itemize}
+    \item \texttt{counts}: Stores the number of entities in the simulation.
+    \item \texttt{celestial}: Holds data for the Sun and Moon.
+    \item \texttt{satellites}: Contains arrays for satellite properties like position, velocity, orbital elements, and detector characteristics.
+    \item \texttt{fixedpoints}: Stores the positions of static observation targets and their visibility table.
+    \item \texttt{pointing\_spheres}: Caches pre-computed pointing vector grids to avoid redundant calculations.
+\end{itemize}
 
-\subsection{all\_demos.py}
-\begin{lstlisting}
+\subsection{Radiometric and Physical Data}
+The \texttt{radiometry\_data.py} module provides the \texttt{FILTER\_DATA} dictionary, which contains standard data for various astronomical filters (e.g., Johnson-Cousins, SDSS, JWST). It also defines physical constants such as \texttt{AU\_M} (Astronomical Unit) and \texttt{RSUN\_M} (Solar Radius).
+
+\section{Core Modules and Algorithms}
+
+\subsection{\texttt{simulation.py} - Simulation Setup}
+This module is responsible for creating the basic simulation structure.
+\begin{itemize}
+    \item \texttt{create\_empty\_simulation}: Initializes a minimal, empty data structure.
+    \item \texttt{add\_celestial\_bodies}: Adds structures for the Sun and Moon.
+    \item \texttt{add\_fixed\_points}: Generates and adds a set of static reference points.
+\end{itemize}
+
+\subsection{\texttt{propagation.py} - Orbit Dynamics}
+This module handles the dynamics of the simulation.
+\begin{itemize}
+    \item \texttt{propagate\_satellites\_new}: Updates satellite positions using a vectorized Keplerian propagator.
+    \item \texttt{celestial\_update}: Uses `astropy` to get high-precision positions for the Sun and Moon.
+\end{itemize}
+
+\subsection{\texttt{visibility.py} - Line-of-Sight Analysis}
+This module determines what a satellite can "see."
+\begin{itemize}
+    \item \texttt{exclusion}: Checks if a satellite's line of sight is blocked by the Sun, Moon, or Earth.
+    \item \texttt{solarexclusion}: A fully vectorized function to check for solar exclusion across all satellites.
+    \item \texttt{update\_visibility\_table}: Iterates through all satellites and fixed points to build a visibility matrix.
+\end{itemize}
+
+\subsection{\texttt{pointing.py} - Satellite Pointing Control}
+This module manages where the satellites are pointing.
+\begin{itemize}
+    \item \texttt{generate\_pointing\_sphere}: Creates and caches a pointing grid using a Fibonacci lattice.
+    \item \texttt{update\_satellite\_pointing}: Updates each satellite's pointing vector based on its assigned grid and current index.
+\end{itemize}
+
+\section{Demonstrations and Usage}
+The toolkit includes a suite of demo scripts (\texttt{demo*.py}) to showcase its features. Key demos include:
+\begin{itemize}
+    \item \texttt{demo1.py}: Basic propagation of a standard set of satellites.
+    \item \texttt{demo\_exclusion\_table.py}: Calculates and displays the visibility matrix as a heatmap.
+    \item \texttt{demo\_sky\_scan.py}: Simulates a sky scan from a GEO satellite to map celestial exclusion zones.
+\end{itemize}
+All demos can be run from a single script:
+\begin{minted}{bash}
+python all_demos.py
+\end{minted}
+
+\section{Dependencies}
+The following Python libraries are required:
+\begin{itemize}
+    \item \texttt{numpy}
+    \item \texttt{astropy}
+    \item \texttt{jplephem}
+    \item \texttt{sgp4}
+    \item \texttt{plotly}
+    \item \texttt{scipy}
+    \item \texttt{ipython}
+\end{itemize}
+They can be installed with pip:
+\begin{minted}{bash}
+pip install numpy astropy jplephem sgp4 plotly scipy ipython
+\end{minted}
+
+\section{Complete Listings}
+\subsection{\texttt{\_\_init\_\_.py}}
+\begin{Verbatim}
+# This file is intentionally left blank.
+\end{Verbatim}
+\subsection{\texttt{all\_demos.py}}
+\begin{Verbatim}
 import plotly.graph_objects as go
+from IPython.display import display, HTML
+
 
 # Import all the demo functions
 from demo1 import demo1
@@ -67,57 +177,482 @@ from demo4 import demo4
 from demo_fixedpoints import demo_fixedpoints
 from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
-from demo_exclusion_debug_print import demo_exclusion_debug_print
+
 from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
 from demo_pointing_vectors import demo_pointing_vectors
 from demo_pointing_sequence import demo_pointing_sequence
+from demo_constellation import demo_constellation
+from show_geo_search import show_geo_search
 
-def run_all_demos():
+
+def run_all_demos(save_html=False):
     """
-    Runs all demo functions and displays their plots.
-    This function is designed to be called from a Jupyter notebook
-    or another script.
+    Runs all demo functions, and either shows them inline or saves them to a single HTML file.
+
+    Args:
+        save_html (bool): If True, saves plots to HTML. If False, displays plots inline.
     """
     demo_functions = [
-        demo1,
-        demo2,
-        demo3,
-        demo4,
-        demo_fixedpoints,
-        demo_exclusion_table,
-        demo_pointing_plot,
-        demo_lambertian,
-        demo_sky_scan,
-        demo_pointing_vectors,
-        demo_pointing_sequence,
+ #       demo1,
+  #      demo2,
+  #      demo3,
+  #      demo4,
+  #      demo_fixedpoints,
+  #      demo_exclusion_table,
+  #      demo_pointing_plot,
+  #      demo_lambertian,
+  #      demo_sky_scan,
+  #      demo_pointing_vectors,
+  #      demo_pointing_sequence,
+        demo_constellation,
+        show_geo_search,
     ]
 
+    figs = [] # This is a list
     print("--- Running All Demos ---")
     for func in demo_functions:
-        print(f"\n... Executing {func.__name__} ...")
-        result = func()
-        if isinstance(result, go.Figure):
-            result.show()
+        print(f"\n\033[91m--- Executing {func.__name__} ---\033[0m")
+        res = func()
+        if isinstance(res, go.Figure):
+            figs.append(res)
+            print("appending a single item")
+        elif isinstance(res, tuple):
+            print("I have a tuple")
+            for fig in res:
+                figs.append(fig)
+                print("extracting an item from a tuple")
 
-    # Also run the non-plotting demo
-    demo_exclusion_debug_print()
-
-    print("\n--- All demos complete. ---")
+    if save_html:
+        with open("all_demo_plots.html", "w") as f:
+            f.write("<html><head><title>VibeVolts Demos</title></head><body>")
+            f.write("<h1>VibeVolts Demo Plots</h1>")
+            for i, fig in enumerate(figs):
+                f.write(f"<h2>Demo {i+1}: {fig.layout.title.text if fig.layout.title else ''}</h2>")
+                f.write(fig.to_html(full_html=False, include_plotlyjs='cdn'))
+            f.write("</body></html>")
+        print("\n--- All demos complete. Plots saved to all_demo_plots.html ---")
+    else:
+        print("\n--- Displaying all demo plots inline ---")
+        print(len(figs))
+        for fig in figs:
+           fig.show()
 
 if __name__ == '__main__':
     run_all_demos()
-\end{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{constants.py}}
+\begin{Verbatim}
+# --- Global Constants for Array Indices ---
+# These constants define column indices for numpy arrays, making the
+# code more readable and preventing errors from using "magic numbers".
 
-\subsection{common.py}
-\begin{lstlisting}
+# -- Radii in Meters --
+EARTH_RADIUS = 6378137.0
+MOON_RADIUS = 1737400.0
+
+# -- Detector Array Indices --
+DETECTOR_APERTURE_IDX = 0      # Aperture size in meters
+DETECTOR_PIXEL_SIZE_IDX = 1    # Pixel size in radians
+DETECTOR_QE_IDX = 2            # Quantum efficiency as a fraction (0.0 to 1.0)
+DETECTOR_PIXELS_IDX = 3        # Total number of pixels in the detector (count)
+DETECTOR_SOLAR_EXCL_IDX = 4    # Solar exclusion angle in radians
+DETECTOR_LUNAR_EXCL_IDX = 5    # Lunar exclusion angle in radians
+DETECTOR_EARTH_EXCL_IDX = 6    # Earth exclusion angle (above the limb) in radians
+
+# -- Orbital Elements Array Indices --
+ORBITAL_A_IDX = 0              # Semi-major axis in meters
+ORBITAL_E_IDX = 1              # Eccentricity (dimensionless)
+ORBITAL_I_IDX = 2              # Inclination in radians
+ORBITAL_RAAN_IDX = 3           # Right Ascension of the Ascending Node in radians
+ORBITAL_ARGP_IDX = 4           # Argument of Perigee in radians
+ORBITAL_M_IDX = 5              # Mean Anomaly in radians
+
+# -- Pointing State Array Indices --
+POINTING_COUNT_IDX = 0         # Number of points in the pointing grid
+POINTING_PLACE_IDX = 1         # Current index in the pointing sequence
+\end{Verbatim}
+\subsection{\texttt{constellation.py}}
+\begin{Verbatim}
+import numpy as np
+from datetime import datetime
+from typing import Dict, Any
+import math
+import random
+
+from constants import (
+    ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
+    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX,
+    POINTING_COUNT_IDX, POINTING_PLACE_IDX
+)
+from pointing import generate_pointing_sphere
+
+def geos(sim_data, n,  fov) -> None:
+    """
+    Creates n equally spaced satellites in GEO and adds them to the 'satellites' group in the simulation.
+
+    Args:
+        sim_data: The main simulation data dictionary.
+        n: The number of satellites to create.
+        fov: The diameter of the field of view of the satellite in radians.
+    """
+    # Calculate solid angle
+    theta = fov / 2
+    solid_angle = 2 * np.pi * (1 - np.cos(theta))
+
+    # Calculate grid_points - blow things up by 0.25 for overlap
+    grid_points = int(4 * np.pi / solid_angle * 1.25)
+
+    # Generate and store the pointing sphere and place in ['pointing_sphers'][n]
+    generate_pointing_sphere(sim_data, grid_points)
+
+    orbital_elements_list = []
+    epochs_list = []
+    pointing_state_list = []
+
+    # Geostationary orbit semi-major axis in meters
+    a = 42164000.0
+
+    # Create a set of elements evenly spaced around the equator in
+    # orbital_elemens_list
+    for i in range(n):
+        elements = np.zeros(6)
+        elements[ORBITAL_A_IDX] = a
+        elements[ORBITAL_E_IDX] = 0.0
+        elements[ORBITAL_I_IDX] = 0.0
+        elements[ORBITAL_RAAN_IDX] = i * 2 * np.pi / n
+        elements[ORBITAL_ARGP_IDX] = 0.0
+        elements[ORBITAL_M_IDX] = 0.0
+        orbital_elements_list.append(elements)
+        epochs_list.append(sim_data['start_time'])
+
+   # And these are the pointing state of the satellite. Make the position random.
+
+        pointing_state = np.zeros(2, dtype=int)
+        pointing_state[POINTING_COUNT_IDX] = grid_points
+        pointing_state[POINTING_PLACE_IDX] = random.randint(0,grid_points-1)
+
+        pointing_state_list.append(pointing_state)
+
+    orbital_elements = np.array(orbital_elements_list, dtype=float)
+    pointing_state_array = np.array(pointing_state_list, dtype=int)
+
+    if 'satellites' not in sim_data:
+        sim_data['counts']['satellites'] = n
+        sim_data['satellites'] = {
+            'position': np.zeros((n, 3), dtype=float),
+            'velocity': np.zeros((n, 3), dtype=float),
+            'acceleration': np.zeros((n, 3), dtype=float),
+            'orbital_elements': orbital_elements,
+            'epochs': epochs_list,
+            'pointing': np.zeros((n, 3), dtype=float),
+            'pointing_state': pointing_state_array,
+            'detector': np.zeros((n, 7), dtype=float),
+        }
+    else:
+        # Append to existing satellites
+        sim_data['counts']['satellites'] += n
+        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'],
+np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'],
+np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'],
+np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'],
+orbital_elements])
+        sim_data['satellites']['epochs'].extend(epochs_list)
+        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'],
+np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'],
+pointing_state_array])
+        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'],
+np.zeros((n, 7), dtype=float)])
+\end{Verbatim}
+\subsection{\texttt{demo1.py}}
+\begin{Verbatim}
+from datetime import datetime, timezone, timedelta
+import plotly.graph_objects as go
+
+from demo_common import initialize_standard_simulation
+from propagation import celestial_update, propagate_satellites_new
+from plotting_3d import plot_3d_scatter
+
+def demo1() -> go.Figure:
+    """
+    Runs a full demonstration of the simulation tools.
+
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
+
+    Returns:
+        The Plotly figure object for the satellite positions plot.
+    """
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+    sim_data = initialize_standard_simulation(sim_start_time)
+
+    # --- Celestial Body Updates ---
+    sim_data = celestial_update(sim_data, sim_start_time)
+    print("\n--- Celestial Positions at Start Time ---")
+    print(f"Time: {sim_start_time.isoformat()}")
+    print(sim_data['celestial']['position'])
+
+    # --- Satellite Propagation and Plotting ---
+    time_t1 = sim_start_time + timedelta(hours=1, minutes=30)
+    print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
+    sim_data = propagate_satellites_new(sim_data, time_t1)
+
+    fig = plot_3d_scatter(
+        positions=sim_data['satellites']['position'],
+        title=f"Satellite Positions at {time_t1.isoformat()}",
+        plot_time=time_t1,
+        marker_size=2,
+        trace_name='Satellites'
+    )
+    return fig
+\end{Verbatim}
+\subsection{\texttt{demo2.py}}
+\begin{Verbatim}
+import numpy as np
+from datetime import datetime, timezone, timedelta
+import plotly.graph_objects as go
+
+from demo_common import initialize_standard_simulation
+from propagation import celestial_update, propagate_satellites_new
+
+def demo2() -> go.Figure:
+    """
+    Runs a demonstration plotting satellite and celestial positions.
+
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
+
+    Returns:
+        The Plotly figure object.
+    """
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+    sim_data = initialize_standard_simulation(sim_start_time)
+
+    # --- Satellite and Celestial Propagation ---
+    positions_t0 = sim_data['satellites']['position'].copy()
+    sim_data = celestial_update(sim_data, sim_start_time)
+    celestial_pos_t0 = sim_data['celestial']['position'].copy()
+
+    time_t1 = sim_start_time + timedelta(seconds=300)
+    sim_data = propagate_satellites_new(sim_data, time_t1)
+    positions_t1 = sim_data['satellites']['position'].copy()
+    sim_data = celestial_update(sim_data, time_t1)
+    celestial_pos_t1 = sim_data['celestial']['position'].copy()
+
+    # --- 3D Plotting of All Time Steps ---
+    print("\n--- Generating 3D plot for Demo 2 ---")
+    earth_radius = 6378137.0
+    vector_scale = 10 * earth_radius
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter3d(
+        x=positions_t0[:, 0], y=positions_t0[:, 1], z=positions_t0[:, 2],
+        mode='markers', marker=dict(size=5, color='blue'), name='Sats (T=0s)'
+    ))
+    fig.add_trace(go.Scatter3d(
+        x=positions_t1[:, 0], y=positions_t1[:, 1], z=positions_t1[:, 2],
+        mode='markers', marker=dict(size=5, color='red'), name='Sats (T=300s)'
+    ))
+
+    sun_vec_t0 = celestial_pos_t0[0] / np.linalg.norm(celestial_pos_t0[0]) * vector_scale
+    moon_vec_t0 = celestial_pos_t0[1] / np.linalg.norm(celestial_pos_t0[1]) * vector_scale
+    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t0[0]], y=[0, sun_vec_t0[1]], z=[0, sun_vec_t0[2]],
+mode='lines', line=dict(color='orange', width=4), name='Sun (T=0s)'))
+    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t0[0]], y=[0, moon_vec_t0[1]], z=[0, moon_vec_t0[2]],
+mode='lines', line=dict(color='gray', width=4), name='Moon (T=0s)'))
+
+    sun_vec_t1 = celestial_pos_t1[0] / np.linalg.norm(celestial_pos_t1[0]) * vector_scale
+    moon_vec_t1 = celestial_pos_t1[1] / np.linalg.norm(celestial_pos_t1[1]) * vector_scale
+    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t1[0]], y=[0, sun_vec_t1[1]], z=[0, sun_vec_t1[2]],
+mode='lines', line=dict(color='yellow', width=4), name='Sun (T=300s)'))
+    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t1[0]], y=[0, moon_vec_t1[1]], z=[0, moon_vec_t1[2]],
+mode='lines', line=dict(color='lightgray', width=4), name='Moon (T=300s)'))
+
+    u_sphere = np.linspace(0, 2 * np.pi, 100)
+    v_sphere = np.linspace(0, np.pi, 100)
+    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
+    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
+    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
+    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues',
+showscale=False, opacity=0.5, name='Earth'))
+
+    fig.update_layout(
+        title=f"Satellite and Celestial Positions at 0 and 300 seconds",
+        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
+        margin=dict(r=20, b=10, l=10, t=40)
+    )
+
+    return fig
+\end{Verbatim}
+\subsection{\texttt{demo3.py}}
+\begin{Verbatim}
+import numpy as np
+from datetime import datetime, timezone, timedelta
+import plotly.graph_objects as go
+
+from propagation import add_satellites_from_tle, propagate_satellites_new
+from simulation import create_empty_simulation
+
+def demo3() -> go.Figure:
+    """
+    Runs a demonstration plotting a single LEO satellite trajectory.
+
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
+
+    Returns:
+        The Plotly figure object.
+    """
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+
+    tle_data = '''LEO-TRAJECTORY
+1 90201U 25005A   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90201  51.6000  10.0000 0010000  90.0000  20.0000 15.50000000    11
+'''
+    dummy_tle_path = "dummy_tle3.txt"
+    with open(dummy_tle_path, "w") as f:
+        f.write(tle_data)
+
+    print(f"\n--- Starting Demo 3 ---")
+
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+
+    print(f"Initializing structures for {sim_data['counts']['satellites']} LEO satellite.")
+
+    positions_over_time = []
+    time_steps = np.arange(0, 91, 10)
+
+    for minutes in time_steps:
+        prop_time = sim_start_time + timedelta(minutes=int(minutes))
+        sim_data = propagate_satellites_new(sim_data, prop_time)
+        positions_over_time.append(sim_data['satellites']['position'][0])
+
+    positions_array = np.array(positions_over_time)
+
+    print("\n--- Generating 3D plot for Demo 3 ---")
+    earth_radius = 6378137.0
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter3d(
+        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
+        mode='lines', line=dict(color='red', width=4), name='Trajectory'
+    ))
+
+    fig.add_trace(go.Scatter3d(
+        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
+        mode='markers', marker=dict(size=5, color='blue'),
+        text=[f'T={t} min' for t in time_steps], hoverinfo='text', name='Time Steps'
+    ))
+
+    u_sphere = np.linspace(0, 2 * np.pi, 100)
+    v_sphere = np.linspace(0, np.pi, 100)
+    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
+    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
+    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
+    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues',
+showscale=False, opacity=0.5, name='Earth'))
+
+    fig.update_layout(
+        title=f"Single LEO Satellite Trajectory over 90 Minutes",
+        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
+        margin=dict(r=20, b=10, l=10, t=40),
+        legend_title_text='Trace'
+    )
+
+    return fig
+\end{Verbatim}
+\subsection{\texttt{demo4.py}}
+\begin{Verbatim}
+import numpy as np
+from datetime import datetime, timezone, timedelta
+import plotly.graph_objects as go
+
+from propagation import add_satellites_from_tle, propagate_satellites_new
+from simulation import create_empty_simulation
+
+def demo4() -> go.Figure:
+    """
+    Runs a demonstration plotting a single GEO satellite trajectory.
+
+    This function generates and returns a Plotly figure object but does not
+    display it. The caller is responsible for rendering the plot.
+
+    Returns:
+        The Plotly figure object.
+    """
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+
+    tle_data = '''GEO-TRAJECTORY
+1 90301U 25006A   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90301   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+'''
+    dummy_tle_path = "dummy_tle4.txt"
+    with open(dummy_tle_path, "w") as f:
+        f.write(tle_data)
+
+    print(f"\n--- Starting Demo 4 ---")
+
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+
+    print(f"Initializing structures for {sim_data['counts']['satellites']} GEO satellite.")
+
+    positions_over_time = []
+    time_steps = np.arange(0, 24, 1)
+
+    for hours in time_steps:
+        prop_time = sim_start_time + timedelta(hours=int(hours))
+        sim_data = propagate_satellites_new(sim_data, prop_time)
+        positions_over_time.append(sim_data['satellites']['position'][0])
+
+    positions_array = np.array(positions_over_time)
+
+    print("\n--- Generating 3D plot for Demo 4 ---")
+    earth_radius = 6378137.0
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter3d(
+        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
+        mode='lines', line=dict(color='purple', width=4), name='Trajectory'
+    ))
+
+    fig.add_trace(go.Scatter3d(
+        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
+        mode='markers', marker=dict(size=5, color='orange'),
+        text=[f'T={t} hr' for t in time_steps], hoverinfo='text', name='Time Steps'
+    ))
+
+    u_sphere = np.linspace(0, 2 * np.pi, 100)
+    v_sphere = np.linspace(0, np.pi, 100)
+    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
+    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
+    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
+    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues',
+showscale=False, opacity=0.5, name='Earth'))
+
+    fig.update_layout(
+        title=f"Single GEO Satellite Trajectory over 23 Hours",
+        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
+        margin=dict(r=20, b=10, l=10, t=40),
+        legend_title_text='Trace'
+    )
+
+    return fig
+\end{Verbatim}
+\subsection{\texttt{demo\_common.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime
 from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
 
 # Adjusting import paths for the new project structure
-from propagation import add_satellites_from_tle, propagate_satellites
+from propagation import add_satellites_from_tle, propagate_satellites_new
 from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
 from observatories import add_observatories
 
@@ -223,55 +758,23 @@ LEO-05
     solar_system_ephemeris.set('jpl')
 
     print(f"Propagating satellites to start time: {start_time.isoformat()} to set initial state.")
-    sim_data = propagate_satellites(sim_data, start_time)
+    sim_data = propagate_satellites_new(sim_data, start_time)
 
     return sim_data
-\end{lstlisting}
-
-\subsection{constants.py}
-\begin{lstlisting}
-# --- Global Constants for Array Indices ---
-# These constants define column indices for numpy arrays, making the
-# code more readable and preventing errors from using "magic numbers".
-
-# -- Radii in Meters --
-EARTH_RADIUS = 6378137.0
-MOON_RADIUS = 1737400.0
-
-# -- Detector Array Indices --
-DETECTOR_APERTURE_IDX = 0      # Aperture size in meters
-DETECTOR_PIXEL_SIZE_IDX = 1    # Pixel size in radians
-DETECTOR_QE_IDX = 2            # Quantum efficiency as a fraction (0.0 to 1.0)
-DETECTOR_PIXELS_IDX = 3        # Total number of pixels in the detector (count)
-DETECTOR_SOLAR_EXCL_IDX = 4    # Solar exclusion angle in radians
-DETECTOR_LUNAR_EXCL_IDX = 5    # Lunar exclusion angle in radians
-DETECTOR_EARTH_EXCL_IDX = 6    # Earth exclusion angle (above the limb) in radians
-
-# -- Orbital Elements Array Indices --
-ORBITAL_A_IDX = 0              # Semi-major axis in meters
-ORBITAL_E_IDX = 1              # Eccentricity (dimensionless)
-ORBITAL_I_IDX = 2              # Inclination in radians
-ORBITAL_RAAN_IDX = 3           # Right Ascension of the Ascending Node in radians
-ORBITAL_ARGP_IDX = 4           # Argument of Perigee in radians
-ORBITAL_M_IDX = 5              # Mean Anomaly in radians
-
-# -- Pointing State Array Indices --
-POINTING_COUNT_IDX = 0         # Number of points in the pointing grid
-POINTING_PLACE_IDX = 1         # Current index in the pointing sequence
-\end{lstlisting}
-
-\subsection{demo1.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_constellation.py}}
+\begin{Verbatim}
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from common import initialize_standard_simulation
-from propagation import celestial_update, propagate_satellites
+from demo_common import initialize_standard_simulation
+from propagation import propagate_satellites_new
 from plotting_3d import plot_3d_scatter
+from constellation import geos
 
-def demo1() -> go.Figure:
+def demo_constellation() -> go.Figure:
     """
-    Runs a full demonstration of the simulation tools.
+    Runs a demonstration of the constellation creation tools.
 
     This function generates and returns a Plotly figure object but does not
     display it. The caller is responsible for rendering the plot.
@@ -282,263 +785,33 @@ def demo1() -> go.Figure:
     sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
     sim_data = initialize_standard_simulation(sim_start_time)
 
-    # --- Celestial Body Updates ---
-    sim_data = celestial_update(sim_data, sim_start_time)
-    print("\n--- Celestial Positions at Start Time ---")
-    print(f"Time: {sim_start_time.isoformat()}")
-    print(sim_data['celestial']['position'])
+    num_sats_before = sim_data['counts']['satellites']
+    # Create a constellation of 10 GEO satellites
+    geos(sim_data, 10, 0.1)
 
-    # --- Satellite Propagation and Plotting ---
-    time_t1 = sim_start_time + timedelta(hours=1, minutes=30)
-    print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
-    sim_data = propagate_satellites(sim_data, time_t1)
+    # Propagate the satellites for 1 hour
+    time_t1 = sim_start_time + timedelta(hours=1)
+    sim_data = propagate_satellites_new(sim_data, time_t1)
 
     fig = plot_3d_scatter(
-        positions=sim_data['satellites']['position'],
-        title=f"Satellite Positions at {time_t1.isoformat()}",
+        positions=sim_data['satellites']['position'][num_sats_before:],
+        title=f"GEO Constellation at {time_t1.isoformat()}",
         plot_time=time_t1,
-        marker_size=2,
-        trace_name='Satellites'
+        marker_size=5,
+        trace_name='GEO Satellites'
     )
     return fig
-\end{lstlisting}
 
-\subsection{demo2.py}
-\begin{lstlisting}
-import numpy as np
-from datetime import datetime, timezone, timedelta
-import plotly.graph_objects as go
-
-from common import initialize_standard_simulation
-from propagation import celestial_update, propagate_satellites
-
-def demo2() -> go.Figure:
-    """
-    Runs a demonstration plotting satellite and celestial positions.
-
-    This function generates and returns a Plotly figure object but does not
-    display it. The caller is responsible for rendering the plot.
-
-    Returns:
-        The Plotly figure object.
-    """
-    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-    sim_data = initialize_standard_simulation(sim_start_time)
-
-    # --- Satellite and Celestial Propagation ---
-    positions_t0 = sim_data['satellites']['position'].copy()
-    sim_data = celestial_update(sim_data, sim_start_time)
-    celestial_pos_t0 = sim_data['celestial']['position'].copy()
-
-    time_t1 = sim_start_time + timedelta(seconds=300)
-    sim_data = propagate_satellites(sim_data, time_t1)
-    positions_t1 = sim_data['satellites']['position'].copy()
-    sim_data = celestial_update(sim_data, time_t1)
-    celestial_pos_t1 = sim_data['celestial']['position'].copy()
-
-    # --- 3D Plotting of All Time Steps ---
-    print("\n--- Generating 3D plot for Demo 2 ---")
-    earth_radius = 6378137.0
-    vector_scale = 10 * earth_radius
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter3d(
-        x=positions_t0[:, 0], y=positions_t0[:, 1], z=positions_t0[:, 2],
-        mode='markers', marker=dict(size=5, color='blue'), name='Sats (T=0s)'
-    ))
-    fig.add_trace(go.Scatter3d(
-        x=positions_t1[:, 0], y=positions_t1[:, 1], z=positions_t1[:, 2],
-        mode='markers', marker=dict(size=5, color='red'), name='Sats (T=300s)'
-    ))
-
-    sun_vec_t0 = celestial_pos_t0[0] / np.linalg.norm(celestial_pos_t0[0]) * vector_scale
-    moon_vec_t0 = celestial_pos_t0[1] / np.linalg.norm(celestial_pos_t0[1]) * vector_scale
-    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t0[0]], y=[0, sun_vec_t0[1]], z=[0, sun_vec_t0[2]], mode='lines', line=dict(color='orange', width=4), name='Sun (T=0s)'))
-    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t0[0]], y=[0, moon_vec_t0[1]], z=[0, moon_vec_t0[2]], mode='lines', line=dict(color='gray', width=4), name='Moon (T=0s)'))
-
-    sun_vec_t1 = celestial_pos_t1[0] / np.linalg.norm(celestial_pos_t1[0]) * vector_scale
-    moon_vec_t1 = celestial_pos_t1[1] / np.linalg.norm(celestial_pos_t1[1]) * vector_scale
-    fig.add_trace(go.Scatter3d(x=[0, sun_vec_t1[0]], y=[0, sun_vec_t1[1]], z=[0, sun_vec_t1[2]], mode='lines', line=dict(color='yellow', width=4), name='Sun (T=300s)'))
-    fig.add_trace(go.Scatter3d(x=[0, moon_vec_t1[0]], y=[0, moon_vec_t1[1]], z=[0, moon_vec_t1[2]], mode='lines', line=dict(color='lightgray', width=4), name='Moon (T=300s)'))
-
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
-
-    fig.update_layout(
-        title=f"Satellite and Celestial Positions at 0 and 300 seconds",
-        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
-        margin=dict(r=20, b=10, l=10, t=40)
-    )
-
-    return fig
-\end{lstlisting}
-
-\subsection{demo3.py}
-\begin{lstlisting}
-import numpy as np
-from datetime import datetime, timezone, timedelta
-import plotly.graph_objects as go
-
-from propagation import add_satellites_from_tle, propagate_satellites
-from simulation import create_empty_simulation
-
-def demo3() -> go.Figure:
-    """
-    Runs a demonstration plotting a single LEO satellite trajectory.
-
-    This function generates and returns a Plotly figure object but does not
-    display it. The caller is responsible for rendering the plot.
-
-    Returns:
-        The Plotly figure object.
-    """
-    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-
-    tle_data = '''LEO-TRAJECTORY
-1 90201U 25005A   25210.50000000  .00000000  00000-0  00000-0 0  9991
-2 90201  51.6000  10.0000 0010000  90.0000  20.0000 15.50000000    11
-'''
-    dummy_tle_path = "dummy_tle3.txt"
-    with open(dummy_tle_path, "w") as f:
-        f.write(tle_data)
-
-    print(f"\n--- Starting Demo 3 ---")
-
-    sim_data = create_empty_simulation(sim_start_time)
-    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
-
-    print(f"Initializing structures for {sim_data['counts']['satellites']} LEO satellite.")
-
-    positions_over_time = []
-    time_steps = np.arange(0, 91, 10)
-
-    for minutes in time_steps:
-        prop_time = sim_start_time + timedelta(minutes=int(minutes))
-        sim_data = propagate_satellites(sim_data, prop_time)
-        positions_over_time.append(sim_data['satellites']['position'][0])
-
-    positions_array = np.array(positions_over_time)
-
-    print("\n--- Generating 3D plot for Demo 3 ---")
-    earth_radius = 6378137.0
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter3d(
-        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
-        mode='lines', line=dict(color='red', width=4), name='Trajectory'
-    ))
-
-    fig.add_trace(go.Scatter3d(
-        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
-        mode='markers', marker=dict(size=5, color='blue'),
-        text=[f'T={t} min' for t in time_steps], hoverinfo='text', name='Time Steps'
-    ))
-
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
-
-    fig.update_layout(
-        title=f"Single LEO Satellite Trajectory over 90 Minutes",
-        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
-        margin=dict(r=20, b=10, l=10, t=40),
-        legend_title_text='Trace'
-    )
-
-    return fig
-\end{lstlisting}
-
-\subsection{demo4.py}
-\begin{lstlisting}
-import numpy as np
-from datetime import datetime, timezone, timedelta
-import plotly.graph_objects as go
-
-from propagation import add_satellites_from_tle, propagate_satellites
-from simulation import create_empty_simulation
-
-def demo4() -> go.Figure:
-    """
-    Runs a demonstration plotting a single GEO satellite trajectory.
-
-    This function generates and returns a Plotly figure object but does not
-    display it. The caller is responsible for rendering the plot.
-
-    Returns:
-        The Plotly figure object.
-    """
-    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-
-    tle_data = '''GEO-TRAJECTORY
-1 90301U 25006A   25210.50000000  .00000000  00000-0  00000-0 0  9991
-2 90301   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
-'''
-    dummy_tle_path = "dummy_tle4.txt"
-    with open(dummy_tle_path, "w") as f:
-        f.write(tle_data)
-
-    print(f"\n--- Starting Demo 4 ---")
-
-    sim_data = create_empty_simulation(sim_start_time)
-    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
-
-    print(f"Initializing structures for {sim_data['counts']['satellites']} GEO satellite.")
-
-    positions_over_time = []
-    time_steps = np.arange(0, 24, 1)
-
-    for hours in time_steps:
-        prop_time = sim_start_time + timedelta(hours=int(hours))
-        sim_data = propagate_satellites(sim_data, prop_time)
-        positions_over_time.append(sim_data['satellites']['position'][0])
-
-    positions_array = np.array(positions_over_time)
-
-    print("\n--- Generating 3D plot for Demo 4 ---")
-    earth_radius = 6378137.0
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter3d(
-        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
-        mode='lines', line=dict(color='purple', width=4), name='Trajectory'
-    ))
-
-    fig.add_trace(go.Scatter3d(
-        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
-        mode='markers', marker=dict(size=5, color='orange'),
-        text=[f'T={t} hr' for t in time_steps], hoverinfo='text', name='Time Steps'
-    ))
-
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = earth_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = earth_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = earth_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(x=x_earth, y=y_earth, z=z_earth, colorscale='Blues', showscale=False, opacity=0.5, name='Earth'))
-
-    fig.update_layout(
-        title=f"Single GEO Satellite Trajectory over 23 Hours",
-        scene=dict(xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)', aspectmode='data'),
-        margin=dict(r=20, b=10, l=10, t=40),
-        legend_title_text='Trace'
-    )
-
-    return fig
-\end{lstlisting}
-
-\subsection{demo\_exclusion\_debug\_print.py}
-\begin{lstlisting}
+if __name__ == '__main__':
+    fig = demo_constellation()
+    fig.show()
+\end{Verbatim}
+\subsection{\texttt{demo\_exclusion\_debug\_print.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone
 
-from common import initialize_standard_simulation
+from demo_common import initialize_standard_simulation
 from propagation import celestial_update
 from visibility import update_visibility_table
 from simulation import DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
@@ -569,15 +842,14 @@ def demo_exclusion_debug_print():
 
     sim_data['fixedpoints']['position'] = original_fixed_points
     print("\n--- Debug Print Demo Complete ---")
-\end{lstlisting}
-
-\subsection{demo\_exclusion\_table.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_exclusion\_table.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from common import initialize_standard_simulation
+from demo_common import initialize_standard_simulation
 from propagation import celestial_update
 from visibility import update_visibility_table
 from simulation import DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
@@ -629,10 +901,9 @@ def demo_exclusion_table() -> go.Figure:
     )
 
     return fig
-\end{lstlisting}
-
-\subsection{demo\_fixedpoints.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_fixedpoints.py}}
+\begin{Verbatim}
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
@@ -668,10 +939,9 @@ def demo_fixedpoints() -> go.Figure:
         trace_name='Fixed Points'
     )
     return fig
-\end{lstlisting}
-
-\subsection{demo\_lambertian.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_lambertian.py}}
+\begin{Verbatim}
 import numpy as np
 import plotly.graph_objects as go
 from lambertian import lambertiansphere
@@ -698,7 +968,8 @@ def demo_lambertian():
     vec_sun_2 = np.array([1, 0, 0])
     vec_obs_2 = np.array([0, 1, 0])
     brightness_2 = lambertiansphere(vec_sun_2, vec_obs_2, SATELLITE_ALBEDO, SATELLITE_RADIUS)
-    angle_2 = np.rad2deg(np.arccos(np.dot(vec_sun_2/np.linalg.norm(vec_sun_2), vec_obs_2/np.linalg.norm(vec_obs_2))))
+    angle_2 = np.rad2deg(np.arccos(np.dot(vec_sun_2/np.linalg.norm(vec_sun_2),
+vec_obs_2/np.linalg.norm(vec_obs_2))))
     print(f"Phase Angle: {angle_2:.2f} degrees")
     print(f"Effective Brightness: {brightness_2:.4f} m^2\n")
 
@@ -732,19 +1003,15 @@ def demo_lambertian():
         yaxis=dict(range=[0, max(brightness_values) * 1.1])
     )
 
-    print("\n--- Displaying Plot ---")
-    fig.show()
-
-if __name__ == '__main__':
-    demo_lambertian()
-\end{lstlisting}
-
-\subsection{demo\_pointing\_plot.py}
-\begin{lstlisting}
+    print("\n--- Returning Plot ---")
+    return fig
+\end{Verbatim}
+\subsection{\texttt{demo\_pointing\_plot.py}}
+\begin{Verbatim}
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from common import initialize_standard_simulation
+from demo_common import initialize_standard_simulation
 from plotting_vectors import plot_pointing_vectors
 
 def demo_pointing_plot() -> go.Figure:
@@ -767,10 +1034,9 @@ def demo_pointing_plot() -> go.Figure:
         plot_time=sim_start_time
     )
     return fig
-\end{lstlisting}
-
-\subsection{demo\_pointing\_sequence.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_pointing\_sequence.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
@@ -837,6 +1103,8 @@ SAT-3
     # Simulation loop
     for t in range(1, 5):
         print(f"\n--- Time Step {t} ---")
+        print("Pointing state:")
+        print(sim_data['satellites']['pointing_state'])
         pointing_place_update(sim_data)
         update_satellite_pointing(sim_data)
         print("Pointing vectors:")
@@ -870,10 +1138,9 @@ SAT-3
 if __name__ == '__main__':
     fig = demo_pointing_sequence()
     fig.show()
-\end{lstlisting}
-
-\subsection{demo\_pointing\_vectors.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_pointing\_vectors.py}}
+\begin{Verbatim}
 import plotly.graph_objects as go
 from pointing_vectors import pointing_vectors, plot_vectors_on_sphere
 
@@ -895,16 +1162,16 @@ def demo_pointing_vectors() -> go.Figure:
 if __name__ == '__main__':
     fig = demo_pointing_vectors()
     fig.show()
-\end{lstlisting}
-
-\subsection{demo\_sky\_scan.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{demo\_sky\_scan.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation, add_celestial_bodies, DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
-from propagation import add_satellites_from_tle, propagate_satellites, celestial_update
+from simulation import create_empty_simulation, add_celestial_bodies, DETECTOR_SOLAR_EXCL_IDX,
+DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
+from propagation import add_satellites_from_tle, propagate_satellites_new, celestial_update
 from visibility import exclusion
 
 def demo_sky_scan() -> go.Figure:
@@ -933,7 +1200,7 @@ def demo_sky_scan() -> go.Figure:
     sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
 
     # b. Update celestial body positions
-    sim_data = propagate_satellites(sim_data, sim_start_time)
+    sim_data = propagate_satellites_new(sim_data, sim_start_time)
     sim_data = celestial_update(sim_data, sim_start_time)
     print("Initialized GEO satellite and celestial bodies.")
 
@@ -988,10 +1255,9 @@ def demo_sky_scan() -> go.Figure:
 if __name__ == '__main__':
     fig = demo_sky_scan()
     fig.show()
-\end{lstlisting}
-
-\subsection{generate\_log\_spherical\_points.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{generate\_log\_spherical\_points.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone
 from plotting_3d import plot_3d_scatter
@@ -1104,10 +1370,9 @@ if __name__ == '__main__':
         marker_size=1,
         trace_name='Fixed Points'
     )
-\end{lstlisting}
-
-\subsection{generate\_report.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{generate\_report.py}}
+\begin{Verbatim}
 import plotly.graph_objects as go
 
 from vibevolts_demo import (
@@ -1170,10 +1435,9 @@ def generate_demo_html_report():
 
 if __name__ == '__main__':
     generate_demo_html_report()
-\end{lstlisting}
-
-\subsection{lambertian.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{lambertian.py}}
+\begin{Verbatim}
 import numpy as np
 
 def lambertiansphere(
@@ -1238,10 +1502,34 @@ def lambertiansphere(
     )
 
     return effective_brightness
-\end{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{observatories.py}}
+\begin{Verbatim}
+import numpy as np
+from typing import Dict, Any
 
-\subsection{plotting\_3d.py}
-\begin{lstlisting}
+def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
+    """
+    Adds observatory data structures to the simulation data.
+
+    Args:
+        sim_data: The main simulation data dictionary.
+        num_observatories: The number of observatories to add.
+    """
+    if not isinstance(num_observatories, int) or num_observatories < 0:
+        raise ValueError("num_observatories must be a non-negative integer.")
+
+    sim_data['counts']['observatories'] = num_observatories
+    sim_data['observatories'] = {
+        'position': np.zeros((num_observatories, 3), dtype=float),
+        'velocity': np.zeros((num_observatories, 3), dtype=float),
+        'acceleration': np.zeros((num_observatories, 3), dtype=float),
+        'pointing': np.zeros((num_observatories, 3), dtype=float),
+        'detector': np.zeros((num_observatories, 7), dtype=float),
+    }
+\end{Verbatim}
+\subsection{\texttt{plotting\_3d.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime
 from typing import List, Optional
@@ -1328,10 +1616,9 @@ def plot_3d_scatter(
     )
 
     return fig
-\end{lstlisting}
-
-\subsection{plotting\_vectors.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{plotting\_vectors.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime
 from typing import Dict, Any
@@ -1348,8 +1635,8 @@ def plot_pointing_vectors(
     """
     Creates a 3D plot of satellites with pointing vectors.
     """
-    sat_positions = data_struct['satellites']['position']
-    sat_pointing = data_struct['satellites']['pointing']
+    sat_positions = data_struct['satellites']['position'].copy()
+    sat_pointing = data_struct['satellites']['pointing'].copy()
     num_sats = data_struct['counts']['satellites']
 
     if num_sats == 0:
@@ -1401,10 +1688,9 @@ def plot_pointing_vectors(
     )
 
     return fig
-\end{lstlisting}
-
-\subsection{pointing.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{pointing.py}}
+\begin{Verbatim}
 import numpy as np
 from typing import Dict, Any
 
@@ -1414,7 +1700,10 @@ from pointing_vectors import pointing_vectors
 def pointing_place_update(data_struct: Dict[str, Any]) -> None:
     """
     Increments the pointing place for all satellites, wrapping around if necessary.
+    Basically this usges data_struct['satellites']['pointing_state'] and wraps to
+    0 if its     POINTING_COUNT_IDX or greater.
     """
+
     pointing_state = data_struct['satellites']['pointing_state']
     pointing_counts = pointing_state[:, POINTING_COUNT_IDX]
 
@@ -1464,6 +1753,7 @@ def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
 def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
     """
     Generates a pointing sphere with n_points and stores it in the data_struct.
+    The index is ['pointing_spheres'][n]
     If a sphere with the same number of points already exists, this function does nothing.
     """
     if n_points not in data_struct['pointing_spheres']:
@@ -1482,8 +1772,8 @@ def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
     pointing_vectors_all = data_struct['satellites']['pointing']
 
     for i in range(num_sats):
-        count = pointing_state[i, POINTING_COUNT_IDX]
-        place = pointing_state[i, POINTING_PLACE_IDX]
+        count = int(pointing_state[i, POINTING_COUNT_IDX])
+        place = int(pointing_state[i, POINTING_PLACE_IDX])
 
         if count > 0:
             if count not in data_struct['pointing_spheres']:
@@ -1516,10 +1806,9 @@ def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any
         data_struct = jerk(data_struct, sat_index)
 
     return data_struct
-\end{lstlisting}
-
-\subsection{pointing\_vectors.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{pointing\_vectors.py}}
+\begin{Verbatim}
 import numpy as np
 import plotly.graph_objects as go
 
@@ -1596,10 +1885,9 @@ def plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure:
     )
 
     return fig
-\end{lstlisting}
-
-\subsection{propagation.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{propagation.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Tuple
@@ -1613,39 +1901,52 @@ from constants import (
     ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX
 )
 
+def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
+    """
+    Adds and initializes a category of satellites from a TLE file.
+    Mote although the TLEs are loaded, positions etc. are not.
+
+    Args:
+        sim_data: The main simulation data dictionary.
+        tle_file_path: Path to the TLE file.
+        sat_category: The key for this satellite category (e.g., 'satellites').
+
+    Data added to the set_category element of sim_data
+    position
+    velocity
+    acceleration
+    orbital_elements
+    epochs
+    pointing
+    """
+    orbital_elements, epochs = readtle(tle_file_path)
+    num_sats = len(epochs)
+
+    sim_data['counts'][sat_category] = num_sats
+    sim_data[sat_category] = {
+        'position': np.zeros((num_sats, 3), dtype=float),
+        'velocity': np.zeros((num_sats, 3), dtype=float),
+        'acceleration': np.zeros((num_sats, 3), dtype=float),
+        'orbital_elements': orbital_elements,
+        'epochs': epochs,
+        'pointing': np.zeros((num_sats, 3), dtype=float),
+        'pointing_state': np.zeros((num_sats, 2), dtype=int),
+        'detector': np.zeros((num_sats, 7), dtype=float),
+    }
+
 def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
     """
     Calculates and updates the positions of the Sun and Moon.
-
-    This function uses the astropy library to get the precise GCRS coordinates
-    of the Sun and Moon for the given time, and updates the 'celestial' position
-    component in the main data structure. Velocities and accelerations are not
-    calculated and remain zero.
-
-    Args:
-        data_struct: The main simulation data dictionary from initializeStructures.
-        time_date: The timezone-aware datetime object (in UTC) for the calculation.
-
-    Returns:
-        The modified data_struct with updated celestial positions.
     """
     if time_date.tzinfo is None:
         raise ValueError("time_date must be timezone-aware.")
 
-    # Convert the python datetime object to an astropy Time object
     astro_time = Time(time_date)
-
-    # Get Sun position in the GCRS frame using the modern get_body function
     sun_coords = get_body("sun", astro_time)
     sun_gcrs = sun_coords.transform_to(GCRS(obstime=astro_time))
-
-    # Get Moon position in the GCRS frame using the modern get_body function
     moon_coords = get_body("moon", astro_time)
     moon_gcrs = moon_coords.transform_to(GCRS(obstime=astro_time))
 
-    # Update the celestial data arrays (index 0 for Sun, 1 for Moon)
-    # Position data is converted from astropy's representation to a simple
-    # numpy array in meters.
     celestial_pos = data_struct['celestial']['position']
     celestial_pos[0] = sun_gcrs.cartesian.xyz.to(u.m).value
     celestial_pos[1] = moon_gcrs.cartesian.xyz.to(u.m).value
@@ -1656,13 +1957,7 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
     """
     Reads a TLE file and extracts orbital elements and epochs for each satellite.
 
-    Args:
-        tle_file_path: The path to the TLE file.
-
-    Returns:
-        A tuple containing:
-        - A NumPy array of orbital elements.
-        - A list of datetime objects representing the epoch for each satellite.
+    The array returned ahd the orbital elements in "canonical" order.
     """
     orbital_elements_list = []
     epochs_list = []
@@ -1697,32 +1992,25 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
 
     return np.array(orbital_elements_list, dtype=float), epochs_list
 
-def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
+def propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime,
+sat_category: str = None) -> Dict[str, Any]:
     """
     Updates satellite positions and pointing vectors based on their orbital elements.
-
-    This function propagates the orbits of all satellites ('satellites' and
-    'red_satellites') from their TLE epoch to the specified time_date
-    using Kepler's laws. After calculating the new position, it sets the
-    satellite's pointing vector to be radially outward from the Earth's center.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        time_date: The timezone-aware datetime object (in UTC) to propagate to.
-
-    Returns:
-        The modified data_struct with updated satellite positions and pointing vectors.
     """
     MU_EARTH = 3.986004418e14
-
     time_date_timestamp = time_date.timestamp()
 
-    for sat_category in ['satellites', 'red_satellites']:
-        if data_struct['counts'][sat_category] == 0:
+    if sat_category:
+        categories = [sat_category]
+    else:
+        categories = ['satellites', 'red_satellites']
+
+    for category in categories:
+        if category not in data_struct['counts'] or data_struct['counts'][category] == 0:
             continue
 
-        elements = data_struct[sat_category]['orbital_elements']
-        epochs = data_struct[sat_category]['epochs']
+        elements = data_struct[category]['orbital_elements']
+        epochs = data_struct[category]['epochs']
 
         epoch_timestamps = np.array([e.timestamp() for e in epochs])
         delta_t_array = time_date_timestamp - epoch_timestamps
@@ -1772,17 +2060,16 @@ def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime) -> Di
         z_gcrs = x_pqw * P_z + y_pqw * Q_z
 
         positions = np.vstack((x_gcrs, y_gcrs, z_gcrs)).T
-        data_struct[sat_category]['position'] = positions
+        data_struct[category]['position'] = positions
 
         norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
         norms[norms == 0] = 1.0
-        data_struct[sat_category]['pointing'] = positions / norms
+        data_struct[category]['pointing'] = positions / norms
 
     return data_struct
-\end{lstlisting}
-
-\subsection{radiometry\_calcs.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{radiometry\_calcs.py}}
+\begin{Verbatim}
 import math
 import scipy.integrate
 import scipy.constants as const
@@ -1923,10 +2210,9 @@ def plot_blackbody_spectrum_visible_nir(temperature: float):
         template="plotly_white"
     )
     fig.show()
-\end{lstlisting}
-
-\subsection{radiometry\_data.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{radiometry\_data.py}}
+\begin{Verbatim}
 import scipy.constants as const
 
 # --- Physical Constants ---
@@ -1951,6 +2237,7 @@ FILTER_DATA = {
     'U': {
         'sun': -26.03,
         'sky': 22.0,
+        'space': 22.9,
         'central_wavelength': 365.0,
         'bandwidth': 66.0,
         'zero_point': 4.96e9,
@@ -1958,6 +2245,7 @@ FILTER_DATA = {
     'B': {
         'sun': -26.13,
         'sky': 22.7,
+        'space': 23.3,
         'central_wavelength': 445.0,
         'bandwidth': 94.0,
         'zero_point': 1.36e10,
@@ -1965,6 +2253,7 @@ FILTER_DATA = {
     'V': {
         'sun': -26.78,
         'sky': 21.9,
+        'space': 23,
         'central_wavelength': 551.0,
         'bandwidth': 88.0,
         'zero_point': 8.79e9,
@@ -1972,6 +2261,7 @@ FILTER_DATA = {
     'R': {
         'sun': -27.11,
         'sky': 21.0,
+        'space': 22.0,
         'central_wavelength': 658.0,
         'bandwidth': 138.0,
         'zero_point': 9.74e9,
@@ -1979,6 +2269,7 @@ FILTER_DATA = {
     'I': {
         'sun': -27.47,
         'sky': 20.0,
+        'space': 21.2,
         'central_wavelength': 806.0,
         'bandwidth': 149.0,
         'zero_point': 7.11e9,
@@ -1987,6 +2278,7 @@ FILTER_DATA = {
     'J': {
         'sun': -27.91,
         'sky': 16.0,
+        'space': 21.5,
         'central_wavelength': 1235.0,
         'bandwidth': 162.0,
         'zero_point': 3.15e9,
@@ -1994,6 +2286,7 @@ FILTER_DATA = {
     'H': {
         'sun': -28.25,
         'sky': 14.0,
+        'space': 20.5,
         'central_wavelength': 1646.0,
         'bandwidth': 251.0,
         'zero_point': 2.35e9,
@@ -2001,6 +2294,7 @@ FILTER_DATA = {
     'K': {
         'sun': -28.29,
         'sky': 13.0,
+        'space': 19.5,
         'central_wavelength': 2159.0,
         'bandwidth': 262.0,
         'zero_point': 1.17e9,
@@ -2009,6 +2303,7 @@ FILTER_DATA = {
     'g': {
         'sun': -26.47,
         'sky': 21.8,
+        'space': 23.0,
         'central_wavelength': 477.0,
         'bandwidth': 137.9,
         'zero_point': 1.582e10,
@@ -2016,6 +2311,7 @@ FILTER_DATA = {
     'r': {
         'sun': -26.93,
         'sky': 20.8,
+        'space': 22.2,
         'central_wavelength': 623.1,
         'bandwidth': 138.2,
         'zero_point': 1.214e10,
@@ -2023,6 +2319,7 @@ FILTER_DATA = {
     'i': {
         'sun': -27.05,
         'sky': 20.2,
+        'space': 21.5,
         'central_wavelength': 762.5,
         'bandwidth': 153.5,
         'zero_point': 1.103e10,
@@ -2030,6 +2327,7 @@ FILTER_DATA = {
     'z': {
         'sun': -27.07,
         'sky': 19.0,
+        'space': 20.8,
         'central_wavelength': 913.4,
         'bandwidth': 140.9,
         'zero_point': 8.455e9,
@@ -2057,16 +2355,93 @@ FILTER_DATA = {
         'zero_point': 2.7e10,
     },
     # JWST MIRI Filters
-    'F560W': { 'sun': None, 'sky': 24.4, 'central_wavelength': 5600.0, 'bandwidth': 1000.0, 'zero_point': 9.78e9 },
-    'F770W': { 'sun': None, 'sky': 24.4, 'central_wavelength': 7700.0, 'bandwidth': 1950.0, 'zero_point': 1.39e10 },
-    'F1000W': { 'sun': None, 'sky': 23.6, 'central_wavelength': 10000.0, 'bandwidth': 1800.0, 'zero_point': 9.86e9 },
-    'F1500W': { 'sun': None, 'sky': 21.9, 'central_wavelength': 15000.0, 'bandwidth': 2940.0, 'zero_point': 1.08e10 },
-    'F2550W': { 'sun': None, 'sky': 19.4, 'central_wavelength': 25500.0, 'bandwidth': 4050.0, 'zero_point': 8.70e9 }
+    'F560W': { 'sun': None, 'sky': 24.4, 'central_wavelength': 5600.0, 'bandwidth': 1000.0,
+'zero_point': 9.78e9 },
+    'F770W': { 'sun': None, 'sky': 24.4, 'central_wavelength': 7700.0, 'bandwidth': 1950.0,
+'zero_point': 1.39e10 },
+    'F1000W': { 'sun': None, 'sky': 23.6, 'central_wavelength': 10000.0, 'bandwidth': 1800.0,
+'zero_point': 9.86e9 },
+    'F1500W': { 'sun': None, 'sky': 21.9, 'central_wavelength': 15000.0, 'bandwidth': 2940.0,
+'zero_point': 1.08e10 },
+    'F2550W': { 'sun': None, 'sky': 19.4, 'central_wavelength': 25500.0, 'bandwidth': 4050.0,
+'zero_point': 8.70e9 }
 }
-\end{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{show\_geo\_search.py}}
+\begin{Verbatim}
+import numpy as np
+from datetime import datetime, timezone
+import plotly.graph_objects as go
 
-\subsection{simulation.py}
-\begin{lstlisting}
+from simulation import create_empty_simulation, add_celestial_bodies
+from constellation import geos
+from propagation import propagate_satellites_new
+from pointing import pointing_place_update, update_satellite_pointing
+from plotting_vectors import plot_pointing_vectors
+
+def show_geo_search():
+    """
+    This demo initializes a simulation, adds a GEO constellation, and then
+    generates several plots to visualize the satellite pointing updates and
+    the RA/Dec history of one satellite.
+    """
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+    sim_data = create_empty_simulation(sim_start_time)
+    add_celestial_bodies(sim_data)
+
+    geos(sim_data, 12, 0.4)
+
+    propagate_satellites_new(sim_data, sim_start_time)
+
+    update_satellite_pointing(sim_data)
+    fig1 = plot_pointing_vectors(sim_data, 'Initial Pointing Vectors', sim_start_time)
+
+    ra_history = []
+    dec_history = []
+
+    def record_ra_dec():
+        p = sim_data['satellites']['pointing'][0]
+        p_norm = p / np.linalg.norm(p)
+        ra = np.arctan2(p_norm[1], p_norm[0])
+        dec = np.arcsin(p_norm[2])
+        ra_history.append(np.rad2deg(ra))
+        dec_history.append(np.rad2deg(dec))
+
+    record_ra_dec()
+
+    for _ in range(5):
+        pointing_place_update(sim_data)
+        update_satellite_pointing(sim_data)
+        record_ra_dec()
+
+    fig2 = plot_pointing_vectors(sim_data, 'After 5 Updates', sim_start_time)
+
+    for _ in range(10):
+        pointing_place_update(sim_data)
+        update_satellite_pointing(sim_data)
+        record_ra_dec()
+
+    fig3 = plot_pointing_vectors(sim_data, 'After 15 Updates', sim_start_time)
+
+    for _ in range(85):
+        pointing_place_update(sim_data)
+        update_satellite_pointing(sim_data)
+        record_ra_dec()
+
+    fig4 = go.Figure()
+    fig4.add_trace(go.Scatter(y=ra_history, mode='lines', name='RA (deg)'))
+    fig4.add_trace(go.Scatter(y=dec_history, mode='lines', name='Dec (deg)'))
+    fig4.update_layout(
+        title='RA and Dec History of a GEO Satellite',
+        xaxis_title='Update Number',
+        yaxis_title='Angle (degrees)'
+    )
+
+    x = (fig1, fig2, fig3, fig4)
+    return fig1, fig2, fig3, fig4
+\end{Verbatim}
+\subsection{\texttt{simulation.py}}
+\begin{Verbatim}
 import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Any
@@ -2129,10 +2504,9 @@ def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None:
         )[0],
         'visibility': np.zeros((num_points, 0), dtype=int) # Visibility will be resized later
     }
-\end{lstlisting}
-
-\subsection{visibility.py}
-\begin{lstlisting}
+\end{Verbatim}
+\subsection{\texttt{visibility.py}}
+\begin{Verbatim}
 import numpy as np
 from typing import Dict, Any, Tuple, Optional
 
@@ -2250,9 +2624,12 @@ def exclusion(
 
     if print_debug:
         print(f"--- Exclusion Debug for Satellite {satellite_index} ---")
-        print(f"  - Sun Flag:   {sun_flag}, Angle: {np.rad2deg(angle_sun):.2f} deg, Excl: {np.rad2deg(solar_excl_angle):.2f} deg")
-        print(f"  - Moon Flag:  {moon_flag}, Angle: {np.rad2deg(angle_moon):.2f} deg, Excl: {np.rad2deg(lunar_excl_angle):.2f} deg")
-        print(f"  - Earth Flag: {earth_flag}, Angle: {np.rad2deg(angle_earth):.2f} deg, Excl: {np.rad2deg(earth_excl_angle):.2f} deg")
+        print(f"  - Sun Flag:   {sun_flag}, Angle: {np.rad2deg(angle_sun):.2f} deg, Excl:
+{np.rad2deg(solar_excl_angle):.2f} deg")
+        print(f"  - Moon Flag:  {moon_flag}, Angle: {np.rad2deg(angle_moon):.2f} deg, Excl:
+{np.rad2deg(lunar_excl_angle):.2f} deg")
+        print(f"  - Earth Flag: {earth_flag}, Angle: {np.rad2deg(angle_earth):.2f} deg, Excl:
+{np.rad2deg(earth_excl_angle):.2f} deg")
 
     is_excluded = sun_flag or moon_flag or earth_flag
     return 0 if is_excluded else 1
@@ -2274,6 +2651,11 @@ def update_visibility_table(
     num_fixed_points = len(fixed_points)
     visibility_table = data_struct['fixedpoints']['visibility']
 
+    # Ensure the visibility table has the correct shape
+    if visibility_table.shape != (num_fixed_points, num_satellites):
+        data_struct['fixedpoints']['visibility'] = np.zeros((num_fixed_points, num_satellites), dtype=int)
+        visibility_table = data_struct['fixedpoints']['visibility']
+
     if num_satellites == 0 or num_fixed_points == 0:
         return
 
@@ -2287,6 +2669,6 @@ def update_visibility_table(
             pointing_vector = fixed_point_pos - sat_pos
             data_struct['satellites']['pointing'][i] = pointing_vector
             visibility_table[j, i] = exclusion(data_struct, i, print_debug=should_print_debug)
-\end{lstlisting}
+\end{Verbatim}
 
 \end{document}
