@@ -1,5 +1,6 @@
 
 
+
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and other tools.
@@ -58,15 +59,16 @@ final_array = np.hstack([data, results_container])
   
 
 
-** Details [0/9]
+** Details
 
-*** Coding
+*** Coding [5/13]
 - [X] At some point create a good builder function for the constellations 
 - [X] Create the constellation
 - [X] create the appropirate targeting grid and rules for traversing it.
 - [X] Set up pytest 
 - [X] first stage testing that displays things 
-- [ ] Get the timing in there as well
+- [ ] Get the timing in there as well: that is how long it takes to move
+  forward a step
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
 - [ ] Build a function that will
@@ -83,11 +85,13 @@ final_array = np.hstack([data, results_container])
 
 *** Infrastructure [1/1]
 - [X] update your brew or whatever and get the google vetted gemini installed on
-  Neptune. 
+  Neptune.
+- [ ] I could probably run a linter and a formatter across things
 
 * Prompts
 
-*** Create a latex documentation file called vibevolts.tex. It should have the following sections:
+*** LaTeX Documentation
+Create a latex documentation file called vibevolts.tex. It should have the following sections:
 It should start with a table of contents.
 The next section should be the contents of this file.
 The next section should give a sample of the initialization of the data structures using all the tools
@@ -96,13 +100,18 @@ list all the functions in the file, and include the docstring documentation for 
 in the file.
 The final sections should be listings of all the files in detail.
 Since underscores are interpreted differently in latex, be sure to escape any of those not in a math
-section using a backslash.
+section or in a verbatim section are using a backslash 
 
 
 * Log
 
 ** 2025-09
 
+*** [2025-10-04 Sat]
+Well this has been a lost week! I need to see where I'm at.
+
+Well, I need to get things searching at the right rate.
+I think that depends on my adding a dwell time.
 
 
 *** [2025-09-28 Sun]
