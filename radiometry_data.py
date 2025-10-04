@@ -140,9 +140,29 @@ FILTER_DATA = {
         'zero_point': 2.7e10,
     },
     # JWST MIRI Filters
-    'F560W': { 'sun': None, 'sky': 24.4, 'central_wavelength': 5600.0, 'bandwidth': 1000.0, 'zero_point': 9.78e9 },
-    'F770W': { 'sun': None, 'sky': 24.4, 'central_wavelength': 7700.0, 'bandwidth': 1950.0, 'zero_point': 1.39e10 },
-    'F1000W': { 'sun': None, 'sky': 23.6, 'central_wavelength': 10000.0, 'bandwidth': 1800.0, 'zero_point': 9.86e9 },
-    'F1500W': { 'sun': None, 'sky': 21.9, 'central_wavelength': 15000.0, 'bandwidth': 2940.0, 'zero_point': 1.08e10 },
-    'F2550W': { 'sun': None, 'sky': 19.4, 'central_wavelength': 25500.0, 'bandwidth': 4050.0, 'zero_point': 8.70e9 }
+    'F560W': { 'sun': None,
+               'sky': 24.4,
+               'central_wavelength': 5600.0,
+               'bandwidth': 1000.0,
+               'zero_point': 9.78e9 },
+    'F770W': { 'sun': None,
+               'sky': 24.4,
+               'central_wavelength': 7700.0,
+               'bandwidth': 1950.0, '
+               zero_point': 1.39e10 },
+    'F1000W': { 'sun': None,
+                'sky': 23.6,
+                'central_wavelength': 10000.0,
+                'bandwidth': 1800.0, '
+                zero_point': 9.86e9 },
+    'F1500W': { 'sun': None,
+                'sky': 21.9,
+                'central_wavelength': 15000.0,
+                'bandwidth': 2940.0, '
+                zero_point': 1.08e10 },
+    'F2550W': { 'sun': None,
+                'sky': 19.4,
+                'central_wavelength': 25500.0,
+                'bandwidth': 4050.0,
+                'zero_point': 8.70e9 }
 }
