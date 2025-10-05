@@ -1,0 +1,74 @@
+\documentclass[10pt, letterpaper, onecolumn]{article}
+
+% --- Preamble: Packages and Settings ---
+\usepackage[utf8]{inputenc} % Set input encoding to UTF-8
+\usepackage[T1]{fontenc}    % Use T1 font encoding
+\usepackage{amsmath}        % For advanced math environments
+\usepackage{graphicx}       % For including images
+\usepackage[margin=1in]{geometry} % Set margins to 1 inch
+
+% Optional: For better spacing and line breaks in the bibliography
+\usepackage{url}
+\usepackage{hyperref} % For clickable links in the PDF
+
+% Set document title, author, and date
+\title{Your Article Title Here}
+\author{Your Name}
+\date{\today}
+
+% --- Document Start ---
+\begin{document}
+
+% Generates the title, author, and date
+\maketitle
+
+% Abstract (Optional)
+\begin{abstract}
+This is the abstract of your article. It provides a brief summary of the content, context, and results described in the document.
+
+OK, what if I start adding stuff to the copy outside of emacs.
+Does that kinda work?
+\end{abstract}
+
+% --- Main Body ---
+
+\section{Introduction}
+Start your article here. Use the $\backslash$section, $\backslash$subsection, and $\backslash$subsubsection commands to organize your content.
+
+\subsection{Background}
+Letter paper is a standard size for documents in the U.S. and Canada, measuring $8.5 \times 11$ inches. By using the $\backslash$usepackage[margin=1in]{geometry} package, we ensure the text fits nicely on the page.
+
+\section{Methods}
+This section describes the methodology. Here is an example of an equation:
+$$
+E = mc^2
+$$
+You can use inline math like $\sqrt{x^2+y^2}$ within your text.
+
+\section{Results and Discussion}
+To include an image, place the file (e.g., `figure.png`) in the same folder as your `.tex` file and use the `figure` environment.
+
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{figure.png}
+%    \caption{A descriptive caption for your figure.}
+%    \label{fig:myfig}
+%\end{figure}
+
+For references, you can use the $\backslash$cite command and a bibliography style. For instance, see a general reference \cite{Knuth:1984}.
+
+\section*{Conclusion}
+The conclusion summarizes the main points and often suggests future work. Use $\backslash$section*{} for an unnumbered section title.
+
+% --- Bibliography ---
+
+\begin{thebibliography}{9}
+
+\bibitem{Knuth:1984}
+Donald E. Knuth.
+\emph{The \TeX{}book}.
+Addison-Wesley Professional, 1984.
+
+\end{thebibliography}
+
+\end{document}

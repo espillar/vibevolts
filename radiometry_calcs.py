@@ -21,6 +21,10 @@ def amag(x: float) -> float:
     """
     return 10**(-0.4 * x)
 
+
+
+
+
 def _planck_law(wav_m: float, temp_k: float) -> float:
     """
     Helper function for Planck's law for spectral radiance.
