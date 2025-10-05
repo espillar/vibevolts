@@ -96,15 +96,25 @@ final_array = np.hstack([data, results_container])
 
 *** LaTeX Documentation
 Create a latex documentation file called vibevolts.tex. It should have the following sections:
-It should start with a table of contents.
-The next section should be the contents of this file.
-The next section should give a sample of the initialization of the data structures using all the tools
-The next section should go through the pyton files one at a time. For each file it should
-list all the functions in the file, and include the docstring documentation for each function
-in the file.
-The final sections should be listings of all the files in detail.
-Since underscores are interpreted differently in latex, be sure to escape any of those not in a math
-section or in a verbatim section are using a backslash 
+Create a table of content which will be based off the section structure
+you are generating below.
+Proceed as follows:
+- read in an individual python file
+- create a new section
+- write a summary of the purpose of file
+- for each function in the file, write a summary of the purpose of that
+  funtion and the arguments and return value.
+- be absolutely sure that for any underscores in the file, escape them with
+  a backslash BEFORE you write them out to the latex file
+- do this for each of files
+Write another section summarizing what the demos are. Again be sure
+that the underscores in all text are preceeded by a backslash.
+Next, for each of the files, create a new section and output
+the contents of the file inside a new vebatim environment,
+but before you write a line wrap the text if it is longer than
+100 characters. In side the verbatim environment you do not need to
+prefix a backslash to the underscore.
+
 
 
 * Log
@@ -115,7 +125,7 @@ section or in a verbatim section are using a backslash
 Took me a while to get going, but I wrote down some prioriities on the remarkable and
 they seem to be sticking
 
-**** Today [0/5]
+**** Todo  [0/5]
 - [ ] Get the damn report.tex file working in the background.  I might give this task
   to jules.google.com if gemini is taken up with it.
 - [ ] write down what I need get a search rate for a sensor
@@ -137,6 +147,9 @@ I think that depends on my adding a dwell time.
 Well, didn't get too much done, but I did get some minimal work on documentation.
 For whatever reason darn gemini is having a really hard time just fixing all the
 underscores to backslash underscore in report.tex that it's generating.
+
+Also irritated by some emacs things, like not seeing files with spaces
+in them. checking out aquaemacs again.
 
 *** [2025-09-28 Sun]
 It's been a week with not as much done as I wanted.
