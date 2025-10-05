@@ -69,6 +69,10 @@ final_array = np.hstack([data, results_container])
 - [X] first stage testing that displays things 
 - [ ] Get the timing in there as well: that is how long it takes to move
   forward a step
+  - [ ] Add appropriate variables to the sensors
+  - [ ] add appropriate function to radiometery
+  - [ ] think about where you get the backgrounds
+  
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
 - [ ] Build a function that will
@@ -107,12 +111,32 @@ section or in a verbatim section are using a backslash
 
 ** 2025-09
 
+*** [2025-10-05 Sun]
+Took me a while to get going, but I wrote down some prioriities on the remarkable and
+they seem to be sticking
+
+**** Today [0/5]
+- [ ] Get the damn report.tex file working in the background.  I might give this task
+  to jules.google.com if gemini is taken up with it.
+- [ ] write down what I need get a search rate for a sensor
+- [ ] modify the sensor spec so it has those variables
+- [ ] write a function in radiometry to compute it for a particular system
+- [ ] Start building the functions to track what's seen - I probably need
+  an outline for this.
+
+
+OK, this is a little frustrating.  Gemini is NOT able to get report.tex formatted right.
+I'm going to make sure everything is saved here and do a push to set jules loose on the
+problem in the background.
+
 *** [2025-10-04 Sat]
 Well this has been a lost week! I need to see where I'm at.
 
 Well, I need to get things searching at the right rate.
 I think that depends on my adding a dwell time.
-
+Well, didn't get too much done, but I did get some minimal work on documentation.
+For whatever reason darn gemini is having a really hard time just fixing all the
+underscores to backslash underscore in report.tex that it's generating.
 
 *** [2025-09-28 Sun]
 It's been a week with not as much done as I wanted.
