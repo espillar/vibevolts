@@ -95,7 +95,7 @@ final_array = np.hstack([data, results_container])
 * Prompts
 
 *** LaTeX Documentation
-Create a latex documentation file called vibevolts.tex. It should have the following sections:
+Create a latex documentation file called vvdoc.tex. It should have the following sections:
 Create a table of content which will be based off the section structure
 you are generating below.
 Proceed as follows:
@@ -123,10 +123,16 @@ prefix a backslash to the underscore.
 
 *** [2025-10-05 Sun]
 Took me a while to get going, but I wrote down some prioriities on the remarkable and
-they seem to be sticking
+they seem to be sticking.
 
-**** Todo  [0/5]
-- [ ] Get the damn report.tex file working in the background.  I might give this task
+OK, this is a little frustrating.  Gemini is NOT able to get report.tex formatted right.
+I'm going to make sure everything is saved here and do a push to set jules loose on the
+problem in the background. After a WHOLE BUNCH of dicking around that worked. Quite
+frustrating.  Took way to long.
+
+
+**** Todo  [1/5]
+- [X] Get the damn vvdoc.tex file working in the background.  I might give this task
   to jules.google.com if gemini is taken up with it.
 - [ ] write down what I need get a search rate for a sensor
 - [ ] modify the sensor spec so it has those variables
@@ -135,9 +141,6 @@ they seem to be sticking
   an outline for this.
 
 
-OK, this is a little frustrating.  Gemini is NOT able to get report.tex formatted right.
-I'm going to make sure everything is saved here and do a push to set jules loose on the
-problem in the background.
 
 *** [2025-10-04 Sat]
 Well this has been a lost week! I need to see where I'm at.
