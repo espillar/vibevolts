@@ -71,7 +71,7 @@ def geos(sim_data, n,  fov) -> None:
             'epochs': epochs_list,
             'pointing': np.zeros((n, 3), dtype=float),
             'pointing_state': pointing_state_array,
-            'detector': np.zeros((n, 7), dtype=float),
+            'detector': np.zeros((n, 9), dtype=float),
         }
     else:
         # Append to existing satellites
@@ -83,4 +83,4 @@ def geos(sim_data, n,  fov) -> None:
         sim_data['satellites']['epochs'].extend(epochs_list)
         sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, 7), dtype=float)])
+        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, 9), dtype=float)])

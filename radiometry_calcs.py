@@ -3,6 +3,7 @@ import scipy.integrate
 import scipy.constants as const
 import numpy as np
 import plotly.graph_objects as go
+from radiometry_data import *
 
 def mag(x: float) -> float:
     """
@@ -20,9 +21,6 @@ def amag(x: float) -> float:
     Uses the formula: ratio = 10**(-0.4 * magnitude)
     """
     return 10**(-0.4 * x)
-
-
-
 
 
 def _planck_law(wav_m: float, temp_k: float) -> float:
@@ -142,3 +140,14 @@ def plot_blackbody_spectrum_visible_nir(temperature: float):
         template="plotly_white"
     )
     fig.show()
+
+def sat_magnutide(size: float, range: float, angle: float, band: str) -> float:
+    """
+    given a satellite size and a waveband and range
+    pull the brightness of the sun and the calibration from radiometry_data
+    
+    """
+
+    sun = FILTER_DATA[band]['sun']
+    zp = FILTER_DATA[band]['zero_point']
+    

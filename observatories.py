@@ -18,5 +18,5 @@ def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
         'velocity': np.zeros((num_observatories, 3), dtype=float),
         'acceleration': np.zeros((num_observatories, 3), dtype=float),
         'pointing': np.zeros((num_observatories, 3), dtype=float),
-        'detector': np.zeros((num_observatories, 7), dtype=float),
+        'detector': np.zeros((num_observatories, 9), dtype=float),
     }

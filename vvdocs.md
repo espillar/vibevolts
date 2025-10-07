@@ -202,6 +202,9 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
     constellation.
 *   **`demo_exclusion_table`**: Calculates the visibility of fixed points for
     all satellites and displays the result as a heatmap.
+*   **`demo_exclusion_debug_print`**: A non-plotting demo that shows the
+    detailed debug output of the `exclusion` function for a single
+    satellite.
 
 *   **`demo_fixedpoints`**: Visualizes the distribution of the generated "fixed
     points" (observation targets) in a 3D scatter plot.
@@ -217,6 +220,7 @@ The `demo*.py` scripts showcase the toolkit's capabilities:
 *   **`demo_pointing_sequence`**: Demonstrates the satellite pointing sequence
     functionality, showing how satellites can step through a pre-defined grid of
     pointing vectors.
+*   **`plot_satellite_brightness`**: Plots the apparent V-band photon flux and magnitude of satellites with various diameters over a range of distances.
 
 ### 2.8. How to Run Demos
 

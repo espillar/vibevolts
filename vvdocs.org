@@ -144,7 +144,7 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
   satellite.
 - *demo_fixedpoints*: Visualizes the distribution of the generated
   "fixed points" (observation targets) in a 3D scatter plot.
-- *demo_geo_search*: A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
+- *show_geo_search*: A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 - *demo_lambertian*: Demonstrates the ~lambertiansphere~ brightness
   calculation and plots brightness vs. phase angle.
 - *demo_pointing_plot*: Shows a 3D plot of all satellites with their
@@ -155,6 +155,8 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
   mapping out the celestial exclusion zones as a heatmap.
 - *demo_pointing_sequence*: Demonstrates the satellite pointing
   sequence functionality.
+- *plot_satellite_brightness*: Plots the apparent V-band photon flux and magnitude of satellites with various diameters over a range of distances.
+- *all_demos*: A script that runs all the demos and saves the plots to an HTML file.
 
 ** 2.10. ~radiometry_calcs.py~
 
@@ -175,7 +177,7 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
 
 ** 2.13. ~constellation.py~
 
-- *geos(sim_data: Dict[str, Any], n: int, constellation: str, fov: float)*: Creates `n` equally spaced satellites in GEO and adds them to the simulation.
+- *geos(sim_data: Dict[str, Any], n: int, fov: float)*: Creates `n` equally spaced satellites in GEO and adds them to the simulation.
 
 ** 2.14. ~generate_report.py~
 
@@ -184,8 +186,8 @@ The ~demo*.py~ scripts showcase the toolkit's capabilities:
 * 3. Dependencies
 
 Required Python modules: ~numpy~, ~astropy~, ~jplephem~, ~sgp4~,
-~plotly~, ~scipy~.
+~plotly~, ~scipy~, ~ipython~.
 
 #+BEGIN_SRC bash
-pip install numpy astropy jplephem sgp4 plotly scipy
+pip install numpy astropy jplephem sgp4 plotly scipy ipython
 #+END_SRC

@@ -1,6 +1,7 @@
 import numpy as np
+
 def simple_lambertian(
-    radius: float,
+    diameter: float,
     distance: float,
     albedo: float,
     angle: float,
@@ -16,7 +17,7 @@ def simple_lambertian(
     calculating it from vectors.
 
     Args:
-        radius: The radius of the sphere in meters.
+        diameter: The diameter of the sphere in meters.
         distance: The distance from the sphere to the observer
             in meters.
         albedo: The fraction of incident light that is
@@ -26,18 +27,22 @@ def simple_lambertian(
             from the sphere's center (expected to be between 0 and pi).
         base_brightness: The incident flux or brightness of the
             light source at the sphere's location (e.g., in
-            Watts per square meter).
+            Watts per square meter or photons / s / m^2).
 
     Returns:
         The apparent brightness of the sphere as observed from
-        the specified distance (e.g., in Watts per square meter).
+        the specified distance (e.g., in Watts per square meter
+        or photons / s / m^2).
     """
     if not 0.0 <= albedo <= 1.0:
         raise ValueError("Albedo must be between 0.0 and 1.0.")
-    if radius < 0:
-        raise ValueError("Radius cannot be negative.")
+    if diameter < 0:
+        raise ValueError("Diameter cannot be negative.")
     if distance <= 0:
         raise ValueError("Distance must be positive.")
+
+    # Calculate radius from diameter
+    radius = diameter / 2.0
 
     # The phase angle is physically constrained to be between 0 and pi.
     # We clip the value to handle out-of-range inputs gracefully.
@@ -53,8 +58,7 @@ def simple_lambertian(
     cross_sectional_area = np.pi * (radius ** 2)
 
     # The effective cross-section combines the sphere's size,
-    # reflectivity (albedo), and the phase function. This is
-    # analogous to the value computed in lambertiansphere.
+    # reflectivity (albedo), and the phase function.
     effective_cross_section = (
         albedo *
         cross_sectional_area *
@@ -63,14 +67,14 @@ def simple_lambertian(
 
     # The apparent brightness is the incident brightness multiplied
     # by the effective reflecting area, with the resulting light
-    # distributed according to the inverse square law. The 1/pi
-    # factor is part of the definition of a perfect diffuse reflector.
+    # distributed according to the inverse square law.
     apparent_brightness = (
         (base_brightness * effective_cross_section) /
         (np.pi * distance ** 2)
     )
 
     return apparent_brightness
+
 
 
 
@@ -136,3 +140,6 @@ def lambertiansphere(
     )
 
     return effective_brightness
+
+
+

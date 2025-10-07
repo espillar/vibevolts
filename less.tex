@@ -34,68 +34,67 @@ as opposed to be working document: although it will probably start that way!
 
 \chapter{Equations and Relations}
 % --- Main Body ---
-\section{Search Rate}
+\section{Search Rate, SNR, Dwell Time.}
 \subsection{Variables}
 \begin{enumerate}[noitemsep]
 	\item $\Omega$ Field of view 
 	\item $\omega$ Effective fov of the system, 
 	something like the maximum of the blur size and the pixel size.
+	\item $A$ is the effective collection area of the telescope
 	\item $\alpha$ brightness of the object in units like
 	photons per square meter per second
 	\item $\beta$ brightness of the object in units like
 	photons per square meter per steradian
 	\item $\gamma$ desired signal to noise ratio
 	\item $\eta$ efficiency, including a large number of other factors (see below))
-	\item T effective net dwell time.
-	\item t integration time, $t \le T.$
-%	\item $\dot{\theta}$
+	\item $f$ is the fraction of the object brightness captured in the photometry bin
+	\item t effective net dwell time.
+	\item tt integration time, $t \le T.$
+	\item $\dot{\theta}$
+	\item $\cal{S}$ is the search rate
+	\item $\cal{D}$ is the dwell time, the amount of time
+	we spend on a particular patch
+
 \end{enumerate}
 
-%Factors included in $\eta$ include:
-%\begin{itemize}[noitemsep]
-%	\item quantum efficiency,
-%	\item ``shutter open" time,
-%	\item atmospheric transmission,
-%	\item light outside of the photometry aperture into other %pixels,
-%\end{itemize}
+Factors included in $\eta$ include:
+\begin{itemize}[noitemsep]
+	\item quantum efficiency,
+	\item ``shutter open" time,
+	\item atmospheric transmission,
+	\item light outside of the photometry aperture into other %pixels,
+\end{itemize}
 
 
-\subsection{Derivation}
-\subsection{Search rate}
+\subsection{S, N, and SNR}
+Assuming BLIP, the signal is 
+$$S  = f \eta  A \alpha\  t $$
+and the noise is 
+$$N = \sqrt{A \omega \beta \eta t }$$
+and the SNR ratio is
+$$SNR^2 = \gamma^2 = {f^2 \eta^2 \alpha^2 \ A^2 t^2 \over A \omega\beta\eta t}$$
+$$ \gamma^2 = {f^2 \eta A \alpha^2 t \over \omega\beta} $$
+
+If we have a particular target brightness and SNR we are targeting we 
+can derive a dwell time
+$$t = {\omega\beta\gamma^2 \over   \eta f^2 \alpha^2  A  }  $$
+
+\subsection{Search Rate $\cal{S}$  and Dwell Time $\cal{D}$}
 Under the assumption that we have included $\eta$ properly
 and that we can neglect read noise and dark current (background limited 
 performance or BLIP) the search rate
-$$ SR = {1 \over T} = \frac{\Omega A \eta \alpha^2 }{\beta \gamma^2 } $$
+$$ \mathcal{S} = {1 \over \cal{D}} = \frac{\Omega A \eta \alpha^2 }{\omega\beta \gamma^2 } $$
 Which is sometimes given the unit of Hershels, square meters square degrees
 (I think this is wrong, need to check it!)
 
-\subsection{Maximum Integration Time]
+\subsection{Derivation  }
 
 
-\subsection{Background}
-Letter paper is a standard size for documents in the U.S. and Canada, measuring $8.5 \times 11$ inches. By using the $\backslash$usepackage[margin=1in]{geometry} package, we ensure the text fits nicely on the page.
+\subsection{Assumptions}
 
-\section{Methods}
-This section describes the methodology. Here is an example of an equation:
-$$
-E = mc^2
-$$
-You can use inline math like $\sqrt{x^2+y^2}$ within your text.
+\subsection{Maximum Integration Time}
+In this section I would like to derive the above section.
 
-\section{Results and Discussion}
-To include an image, place the file (e.g., `figure.png`) in the same folder as your `.tex` file and use the `figure` environment.
-
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=0.8\textwidth]{figure.png}
-%    \caption{A descriptive caption for your figure.}
-%    \label{fig:myfig}
-%\end{figure}
-
-For references, you can use the $\backslash$cite command and a bibliography style. For instance, see a general reference \cite{Knuth:1984}.
-
-\section*{Conclusion}
-OK
 
 % --- Bibliography ---
 

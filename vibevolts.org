@@ -119,7 +119,57 @@ prefix a backslash to the underscore.
 
 * Log
 
-** 2025-09
+** 2025-10
+
+*** [2025-10-08 Wed]
+Update gemini-cli  to 0.8.1.  I thoght I did that yesterday, but I could have
+been mistaken.
+
+Wow, I didn't write the physics and interpretation of dwell time down right AT ALL.
+Wriging it down from the book 
+$$t = {\omega\beta\gamma^2 \over   \eta f^2 \alpha^2  A  }  $$
+
+**** Todo  [3/5]
+- [X] Plot how bright something is as a function of distance. Choose a size, a band
+  choose a solar angle, plot vs. distance out to lunar radii.
+- [X] write down what I need get a search rate for a sensor
+- [X] modify the sensor spec so it has those variables.
+- [ ] Check we are initializing the detector arrays and make sure you are filling
+  all the fields.
+- [ ] write a function in radiometry to compute it for a particular system
+- [ ] Start building the functions to track what's seen - I probably need
+  an outline for this.
+- [ ] Check that vstack etc. are being used consistently when adding a new constellation.
+  I think I'm doing this wrong.  
+
+*** [2025-10-07 Tue]
+Furloughed.  I did make a little progress yesterday, well, not so much on this!
+Fixed less fairly quickly.
+Got stuck up in doing things imenu- actually that was pretty easy, start getting
+tangled up - should I say yak-shaving - on setting up LSP mode.  i mean that's nice,
+but it's YAK SHAVING. STOP IT.
+
+OK, now looking at creating a new simpler lambertian sphere function.
+OK, got that really simple plot going. Interesting hubrid work, I DID use
+gemini, but I did quite a bit by hand and used colab to solve a simple subproblem
+without a lot of ceremony.  
+
+
+**** Todo  [5/9]
+- [X] Get the damn vvdoc.tex file working in the background.  I might give this task
+  to jules.google.com if gemini is taken up with it.
+- [X] Find and fix a bug in the less.tex document
+- [X] Brew update underway, a new gemini-cli. Brew upgrade failed.
+- [X] Install gemini-cli following following gemini instructions using NPM.
+  Fast and smooth
+- [X] Plot how bright something is as a function of distance. Choose a size, a band
+  choose a solar angle, plot vs. distance out to lunar radii.
+- [ ] write down what I need get a search rate for a sensor
+- [ ] modify the sensor spec so it has those variables
+- [ ] write a function in radiometry to compute it for a particular system
+- [ ] Start building the functions to track what's seen - I probably need
+  an outline for this.
+  
 
 *** [2025-10-05 Sun]
 Took me a while to get going, but I wrote down some prioriities on the remarkable and
@@ -130,7 +180,6 @@ I'm going to make sure everything is saved here and do a push to set jules loose
 problem in the background. After a WHOLE BUNCH of dicking around that worked. Quite
 frustrating.  Took way to long.
 
-
 **** Todo  [1/5]
 - [X] Get the damn vvdoc.tex file working in the background.  I might give this task
   to jules.google.com if gemini is taken up with it.
@@ -139,6 +188,7 @@ frustrating.  Took way to long.
 - [ ] write a function in radiometry to compute it for a particular system
 - [ ] Start building the functions to track what's seen - I probably need
   an outline for this.
+
 
 
 
@@ -153,6 +203,9 @@ underscores to backslash underscore in report.tex that it's generating.
 
 Also irritated by some emacs things, like not seeing files with spaces
 in them. checking out aquaemacs again.
+
+
+** 2025--09
 
 *** [2025-09-28 Sun]
 It's been a week with not as much done as I wanted.

@@ -41,7 +41,7 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'epochs': epochs,
         'pointing': np.zeros((num_sats, 3), dtype=float),
         'pointing_state': np.zeros((num_sats, 2), dtype=int),
-        'detector': np.zeros((num_sats, 7), dtype=float),
+        'detector': np.zeros((num_sats, 9), dtype=float),
     }
 
 def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
