@@ -1,4 +1,78 @@
 import numpy as np
+def simple_lambertian(
+    radius: float,
+    distance: float,
+    albedo: float,
+    angle: float,
+    base_brightness: float
+) -> float:
+    """
+    Calculates the apparent brightness of a Lambertian sphere.
+
+    This function computes the apparent brightness of a diffusely
+    reflecting sphere based on its physical properties, viewing
+    geometry, and a given base incident brightness. It simplifies
+    the calculation by taking the phase angle directly, rather than
+    calculating it from vectors.
+
+    Args:
+        radius: The radius of the sphere in meters.
+        distance: The distance from the sphere to the observer
+            in meters.
+        albedo: The fraction of incident light that is
+            reflected (0.0 to 1.0).
+        angle: The phase angle in radians. This is the angle
+            between the light source and the observer as seen
+            from the sphere's center (expected to be between 0 and pi).
+        base_brightness: The incident flux or brightness of the
+            light source at the sphere's location (e.g., in
+            Watts per square meter).
+
+    Returns:
+        The apparent brightness of the sphere as observed from
+        the specified distance (e.g., in Watts per square meter).
+    """
+    if not 0.0 <= albedo <= 1.0:
+        raise ValueError("Albedo must be between 0.0 and 1.0.")
+    if radius < 0:
+        raise ValueError("Radius cannot be negative.")
+    if distance <= 0:
+        raise ValueError("Distance must be positive.")
+
+    # The phase angle is physically constrained to be between 0 and pi.
+    # We clip the value to handle out-of-range inputs gracefully.
+    angle = np.clip(angle, 0, np.pi)
+
+    # This is the phase function for a Lambertian sphere.
+    # It describes how the brightness changes with the phase angle.
+    term1 = np.sin(angle)
+    term2 = (np.pi - angle) * np.cos(angle)
+    phase_function_value = (2 / (3 * np.pi)) * (term1 + term2)
+
+    # Cross-sectional area of the sphere.
+    cross_sectional_area = np.pi * (radius ** 2)
+
+    # The effective cross-section combines the sphere's size,
+    # reflectivity (albedo), and the phase function. This is
+    # analogous to the value computed in lambertiansphere.
+    effective_cross_section = (
+        albedo *
+        cross_sectional_area *
+        phase_function_value
+    )
+
+    # The apparent brightness is the incident brightness multiplied
+    # by the effective reflecting area, with the resulting light
+    # distributed according to the inverse square law. The 1/pi
+    # factor is part of the definition of a perfect diffuse reflector.
+    apparent_brightness = (
+        (base_brightness * effective_cross_section) /
+        (np.pi * distance ** 2)
+    )
+
+    return apparent_brightness
+
+
 
 def lambertiansphere(
     vec_from_sphere_to_light: np.ndarray,
