@@ -274,6 +274,40 @@ without a lot of ceremony.
   an outline for this.
   
 
+*** [2025-10-07 Tue]
+Furloughed.  I did make a little progress yesterday, well, not so much on this!
+Fixed less fairly quickly.
+Got stuck up in doing things imenu- actually that was pretty easy, start getting
+tangled up - should I say yak-shaving - on setting up LSP mode.  i mean that's nice,
+but it's YAK SHAVING. STOP IT.
+
+OK, now looking at creating a new simpler lambertian sphere function.
+OK, got that really simple plot going. Interesting hubrid work, I DID use
+gemini, but I did quite a bit by hand and used colab to solve a simple subproblem
+without a lot of ceremony.  
+
+
+**** Todo  [5/9]
+- [X] Get the damn vvdoc.tex file working in the background.  I might give this task
+  to jules.google.com if gemini is taken up with it.
+- [X] Find and fix a bug in the less.tex document
+- [X] Brew update underway, a new gemini-cli. Brew upgrade failed.
+- [X] Install gemini-cli following following gemini instructions using NPM.
+  Fast and smooth
+- [X] Plot how bright something is as a function of distance. Choose a size, a band
+  choose a solar angle, plot vs. distance out to lunar radii.
+- [ ] write down what I need get a search rate for a sensor
+- [ ] modify the sensor spec so it has those variables
+- [ ] write a function in radiometry to compute it for a particular system
+- [ ] Start building the functions to track what's seen - I probably need
+  an outline for this.
+
+
+
+
+
+
+
 *** [2025-10-05 Sun]
 Took me a while to get going, but I wrote down some prioriities on the remarkable and
 they seem to be sticking.
