@@ -17,6 +17,8 @@ RSUN_M = 6.957e8 # Radius of the Sun in meters
 # Zero point is the photon flux for a 0-magnitude
 # object in photons per second per square meter.
 
+
+
 FILTER_DATA = {
     # Johnson-Cousins UBVRI Filters
     'U': {
@@ -148,18 +150,18 @@ FILTER_DATA = {
     'F770W': { 'sun': None,
                'sky': 24.4,
                'central_wavelength': 7700.0,
-               'bandwidth': 1950.0, '
-               zero_point': 1.39e10 },
+               'bandwidth': 1950.0, 
+               'zero_point': 1.39e10 },
     'F1000W': { 'sun': None,
                 'sky': 23.6,
                 'central_wavelength': 10000.0,
-                'bandwidth': 1800.0, '
-                zero_point': 9.86e9 },
+                'bandwidth': 1800.0, 
+                'zero_point': 9.86e9 },
     'F1500W': { 'sun': None,
                 'sky': 21.9,
                 'central_wavelength': 15000.0,
-                'bandwidth': 2940.0, '
-                zero_point': 1.08e10 },
+                'bandwidth': 2940.0, 
+                'zero_point': 1.08e10 },
     'F2550W': { 'sun': None,
                 'sky': 19.4,
                 'central_wavelength': 25500.0,
