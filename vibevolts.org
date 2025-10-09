@@ -1,10 +1,7 @@
 
-
-
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and other tools.
-
 
 
 
@@ -22,7 +19,6 @@ It should be done across the whole vector.
 - lunar - is the moon within the FOV  
 - earth - for satellite is the earth within FOV, for observatory
   make it above the horizon.
-
 
 
 
@@ -116,10 +112,135 @@ but before you write a line wrap the text if it is longer than
 prefix a backslash to the underscore.
 
 
+* Architecture
+
+
+** Top-Level Keys
+This document outlines the structure of the =sim_data= dictionary used in the VibeVolts simulation toolkit.
+
+- *start_time* :: =datetime=
+  - *Description*: The starting time and date of the simulation. Must be a timezone-aware datetime object set to UTC.
+  - *Modified by*: =create_empty_simulation= (initialization)
+
+- *delta_time* :: =float=
+  - *Description*: The time step for the simulation in seconds.
+  - *Modified by*: =create_empty_simulation= (initialization)
+
+- *counts* :: =dict=
+  - *Description*: A dictionary holding counts of various simulation objects.
+  - *Modified by*:
+    - =create_empty_simulation= (initialization)
+    - =add_celestial_bodies= (adds =celestial=)
+    - =add_fixed_points= (adds =fixedpoints=)
+    - =add_satellites_from_tle= (adds a satellite category)
+    - =add_observatories= (adds =observatories=)
+    - =geos= (modifies =satellites=)
+
+- *pointing_spheres* :: =dict=
+  - *Description*: A dictionary to hold pre-computed pointing spheres. The keys are the number of points in the sphere.
+  - *Modified by*:
+    - =create_empty_simulation= (initialization)
+    - =generate_pointing_sphere= (adds a new pointing sphere)
+    - =geos= (calls =generate_pointing_sphere=)
+
+- *celestial* :: =dict=
+  - *Description*: Holds data for celestial bodies (Sun and Moon).
+  - *Modified by*:
+    - =add_celestial_bodies= (initialization)
+    - =celestial_update= (updates positions)
+  - *Sub-keys*:
+    - *position* :: =np.ndarray= (2, 3) - Position vectors (x, y, z) in meters.
+    - *velocity* :: =np.ndarray= (2, 3) - Velocity vectors in m/s.
+    - *acceleration* :: =np.ndarray= (2, 3) - Acceleration vectors in m/s^2.
+
+- *fixedpoints* :: =dict=
+  - *Description*: Holds data for fixed reference points in the GCRS frame.
+  - *Modified by*:
+    - =add_fixed_points= (initialization)
+    - =update_visibility_table= (modifies =visibility=)
+  - *Sub-keys*:
+    - *position* :: =np.ndarray= (n, 3) - Position vectors of fixed points.
+    - *visibility* :: =np.ndarray= (n, m) - Visibility table where rows are fixed points and columns are satellites. Value is 1 if visible, 0 otherwise.
+
+- *satellites* (and other satellite categories like =red_satellites=) :: =dict=
+  - *Description*: Holds data for a category of satellites.
+  - *Modified by*:
+    - =add_satellites_from_tle= (initialization)
+    - =geos= (appends to existing satellite data)
+    - =propagate_satellites_new= (updates =position= and =pointing=)
+    - =pointing_place_update= (updates =pointing_state=)
+    - =jerk= (updates =pointing=)
+    - =update_satellite_pointing= (updates =pointing=)
+    - =update_visibility_table= (temporarily modifies =pointing=)
+  - *Sub-keys*:
+    - *position* :: =np.ndarray= (n, 3) - Position vectors in meters.
+    - *velocity* :: =np.ndarray= (n, 3) - Velocity vectors in m/s.
+    - *acceleration* :: =np.ndarray= (n, 3) - Acceleration vectors in m/s^2.
+    - *orbital_elements* :: =np.ndarray= (n, 6) - Keplerian orbital elements.
+    - *epochs* :: =list[datetime]= - Epoch for each satellite's orbital elements.
+    - *pointing* :: =np.ndarray= (n, 3) - Pointing direction vector.
+    - *pointing_state* :: =np.ndarray= (n, 2) - State of the pointing sequence for each satellite.
+    - *detector* :: =np.ndarray= (n, 9) - Detector properties for each satellite.
+
+- *observatories* :: =dict=
+  - *Description*: Holds data for ground-based observatories.
+  - *Modified by*: =add_observatories= (initialization)
+  - *Sub-keys*:
+    - *position* :: =np.ndarray= (n, 3) - Position vectors in meters.
+    - *velocity* :: =np.ndarray= (n, 3) - Velocity vectors in m/s.
+    - *acceleration* :: =np.ndarray= (n, 3) - Acceleration vectors in m/s^2.
+    - *pointing* :: =np.ndarray= (n, 3) - Pointing direction vector.
+    - *detector* :: =np.ndarray= (n, 9) - Detector properties for each observatory.
+
+- Call create_empty_simulation
+  returns dictionary referred to as sim_data
+  with start_time delta_time  counts{} and pointing sheres{}
+- call add_celesial_bodies
+  adds EMPTY celesial {} to sim_data
+- call add_fixed_poitns: adds argumnet fixedpoints'position' {}
+  subarguments position np and visibuility np empty 
+-
+
+
+
 
 * Log
 
 ** 2025-10
+
+*** [2025-10-09 Thu]
+First figured out git rebase to clean up history a little, interactive.
+Pretty neat, but somthing I will need to review!
+
+Lets go through files and try to organize what we have. Well, that may
+not have been too useful but I definately cleaned things up a little.
+
+
+OK, let's look at and document how we build out a simulation.
+I realize I haven't really got this caged in my mind and it leads to inability
+to act, since I don't even know where to start.
+
+**** prompt
+There are a large number of functions that add to or modify the dictionary sim_data.  Please go through all
+   the files and create a document that creates a list of all the dictionary elements added by anybody to 
+  sim_data, lists the types, and on the same lines lists what functions either add to or change that entry.  
+  If a function creates a dictionary or item inside another, document it the same way.  Indent top level 
+  entries more if they are subentries.  Put this data in a new file called datastructure.md, but do not 
+  change any other files.
+
+**** Todo  [3/5]
+- [ ] Document the damn architecture in terms of how you build and run
+  the simulation
+- [ ] Check we are initializing the detector arrays and make sure you are filling
+  all the fields.
+- [ ] write a function in radiometry to compute it for a particular system
+- [ ] Start building the functions to track what's seen - I probably need
+  an outline for this.
+- [ ] Check that vstack etc. are being used consistently when adding a new constellation.
+  I think I'm doing this wrong.  
+
+
+
 
 *** [2025-10-08 Wed]
 Update gemini-cli  to 0.8.1.  I thoght I did that yesterday, but I could have

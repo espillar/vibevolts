@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-pip\PYG{+w}{ }install\PYG{+w}{ }numpy\PYG{+w}{ }astropy\PYG{+w}{ }jplephem\PYG{+w}{ }sgp4\PYG{+w}{ }plotly\PYG{+w}{ }scipy\PYG{+w}{ }ipython
-\end{Verbatim}

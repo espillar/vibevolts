@@ -15,6 +15,8 @@ def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> D
 
     Returns:
         A dictionary representing the basic simulation state.
+     This includes s
+    
     """
     if not isinstance(start_time, datetime):
         raise TypeError("start_time must be a datetime object.")

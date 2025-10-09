@@ -4,6 +4,7 @@
 .ipynb*
 .virtual*
 __pycache*
+#*#
 
 # LaTeX auxiliary files
 *.aux
