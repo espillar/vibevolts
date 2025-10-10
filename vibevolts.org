@@ -219,14 +219,23 @@ not have been too useful but I definately cleaned things up a little.
 OK, let's look at and document how we build out a simulation.
 I realize I haven't really got this caged in my mind and it leads to inability
 to act, since I don't even know where to start.
+Well I was kinda lazy, but I did generate a file
+>>>>  datastructure.{org, md}
+that seems preety doamn useful!
 
-**** prompt
-There are a large number of functions that add to or modify the dictionary sim_data.  Please go through all
-   the files and create a document that creates a list of all the dictionary elements added by anybody to 
-  sim_data, lists the types, and on the same lines lists what functions either add to or change that entry.  
-  If a function creates a dictionary or item inside another, document it the same way.  Indent top level 
-  entries more if they are subentries.  Put this data in a new file called datastructure.md, but do not 
+**** prompt to create datastructure.{org, md}
+There are a large number of functions that add to or modify
+the dictionary sim_data.  Please go through all
+   the files and create a document that creates a
+   list of all the dictionary elements added by anybody to 
+  sim_data, lists the types, and on the same lines
+  lists what functions either add to or change that entry.  
+  If a function creates a dictionary or item inside
+  another, document it the same way.  Indent top level 
+  entries more if they are subentries.  Put this data
+  in a new file called datastructure.md, but do not 
   change any other files.
+
 
 **** Todo  [3/5]
 - [ ] Document the damn architecture in terms of how you build and run
