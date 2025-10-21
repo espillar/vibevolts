@@ -1,1885 +1,919 @@
-\documentclass{article}
-\usepackage[a4paper, total={6in, 8in}]{geometry}
-\usepackage{verbatim}
+% Created 2025-10-09 Thu 10:58
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
 \usepackage{hyperref}
-
-\title{VibeVolts Documentation}
-\author{Jules}
+\author{Earl Spillar0}
 \date{\today}
-
+\title{}
+\hypersetup{
+ pdfauthor={Earl Spillar0},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 29.4 (Org mode 9.6.15)}, 
+ pdflang={English}}
 \begin{document}
-
-\maketitle
 
 \tableofcontents
 
-\section{constants.py}
+\section{Vibevolts}
+\label{sec:org60fb6a1}
 
-This file defines global constants that are used throughout the VibeVolts project. These constants represent array indices and physical properties, which helps to improve code readability and maintainability by avoiding the use of hardcoded "magic numbers". The constants defined in this file include:
+Creating a new version of volts that runs faster using jules and other tools.
 
+
+
+
+\section{Done}
+\label{sec:org6d24507}
+\subsection{Create new points instead of red satellties}
+\label{sec:orga83837c}
 \begin{itemize}
-    \item \textbf{Radii in Meters:} Defines the radii of celestial bodies like the Earth and Moon.
-    \item \textbf{Detector Array Indices:} Specifies the column indices for various detector properties in a NumPy array, such as aperture size, pixel size, quantum efficiency, and exclusion angles.
-    \item \textbf{Orbital Elements Array Indices:} Details the indices for orbital parameters like the semi-major axis, eccentricity, and inclination.
-    \item \textbf{Pointing State Array Indices:} Outlines the indices for the pointing state, including the total number of points and the current position in the sequence.
+\item Do a little research to figure out how to create a nice 3d
+space filling set of points.
+\item create a nice grid of points to be observed for now.
 \end{itemize}
 
-\section{constellation.py}
-
-This file is responsible for creating constellations of satellites. It contains functions to generate orbital elements for satellites in specific configurations, such as a geostationary constellation.
-
-\subsection{geos(sim\_data, n, fov)}
+\subsection{exclusions Satellites and observatories}
+\label{sec:orgc67642f}
+This test needs to be applied to any potential or actual pointing.
+It should be done across the whole vector.
 \begin{itemize}
-    \item \textbf{Purpose:} Creates `n` equally spaced satellites in a geostationary orbit (GEO) and adds them to the simulation data. It calculates the required pointing grid based on the satellite's field of view (FOV) to ensure full sky coverage. It also initializes the orbital elements and pointing states for each satellite.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `sim\_data`: The main simulation data dictionary.
-        \item `n`: The number of satellites to create.
-        \item `fov`: The diameter of the field of view of the satellite in radians.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `sim\_data` in place.
+\item solar - is the sun within the FOV
+\item lunar - is the moon within the FOV
+\item earth - for satellite is the earth within FOV, for observatory
+make it above the horizon.
 \end{itemize}
 
-\section{generate\_log\_spherical\_points.py}
 
-This file provides a function to generate 3D points that are logarithmically spaced radially and uniformly distributed angularly. This is useful for creating a point cloud where the density of points decreases with distance from the origin.
 
-\subsection{generate\_log\_spherical\_points(num\_points, inner\_radius, outer\_radius, object\_size\_m=1.0, seed=None)}
-\begin{itemize}
-    \item \textbf{Purpose:} Generates a specified number of 3D points with logarithmic radial spacing and uniform angular distribution on spherical shells using the Fibonacci lattice method. Each point is also assigned a specific size.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `num\_points`: The total number of points to generate.
-        \item `inner\_radius`: The minimum distance from the origin.
-        \item `outer\_radius`: The maximum distance from the origin.
-        \item `object\_size\_m`: The size in meters to be associated with each point.
-        \item `seed`: An optional integer to seed the random number generator for reproducible results.
-    \end{itemize}
-    \item \textbf{Returns:} A tuple containing two NumPy arrays: one for the 3D Cartesian coordinates of the points, and one for the size of each object.
-\end{itemize}
+\section{Notes}
+\label{sec:org2123918}
 
-\section{lambertian.py}
-
-This file contains a function to calculate the brightness of a Lambertian sphere, which is a sphere that reflects light diffusely.
-
-\subsection{lambertiansphere(vec\_from\_sphere\_to\_light, vec\_from\_sphere\_to\_observer, albedo, radius)}
-\begin{itemize}
-    \item \textbf{Purpose:} Calculates the effective brightness of a Lambertian sphere. The function determines the apparent brightness based on the angle between the light source and the observer, the sphere's albedo (reflectivity), and its size.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `vec\_from\_sphere\_to\_light`: A 3-element NumPy array representing the direction vector from the sphere to the light source.
-        \item `vec\_from\_sphere\_to\_observer`: A 3-element NumPy array representing the direction vector from the sphere to the observer.
-        \item `albedo`: The fraction of incident light that is reflected (0.0 to 1.0).
-        \item `radius`: The radius of the sphere in meters.
-    \end{itemize}
-    \item \textbf{Returns:} The effective brightness cross-section in square meters, which is proportional to the total light reflected towards the observer.
-\end{itemize}
-
-\section{observatories.py}
-
-This file is responsible for adding observatory data structures to the main simulation data.
-
-\subsection{add\_observatories(sim\_data, num\_observatories)}
-\begin{itemize}
-    \item \textbf{Purpose:} Initializes and adds data structures for a specified number of observatories to the simulation data dictionary. This function sets up zero-filled NumPy arrays for the observatories' positions, velocities, accelerations, pointing vectors, and detector properties.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `sim\_data`: The main simulation data dictionary.
-        \item `num\_observatories`: The number of observatories to add.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `sim\_data` in place.
-\end{itemize}
-
-\section{plotting\_3d.py}
-
-This file provides functionality for creating 3D scatter plots of object positions, which is essential for visualizing the spatial distribution of objects in the simulation.
-
-\subsection{plot\_3d\_scatter(positions, title, plot\_time, labels=None, marker\_size=1, trace\_name='Points')}
-\begin{itemize}
-    \item \textbf{Purpose:} Creates a 3D scatter plot of object positions using Plotly. The plot includes a representation of the Earth, its equator, the North Pole, and a specific location (El Segundo). It is designed to visualize the positions of satellites or other objects in a 3D space relative to the Earth.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `positions`: A NumPy array of shape (n, 3) containing the Cartesian coordinates of the points to plot.
-        \item `title`: The title of the plot.
-        \item `plot\_time`: The `datetime` for which the plot is generated, used for coordinate transformations.
-        \item `labels`: An optional list of strings to label each point.
-        \item `marker\_size`: The size of the markers for the points.
-        \item `trace\_name`: The name of the trace for the points in the legend.
-    \end{itemize}
-    \item \textbf{Returns:} A Plotly `go.Figure` object representing the 3D plot.
-\end{itemize}
-
-\section{plotting\_vectors.py}
-
-This file is dedicated to creating 3D visualizations of satellites along with their pointing vectors, which is crucial for understanding the orientation and direction of satellites in the simulation.
-
-\subsection{plot\_pointing\_vectors(data\_struct, title, plot\_time)}
-\begin{itemize}
-    \item \textbf{Purpose:} Generates a 3D plot that displays satellites as markers and their corresponding pointing vectors as lines. The plot includes a 3D model of the Earth to provide a frame of reference. This visualization is useful for verifying that satellites are pointing in the expected directions.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary, which contains the positions and pointing vectors of the satellites.
-        \item `title`: The title of the plot.
-        \item `plot\_time`: The `datetime` for which the plot is generated.
-    \end{itemize}
-    \item \textbf{Returns:} A Plotly `go.Figure` object representing the 3D plot.
-\end{itemize}
-
-\section{pointing.py}
-
-This file manages satellite pointing behavior, including updating pointing directions, generating pointing grids, and handling cases where satellites have no visibility.
-
-\subsection{pointing\_place\_update(data\_struct)}
-\begin{itemize}
-    \item \textbf{Purpose:} Increments the pointing index for all satellites, allowing them to cycle through a predefined pointing grid. It wraps the index back to 0 when it reaches the end of the sequence.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `data\_struct` in place.
-\end{itemize}
-
-\subsection{jerk(data\_struct, satellite\_number)}
-\begin{itemize}
-    \item \textbf{Purpose:} Randomly adjusts the pointing vector of a specific satellite by a fixed angle (0.3 radians). This is used to reorient satellites that are "blind" (i.e., cannot see any target points).
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-        \item `satellite\_number`: The index of the satellite to modify.
-    \end{itemize}
-    \item \textbf{Returns:} The modified `data\_struct`.
-\end{itemize}
-
-\subsection{generate\_pointing\_sphere(data\_struct, n\_points)}
-\begin{itemize}
-    \item \textbf{Purpose:} Creates a uniform grid of pointing vectors on a sphere (a "pointing sphere") using the `pointing\_vectors` function and stores it in the `data\_struct` if it doesn't already exist for the given number of points.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-        \item `n\_points`: The number of points to generate for the pointing sphere.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `data\_struct` in place.
-\end{itemize}
-
-\subsection{update\_satellite\_pointing(data\_struct)}
-\begin{itemize}
-    \item \textbf{Purpose:} Updates each satellite's pointing vector to the next position in its assigned pointing grid based on its current pointing state.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `data\_struct` in place.
-\end{itemize}
-
-\subsection{find\_and\_jerk\_blind\_satellites(data\_struct)}
-\begin{itemize}
-    \item \textbf{Purpose:} Identifies satellites that cannot see any fixed points (based on the visibility table) and applies the `jerk` function to them to change their orientation.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-    \end{itemize}
-    \item \textbf{Returns:} The modified `data\_struct`.
-\end{itemize}
-
-\section{pointing\_vectors.py}
-
-This file provides functions for generating and visualizing equally spaced points on a unit sphere, which are used as pointing vectors for satellites.
-
-\subsection{pointing\_vectors(n)}
-\begin{itemize}
-    \item \textbf{Purpose:} Generates a specified number of equally spaced points on a unit sphere using the Fibonacci lattice algorithm. This creates a uniform distribution of vectors that can be used for systematic sky scanning.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `n`: The number of points to generate.
-    \end{itemize}
-    \item \textbf{Returns:} A NumPy array of shape (n, 3) containing the Cartesian coordinates of the points on the unit sphere.
-\end{itemize}
-
-\subsection{plot\_vectors\_on\_sphere(vectors, title)}
-\begin{itemize}
-    \item \textbf{Purpose:} Creates a 3D plot to visualize a set of vectors on a unit sphere. This is useful for verifying that the pointing vectors generated by `pointing\_vectors` are distributed as expected.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `vectors`: A NumPy array of shape (n, 3) representing the vectors to plot.
-        \item `title`: The title of the plot.
-    \end{itemize}
-    \item \textbf{Returns:} A Plotly `go.Figure` object representing the 3D plot.
-\end{itemize}
-
-\section{propagation.py}
-
-This file handles the orbital propagation of satellites and celestial bodies. It includes functions to read satellite data from Two-Line Element (TLE) files, update the positions of the Sun and Moon, and propagate satellite orbits forward in time.
-
-\subsection{add\_satellites\_from\_tle(sim\_data, tle\_file\_path, sat\_category)}
-\begin{itemize}
-    \item \textbf{Purpose:} Initializes a category of satellites in the simulation data by reading their orbital elements from a TLE file. It sets up the necessary data structures for position, velocity, and pointing, but does not calculate their initial positions.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `sim\_data`: The main simulation data dictionary.
-        \item `tle\_file\_path`: The path to the TLE file.
-        \item `sat\_category`: The key for this satellite category (e.g., 'satellites').
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `sim\_data` in place.
-\end{itemize}
-
-\subsection{celestial\_update(data\_struct, time\_date)}
-\begin{itemize}
-    \item \textbf{Purpose:} Calculates and updates the positions of the Sun and Moon in the Geocentric Celestial Reference System (GCRS) for a given time.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-        \item `time\_date`: The timezone-aware `datetime` for which to calculate the positions.
-    \end{itemize}
-    \item \textbf{Returns:} The modified `data\_struct`.
-\end{itemize}
-
-\subsection{readtle(tle\_file\_path)}
-\begin{itemize}
-    \item \textbf{Purpose:} Reads a TLE file and extracts the orbital elements and epoch for each satellite. It returns the elements in a canonical order within a NumPy array.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `tle\_file\_path`: The path to the TLE file.
-    \end{itemize}
-    \item \textbf{Returns:} A tuple containing a NumPy array of orbital elements and a list of `datetime` epochs.
-\end{itemize}
-
-\subsection{propagate\_satellites\_new(data\_struct, time\_date, sat\_category=None)}
-\begin{itemize}
-    \item \textbf{Purpose:} Updates the positions of satellites based on their orbital elements by propagating them from their epoch to a new time. It also sets the default pointing vector for each satellite to be radially outward from the Earth's center.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-        \item `time\_date`: The `datetime` to which the satellites should be propagated.
-        \item `sat\_category`: An optional string to specify a single satellite category to propagate.
-    \end{itemize}
-    \item \textbf{Returns:} The modified `data\_struct`.
-\end{itemize}
-
-\section{radiometry\_calcs.py}
-
-This file provides a suite of functions for performing radiometric calculations. These include converting between linear flux ratios and astronomical magnitudes, calculating blackbody radiation properties using Planck's law and the Stefan-Boltzmann law, and generating plots of blackbody spectra.
-
-\subsection{mag(x)}
-\begin{itemize}
-    \item \textbf{Purpose:} Calculates an astronomical magnitude from a linear flux ratio.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `x`: The positive linear flux ratio.
-    \end{itemize}
-    \item \textbf{Returns:} The corresponding magnitude value.
-\end{itemize}
-
-\subsection{amag(x)}
-\begin{itemize}
-    \item \textbf{Purpose:} Calculates the linear flux ratio from an astronomical magnitude. It is the inverse of the `mag` function.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `x`: The magnitude value.
-    \end{itemize}
-    \item \textbf{Returns:} The corresponding linear flux ratio.
-\end{itemize}
-
-\subsection{\_planck\_law(wav\_m, temp\_k)}
-\begin{itemize}
-    \item \textbf{Purpose:} A helper function that implements Planck's law to calculate the spectral radiance of a blackbody at a specific wavelength and temperature.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `wav\_m`: The wavelength in meters.
-        \item `temp\_k`: The temperature in Kelvin.
-    \end{itemize}
-    \item \textbf{Returns:} The spectral radiance in W / (m\textasciicircum 2 * sr * m).
-\end{itemize}
-
-\subsection{blackbody\_flux(temperature, lambda\_short, lambda\_long)}
-\begin{itemize}
-    \item \textbf{Purpose:} Numerically integrates the spectral radiance of a blackbody over a given wavelength band to compute the total flux within that band.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `temperature`: The temperature of the blackbody in Kelvin.
-        \item `lambda\_short`: The short wavelength of the band in microns.
-        \item `lambda\_long`: The long wavelength of the band in microns.
-    \end{itemize}
-    \item \textbf{Returns:} The integrated spectral radiance in Watts / (m\textasciicircum 2 * steradian).
-\end{itemize}
-
-\subsection{stefan\_boltzmann\_law(temperature)}
-\begin{itemize}
-    \item \textbf{Purpose:} Calculates the total power radiated per unit area by a blackbody across all wavelengths, according to the Stefan-Boltzmann law.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `temperature`: The temperature of the blackbody in Kelvin.
-    \end{itemize}
-    \item \textbf{Returns:} The total radiated power per unit area in W / m\textasciicircum 2.
-\end{itemize}
-
-\subsection{plot\_blackbody\_spectrum(temperature)}
-\begin{itemize}
-    \item \textbf{Purpose:} Generates a log-log plot of a blackbody's spectral radiance over the mid-infrared range (0.5 to 30 microns).
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `temperature`: The temperature of the blackbody in Kelvin.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. Displays a Plotly figure.
-\end{itemize}
-
-\subsection{plot\_blackbody\_spectrum\_visible\_nir(temperature)}
-\begin{itemize}
-    \item \textbf{Purpose:} Generates a plot of a blackbody's spectral radiance over the visible and near-infrared range (0.1 to 1 micron).
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `temperature`: The temperature of the blackbody in Kelvin.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. Displays a Plotly figure.
-\end{itemize}
-
-\section{radiometry\_data.py}
-
-This file serves as a data repository for radiometric information, primarily containing physical constants and a comprehensive dictionary of standard astronomical filter data. The data is essential for calculating the brightness of celestial objects as observed through different filters.
-
-\begin{itemize}
-    \item \textbf{Physical Constants:} Defines constants such as the Astronomical Unit (`AU_M`) and the Sun's radius (`RSUN\_M`) in meters.
-    \item \textbf{FILTER\_DATA Dictionary:} A dictionary where each key is a string representing a standard astronomical filter (e.g., 'U', 'B', 'V', 'J', 'H', 'K', 'g', 'r', 'i', 'z', 'L', 'M', 'N', and several JWST filters). The value for each key is another dictionary containing the following data for that filter:
-    \begin{itemize}
-        \item `sun`: The apparent magnitude of the Sun in that filter.
-        \item `sky`: The sky brightness in magnitudes per square arcsecond for a dark ground-based site.
-        \item `space`: The background brightness for a space-based observatory.
-        \item `central_wavelength`: The central wavelength of the filter in nanometers.
-        \item `bandwidth`: The bandwidth of the filter in nanometers.
-        \item `zero_point`: The photon flux for a 0-magnitude object in photons/sec/m\textasciicircum 2.
-    \end{itemize}
-\end{itemize}
-
-\section{simulation.py}
-
-This file provides functions to initialize and set up the core components of the space simulation environment. It includes functions for creating the main simulation data structure, adding celestial bodies, and generating fixed reference points.
-
-\subsection{create\_empty\_simulation(start\_time, delta\_time=60.0)}
-\begin{itemize}
-    \item \textbf{Purpose:} Initializes a minimal, empty data structure for a space simulation. It sets up the basic dictionary that will hold all simulation data, including the start time and time step.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `start\_time`: The starting time and date of the simulation (must be a timezone-aware `datetime` object).
-        \item `delta\_time`: The time step for the simulation in seconds.
-    \end{itemize}
-    \item \textbf{Returns:} A dictionary representing the basic simulation state.
-\end{itemize}
-
-\subsection{add\_celestial\_bodies(sim\_data)}
-\begin{itemize}
-    \item \textbf{Purpose:} Adds the data structures for celestial bodies (specifically the Sun and Moon) to the simulation data dictionary.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `sim\_data`: The main simulation data dictionary.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `sim\_data` in place.
-\end{itemize}
-
-\subsection{add\_fixed\_points(sim\_data, num\_points=100)}
-\begin{itemize}
-    \item \textbf{Purpose:} Adds a structure for fixed reference points in the Geocentric Celestial Reference System (GCRS) frame. The points are generated with a logarithmic spherical distribution.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `sim\_data`: The main simulation data dictionary.
-        \item `num\_points`: The number of fixed points to generate.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `sim\_data` in place.
-\end{itemize}
-
-\section{visibility.py}
-
-This file contains functions to determine whether a satellite's line of sight is obstructed by celestial bodies like the Sun, Moon, or Earth. It is crucial for simulating realistic observational constraints.
-
-\subsection{solarexclusion(data\_struct)}
-\begin{itemize}
-    \item \textbf{Purpose:} Performs a vectorized calculation to determine which satellites are affected by solar exclusion. It computes the angle between each satellite's pointing vector and the vector to the Sun, flagging those that fall within the specified exclusion angle.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-    \end{itemize}
-    \item \textbf{Returns:} A tuple containing two NumPy arrays: an `exclusion_vector` (1 if excluded, 0 otherwise) and an `angle_vector` (the calculated angle in radians for each satellite).
-\end{itemize}
-
-\subsection{exclusion(data\_struct, satellite\_index, print\_debug=False)}
-\begin{itemize}
-    \item \textbf{Purpose:} Checks if a single satellite's pointing vector is excluded by the Sun, Moon, or Earth. It considers the apparent size of the Moon and Earth when checking for exclusion.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-        \item `satellite\_index`: The index of the satellite to check.
-        \item `print\_debug`: If `True`, it prints detailed debug information.
-    \end{itemize}
-    \item \textbf{Returns:} `0` if the satellite's view is excluded, `1` otherwise.
-\end{itemize}
-
-\subsection{update\_visibility\_table(data\_struct, print\_debug\_for\_sat=None)}
-\begin{itemize}
-    \item \textbf{Purpose:} Updates the visibility table, which is a matrix indicating whether each satellite can see each fixed point. For each satellite-point pair, it sets the satellite's pointing vector towards the point and then calls the `exclusion` function to check for obstructions.
-    \item \textbf{Arguments:}
-    \begin{itemize}
-        \item `data\_struct`: The main simulation data dictionary.
-        \item `print\_debug\_for\_sat`: An optional satellite index for which to enable detailed debug printing in the `exclusion` function.
-    \end{itemize}
-    \item \textbf{Returns:} `None`. It modifies `data\_struct` in place.
-\end{itemize}
-
-\section{Demo Summaries}
-
-This section provides a summary of the various demo files included in the VibeVolts project. Each demo is designed to illustrate a specific feature or capability of the simulation framework.
-
-\begin{itemize}
-    \item \textbf{all\_demos.py:} This script serves as a master runner for all other demo files. It imports the individual demo functions and executes them sequentially. It can either display the generated plots inline or save them to a single HTML file named \texttt{all\_demo\_plots.html}.
-    \item \textbf{demo\_common.py:} This is not a standalone demo but a utility file used by other demos. It provides a function, `initialize_standard_simulation`, which sets up a standard simulation environment. This includes creating the main data structure, loading a predefined set of satellites from TLEs (Low Earth Orbit, Geostationary, and Highly Elliptical Orbit), adding celestial bodies (Sun and Moon), and generating fixed reference points. This ensures that demos start with a consistent and fully populated simulation state.
-    \item \textbf{demo1.py:} This demo initializes a standard simulation and generates a 3D plot showing the initial positions of all satellites relative to the Earth at the simulation start time.
-    \item \textbf{demo2.py:} This demo propagates the standard satellite constellation forward in time by one hour and then generates a 3D plot of their new positions. This demonstrates the orbital propagation functionality.
-    \item \textbf{demo3.py:} This demo propagates the satellite constellation for 24 hours, one hour at a time, and generates a 3D plot showing the orbital tracks of all satellites over the full 24-hour period.
-    \item \textbf{demo4.py:} This demo focuses on a single satellite (ISS) and plots its ground track on a 2D world map over a 24-hour period.
-    \item \textbf{demo\_constellation.py:} This demo showcases the creation of a custom satellite constellation. It initializes an empty simulation, adds 10 geostationary satellites, and then generates a 3D plot to visualize their positions.
-    \item \textbf{demo\_exclusion\_debug\_print.py:} This demo is designed to test and verify the line-of-sight exclusion logic. It initializes a standard simulation, updates the visibility table, and then runs the exclusion check for a specific satellite with debug printing enabled to show the detailed calculations for Sun, Moon, and Earth exclusion.
-    \item \textbf{demo\_exclusion\_table.py:} This demo visualizes the satellite visibility for a set of fixed points. It initializes a simulation, updates the visibility table, and then creates a heatmap plot of the table, showing which satellites can see which fixed points.
-    \item \textbf{demo\_fixedpoints.py:} This demo visualizes the distribution of the fixed reference points used in the simulation. It generates and plots these points in 3D space to confirm their logarithmic spherical distribution.
-    \item \textbf{demo\_lambertian.py:} This demo illustrates the `lambertiansphere` function. It calculates and prints the effective brightness of a sphere (representing the Moon) as seen from another position (representing a satellite) under illumination from the Sun.
-    \item \textbf{demo\_pointing\_plot.py:} This demo visualizes the pointing vectors of the satellites in the standard simulation. It generates a 3D plot showing each satellite and a vector indicating its current pointing direction.
-    \item \textbf{demo\_pointing\_sequence.py:} This demo demonstrates how a satellite's pointing can be systematically updated. It shows a single satellite cycling through a predefined sequence of 25 pointing directions and plots the final pointing vector.
-    \item \textbf{demo\_pointing\_vectors.py:} This demo visualizes a uniformly distributed set of pointing vectors on a sphere. It generates 1000 points using the Fibonacci lattice method and plots them on a unit sphere.
-    \item \textbf{demo\_sky\_scan.py:} This demo simulates a sky survey. It initializes a constellation of 10 GEO satellites, each with a predefined pointing grid, and simulates them scanning the sky. It then generates a plot showing the number of visible fixed points over time.
-    \item \textbf{show\_geo\_search.py:} This demo visualizes the process of a geostationary satellite searching for objects. It simulates a single GEO satellite scanning the sky and plots the number of new objects it discovers over time, demonstrating how the "jerk" function helps it find new targets when its view is empty.
-\end{itemize}
-
-\section{Code Listing: constants.py}
-\begin{verbatim}
-# --- Global Constants for Array Indices ---
-# These constants define column indices for numpy arrays, making the
-# code more readable and preventing errors from using "magic numbers".
-
-# -- Radii in Meters --
-EARTH_RADIUS = 6378137.0
-MOON_RADIUS = 1737400.0
-
-# -- Detector Array Indices --
-DETECTOR_APERTURE_IDX = 0      # Aperture size in meters
-DETECTOR_PIXEL_SIZE_IDX = 1    # Pixel size in radians
-DETECTOR_QE_IDX = 2            # Quantum efficiency as a fraction (0.0 to 1.0)
-DETECTOR_PIXELS_IDX = 3        # Total number of pixels in the detector (count)
-DETECTOR_SOLAR_EXCL_IDX = 4    # Solar exclusion angle in radians
-DETECTOR_LUNAR_EXCL_IDX = 5    # Lunar exclusion angle in radians
-DETECTOR_EARTH_EXCL_IDX = 6    # Earth exclusion angle (above the limb) in radians
-
-# -- Orbital Elements Array Indices --
-ORBITAL_A_IDX = 0              # Semi-major axis in meters
-ORBITAL_E_IDX = 1              # Eccentricity (dimensionless)
-ORBITAL_I_IDX = 2              # Inclination in radians
-ORBITAL_RAAN_IDX = 3           # Right Ascension of the Ascending Node in radians
-ORBITAL_ARGP_IDX = 4           # Argument of Perigee in radians
-ORBITAL_M_IDX = 5              # Mean Anomaly in radians
-
-# -- Pointing State Array Indices --
-POINTING_COUNT_IDX = 0         # Number of points in the pointing grid
-POINTING_PLACE_IDX = 1         # Current index in the pointing sequence
-\end{verbatim}
-
-\section{Code Listing: constellation.py}
-\begin{verbatim}
-import numpy as np
-from datetime import datetime
-from typing import Dict, Any
-import math
-import random
-
-from constants import (
-    ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
-    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX,
-    POINTING_COUNT_IDX, POINTING_PLACE_IDX
-)
-from pointing import generate_pointing_sphere
-
-def geos(sim_data, n,  fov) -> None:
-    """
-    Creates n equally spaced satellites in GEO and adds them to the 'satellites' group in the
-    simulation.
-
-    Args:
-        sim_data: The main simulation data dictionary.
-        n: The number of satellites to create.
-        fov: The diameter of the field of view of the satellite in radians.
-    """
-    # Calculate solid angle
-    theta = fov / 2
-    solid_angle = 2 * np.pi * (1 - np.cos(theta))
-
-    # Calculate grid_points - blow things up by 0.25 for overlap
-    grid_points = int(4 * np.pi / solid_angle * 1.25)
-
-    # Generate and store the pointing sphere and place in ['pointing_sphers'][n]
-    generate_pointing_sphere(sim_data, grid_points)
-
-    orbital_elements_list = []
-    epochs_list = []
-    pointing_state_list = []
-
-    # Geostationary orbit semi-major axis in meters
-    a = 42164000.0
-
-    # Create a set of elements evenly spaced around the equator in
-    # orbital_elemens_list
-    for i in range(n):
-        elements = np.zeros(6)
-        elements[ORBITAL_A_IDX] = a
-        elements[ORBITAL_E_IDX] = 0.0
-        elements[ORBITAL_I_IDX] = 0.0
-        elements[ORBITAL_RAAN_IDX] = i * 2 * np.pi / n
-        elements[ORBITAL_ARGP_IDX] = 0.0
-        elements[ORBITAL_M_IDX] = 0.0
-        orbital_elements_list.append(elements)
-        epochs_list.append(sim_data['start_time'])
-
-   # And these are the pointing state of the satellite. Make the position random.
-
-        pointing_state = np.zeros(2, dtype=int)
-        pointing_state[POINTING_COUNT_IDX] = grid_points
-        pointing_state[POINTING_PLACE_IDX] = random.randint(0,grid_points-1)
-
-        pointing_state_list.append(pointing_state)
-
-    orbital_elements = np.array(orbital_elements_list, dtype=float)
-    pointing_state_array = np.array(pointing_state_list, dtype=int)
-
-    if 'satellites' not in sim_data:
-        sim_data['counts']['satellites'] = n
-        sim_data['satellites'] = {
-            'position': np.zeros((n, 3), dtype=float),
-            'velocity': np.zeros((n, 3), dtype=float),
-            'acceleration': np.zeros((n, 3), dtype=float),
-            'orbital_elements': orbital_elements,
-            'epochs': epochs_list,
-            'pointing': np.zeros((n, 3), dtype=float),
-            'pointing_state': pointing_state_array,
-            'detector': np.zeros((n, 7), dtype=float),
-        }
-    else:
-        # Append to existing satellites
-        sim_data['counts']['satellites'] += n
-        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'],
-            np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'],
-            np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'],
-            np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['orbital_elements'] = np.vstack([
-            sim_data['satellites']['orbital_elements'], orbital_elements])
-        sim_data['satellites']['epochs'].extend(epochs_list)
-        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'],
-            np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['pointing_state'] = np.vstack([
-            sim_data['satellites']['pointing_state'], pointing_state_array])
-        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'],
-            np.zeros((n, 7), dtype=float)])
-\end{verbatim}
-
-\section{Code Listing: generate\_log\_spherical\_points.py}
-\begin{verbatim}
-import numpy as np
-from datetime import datetime, timezone
-from plotting_3d import plot_3d_scatter
-
-
-def generate_log_spherical_points(
-    num_points: int,
-    inner_radius: float,
-    outer_radius: float,
-    object_size_m: float = 1.0,
-    seed: int = None
-) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Generates 3D points with logarithmic radial and uniform angular distribution.
-
-    This function creates a point cloud where point distances from the origin are
-    logarithmically spaced. On any given spherical shell, points are distributed
-    uniformly using the Fibonacci lattice method. Each point is associated with a
-    specified object size.
-
-    Args:
-        num_points: The total number of points to generate.
-        inner_radius: The minimum distance from the origin (must be positive).
-        outer_radius: The maximum distance from the origin (must be >= inner_radius).
-        object_size_m: The size in meters to be associated with each point.
-                       Defaults to 1.0.
-        seed: An optional integer to seed the random number generator for
-              reproducible shuffling.
-
-    Returns:
-        A tuple containing:
-        - A NumPy array of shape (num_points, 3) for the Cartesian coordinates.
-        - A NumPy array of shape (num_points,) for the object size in meters.
-    """
-    # Input validation
-    if not isinstance(num_points, int) or num_points <= 0:
-        raise ValueError("num_points must be a positive integer.")
-    if not (isinstance(inner_radius, (int, float)) and inner_radius > 0):
-        raise ValueError("inner_radius must be a positive number.")
-    if not (isinstance(outer_radius, (int, float)) and outer_radius >= inner_radius):
-        raise ValueError("outer_radius must be a positive number and >= inner_radius.")
-
-    # --- 1. Generate uniformly distributed unit vectors (Fibonacci Lattice) ---
-    # Create an array of indices for each point
-    indices = np.arange(0, num_points, dtype=float) + 0.5
-
-    # Uniformly distribute points along the z-axis (cos(phi))
-    z = 1 - 2 * indices / num_points
-
-    # Calculate the radius in the xy-plane for each point
-    radius_xy = np.sqrt(1 - z**2)
-
-    # Calculate the azimuthal angle using the golden angle
-    golden_angle = np.pi * (3. - np.sqrt(5.))
-    theta = golden_angle * indices
-
-    # Convert to Cartesian coordinates for the unit sphere
-    x = radius_xy * np.cos(theta)
-    y = radius_xy * np.sin(theta)
-
-    # Stack into an (N, 3) array of unit vectors
-    unit_vectors = np.stack([x, y, z], axis=1)
-
-    # --- 2. Generate logarithmically spaced radii ---
-    # The start and stop parameters for logspace are exponents
-    start_exp = np.log10(inner_radius)
-    stop_exp = np.log10(outer_radius)
-    radii = np.logspace(start_exp, stop_exp, num_points)
-
-    # --- 3. Shuffle radii to decouple radius from spherical position ---
-    # This prevents the smallest radii from always mapping to points near the
-    # north pole, creating a more uniform visual distribution of densities.
-    rng = np.random.default_rng(seed)
-    rng.shuffle(radii)
-
-    # --- 4. Scale unit vectors by radii using broadcasting ---
-    # Reshape radii to (N, 1) to broadcast with (N, 3) unit_vectors
-    points = unit_vectors * radii[:, np.newaxis]
-
-    # --- 5. Create an array for the object sizes ---
-    sizes = np.full(num_points, object_size_m, dtype=float)
-
-    return points, sizes
-
-if __name__ == '__main__':
-    # --- Demo of Point Generation and Visualization ---
-    # This provides a consistent demonstration entry point, matching vibevolts_demo.py
-    NUM_POINTS = 100
-    # Using the same radii as the main simulation for consistency
-    INNER_RADIUS = 2000000
-    OUTER_RADIUS = 84328000
-    OBJECT_SIZE = 1.0
-
-    print(f"Generating {NUM_POINTS} points from radius {INNER_RADIUS} to {OUTER_RADIUS}...")
-    generated_points, _ = generate_log_spherical_points(
-        num_points=NUM_POINTS,
-        inner_radius=INNER_RADIUS,
-        outer_radius=OUTER_RADIUS,
-        object_size_m=OBJECT_SIZE,
-        seed=42
-    )
-    print("Point generation complete.\n")
-
-    # Use the unified visualization function
-    plot_3d_scatter(
-        positions=generated_points,
-        title="Fixed Points Distribution (from generate_log_spherical_points.py)",
-        plot_time=datetime.now(timezone.utc),
-        labels=[f"Point {i}" for i in range(len(generated_points))],
-        marker_size=1,
-        trace_name='Fixed Points'
-    )
-\end{verbatim}
-
-\section{Code Listing: lambertian.py}
-\begin{verbatim}
+\subsection{Numpy scatter gather}
+\label{sec:orgf62795e}
 import numpy as np
 
-def lambertiansphere(
-    vec_from_sphere_to_light: np.ndarray,
-    vec_from_sphere_to_observer: np.ndarray,
-    albedo: float,
-    radius: float
-) -> float:
-    """
-    Calculates the effective brightness of a
-    Lambertian sphere.
-
-    This function determines the apparent brightness of
-    a diffusely reflecting sphere based on the angle
-    between the light source and the observer, the
-    sphere's albedo (reflectivity), and its size.
-
-    Args:
-        vec_from_sphere_to_light: A 3-element NumPy
-            array representing the direction vector from
-            the sphere to the light source.
-        vec_from_sphere_to_observer: A 3-element NumPy
-            array representing the direction vector from
-            the sphere to the observer.
-        albedo: The fraction of incident light that is
-            reflected (0.0 to 1.0).
-        radius: The radius of the sphere in meters.
-
-    Returns:
-        The effective brightness cross-section in
-        square meters. This value is proportional to
-        the total light reflected towards the observer.
-    """
-    if not 0.0 <= albedo <= 1.0:
-        raise ValueError("Albedo must be between 0.0 and 1.0.")
-    if radius < 0:
-        raise ValueError("Radius cannot be negative.")
-
-    norm_light = np.linalg.norm(vec_from_sphere_to_light)
-    norm_observer = np.linalg.norm(vec_from_sphere_to_observer)
-
-    if norm_light == 0 or norm_observer == 0:
-        raise ValueError("Input vectors cannot have zero length.")
-
-    unit_vec_light = vec_from_sphere_to_light / norm_light
-    unit_vec_observer = vec_from_sphere_to_observer / norm_observer
-
-    cos_alpha = np.dot(unit_vec_light, unit_vec_observer)
-    cos_alpha = np.clip(cos_alpha, -1.0, 1.0)
-    alpha = np.arccos(cos_alpha)
-
-    term1 = np.sin(alpha)
-    term2 = (np.pi - alpha) * np.cos(alpha)
-    phase_function_value = (2 / (3 * np.pi)) * (term1 + term2)
-
-    cross_sectional_area = np.pi * (radius ** 2)
-
-    effective_brightness = (
-        albedo *
-        cross_sectional_area *
-        phase_function_value
-    )
-
-    return effective_brightness
-\end{verbatim}
-
-\section{Code Listing: observatories.py}
-\begin{verbatim}
-import numpy as np
-from typing import Dict, Any
-
-def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
-    """
-    Adds observatory data structures to the simulation data.
-
-    Args:
-        sim_data: The main simulation data dictionary.
-        num_observatories: The number of observatories to add.
-    """
-    if not isinstance(num_observatories, int) or num_observatories < 0:
-        raise ValueError("num_observatories must be a non-negative integer.")
-
-    sim_data['counts']['observatories'] = num_observatories
-    sim_data['observatories'] = {
-        'position': np.zeros((num_observatories, 3), dtype=float),
-        'velocity': np.zeros((num_observatories, 3), dtype=float),
-        'acceleration': np.zeros((num_observatories, 3), dtype=float),
-        'pointing': np.zeros((num_observatories, 3), dtype=float),
-        'detector': np.zeros((num_observatories, 7), dtype=float),
-    }
-\end{verbatim}
-
-\section{Code Listing: plotting\_3d.py}
-\begin{verbatim}
-import numpy as np
-from datetime import datetime
-from typing import List, Optional
-
-import plotly.graph_objects as go
-from astropy.time import Time
-from astropy.coordinates import GCRS, EarthLocation
-import astropy.units as u
-
-EARTH_RADIUS = 6378137.0
-
-def plot_3d_scatter(
-    positions: np.ndarray,
-    title: str,
-    plot_time: datetime,
-    labels: Optional[List[str]] = None,
-    marker_size: int = 1,
-    trace_name: str = 'Points'
-) -> go.Figure:
-    """
-    Creates a 3D plot of object positions.
-    """
-    if positions.ndim != 2 or positions.shape[1] != 3:
-        raise ValueError("positions array must have shape (n, 3).")
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter3d(
-        x=positions[:, 0], y=positions[:, 1], z=positions[:, 2],
-        mode='markers',
-        marker=dict(
-            size=marker_size,
-            color=np.arange(len(positions)),
-            colorscale='Viridis',
-            opacity=0.8
-        ),
-        text=labels,
-        hoverinfo='text' if labels else 'none',
-        name=trace_name
-    ))
-
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = EARTH_RADIUS * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = EARTH_RADIUS * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = EARTH_RADIUS * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(
-        x=x_earth, y=y_earth, z=z_earth,
-        colorscale='Blues', showscale=False, opacity=0.5, name='Earth'
-    ))
-
-    theta = np.linspace(0, 2 * np.pi, 100)
-    x_eq = EARTH_RADIUS * np.cos(theta)
-    y_eq = EARTH_RADIUS * np.sin(theta)
-    z_eq = np.zeros_like(theta)
-    fig.add_trace(go.Scatter3d(
-        x=x_eq, y=y_eq, z=z_eq, mode='lines',
-        line=dict(color='green', width=3), name='Equator'
-    ))
-
-    fig.add_trace(go.Scatter3d(
-        x=[0], y=[0], z=[EARTH_RADIUS * 1.1], mode='text',
-        text=['N'], textfont=dict(size=15, color='red'), name='North Pole'
-    ))
-
-    lat_es, lon_es = 33.92 * u.deg, -118.42 * u.deg
-    el_segundo_loc = EarthLocation.from_geodetic(lon=lon_es, lat=lat_es)
-    itrs_coords = el_segundo_loc.get_itrs(obstime=Time(plot_time))
-    gcrs_coords = itrs_coords.transform_to(GCRS(obstime=Time(plot_time)))
-    es_pos = gcrs_coords.cartesian.xyz.to(u.m).value * 1.05
-    fig.add_trace(go.Scatter3d(
-        x=[es_pos[0]], y=[es_pos[1]], z=[es_pos[2]], mode='text',
-        text=['ES'], textfont=dict(size=15, color='yellow'), name='El Segundo'
-    ))
-
-    fig.update_layout(
-        title=title,
-        scene=dict(
-            xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)',
-            aspectmode='data'
-        ),
-        margin=dict(r=20, b=10, l=10, t=40),
-        legend_title_text='Objects'
-    )
-
-    return fig
-\end{verbatim}
-
-\section{Code Listing: plotting\_vectors.py}
-\begin{verbatim}
-import numpy as np
-from datetime import datetime
-from typing import Dict, Any
-
-import plotly.graph_objects as go
-
-EARTH_RADIUS = 6378137.0
-
-def plot_pointing_vectors(
-    data_struct: Dict[str, Any],
-    title: str,
-    plot_time: datetime
-) -> go.Figure:
-    """
-    Creates a 3D plot of satellites with pointing vectors.
-    """
-    sat_positions = data_struct['satellites']['position'].copy()
-    sat_pointing = data_struct['satellites']['pointing'].copy()
-    num_sats = data_struct['counts']['satellites']
-
-    if num_sats == 0:
-        print("No satellites to plot.")
-        return go.Figure()
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter3d(
-        x=sat_positions[:, 0], y=sat_positions[:, 1], z=sat_positions[:, 2],
-        mode='markers',
-        marker=dict(size=5, color='blue', opacity=0.8),
-        name='Satellites'
-    ))
-
-    vector_scale = 0.5 * EARTH_RADIUS
-    for i in range(num_sats):
-        start_point = sat_positions[i]
-        pointing_vec = sat_pointing[i]
-        norm = np.linalg.norm(pointing_vec)
-        unit_vec = pointing_vec / norm if norm > 0 else np.array([0, 0, 0])
-        end_point = start_point + unit_vec * vector_scale
-        fig.add_trace(go.Scatter3d(
-            x=[start_point[0], end_point[0]],
-            y=[start_point[1], end_point[1]],
-            z=[start_point[2], end_point[2]],
-            mode='lines',
-            line=dict(color='red', width=3),
-            showlegend=False
-        ))
-
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = EARTH_RADIUS * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = EARTH_RADIUS * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = EARTH_RADIUS * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(
-        x=x_earth, y=y_earth, z=z_earth,
-        colorscale='Blues', showscale=False, opacity=0.5, name='Earth'
-    ))
-
-    fig.update_layout(
-        title=title,
-        scene=dict(
-            xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)',
-            aspectmode='data'
-        ),
-        margin=dict(r=20, b=10, l=10, t=40)
-    )
-
-    return fig
-\end{verbatim}
-
-\section{Code Listing: pointing.py}
-\begin{verbatim}
-import numpy as np
-from typing import Dict, Any
-
-from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
-from pointing_vectors import pointing_vectors
-
-def pointing_place_update(data_struct: Dict[str, Any]) -> None:
-    """
-    Increments the pointing place for all satellites, wrapping around if necessary.
-    Basically this usges data_struct['satellites']['pointing_state'] and wraps to
-    0 if its POINTING_COUNT_IDX or greater.
-    """
-
-    pointing_state = data_struct['satellites']['pointing_state']
-    pointing_counts = pointing_state[:, POINTING_COUNT_IDX]
-
-    # Increment pointing place
-    pointing_state[:, POINTING_PLACE_IDX] += 1
-
-    # Wrap around where place >= count
-    wrap_around_indices = np.where(pointing_state[:, POINTING_PLACE_IDX] >= pointing_counts)
-    pointing_state[wrap_around_indices, POINTING_PLACE_IDX] = 0
-
-def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
-    """
-    Moves the pointing vector of a specific satellite by 0.3 radians in a
-    random direction.
-
-    This function applies a random rotation to the satellite's pointing vector
-    using a simplified version of Rodrigues' rotation formula.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        satellite_number: The index of the satellite to modify.
-
-    Returns:
-        The modified data_struct with the updated pointing vector.
-    """
-    p = data_struct['satellites']['pointing'][satellite_number]
-    p_norm = p / np.linalg.norm(p)
-
-    while True:
-        r = np.random.rand(3) - 0.5
-        k = np.cross(p_norm, r)
-        norm_k = np.linalg.norm(k)
-        if norm_k > 1e-9:
-            k_hat = k / norm_k
-            break
-
-    theta = 0.3
-    cos_theta = np.cos(theta)
-    sin_theta = np.sin(theta)
-
-    p_new = p_norm * cos_theta + np.cross(k_hat, p_norm) * sin_theta
-
-    data_struct['satellites']['pointing'][satellite_number] = p_new / np.linalg.norm(p_new)
-
-    return data_struct
-
-def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
-    """
-    Generates a pointing sphere with n_points and stores it in the data_struct.
-    The index is ['pointing_spheres'][n]
-    If a sphere with the same number of points already exists, this function does nothing.
-    """
-    if n_points not in data_struct['pointing_spheres']:
-        print(f"Generating pointing sphere with {n_points} points...")
-        data_struct['pointing_spheres'][n_points] = pointing_vectors(n_points)
-
-def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
-    """
-    Updates the pointing vector for each satellite based on its pointing state.
-    """
-    num_sats = data_struct['counts']['satellites']
-    if num_sats == 0:
-        return
-
-    pointing_state = data_struct['satellites']['pointing_state']
-    pointing_vectors_all = data_struct['satellites']['pointing']
-
-    for i in range(num_sats):
-        count = int(pointing_state[i, POINTING_COUNT_IDX])
-        place = int(pointing_state[i, POINTING_PLACE_IDX])
-
-        if count > 0:
-            if count not in data_struct['pointing_spheres']:
-                raise ValueError(f"Pointing sphere for {count} points not generated.")
-
-            grid = data_struct['pointing_spheres'][count]
-            pointing_vectors_all[i] = grid[place]
-
-def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Finds satellites with no visibility and applies the 'jerk' function to them.
-
-    This function iterates through the visibility table. If any satellite (column)
-    has no visible fixed points (i.e., the column sum is 0), the `jerk`
-    function is called to randomly adjust its pointing vector.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-
-    Returns:
-        The modified data_struct.
-    """
-    visibility_table = data_struct['fixedpoints']['visibility']
-
-    column_sums = np.sum(visibility_table, axis=0)
-    blind_satellite_indices = np.where(column_sums == 0)[0]
-
-    for sat_index in blind_satellite_indices:
-        print(f"Satellite {sat_index} has no visible points. Applying jerk.")
-        data_struct = jerk(data_struct, sat_index)
-
-    return data_struct
-\end{verbatim}
-
-\section{Code Listing: pointing\_vectors.py}
-\begin{verbatim}
-import numpy as np
-import plotly.graph_objects as go
-
-
-def pointing_vectors(n: int) -> np.ndarray:
-    """
-    Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
-
-    Args:
-        n: The number of points to generate.
-
-    Returns:
-        A NumPy array of shape (n, 3) for the Cartesian coordinates of the points.
-    """
-    if not isinstance(n, int) or n <= 0:
-        raise ValueError("n must be a positive integer.")
-
-    indices = np.arange(0, n, dtype=float) + 0.5
-    z = 1 - 2 * indices / n
-    radius_xy = np.sqrt(1 - z**2)
-    golden_angle = np.pi * (3. - np.sqrt(5.))
-    theta = golden_angle * indices
-    x = radius_xy * np.cos(theta)
-    y = radius_xy * np.sin(theta)
-
-    unit_vectors = np.stack([x, y, z], axis=1)
-    return unit_vectors
-
-def plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure:
-    """
-    Creates a 3D plot of vectors on a sphere.
-
-    Args:
-        vectors: A NumPy array of shape (n, 3) representing the vectors.
-        title: The title of the plot.
-
-    Returns:
-        A Plotly figure object.
-    """
-    if vectors.ndim != 2 or vectors.shape[1] != 3:
-        raise ValueError("vectors array must have shape (n, 3).")
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter3d(
-        x=vectors[:, 0], y=vectors[:, 1], z=vectors[:, 2],
-        mode='markers',
-        marker=dict(
-            size=2,
-            color='red',
-            opacity=0.8
-        ),
-        name='Vectors'
-    ))
-
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = 1.0 * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = 1.0 * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = 1.0 * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(
-        x=x_earth, y=y_earth, z=z_earth,
-        colorscale='Blues', showscale=False, opacity=0.5, name='Sphere'
-    ))
-
-    fig.update_layout(
-        title=title,
-        scene=dict(
-            xaxis_title='X', yaxis_title='Y', zaxis_title='Z',
-            aspectmode='data'
-        ),
-        margin=dict(r=20, b=10, l=10, t=40),
-        legend_title_text='Objects'
-    )
-
-    return fig
-\end{verbatim}
-
-\section{Code Listing: propagation.py}
-\begin{verbatim}
-import numpy as np
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Tuple
-from sgp4.api import Satrec
-from astropy.time import Time
-from astropy.coordinates import get_body, GCRS
-import astropy.units as u
-
-from constants import (
-    ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
-    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX
-)
-
-def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
-    """
-    Adds and initializes a category of satellites from a TLE file.
-    Mote although the TLEs are loaded, positions etc. are not.
-
-    Args:
-        sim_data: The main simulation data dictionary.
-        tle_file_path: Path to the TLE file.
-        sat_category: The key for this satellite category (e.g., 'satellites').
-
-    Data added to the set_category element of sim_data
-    position
-    velocity
-    acceleration
-    orbital_elements
-    epochs
-    pointing
-    """
-    orbital_elements, epochs = readtle(tle_file_path)
-    num_sats = len(epochs)
-
-    sim_data['counts'][sat_category] = num_sats
-    sim_data[sat_category] = {
-        'position': np.zeros((num_sats, 3), dtype=float),
-        'velocity': np.zeros((num_sats, 3), dtype=float),
-        'acceleration': np.zeros((num_sats, 3), dtype=float),
-        'orbital_elements': orbital_elements,
-        'epochs': epochs,
-        'pointing': np.zeros((num_sats, 3), dtype=float),
-        'pointing_state': np.zeros((num_sats, 2), dtype=int),
-        'detector': np.zeros((num_sats, 7), dtype=float),
-    }
-
-def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
-    """
-    Calculates and updates the positions of the Sun and Moon.
-    """
-    if time_date.tzinfo is None:
-        raise ValueError("time_date must be timezone-aware.")
-
-    astro_time = Time(time_date)
-    sun_coords = get_body("sun", astro_time)
-    sun_gcrs = sun_coords.transform_to(GCRS(obstime=astro_time))
-    moon_coords = get_body("moon", astro_time)
-    moon_gcrs = moon_coords.transform_to(GCRS(obstime=astro_time))
-
-    celestial_pos = data_struct['celestial']['position']
-    celestial_pos[0] = sun_gcrs.cartesian.xyz.to(u.m).value
-    celestial_pos[1] = moon_gcrs.cartesian.xyz.to(u.m).value
-
-    return data_struct
-
-def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
-    """
-    Reads a TLE file and extracts orbital elements and epochs for each satellite.
-
-    The array returned ahd the orbital elements in "canonical" order.
-    """
-    orbital_elements_list = []
-    epochs_list = []
-    with open(tle_file_path, 'r') as f:
-        lines = f.readlines()
-
-    for i in range(0, len(lines), 3):
-        line1 = lines[i+1].strip()
-        line2 = lines[i+2].strip()
-
-        satellite = Satrec.twoline2rv(line1, line2)
-
-        jd, fr = satellite.jdsatepoch, satellite.jdsatepochF
-        epoch_dt = Time(jd, fr, format='jd', scale='utc').to_datetime(timezone.utc)
-        epochs_list.append(epoch_dt)
-
-        a = satellite.a * satellite.radiusearthkm * 1000.0
-        e = satellite.ecco
-        inc = satellite.inclo
-        raan = satellite.nodeo
-        argp = satellite.argpo
-        M = satellite.mo
-
-        elements = np.zeros(6)
-        elements[ORBITAL_A_IDX] = a
-        elements[ORBITAL_E_IDX] = e
-        elements[ORBITAL_I_IDX] = inc
-        elements[ORBITAL_RAAN_IDX] = raan
-        elements[ORBITAL_ARGP_IDX] = argp
-        elements[ORBITAL_M_IDX] = M
-        orbital_elements_list.append(elements)
-
-    return np.array(orbital_elements_list, dtype=float), epochs_list
-
-def propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime,
-                            sat_category: str = None) -> Dict[str, Any]:
-    """
-    Updates satellite positions and pointing vectors based on their orbital elements.
-    """
-    MU_EARTH = 3.986004418e14
-    time_date_timestamp = time_date.timestamp()
-
-    if sat_category:
-        categories = [sat_category]
-    else:
-        categories = ['satellites', 'red_satellites']
-
-    for category in categories:
-        if category not in data_struct['counts'] or data_struct['counts'][category] == 0:
-            continue
-
-        elements = data_struct[category]['orbital_elements']
-        epochs = data_struct[category]['epochs']
-
-        epoch_timestamps = np.array([e.timestamp() for e in epochs])
-        delta_t_array = time_date_timestamp - epoch_timestamps
-
-        a = elements[:, ORBITAL_A_IDX]
-        e = elements[:, ORBITAL_E_IDX]
-        i = elements[:, ORBITAL_I_IDX]
-        raan = elements[:, ORBITAL_RAAN_IDX]
-        argp = elements[:, ORBITAL_ARGP_IDX]
-        M0 = elements[:, ORBITAL_M_IDX]
-
-        n = np.sqrt(MU_EARTH / a**3)
-        M = (M0 + n * delta_t_array) % (2 * np.pi)
-
-        E = M.copy()
-        for _ in range(10):
-            f_E = E - e * np.sin(E) - M
-            f_prime_E = 1 - e * np.cos(E)
-            f_prime_E[f_prime_E == 0] = 1e-10
-            E = E - f_E / f_prime_E
-
-        tan_nu_half = np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2)
-        nu = 2 * np.arctan(tan_nu_half)
-
-        r = a * (1 - e * np.cos(E))
-
-        x_pqw = r * np.cos(nu)
-        y_pqw = r * np.sin(nu)
-
-        cos_raan = np.cos(raan)
-        sin_raan = np.sin(raan)
-        cos_argp = np.cos(argp)
-        sin_argp = np.sin(argp)
-        cos_i = np.cos(i)
-        sin_i = np.sin(i)
-
-        P_x = cos_argp * cos_raan - sin_argp * sin_raan * cos_i
-        P_y = cos_argp * sin_raan + sin_argp * cos_raan * cos_i
-        P_z = sin_argp * sin_i
-
-        Q_x = -sin_argp * cos_raan - cos_argp * sin_raan * cos_i
-        Q_y = -sin_argp * sin_raan + cos_argp * cos_raan * cos_i
-        Q_z = cos_argp * sin_i
-
-        x_gcrs = x_pqw * P_x + y_pqw * Q_x
-        y_gcrs = x_pqw * P_y + y_pqw * Q_y
-        z_gcrs = x_pqw * P_z + y_pqw * Q_z
-
-        positions = np.vstack((x_gcrs, y_gcrs, z_gcrs)).T
-        data_struct[category]['position'] = positions
-
-        norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
-        norms[norms == 0] = 1.0
-        data_struct[category]['pointing'] = positions / norms
-
-    return data_struct
-\end{verbatim}
-
-\section{Code Listing: radiometry\_calcs.py}
-\begin{verbatim}
-import math
-import scipy.integrate
-import scipy.constants as const
-import numpy as np
-import plotly.graph_objects as go
-
-def mag(x: float) -> float:
-    """
-    Calculates a magnitude value from a linear ratio.
-    Uses the formula: magnitude = -2.5 * log10(ratio)
-    """
-    if x <= 0:
-        raise ValueError("Input for mag() must be positive.")
-    return -2.5 * math.log10(x)
-
-def amag(x: float) -> float:
-    """
-    Calculates the linear ratio from a magnitude value.
-    This is the inverse of the mag() function.
-    Uses the formula: ratio = 10**(-0.4 * magnitude)
-    """
-    return 10**(-0.4 * x)
-
-def _planck_law(wav_m: float, temp_k: float) -> float:
-    """
-    Helper function for Planck's law for spectral radiance.
-    Args:
-        wav_m: Wavelength in meters.
-        temp_k: Temperature in Kelvin.
-    Returns:
-        Spectral radiance in W / (m^2 * sr * m).
-    """
-    if wav_m <= 0:
-        return 0.0
-    exponent = (const.h * const.c) / (wav_m * const.k * temp_k)
-    if exponent > 700:
-        return 0.0
-    numerator = 2.0 * const.h * const.c**2
-    denominator = (wav_m**5) * (math.expm1(exponent))
-    if denominator == 0:
-        return 0.0
-    return numerator / denominator
-
-def blackbody_flux(
-    temperature: float,
-    lambda_short: float,
-    lambda_long: float
-) -> float:
-    """
-    Numerically computes the integrated spectral radiance of
-    a blackbody over a given wavelength band.
-
-    Requires the scipy library.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-        lambda_short: The short wavelength of the band in microns.
-        lambda_long: The long wavelength of the band in microns.
-
-    Returns:
-        The integrated spectral radiance in units of
-        Watts / (m^2 * steradian).
-    """
-    if lambda_short >= lambda_long:
-        raise ValueError("lambda_short must be less than lambda_long.")
-    lambda_short_m = lambda_short * 1e-6
-    lambda_long_m = lambda_long * 1e-6
-    integrated_radiance, _ = scipy.integrate.quad(
-        lambda wav: _planck_law(wav, temperature),
-        lambda_short_m,
-        lambda_long_m
-    )
-    return integrated_radiance
-
-def stefan_boltzmann_law(temperature: float) -> float:
-    """
-    Calculates the total power radiated per unit area by a
-    blackbody using the Stefan-Boltzmann law.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-
-    Returns:
-        The total radiated power per unit area in W / m^2.
-    """
-    return const.sigma * (temperature**4)
-
-def plot_blackbody_spectrum(temperature: float):
-    """
-    Plots the spectral radiance of a blackbody from
-    0.5 to 30 microns.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-    """
-    wavelengths_microns = np.geomspace(0.5, 30, 500)
-    wavelengths_m = wavelengths_microns * 1e-6
-    spectral_radiance = [_planck_law(w, temperature) * 1e-6 for w in wavelengths_m]
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=wavelengths_microns,
-        y=spectral_radiance,
-        mode='lines',
-        name=f'{temperature} K Blackbody'
-    ))
-    fig.update_layout(
-        title_text=f'Blackbody Spectrum ({temperature} K)',
-        xaxis_title="Wavelength (microns)",
-        yaxis_title="Spectral Radiance (W / m^2 / sr / micron)",
-        xaxis_type="log",
-        yaxis_type="log",
-        template="plotly_white"
-    )
-    fig.show()
-
-def plot_blackbody_spectrum_visible_nir(temperature: float):
-    """
-    Plots the spectral radiance of a blackbody from
-    0.1 to 1 micron.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-    """
-    wavelengths_microns = np.linspace(0.1, 1.0, 500)
-    wavelengths_m = wavelengths_microns * 1e-6
-    spectral_radiance = [_planck_law(w, temperature) * 1e-6 for w in wavelengths_m]
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=wavelengths_microns,
-        y=spectral_radiance,
-        mode='lines',
-        name=f'{temperature} K Blackbody'
-    ))
-    fig.update_layout(
-        title_text=f'Blackbody Spectrum ({temperature} K) - Visible/NIR',
-        xaxis_title="Wavelength (microns)",
-        yaxis_title="Spectral Radiance (W / m^2 / sr / micron)",
-        template="plotly_white"
-    )
-    fig.show()
-\end{verbatim}
-
-\section{Code Listing: radiometry\_data.py}
-\begin{verbatim}
-import scipy.constants as const
-
-# --- Physical Constants ---
-AU_M = const.au  # Astronomical Unit in meters
-RSUN_M = 6.957e8 # Radius of the Sun in meters
-
-# --- Radiometric Data ---
-
-# Data is compiled for standard astronomical filters.
-#
-# Magnitudes are apparent magnitudes in the AB or Vega system.
-# Sky brightness is for a dark site at new moon, in
-# magnitudes per square arcsecond. For space-based IR
-# telescopes, this is the zodiacal + telescope background.
-# For ground-based IR, it's dominated by thermal emission.
-# Wavelengths and bandwidths are in nanometers (nm).
-# Zero point is the photon flux for a 0-magnitude
-# object in photons per second per square meter.
-
-FILTER_DATA = {
-    # Johnson-Cousins UBVRI Filters
-    'U': {
-        'sun': -26.03,
-        'sky': 22.0,
-        'space': 22.9,
-        'central_wavelength': 365.0,
-        'bandwidth': 66.0,
-        'zero_point': 4.96e9,
-    },
-    'B': {
-        'sun': -26.13,
-        'sky': 22.7,
-        'space': 23.3,
-        'central_wavelength': 445.0,
-        'bandwidth': 94.0,
-        'zero_point': 1.36e10,
-    },
-    'V': {
-        'sun': -26.78,
-        'sky': 21.9,
-        'space': 23,
-        'central_wavelength': 551.0,
-        'bandwidth': 88.0,
-        'zero_point': 8.79e9,
-    },
-    'R': {
-        'sun': -27.11,
-        'sky': 21.0,
-        'space': 22.0,
-        'central_wavelength': 658.0,
-        'bandwidth': 138.0,
-        'zero_point': 9.74e9,
-    },
-    'I': {
-        'sun': -27.47,
-        'sky': 20.0,
-        'space': 21.2,
-        'central_wavelength': 806.0,
-        'bandwidth': 149.0,
-        'zero_point': 7.11e9,
-    },
-    # Near-Infrared JHK Filters
-    'J': {
-        'sun': -27.91,
-        'sky': 16.0,
-        'space': 21.5,
-        'central_wavelength': 1235.0,
-        'bandwidth': 162.0,
-        'zero_point': 3.15e9,
-    },
-    'H': {
-        'sun': -28.25,
-        'sky': 14.0,
-        'space': 20.5,
-        'central_wavelength': 1646.0,
-        'bandwidth': 251.0,
-        'zero_point': 2.35e9,
-    },
-    'K': {
-        'sun': -28.29,
-        'sky': 13.0,
-        'space': 19.5,
-        'central_wavelength': 2159.0,
-        'bandwidth': 262.0,
-        'zero_point': 1.17e9,
-    },
-    # SDSS Filters
-    'g': {
-        'sun': -26.47,
-        'sky': 21.8,
-        'space': 23.0,
-        'central_wavelength': 477.0,
-        'bandwidth': 137.9,
-        'zero_point': 1.582e10,
-    },
-    'r': {
-        'sun': -26.93,
-        'sky': 20.8,
-        'space': 22.2,
-        'central_wavelength': 623.1,
-        'bandwidth': 138.2,
-        'zero_point': 1.214e10,
-    },
-    'i': {
-        'sun': -27.05,
-        'sky': 20.2,
-        'space': 21.5,
-        'central_wavelength': 762.5,
-        'bandwidth': 153.5,
-        'zero_point': 1.103e10,
-    },
-    'z': {
-        'sun': -27.07,
-        'sky': 19.0,
-        'space': 20.8,
-        'central_wavelength': 913.4,
-        'bandwidth': 140.9,
-        'zero_point': 8.455e9,
-    },
-    # Ground-Based Mid-IR Filters
-    'L': {
-        'sun': None,
-        'sky': 3.5,
-        'central_wavelength': 3500.0,
-        'bandwidth': 600.0,
-        'zero_point': 9.4e9,
-    },
-    'M': {
-        'sun': None,
-        'sky': 0.0,
-        'central_wavelength': 4800.0,
-        'bandwidth': 600.0,
-        'zero_point': 6.8e9,
-    },
-    'N': {
-        'sun': None,
-        'sky': -6.0,
-        'central_wavelength': 10200.0,
-        'bandwidth': 5000.0,
-        'zero_point': 2.7e10,
-    },
-    # JWST MIRI Filters
-    'F560W': { 'sun': None,
-               'sky': 24.4,
-               'central_wavelength': 5600.0,
-               'bandwidth': 1000.0,
-               'zero_point': 9.78e9 },
-    'F770W': { 'sun': None,
-               'sky': 24.4,
-               'central_wavelength': 7700.0,
-               'bandwidth': 1950.0, '
-               zero_point': 1.39e10 },
-    'F1000W': { 'sun': None,
-                'sky': 23.6,
-                'central_wavelength': 10000.0,
-                'bandwidth': 1800.0, '
-                zero_point': 9.86e9 },
-    'F1500W': { 'sun': None,
-                'sky': 21.9,
-                'central_wavelength': 15000.0,
-                'bandwidth': 2940.0, '
-                zero_point': 1.08e10 },
-    'F2550W': { 'sun': None,
-                'sky': 19.4,
-                'central_wavelength': 25500.0,
-                'bandwidth': 4050.0,
-                'zero_point': 8.70e9 }
-}
-\end{verbatim}
-
-\section{Code Listing: simulation.py}
-\begin{verbatim}
-import numpy as np
-from datetime import datetime, timezone
-from typing import Dict, Any
-from generate_log_spherical_points import generate_log_spherical_points
-from constants import *
-
-def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> Dict[str, Any]:
-    """
-    Initializes a minimal, empty data structure for a space simulation.
-
-    Args:
-        start_time: The starting time and date of the simulation. This must be a
-                    timezone-aware datetime object set to UTC.
-        delta_time: The time step for the simulation in seconds.
-
-    Returns:
-        A dictionary representing the basic simulation state.
-    """
-    if not isinstance(start_time, datetime):
-        raise TypeError("start_time must be a datetime object.")
-    if start_time.tzinfo is None:
-        raise ValueError("start_time must be timezone-aware. Please set tzinfo.")
-
-    simulation_data: Dict[str, Any] = {
-        'start_time': start_time,
-        'delta_time': delta_time,
-        'counts': {},
-        'pointing_spheres': {},
-    }
-    return simulation_data
-
-def add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
-    """
-    Adds celestial body structures (for Sun and Moon) to the simulation data.
-
-    Args:
-        sim_data: The simulation data dictionary.
-    """
-    sim_data['counts']['celestial'] = 2  # Sun and Moon
-    sim_data['celestial'] = {
-        'position': np.zeros((2, 3), dtype=float),
-        'velocity': np.zeros((2, 3), dtype=float),
-        'acceleration': np.zeros((2, 3), dtype=float),
-    }
-
-def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None:
-    """
-    Adds a structure for fixed reference points in the GCRS frame.
-
-    Args:
-        sim_data: The simulation data dictionary.
-        num_points: The number of fixed points to generate.
-    """
-    sim_data['counts']['fixedpoints'] = num_points
-    sim_data['fixedpoints'] = {
-        'position': generate_log_spherical_points(
-            num_points=num_points,
-            inner_radius=2000000,
-            outer_radius=84328000
-        )[0],
-        'visibility': np.zeros((num_points, 0), dtype=int) # Visibility will be resized later
-    }
-\end{verbatim}
-
-\section{Code Listing: visibility.py}
-\begin{verbatim}
-import numpy as np
-from typing import Dict, Any, Tuple, Optional
-
-from constants import (
-    EARTH_RADIUS, MOON_RADIUS, DETECTOR_SOLAR_EXCL_IDX,
-    DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
-)
-
-def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Calculates solar exclusion for all satellites based on their pointing vectors.
-
-    This function operates in a vectorized manner on all satellites in the
-    'satellites' category. It computes the angle between each satellite's
-    pointing vector and the vector from the satellite to the Sun.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-
-    Returns:
-        A tuple containing:
-        - exclusion_vector (np.ndarray): An array of the same length as the
-          number of satellites. An element is 1 if the satellite is within
-          the solar exclusion angle, 0 otherwise.
-        - angle_vector (np.ndarray): An array containing the calculated angle
-          in radians for each satellite.
-    """
-    num_sats = data_struct['counts']['satellites']
-    if num_sats == 0:
-        return np.array([]), np.array([])
-
-    sun_pos = data_struct['celestial']['position'][0]
-    sat_pos = data_struct['satellites']['position']
-    sat_pointing = data_struct['satellites']['pointing']
-    solar_exclusion_angles = data_struct['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX]
-
-    vec_sat_to_sun = sun_pos - sat_pos
-
-    norm_sat_to_sun = np.linalg.norm(vec_sat_to_sun, axis=1)
-    norm_sat_pointing = np.linalg.norm(sat_pointing, axis=1)
-
-    valid_norms = (norm_sat_to_sun > 1e-9) & (norm_sat_pointing > 1e-9)
-
-    angle_vector = np.full(num_sats, np.pi)
-
-    if np.any(valid_norms):
-        dot_product = np.einsum('ij,ij->i', vec_sat_to_sun[valid_norms],
-                                sat_pointing[valid_norms])
-        cos_angle = dot_product / (norm_sat_to_sun[valid_norms] *
-                                   norm_sat_pointing[valid_norms])
-        cos_angle = np.clip(cos_angle, -1.0, 1.0)
-        angle_vector[valid_norms] = np.arccos(cos_angle)
-
-    exclusion_vector = (angle_vector < solar_exclusion_angles).astype(int)
-
-    return exclusion_vector, angle_vector
-
-def exclusion(
-    data_struct: Dict[str, Any],
-    satellite_index: int,
-    print_debug: bool = False
-) -> int:
-    """
-    Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        satellite_index: The index of the satellite to check.
-        print_debug: If True, prints detailed debug information for the calculation.
-
-    Returns:
-        0 if the satellite's view is excluded, 1 otherwise.
-    """
-    sat_pos = data_struct['satellites']['position'][satellite_index]
-    sat_pointing = data_struct['satellites']['pointing'][satellite_index]
-    sun_pos = data_struct['celestial']['position'][0]
-    moon_pos = data_struct['celestial']['position'][1]
-
-    detector_props = data_struct['satellites']['detector'][satellite_index]
-    solar_excl_angle = detector_props[DETECTOR_SOLAR_EXCL_IDX]
-    lunar_excl_angle = detector_props[DETECTOR_LUNAR_EXCL_IDX]
-    earth_excl_angle = detector_props[DETECTOR_EARTH_EXCL_IDX]
-
-    vec_to_sun = sun_pos - sat_pos
-    vec_to_moon = moon_pos - sat_pos
-    vec_to_earth = -sat_pos
-
-    dist_to_sun = np.linalg.norm(vec_to_sun)
-    dist_to_moon = np.linalg.norm(vec_to_moon)
-    dist_to_earth = np.linalg.norm(vec_to_earth)
-
-    u_vec_to_sun = vec_to_sun / dist_to_sun if dist_to_sun > 0 else np.array([0.,0.,0.])
-    u_vec_to_moon = vec_to_moon / dist_to_moon if dist_to_moon > 0 else np.array([0.,0.,0.])
-    u_vec_to_earth = vec_to_earth / dist_to_earth if dist_to_earth > 0 else np.array([0.,0.,0.])
-
-    norm_pointing = np.linalg.norm(sat_pointing)
-    u_sat_pointing = sat_pointing / norm_pointing if norm_pointing > 0 else np.array([0.,0.,0.])
-
-    sun_flag, moon_flag, earth_flag = False, False, False
-
-    cos_angle_sun = np.clip(np.dot(u_sat_pointing, u_vec_to_sun), -1.0, 1.0)
-    angle_sun = np.arccos(cos_angle_sun)
-    if angle_sun < solar_excl_angle:
-        sun_flag = True
-
-    cos_angle_moon = np.clip(np.dot(u_sat_pointing, u_vec_to_moon), -1.0, 1.0)
-    angle_moon = np.arccos(cos_angle_moon)
-    apparent_radius_moon = np.arctan(MOON_RADIUS / dist_to_moon) if dist_to_moon > 0 else 0
-    if (angle_moon - apparent_radius_moon) < lunar_excl_angle:
-        moon_flag = True
-
-    cos_angle_earth = np.clip(np.dot(u_sat_pointing, u_vec_to_earth), -1.0, 1.0)
-    angle_earth = np.arccos(cos_angle_earth)
-    apparent_radius_earth = np.arctan(EARTH_RADIUS / dist_to_earth) if dist_to_earth > 0 else 0
-    if (angle_earth - apparent_radius_earth) < earth_excl_angle:
-        earth_flag = True
-
-    if print_debug:
-        print(f"--- Exclusion Debug for Satellite {satellite_index} ---")
-        print(f"  - Sun Flag:   {sun_flag}, Angle: {np.rad2deg(angle_sun):.2f} deg, "
-              f"Excl: {np.rad2deg(solar_excl_angle):.2f} deg")
-        print(f"  - Moon Flag:  {moon_flag}, Angle: {np.rad2deg(angle_moon):.2f} deg, "
-              f"Excl: {np.rad2deg(lunar_excl_angle):.2f} deg")
-        print(f"  - Earth Flag: {earth_flag}, Angle: {np.rad2deg(angle_earth):.2f} deg, "
-              f"Excl: {np.rad2deg(earth_excl_angle):.2f} deg")
-
-    is_excluded = sun_flag or moon_flag or earth_flag
-    return 0 if is_excluded else 1
-
-def update_visibility_table(
-    data_struct: Dict[str, Any],
-    print_debug_for_sat: Optional[int] = None
-) -> None:
-    """
-    Updates the visibility table for each satellite against each fixed point.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        print_debug_for_sat: If an integer is provided, the `exclusion` function's
-                             debug printout will be enabled for that satellite index.
-    """
-    num_satellites = data_struct['counts']['satellites']
-    fixed_points = data_struct['fixedpoints']['position']
-    num_fixed_points = len(fixed_points)
-    visibility_table = data_struct['fixedpoints']['visibility']
-
-    # Ensure the visibility table has the correct shape
-    if visibility_table.shape != (num_fixed_points, num_satellites):
-        data_struct['fixedpoints']['visibility'] = np.zeros((num_fixed_points, num_satellites),
-                                                            dtype=int)
-        visibility_table = data_struct['fixedpoints']['visibility']
-
-    if num_satellites == 0 or num_fixed_points == 0:
-        return
-
-    satellite_positions = data_struct['satellites']['position']
-
-    for i in range(num_satellites):
-        sat_pos = satellite_positions[i]
-        should_print_debug = (i == print_debug_for_sat)
-        for j in range(num_fixed_points):
-            fixed_point_pos = fixed_points[j]
-            pointing_vector = fixed_point_pos - sat_pos
-            data_struct['satellites']['pointing'][i] = pointing_vector
-            visibility_table[j, i] = exclusion(data_struct, i,
-                                               print_debug=should_print_debug)
-\end{verbatim}
 
+data = np.arange(18).reshape(6, 3)
+mask = np.array([True, False, True, False, True, False])
+selected\textsubscript{rows} = data[mask]
+computed\textsubscript{results} = selected\textsubscript{rows.sum}(axis=1, keepdims=True)
+final\textsubscript{array} = np.hstack([data, results\textsubscript{container}])
+
+\section{Todo}
+\label{sec:orge0fccca}
+
+\subsection{visibility}
+\label{sec:org0fb6ff7}
+\begin{itemize}
+\item Create a 2-d array that has a flag for each time the satellite
+might be observed, a row for each time in the simulaton,
+and a  vector of the times for the rows.
+\item for each target, compute if its within anyones FOV, if the
+observer isn't blinded, and the SNR is high enough.
+\end{itemize}
+
+\subsection{Pointing selections (OK, this one will take some developement!)}
+\label{sec:orgf71ac6a}
+
+\subsection{Scoring}
+\label{sec:orgd329811}
+\begin{itemize}
+\item use the visibilty matrix above
+\item take the visibility vector and calculate the fraction
+of the time that the thing is observed
+\item Calculate the gap times- basically for each column,
+compute the interobservation distances and histogram
+them.
+\end{itemize}
+
+
+
+\subsection{Details}
+\label{sec:org42455de}
+
+\subsubsection{Coding [5/13]}
+\label{sec:org46475f3}
+\begin{itemize}
+\item[{$\boxtimes$}] At some point create a good builder function for the constellations
+\item[{$\boxtimes$}] Create the constellation
+\item[{$\boxtimes$}] create the appropirate targeting grid and rules for traversing it.
+\item[{$\boxtimes$}] Set up pytest
+\item[{$\boxtimes$}] first stage testing that displays things
+\item[{$\square$}] Get the timing in there as well: that is how long it takes to move
+forward a step
+\begin{itemize}
+\item[{$\square$}] Add appropriate variables to the sensors
+\item[{$\square$}] add appropriate function to radiometery
+\item[{$\square$}] think about where you get the backgrounds
+\end{itemize}
+
+\item[{$\square$}] write some testing code that shows where things are looking
+\item[{$\square$}] Create the targets with brightnesses.
+\item[{$\square$}] Build a function that will
+\begin{itemize}
+\item[{$\square$}] iterate over all pairs
+\item[{$\square$}] create a mask that includes only those things that are in field and
+not blinded
+\item[{$\square$}] cut those out and process for limiting magnitude
+\item[{$\square$}] fill back in an array of detected
+\end{itemize}
+\item[{$\square$}] resolve issues with having multiple constellations, potentially with
+different names etc.
+\item[{$\square$}] write some code that computes what been detected and do a 3-D map
+\item[{$\square$}] iterate over some cycles and make sure things are evolving
+\item[{$\square$}] next build in something that stores these thing and computs gap times
+\end{itemize}
+
+\subsubsection{Infrastructure [1/1]}
+\label{sec:org96d3c1c}
+\begin{itemize}
+\item[{$\boxtimes$}] update your brew or whatever and get the google vetted gemini installed on
+Neptune.
+\item[{$\square$}] I could probably run a linter and a formatter across things
+\end{itemize}
+
+\section{Prompts}
+\label{sec:org5fd0bdf}
+
+\subsubsection{\LaTeX{} Documentation}
+\label{sec:org7b69d71}
+Create a latex documentation file called vvdoc.tex. It should have the following sections:
+Create a table of content which will be based off the section structure
+you are generating below.
+Proceed as follows:
+\begin{itemize}
+\item read in an individual python file
+\item create a new section
+\item write a summary of the purpose of file
+\item for each function in the file, write a summary of the purpose of that
+funtion and the arguments and return value.
+\item be absolutely sure that for any underscores in the file, escape them with
+a backslash BEFORE you write them out to the latex file
+\item do this for each of files
+\end{itemize}
+Write another section summarizing what the demos are. Again be sure
+that the underscores in all text are preceeded by a backslash.
+Next, for each of the files, create a new section and output
+the contents of the file inside a new vebatim environment,
+but before you write a line wrap the text if it is longer than
+100 characters. In side the verbatim environment you do not need to
+prefix a backslash to the underscore.
+
+
+\section{Architecture}
+\label{sec:org613f1d8}
+
+
+\subsection{Top-Level Keys}
+\label{sec:org1624eac}
+This document outlines the structure of the \texttt{sim\_data} dictionary used in the VibeVolts simulation toolkit.
+
+\begin{description}
+\item[{\textbf{start\textsubscript{time}}}] \texttt{datetime}
+\begin{itemize}
+\item \textbf{Description}: The starting time and date of the simulation. Must be a timezone-aware datetime object set to UTC.
+\item \textbf{Modified by}: \texttt{create\_empty\_simulation} (initialization)
+\end{itemize}
+
+\item[{\textbf{delta\textsubscript{time}}}] \texttt{float}
+\begin{itemize}
+\item \textbf{Description}: The time step for the simulation in seconds.
+\item \textbf{Modified by}: \texttt{create\_empty\_simulation} (initialization)
+\end{itemize}
+
+\item[{\textbf{counts}}] \texttt{dict}
+\begin{itemize}
+\item \textbf{Description}: A dictionary holding counts of various simulation objects.
+\item \textbf{Modified by}:
+\begin{itemize}
+\item \texttt{create\_empty\_simulation} (initialization)
+\item \texttt{add\_celestial\_bodies} (adds \texttt{celestial})
+\item \texttt{add\_fixed\_points} (adds \texttt{fixedpoints})
+\item \texttt{add\_satellites\_from\_tle} (adds a satellite category)
+\item \texttt{add\_observatories} (adds \texttt{observatories})
+\item \texttt{geos} (modifies \texttt{satellites})
+\end{itemize}
+\end{itemize}
+
+\item[{\textbf{pointing\textsubscript{spheres}}}] \texttt{dict}
+\begin{itemize}
+\item \textbf{Description}: A dictionary to hold pre-computed pointing spheres. The keys are the number of points in the sphere.
+\item \textbf{Modified by}:
+\begin{itemize}
+\item \texttt{create\_empty\_simulation} (initialization)
+\item \texttt{generate\_pointing\_sphere} (adds a new pointing sphere)
+\item \texttt{geos} (calls \texttt{generate\_pointing\_sphere})
+\end{itemize}
+\end{itemize}
+
+\item[{\textbf{celestial}}] \texttt{dict}
+\begin{itemize}
+\item \textbf{Description}: Holds data for celestial bodies (Sun and Moon).
+\item \textbf{Modified by}:
+\begin{itemize}
+\item \texttt{add\_celestial\_bodies} (initialization)
+\item \texttt{celestial\_update} (updates positions)
+\end{itemize}
+\item \textbf{Sub-keys}:
+\begin{description}
+\item[{\textbf{position}}] \texttt{np.ndarray} (2, 3) - Position vectors (x, y, z) in meters.
+\item[{\textbf{velocity}}] \texttt{np.ndarray} (2, 3) - Velocity vectors in m/s.
+\item[{\textbf{acceleration}}] \texttt{np.ndarray} (2, 3) - Acceleration vectors in m/s\textsuperscript{2}.
+\end{description}
+\end{itemize}
+
+\item[{\textbf{fixedpoints}}] \texttt{dict}
+\begin{itemize}
+\item \textbf{Description}: Holds data for fixed reference points in the GCRS frame.
+\item \textbf{Modified by}:
+\begin{itemize}
+\item \texttt{add\_fixed\_points} (initialization)
+\item \texttt{update\_visibility\_table} (modifies \texttt{visibility})
+\end{itemize}
+\item \textbf{Sub-keys}:
+\begin{description}
+\item[{\textbf{position}}] \texttt{np.ndarray} (n, 3) - Position vectors of fixed points.
+\item[{\textbf{visibility}}] \texttt{np.ndarray} (n, m) - Visibility table where rows are fixed points and columns are satellites. Value is 1 if visible, 0 otherwise.
+\end{description}
+\end{itemize}
+
+\item[{\textbf{satellites} (and other satellite categories like \texttt{red\_satellites})}] \texttt{dict}
+\begin{itemize}
+\item \textbf{Description}: Holds data for a category of satellites.
+\item \textbf{Modified by}:
+\begin{itemize}
+\item \texttt{add\_satellites\_from\_tle} (initialization)
+\item \texttt{geos} (appends to existing satellite data)
+\item \texttt{propagate\_satellites\_new} (updates \texttt{position} and \texttt{pointing})
+\item \texttt{pointing\_place\_update} (updates \texttt{pointing\_state})
+\item \texttt{jerk} (updates \texttt{pointing})
+\item \texttt{update\_satellite\_pointing} (updates \texttt{pointing})
+\item \texttt{update\_visibility\_table} (temporarily modifies \texttt{pointing})
+\end{itemize}
+\item \textbf{Sub-keys}:
+\begin{description}
+\item[{\textbf{position}}] \texttt{np.ndarray} (n, 3) - Position vectors in meters.
+\item[{\textbf{velocity}}] \texttt{np.ndarray} (n, 3) - Velocity vectors in m/s.
+\item[{\textbf{acceleration}}] \texttt{np.ndarray} (n, 3) - Acceleration vectors in m/s\textsuperscript{2}.
+\item[{\textbf{orbital\textsubscript{elements}}}] \texttt{np.ndarray} (n, 6) - Keplerian orbital elements.
+\item[{\textbf{epochs}}] \texttt{list[datetime]} - Epoch for each satellite's orbital elements.
+\item[{\textbf{pointing}}] \texttt{np.ndarray} (n, 3) - Pointing direction vector.
+\item[{\textbf{pointing\textsubscript{state}}}] \texttt{np.ndarray} (n, 2) - State of the pointing sequence for each satellite.
+\item[{\textbf{detector}}] \texttt{np.ndarray} (n, 9) - Detector properties for each satellite.
+\end{description}
+\end{itemize}
+
+\item[{\textbf{observatories}}] \texttt{dict}
+\begin{itemize}
+\item \textbf{Description}: Holds data for ground-based observatories.
+\item \textbf{Modified by}: \texttt{add\_observatories} (initialization)
+\item \textbf{Sub-keys}:
+\begin{description}
+\item[{\textbf{position}}] \texttt{np.ndarray} (n, 3) - Position vectors in meters.
+\item[{\textbf{velocity}}] \texttt{np.ndarray} (n, 3) - Velocity vectors in m/s.
+\item[{\textbf{acceleration}}] \texttt{np.ndarray} (n, 3) - Acceleration vectors in m/s\textsuperscript{2}.
+\item[{\textbf{pointing}}] \texttt{np.ndarray} (n, 3) - Pointing direction vector.
+\item[{\textbf{detector}}] \texttt{np.ndarray} (n, 9) - Detector properties for each observatory.
+\end{description}
+\end{itemize}
+
+\item Call create\textsubscript{empty}\textsubscript{simulation}
+returns dictionary referred to as sim\textsubscript{data}
+with start\textsubscript{time} delta\textsubscript{time}  counts\{\} and pointing sheres\{\}
+\item call add\textsubscript{celesial}\textsubscript{bodies}
+adds EMPTY celesial \{\} to sim\textsubscript{data}
+\item call add\textsubscript{fixed}\textsubscript{poitns}: adds argumnet fixedpoints'position' \{\}
+subarguments position np and visibuility np empty
+\item 
+\end{description}
+
+
+
+
+\section{Log}
+\label{sec:org0b37bd6}
+
+\subsection{2025-10}
+\label{sec:orgb106ff3}
+
+\subsubsection{\textit{[2025-10-09 Thu]}}
+\label{sec:orgddd4938}
+First figured out git rebase to clean up history a little, interactive.
+Pretty neat, but somthing I will need to review!
+
+Lets go through files and try to organize what we have. Well, that may
+not have been too useful but I definately cleaned things up a little.
+
+
+OK, let's look at and document how we build out a simulation.
+I realize I haven't really got this caged in my mind and it leads to inability
+to act, since I don't even know where to start.
+
+\begin{enumerate}
+\item prompt
+\label{sec:orgb7d8a04}
+There are a large number of functions that add to or modify the dictionary sim\textsubscript{data}.  Please go through all
+   the files and create a document that creates a list of all the dictionary elements added by anybody to 
+  sim\textsubscript{data}, lists the types, and on the same lines lists what functions either add to or change that entry.  
+  If a function creates a dictionary or item inside another, document it the same way.  Indent top level 
+  entries more if they are subentries.  Put this data in a new file called datastructure.md, but do not 
+  change any other files.
+
+\item Todo  [3/5]
+\label{sec:orgda01299}
+\begin{itemize}
+\item[{$\square$}] Document the damn architecture in terms of how you build and run
+the simulation
+\item[{$\square$}] Check we are initializing the detector arrays and make sure you are filling
+all the fields.
+\item[{$\square$}] write a function in radiometry to compute it for a particular system
+\item[{$\square$}] Start building the functions to track what's seen - I probably need
+an outline for this.
+\item[{$\square$}] Check that vstack etc. are being used consistently when adding a new constellation.
+I think I'm doing this wrong.
+\end{itemize}
+\end{enumerate}
+
+
+
+
+\subsubsection{\textit{[2025-10-08 Wed]}}
+\label{sec:org60dfbe4}
+Update gemini-cli  to 0.8.1.  I thoght I did that yesterday, but I could have
+been mistaken.
+
+Wow, I didn't write the physics and interpretation of dwell time down right AT ALL.
+Wriging it down from the book 
+$$t = {\omega\beta\gamma^2 \over   \eta f^2 \alpha^2  A  }  $$
+
+\begin{enumerate}
+\item Todo  [3/5]
+\label{sec:org86b7260}
+\begin{itemize}
+\item[{$\boxtimes$}] Plot how bright something is as a function of distance. Choose a size, a band
+choose a solar angle, plot vs. distance out to lunar radii.
+\item[{$\boxtimes$}] write down what I need get a search rate for a sensor
+\item[{$\boxtimes$}] modify the sensor spec so it has those variables.
+\item[{$\square$}] Check we are initializing the detector arrays and make sure you are filling
+all the fields.
+\item[{$\square$}] write a function in radiometry to compute it for a particular system
+\item[{$\square$}] Start building the functions to track what's seen - I probably need
+an outline for this.
+\item[{$\square$}] Check that vstack etc. are being used consistently when adding a new constellation.
+I think I'm doing this wrong.
+\end{itemize}
+\end{enumerate}
+
+\subsubsection{\textit{[2025-10-07 Tue]}}
+\label{sec:org233accf}
+Furloughed.  I did make a little progress yesterday, well, not so much on this!
+Fixed less fairly quickly.
+Got stuck up in doing things imenu- actually that was pretty easy, start getting
+tangled up - should I say yak-shaving - on setting up LSP mode.  i mean that's nice,
+but it's YAK SHAVING. STOP IT.
+
+OK, now looking at creating a new simpler lambertian sphere function.
+OK, got that really simple plot going. Interesting hubrid work, I DID use
+gemini, but I did quite a bit by hand and used colab to solve a simple subproblem
+without a lot of ceremony.  
+
+
+\begin{enumerate}
+\item Todo  [5/9]
+\label{sec:orgee3bb8e}
+\begin{itemize}
+\item[{$\boxtimes$}] Get the damn vvdoc.tex file working in the background.  I might give this task
+to jules.google.com if gemini is taken up with it.
+\item[{$\boxtimes$}] Find and fix a bug in the less.tex document
+\item[{$\boxtimes$}] Brew update underway, a new gemini-cli. Brew upgrade failed.
+\item[{$\boxtimes$}] Install gemini-cli following following gemini instructions using NPM.
+Fast and smooth
+\item[{$\boxtimes$}] Plot how bright something is as a function of distance. Choose a size, a band
+choose a solar angle, plot vs. distance out to lunar radii.
+\item[{$\square$}] write down what I need get a search rate for a sensor
+\item[{$\square$}] modify the sensor spec so it has those variables
+\item[{$\square$}] write a function in radiometry to compute it for a particular system
+\item[{$\square$}] Start building the functions to track what's seen - I probably need
+an outline for this.
+\end{itemize}
+\end{enumerate}
+
+
+\subsubsection{\textit{[2025-10-05 Sun]}}
+\label{sec:org266156d}
+Took me a while to get going, but I wrote down some prioriities on the remarkable and
+they seem to be sticking.
+
+OK, this is a little frustrating.  Gemini is NOT able to get report.tex formatted right.
+I'm going to make sure everything is saved here and do a push to set jules loose on the
+problem in the background. After a WHOLE BUNCH of dicking around that worked. Quite
+frustrating.  Took way to long.
+
+\begin{enumerate}
+\item Todo  [1/5]
+\label{sec:org566e435}
+\begin{itemize}
+\item[{$\boxtimes$}] Get the damn vvdoc.tex file working in the background.  I might give this task
+to jules.google.com if gemini is taken up with it.
+\item[{$\square$}] write down what I need get a search rate for a sensor
+\item[{$\square$}] modify the sensor spec so it has those variables
+\item[{$\square$}] write a function in radiometry to compute it for a particular system
+\item[{$\square$}] Start building the functions to track what's seen - I probably need
+an outline for this.
+\end{itemize}
+\end{enumerate}
+
+
+
+
+\subsubsection{\textit{[2025-10-04 Sat]}}
+\label{sec:org557c710}
+Well this has been a lost week! I need to see where I'm at.
+
+Well, I need to get things searching at the right rate.
+I think that depends on my adding a dwell time.
+Well, didn't get too much done, but I did get some minimal work on documentation.
+For whatever reason darn gemini is having a really hard time just fixing all the
+underscores to backslash underscore in report.tex that it's generating.
+
+Also irritated by some emacs things, like not seeing files with spaces
+in them. checking out aquaemacs again.
+
+
+\subsection{2025--09}
+\label{sec:org958d1b9}
+
+\subsubsection{\textit{[2025-09-28 Sun]}}
+\label{sec:org14ef61b}
+It's been a week with not as much done as I wanted.
+Hmm, gemini says there's an update so I brew update, which is taking a while- looks
+like node wants to do a bunch of stuff.
+rename the old gemini-cli to gemini and updated node.  That all took 16 minutes.  Grrrr.
+Well, I hope I'm set up now.
+
+Cogitation. I want the simplest thing that will work. So create a single grid for 20 deg FOV
+
+Constellation.py needs to manage the creation of a constellation, which includes
+generating the satellites and their pointing characterisics.
+
+Making some reasonable progress- well maybe not. I seem to be stuck on not getting
+the right argument to geos, which is confusing. Maybe I should start spyder.
+
+\begin{itemize}
+\item lunch
+\end{itemize}
+
+Dumped everything from the system over lunch now everything works now.  Very odd.
+I wonder what was sticking? Add a new test that plots the RA and DEC vs time as we march
+through the space.  That works.  Somehow the plotting got messed up and wasted 20min
+making plots come out right.
+
+Interesting.  I think the word results or result was being overloaded somehow.
+
+\subsubsection{\textit{[2025-09-21 Sun]}}
+\label{sec:orgc8cbe0c}
+OK logging in and fixing up a glitch in the GEMINI.md documentation "automatgically"
+after syncing things in.  My set up was still going from yesterday.
+
+Improving documentation, it seems like some type hints are being added.  Good!
+
+OK, what is next.  I guess the next thing in my list above was creating a good builder
+function for the constellations.  Spent a little time reading up on the propagation.py
+module, documenting it. 
+
+Vibe coded something to create a constellation, at least put the GEOs in place.
+
+Later lets do some work on making a scan pattern thingy. Actually first,
+I think I want to make a global list of constellations to propogate.  Actually
+let's save that for a little later.
+
+Vibe code something to change the positions and a demo, but the pointing vector isnt
+getting updatd. I need to work on this next.  I think it's time for a shower.
+
+
+\subsubsection{\textit{[2025-09-20 Sat]}}
+\label{sec:org9422229}
+It's been a bad couple of weeks in terms of making progress.  I really need to review
+the code I have and then move forward. Working on Neptune, syncing stuff down to
+get things up to date.
+\begin{itemize}
+\item Remove my brew installed verion of gemini and put in the npm version.
+It wasn't updating right, just didn't trust it.
+\item OK, got fed up with trying to get gemini-cli reinstalled, got into yak shaving down to getting node reinstalled with brew which was bucking me.  Bathroom and mess around.
+\item Watch some ER
+\item Reinstall node from nodes.org.   Install gemini-cli.  Things are working now, back to where I was!
+
+\item Later in the evening actually install and things all up on golden adorable.  Try to get
+strong tex file up, but that didn't work.  I need to try that again.
+\end{itemize}
+
+
+\subsubsection{\textit{[2025-09-15 Mon]}}
+\label{sec:org0652ac6}
+No gemini-cli installed on GCE by default. 
+
+Well, I'm looking at things, but I'm not clear on the code,
+so I'm spending too much time thrashing.
+
+
+\subsubsection{\textit{[2025-09-14 Sun]}}
+\label{sec:org75b9b80}
+Long week without getting enough done. Looks like the first thing to try is
+the demo, which runs "in the office" (on GCE?) but not at home?
+
+OK, now that seems to work.  Who knows, maybe I had a corrupt python session.
+So what's next?
+
+Maybe a distraction, but let's try to install google-cli.  Homebrew.
+
+OK, I think it's time to make the master structure an  empty dictionary to start, and then
+have the various functions populate their pieces and add to the global.
+Ask gemini-cli to do this. This is the kind of refactoring that's irritating
+and problematic.  I'ld like to see if gemini can do this!
+
+\subsubsection{\textit{[2025-09-08 Mon]}}
+\label{sec:orgbcd2783}
+Try to run the same demo as yesterday in the office and here it
+runs fine.  Confusing.  I didn't take notes that were very good.
+
+OK, trying to figure out what's useful to do here. i think I'll generate a nice
+\LaTeX{} document  I can print out to review tomorrow using Jules. 
+
+\subsubsection{\textit{[2025-09-07 Sun]}}
+\label{sec:org4334ceb}
+Getting started in the afternoon. OK. Got distracted by tax reviews in the morning.
+
+Looked up scatter gather above, I think this will make calculations a lot faster.
+
+I think what I should do is work towards scoring some simple constellations, and
+get those done "by hand."  So let's write an algorithm and generate some prompts.
+Write those above in details.
+
+\begin{enumerate}
+\item P1
+\label{sec:org0bc53ca}
+Follow instructions in agents.org.
+
+\texttt{=====}
+Create a new module called pointing vectors. In it
+create a new function called pointing\textsubscript{vectors}(n) which 
+creates n equally spaced
+points on the sphere using the fibonacci sphere algorhtm, and return the
+3 dimensional points in an n by 3 numpy array.
+Also add a function to the module which draws the points 
+on a 3-d sphere using
+plotly.
+Add a demo funciton to the demos that calls this function and 
+displays it.
+
+\item P2
+\label{sec:org36e90a3}
+Follow  the instructions in agents.org.
+For each satellite, add two more parameters:  first a "pointing count" which
+indicates what spherical pointing grid will be used.  Second "pointing place"
+which indicates where in the sequence of pointing we are currently at.
+Create a function "pointing place update" that increments the pointing place
+value for all of the satellites, and if the pointing place is greater than or
+equal to pointing count resets pointing place to 0.
+
+Create another dictionary in the simulations state dictionary called
+pointing spheres.  Entries will be indexed by the number of points the
+sphere is divided into, and the content will be numpy arrays created by
+the pointingVectors function.
+
+In the simulations state dicionary add another variable called delta\textsubscript{time} that
+refers to the time between time steps in the simulation.
+\end{enumerate}
+
+
+
+
+\subsubsection{\textit{[2025-09-06 Sat]}}
+\label{sec:org7849ad5}
+After reading an article and seeing how things were going, fed Jules the following prompt:
+
+
+\begin{enumerate}
+\item Prompt1
+\label{sec:org0909ae8}
+
+Without changing any of the function signatures or functionality,
+refactor the python files so that there are ideally no more than 150 lines per file.
+Update the .org and .md documentation files so they are current. Before you
+proceed give me a plan telling me what functions go in what files.I don't know
+how this is going to work: but I'm going to try it out!
+
+Took 18 minutes.  I need to review.
+
+Worked well!  Spend some more time thinking about how to optimize search.
+\end{enumerate}
+
+\subsubsection{\textit{[2025-09-04 Thu]}}
+\label{sec:org6c41157}
+Tried this one in Gemini but it didn't go well: will have to try again. One problem
+was that I was dragging things by hand, and even though there weren't
+many externals left out gemini created plugs to replace them.  My bad.
+I need to be careful about context.
+
+
+Consider the following two files. I would like to create a new testing function that
+creates a single satellite in a GEO location and initialized celestial bodies.
+Create a two diminsional grid with the first axis going from -pi/2 to pi/2 in 50 in increments
+correspnding to the latitude or declination, and the second axis going from 0 to 2 pi correseponding
+to longitude or right ascention in 100 steps. For each of these points, orient the pointing vector
+of the satellite in this direction and call the exclusion function. Place the return value in the array.
+Finally plot this array using plotly. Place this function in a new module separate from the one I am showing you.
+
+
+\subsubsection{\textit{[2025-09-01 Mon]  }  Actuall did some good thinking and notes on}
+\label{sec:org1d33f65}
+things to do.  Started implementing thu.
+
+\subsubsection{\textit{[2025-09-02 Tue]}}
+\label{sec:org09a6ef2}
+Made a little progress getting things working in the cloud on the
+work computer.  Things needed to be moved.
+
+\subsubsection{\textit{[2025-09-01 Mon] } Labor day.}
+\label{sec:org6a27e49}
+I had left a thing running last night in jules, but it didn't finish
+right- it could be that things timed out so things didn't get synced.
+Anyway, asking it to fix the bug with graphics not being called right
+again.  Prompt 2 from yesterday wasn't running.
+
+I think I've been running too fast. Time to look at the code a little.
+
+OK. Waste some time here. git mv rename this file. Figure out \^{}tab gets you
+between tabs in safari.  Accidentally kill the Jules job I had fixing
+the error listed above. Figure out how to close a "window" in emacs.
+I guess this will all be useful but I wish I hadn't killed the job!
+
+OK, it churns for some time- but it more or less turns out right this
+time at last.  I need to edit some thigns.
+
+Change which functions are called. Create a new funcTion just
+creates the demo\textsubscript{plots} file but isn't called by default (gemini).
+
+Yeah, I think I really need to pay attention on how to get some
+results more interactively after each change to see that things
+are working - probably doing this in a jupyter notebook interactively
+makes sense.  This is actually the kind of thing an AI should be able
+to do pretty well.
+
+
+
+\begin{enumerate}
+\item prompt 3
+\label{sec:org22c59ef}
+
+
+
+\item prompt 2
+\label{sec:org0c3df0c}
+add a function dump\textsubscript{detector} that prints out a table with the rows
+representing all the detectors and the labeled columns being the different
+aspects of that detector.
+
+
+
+
+\item prompt 1
+\label{sec:orgd6fec4b}
+\begin{itemize}
+\item Write function called jerk(satellite\textsubscript{number}) that takes takes the satellite
+indicated by that number and moves the pointing vector 0.3 radians in
+any direction.
+\item write  function that examines the exclusion\textsubscript{table}, finds any satellite
+(column) which entirely 0, and applies the function jerk to that satellite.
+\item create a new demo function that initializes the simulation,
+then creates and plots an exclusion\textsubscript{table}, then applies the function
+just mentioned, and then creates and plots a new exclusion\textsubscript{table}.
+\end{itemize}
+\end{enumerate}
+
+
+
+\subsection{2025-08}
+\label{sec:org274071a}
+
+
+\subsubsection{\textit{[2025-08-31 Sun]}}
+\label{sec:org03b36f1}
+OK, lets get serious.
+
+
+\begin{enumerate}
+\item prompt 2 - ran overnight and didn't work
+\label{sec:orgac9c02f}
+\begin{itemize}
+\item take all the demos that create plots in plotly, wrap them up in a new
+function that you run when you are testing things on the jules server
+and place the outputs in a new html file placed in the repo that
+can be viewed stand alone in the browswer.
+\item neglected to tell it to leave the original demos there- got that in there
+on the prompt.
+\end{itemize}
+
+\item Prompt 1 - this is sort of a repeat  worked after I changed it to not do so much testing.
+\label{sec:org6f01d48}
+-read in and follow the instructions in agents.org file.
+-Modify the number of fixed points created is only 100 for the moment.
+-report any time you violate these instructions.
+-Create another array visibility in overall structures that will have a number of columns equal to the number of satellites and a number of rows equal to the number of fixed points. It will be extended into a third dimension as the simulation proceeds.
+-change the function exclusion so that it returns a 0 if pointing is exclueded and 1 if it is not excluded.
+-check that the function create\textsubscript{exclusion}\textsubscript{table} works with this new array and fills its elements by calling the fuction exclusion.
+-do not run all the demos, give me a change for GitHub.
+\end{enumerate}
+
+
+\subsubsection{\textit{[2025-08-30 Sat]}}
+\label{sec:org3057c15}
+Well, that was a couple of weeks with not much going on.  Got to stop that.
+
+\begin{itemize}
+\item An interesting idea that Hayden came up was that I might actually run some diagnostics
+in the virtual jules VM (or wherever, I guess!) and post them back to git.  I kinda like that.
+\item i need to review status
+\end{itemize}
+
+Futzing around trying to get jules to autogenerate some good graphs of the code.
+Clearly this is some sort of yak shaving
+
+\subsubsection{\textit{[2025-08-23 Sat]}}
+\label{sec:org91296eb}
+Hmm.  Too bad I left some dead time here.
+
+\begin{itemize}
+\item Have vibevolts update all the documentation.
+\end{itemize}
+
+\subsubsection{\textit{[2025-08-18 Mon]}}
+\label{sec:orgc95036c}
+Doing some coding in the hotel room in Kingman while Deborah gets ready to leave.
+Hmm.
+Well, that's kinda working, but somehow I am having some challenges getting git
+to the way I want it too. Ther are some edge cases i guess.
+
+Later work a little when I get home, still maybe some problems.
+
+OK, well, later, clone it on to neptune, which isn't too demanding intellectually,
+but a good thing to do if I'm going to work this in the long run.
+Establish a nice ssh key for push and pull in git and on the local machine
+and in the repo.  Git copilot helped with that!
+
+Well I think I'm getting the hang of it, but I really ought to write it down.
+For now, what's the next useful step I can take?
+
+OK, I think I did something to do some visibility calculations. I haven't really
+RUN it though to check if things are working. Next.
+
+\subsubsection{\textit{[2025-08-17 Sun]}}
+\label{sec:orgd8a5fc1}
+
+OK, I need to collect observations now.  Let's get a prompt.  Maybe see if jules
+can do this since it's across several files now.
+
+\subsubsection{Prompt}
+\label{sec:orge0f1ba1}
+use the python tools currently in the repository, but don't change them
+un-necessarily.
+Create a new central data structure in vibevolts.py
+called fixedpoints that is
+initialized using the generate\textsubscript{log}\textsubscript{spherical}\textsubscript{points} including
+points from 2000000 meters to tice geodistances.  Add
+a new demo functino that plots this data in a plotly.
+
+Did some reading on git- I thought it was all in my head, put creating
+local branches of remote things, switching branches, restoring older
+versions of files, and newer commans switch and resotre were not
+in my vocabulary.
+
+\subsubsection{\textit{[2025-08-16 Sat]}}
+\label{sec:org264d7d9}
+Last Socorro Vacation Day. Testing out working copy. Seems really good
+for some things! Took me 7 minutes to get my environment up.
+
+OK, I need to take in to account points of view that are blocked by
+earth or blinded by the sun moon or earth.  It would be nice
+to make this an ECS function- but let's start simple
+
+\begin{enumerate}
+\item Prompt - this appears to have mostly worked. a
+\label{sec:org2a84c01}
+
+Based on the existing code you've just read, create a new
+python function exclusion  in a new file that does the following.
+
+Add two global variables, earth\textsubscript{radius} and moon\textsubscript{radius} that contain
+those radii in meters.
+Create for me a function that takes an index number into the satellites
+array, and extracts position for the satellite, the pointing
+vector for the satellite, and also collects positions of the sun
+and the moon.
+Compute the unit vectors to the sun, the moon, and the earth from
+satellite position.
+
+For the sun, compute the angle betwen the vector to the sun and
+the pointing vector, and set a flag if the angle is less than
+the solar exclusion angle.
+
+For the moon and the earth, calculate the angle between the
+vector to the objects and the pointing angle, subtract
+the arctangent of the  radius of the object and the distance to
+to the object, and set flags if either is less than the
+appropriate exclusion angle.
+
+Set a global exclusion flag if any of these three flags is
+set and return this flag, either true of false.
+
+
+For testing, create a function that that does some displays in
+plotly.  The function should initialize the positions of the
+sun and moon.  It should create a 100 satellites in random
+positions between leo out to geo each pointing in a random
+direction. Call the exclusion function.  For each of these
+cases, using plotly, create a plot containing the earth,
+the satellites position with a pointing vector pointing away
+from it, and vectors to the moon, sun, and earth, together with
+an indication if the view was excluded or not.
+\end{enumerate}
+
+
+\subsubsection{\textit{[2025-08-15 Fri]}}
+\label{sec:orgeecfddc}
+
+Summary:  I actually did get a nice function to generate evenly
+spaced 3d points in, and get it tested.  Working well with github.
+
+
+Looking at the plan above, I wrote a prompt for gemini to create
+the space filling data.
+That worked, and I added a function to check it.  There
+was a bug in that the radial distribution wasn't applired randomly
+in az and el, but gemini found that once I mentioned it.
+Checking in with git.
+
+\begin{enumerate}
+\item Prompt for Gemini
+\label{sec:orge3fe41d}
+I need an algorithm that will create a set of points in 3d space.
+Relative to a central point, they should be space logarithmically
+spaced in distance from the central point, but equally spaced in
+angle in any range of distances. Subject to these constraints the
+points should lie between an inner and an outer radius. Find this
+algorithm, and if possible give me code to execute it.
+
+take the function we just generated and add a new function that creates
+4 plots: first, a 3d plot using plotly that displays the points
+(assuming we are in a Jupyter notebook), a plot that histograms the
+radii of the points, and plots that display the angular distributions
+of the points in terms of latitude and longitude. Display the function
+so I can copy it.
+\end{enumerate}
+
+\subsubsection{\textit{[2025-08-14 Thu]}}
+\label{sec:orgc5af829}
+Ok, lots of today has so far just been figuring out git and github and
+emacs and remembering those commands.  I think I just need to download
+a nice git single page to put in my desk references.
+
+
+OK, I'm seeing that I can actually do some editing on this in github 
+itslef.  It's OK I guess.  
+
+It's rather interesting to be moving these things around between github
+and other locations so quickly, and being able to edit thigns everywhere.
+
+OK, the next action I need to do is to actually get radiometry working,
+and stuff like that. 
+
+\begin{enumerate}
+\item Prompt1
+\label{sec:orgd71559d}
+Create a function called solarexclusion.
+Create an exclusion numpy vector. the same length as the number of
+satellites.
+Create a function which operates on all the satellites in
+the list of satellites in a vectorized manner.
+create a vector from the satellite to the sun and the vector
+representing the satellite pointing.  If the angle between these
+two is less than the solar exclusion angle for the satellite,
+place a 1 in the exclusion list, othewise leave it as 0.
+Return this vector as well as a vector of the angle from
+the function.
+
+Create a test function that prints these two vectors out.
+\end{enumerate}
 \end{document}
