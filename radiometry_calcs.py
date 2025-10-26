@@ -150,4 +150,5 @@ def sat_magnitude(size: float, range: float, angle: float, band: str) -> float:
 
     sun = FILTER_DATA[band]['sun']
     zp = FILTER_DATA[band]['zero_point']
-    
+
+

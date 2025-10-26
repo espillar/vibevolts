@@ -1,3 +1,4 @@
+
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and Gemini-cli
@@ -139,8 +140,11 @@ See the file datastructure.org
 OK, I was sieck for some time with esophogitis. Let's get back to it.
 
 - [X] Let's run of the old tests.
-- [ ] Review the documentation we have and improve it a little by adding
+- [X] Review the documentation we have and improve it a little by adding
   the plotting functions to the documentation
+
+OK work in the morining, at least starting to focus, but yak shaving.
+Let's get on with it after lunch at 1430
 
 *** [2025-10-09 Thu]
 First figured out git rebase to clean up history a little, interactive.

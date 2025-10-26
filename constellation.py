@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Any
 import math
 import random
+import radiometry_data
 
 from constants import (
     ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
@@ -10,6 +11,8 @@ from constants import (
     POINTING_COUNT_IDX, POINTING_PLACE_IDX
 )
 from pointing import generate_pointing_sphere
+
+#########################################################
 
 def geos(sim_data, n,  fov) -> None:
     """
@@ -20,6 +23,9 @@ def geos(sim_data, n,  fov) -> None:
         n: The number of satellites to create.
         fov: The diameter of the field of view of the satellite in radians.
     """
+
+
+
     # Calculate solid angle 
     theta = fov / 2
     solid_angle = 2 * np.pi * (1 - np.cos(theta)) 
@@ -85,7 +91,25 @@ def geos(sim_data, n,  fov) -> None:
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
         sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, 9), dtype=float)])
 
-def geosmod(sim_data, n,  fov, band, limitingmag) -> None:
+##########################################################
+
+        
+def makeDetector(n, band, fov,ifov, aper,limitingmag):
+    detect = np.zeros((n,9), dtype=float)
+    detect[0,:] = aper  #aperture size me
+    detect[1,:] = ifov  #pixel size rads
+    detect[2,:] = 0.5   # Total QE
+    detect[3,:] = 0.7   # fraction in photometry bucket
+    detect[4,:] = (ifov/fov)**2 # pixels
+    detect[5,:] = 0.5 # solar exclusion
+    detect[6,:] = 0.25 # lunar exclusion
+    detect[7,:] = 0.25 # Earth exclusion
+    detect[8,:] = FILTER_DATA[band]['space'] # photon backgroud
+    return(detect)
+        
+###########################################################
+        
+def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
     """
     Creates n equally spaced satellites in GEO and adds them to the 'satellites' group in the simulation.
 
@@ -94,6 +118,11 @@ def geosmod(sim_data, n,  fov, band, limitingmag) -> None:
         n: The number of satellites to create.
         fov: The diameter of the field of view of the satellite in radians.
     """
+
+
+
+    detect = makeDetector(n, band, fov,ifov, aper,limitingmag):
+        
     # Calculate solid angle 
     theta = fov / 2
     solid_angle = 2 * np.pi * (1 - np.cos(theta)) 
@@ -135,6 +164,8 @@ def geosmod(sim_data, n,  fov, band, limitingmag) -> None:
     orbital_elements = np.array(orbital_elements_list, dtype=float)
     pointing_state_array = np.array(pointing_state_list, dtype=int)
 
+
+    
     if 'satellites' not in sim_data:
         sim_data['counts']['satellites'] = n
         sim_data['satellites'] = {
