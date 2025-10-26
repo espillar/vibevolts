@@ -1,10 +1,6 @@
-
 * Vibevolts
 
-Creating a new version of volts that runs faster using jules and other tools.
-
-
-
+Creating a new version of volts that runs faster using jules and Gemini-cli
 
 * Done
 ** Create new points instead of red satellties
@@ -19,7 +15,6 @@ It should be done across the whole vector.
 - lunar - is the moon within the FOV  
 - earth - for satellite is the earth within FOV, for observatory
   make it above the horizon.
-
 
 
 * Notes
@@ -52,31 +47,30 @@ final_array = np.hstack([data, results_container])
 - Calculate the gap times- basically for each column,
   compute the interobservation distances and histogram
   them.
-  
-
 
 ** Details
 
-*** Coding [5/13]
+*** Coding [5/21]
 - [X] At some point create a good builder function for the constellations 
 - [X] Create the constellation
 - [X] create the appropirate targeting grid and rules for traversing it.
 - [X] Set up pytest 
-- [X] first stage testing that displays things 
+- [X] first stage testing that displays things
+- [ ] look at the function that creates a constellation. One of it's arguments should be a limiting magnitude, and it should create an integration time for that.
+- [ ] Think about how we deal with multiple constellations in the code.
 - [ ] Get the timing in there as well: that is how long it takes to move
   forward a step
-  - [ ] Add appropriate variables to the sensors
-  - [ ] add appropriate function to radiometery
-  - [ ] think about where you get the backgrounds
-  
+- [ ] Add appropriate variables to the sensors
+- [ ] add appropriate function to radiometery
+- [ ] think about where you get the backgrounds
 - [ ] write some testing code that shows where things are looking
 - [ ] Create the targets with brightnesses.
 - [ ] Build a function that will
-  - [ ] iterate over all pairs
-  - [ ] create a mask that includes only those things that are in field and
+- [ ] iterate over all pairs
+- [ ] create a mask that includes only those things that are in field and
     not blinded
-  - [ ] cut those out and process for limiting magnitude
-  - [ ] fill back in an array of detected
+- [ ] cut those out and process for limiting magnitude
+- [ ] fill back in an array of detected
 - [ ] resolve issues with having multiple constellations, potentially with
   different names etc.
 - [ ] write some code that computes what been detected and do a 3-D map
@@ -89,8 +83,7 @@ final_array = np.hstack([data, results_container])
 - [ ] I could probably run a linter and a formatter across things
 
 * Prompts
-
-*** LaTeX Documentation
+** LaTeX Documentation
 Create a latex documentation file called vvdoc.tex. It should have the following sections:
 Create a table of content which will be based off the section structure
 you are generating below.
@@ -111,102 +104,43 @@ but before you write a line wrap the text if it is longer than
 100 characters. In side the verbatim environment you do not need to
 prefix a backslash to the underscore.
 
+** prompt to create datastructure.{org, md}
+There are a large number of functions that add to or modify
+the dictionary sim_data.  Please go through all
+   the files and create a document that creates a
+   list of all the dictionary elements added by anybody to 
+  sim_data, lists the types, and on the same lines
+  lists what functions either add to or change that entry.  
+  If a function creates a dictionary or item inside
+  another, document it the same way.  Indent top level 
+  entries more if they are subentries.  Put this data
+  in a new file called datastructure.md, but do not 
+  change any other files. Be sure to include information on the
+  content and stucture of the detector array.
+
+  
+To this document add another section that lists all the functions
+that display the data in hte current code base. Do not change any
+other files.
+
+
+In addition to datastructure.md, keep that file, but make a copy
+in org format in datastrucure.org
+
 
 * Architecture
-
-
-** Top-Level Keys
-This document outlines the structure of the =sim_data= dictionary used in the VibeVolts simulation toolkit.
-
-- *start_time* :: =datetime=
-  - *Description*: The starting time and date of the simulation. Must be a timezone-aware datetime object set to UTC.
-  - *Modified by*: =create_empty_simulation= (initialization)
-
-- *delta_time* :: =float=
-  - *Description*: The time step for the simulation in seconds.
-  - *Modified by*: =create_empty_simulation= (initialization)
-
-- *counts* :: =dict=
-  - *Description*: A dictionary holding counts of various simulation objects.
-  - *Modified by*:
-    - =create_empty_simulation= (initialization)
-    - =add_celestial_bodies= (adds =celestial=)
-    - =add_fixed_points= (adds =fixedpoints=)
-    - =add_satellites_from_tle= (adds a satellite category)
-    - =add_observatories= (adds =observatories=)
-    - =geos= (modifies =satellites=)
-
-- *pointing_spheres* :: =dict=
-  - *Description*: A dictionary to hold pre-computed pointing spheres. The keys are the number of points in the sphere.
-  - *Modified by*:
-    - =create_empty_simulation= (initialization)
-    - =generate_pointing_sphere= (adds a new pointing sphere)
-    - =geos= (calls =generate_pointing_sphere=)
-
-- *celestial* :: =dict=
-  - *Description*: Holds data for celestial bodies (Sun and Moon).
-  - *Modified by*:
-    - =add_celestial_bodies= (initialization)
-    - =celestial_update= (updates positions)
-  - *Sub-keys*:
-    - *position* :: =np.ndarray= (2, 3) - Position vectors (x, y, z) in meters.
-    - *velocity* :: =np.ndarray= (2, 3) - Velocity vectors in m/s.
-    - *acceleration* :: =np.ndarray= (2, 3) - Acceleration vectors in m/s^2.
-
-- *fixedpoints* :: =dict=
-  - *Description*: Holds data for fixed reference points in the GCRS frame.
-  - *Modified by*:
-    - =add_fixed_points= (initialization)
-    - =update_visibility_table= (modifies =visibility=)
-  - *Sub-keys*:
-    - *position* :: =np.ndarray= (n, 3) - Position vectors of fixed points.
-    - *visibility* :: =np.ndarray= (n, m) - Visibility table where rows are fixed points and columns are satellites. Value is 1 if visible, 0 otherwise.
-
-- *satellites* (and other satellite categories like =red_satellites=) :: =dict=
-  - *Description*: Holds data for a category of satellites.
-  - *Modified by*:
-    - =add_satellites_from_tle= (initialization)
-    - =geos= (appends to existing satellite data)
-    - =propagate_satellites_new= (updates =position= and =pointing=)
-    - =pointing_place_update= (updates =pointing_state=)
-    - =jerk= (updates =pointing=)
-    - =update_satellite_pointing= (updates =pointing=)
-    - =update_visibility_table= (temporarily modifies =pointing=)
-  - *Sub-keys*:
-    - *position* :: =np.ndarray= (n, 3) - Position vectors in meters.
-    - *velocity* :: =np.ndarray= (n, 3) - Velocity vectors in m/s.
-    - *acceleration* :: =np.ndarray= (n, 3) - Acceleration vectors in m/s^2.
-    - *orbital_elements* :: =np.ndarray= (n, 6) - Keplerian orbital elements.
-    - *epochs* :: =list[datetime]= - Epoch for each satellite's orbital elements.
-    - *pointing* :: =np.ndarray= (n, 3) - Pointing direction vector.
-    - *pointing_state* :: =np.ndarray= (n, 2) - State of the pointing sequence for each satellite.
-    - *detector* :: =np.ndarray= (n, 9) - Detector properties for each satellite.
-
-- *observatories* :: =dict=
-  - *Description*: Holds data for ground-based observatories.
-  - *Modified by*: =add_observatories= (initialization)
-  - *Sub-keys*:
-    - *position* :: =np.ndarray= (n, 3) - Position vectors in meters.
-    - *velocity* :: =np.ndarray= (n, 3) - Velocity vectors in m/s.
-    - *acceleration* :: =np.ndarray= (n, 3) - Acceleration vectors in m/s^2.
-    - *pointing* :: =np.ndarray= (n, 3) - Pointing direction vector.
-    - *detector* :: =np.ndarray= (n, 9) - Detector properties for each observatory.
-
-- Call create_empty_simulation
-  returns dictionary referred to as sim_data
-  with start_time delta_time  counts{} and pointing sheres{}
-- call add_celesial_bodies
-  adds EMPTY celesial {} to sim_data
-- call add_fixed_poitns: adds argumnet fixedpoints'position' {}
-  subarguments position np and visibuility np empty 
--
-
-
-
+See the file datastructure.org
 
 * Log
 
 ** 2025-10
+
+*** [2025-10-26 Sun]
+OK, I was sieck for some time with esophogitis. Let's get back to it.
+
+- [X] Let's run of the old tests.
+- [ ] Review the documentation we have and improve it a little by adding
+  the plotting functions to the documentation
 
 *** [2025-10-09 Thu]
 First figured out git rebase to clean up history a little, interactive.
@@ -223,18 +157,7 @@ Well I was kinda lazy, but I did generate a file
 >>>>  datastructure.{org, md}
 that seems preety doamn useful!
 
-**** prompt to create datastructure.{org, md}
-There are a large number of functions that add to or modify
-the dictionary sim_data.  Please go through all
-   the files and create a document that creates a
-   list of all the dictionary elements added by anybody to 
-  sim_data, lists the types, and on the same lines
-  lists what functions either add to or change that entry.  
-  If a function creates a dictionary or item inside
-  another, document it the same way.  Indent top level 
-  entries more if they are subentries.  Put this data
-  in a new file called datastructure.md, but do not 
-  change any other files.
+
 
 
 **** Todo  [3/5]

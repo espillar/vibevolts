@@ -67,6 +67,16 @@ This document outlines the structure of the `sim_data` dictionary used in the Vi
     - `pointing`: `np.ndarray` (n, 3) - Pointing direction vector.
     - `pointing_state`: `np.ndarray` (n, 2) - State of the pointing sequence for each satellite.
     - `detector`: `np.ndarray` (n, 9) - Detector properties for each satellite.
+      - **Indices**
+        - 0 (`DETECTOR_APERTURE_IDX`): Aperture size in meters
+        - 1 (`DETECTOR_PIXEL_SIZE_IDX`): Pixel size in radians
+        - 2 (`DETECTOR_QE_IDX`): Quantum efficiency as a fraction (0.0 to 1.0)
+        - 3 (`DETECTOR_PHOT_EFF_IDX`): Fraction of photons in photometry bucket
+        - 4 (`DETECTOR_PIXELS_IDX`): Total number of pixels in the detector (count)
+        - 5 (`DETECTOR_SOLAR_EXCL_IDX`): Solar exclusion angle in radians
+        - 6 (`DETECTOR_LUNAR_EXCL_IDX`): Lunar exclusion angle in radians
+        - 7 (`DETECTOR_EARTH_EXCL_IDX`): Earth exclusion angle (above the limb) in radians
+        - 8 (`DETECTOR_SKY_BACK_IDX`): Sky Background photons
 
 - `observatories`: `dict`
   - **Description**: Holds data for ground-based observatories.
@@ -77,3 +87,20 @@ This document outlines the structure of the `sim_data` dictionary used in the Vi
     - `acceleration`: `np.ndarray` (n, 3) - Acceleration vectors in m/s^2.
     - `pointing`: `np.ndarray` (n, 3) - Pointing direction vector.
     - `detector`: `np.ndarray` (n, 9) - Detector properties for each observatory.
+      - **Indices**
+        - 0 (`DETECTOR_APERTURE_IDX`): Aperture size in meters
+        - 1 (`DETECTOR_PIXEL_SIZE_IDX`): Pixel size in radians
+        - 2 (`DETECTOR_QE_IDX`): Quantum efficiency as a fraction (0.0 to 1.0)
+        - 3 (`DETECTOR_PHOT_EFF_IDX`): Fraction of photons in photometry bucket
+        - 4 (`DETECTOR_PIXELS_IDX`): Total number of pixels in the detector (count)
+        - 5 (`DETECTOR_SOLAR_EXCL_IDX`): Solar exclusion angle in radians
+        - 6 (`DETECTOR_LUNAR_EXCL_IDX`): Lunar exclusion angle in radians
+        - 7 (`DETECTOR_EARTH_EXCL_IDX`): Earth exclusion angle (above the limb) in radians
+        - 8 (`DETECTOR_SKY_BACK_IDX`): Sky Background photons
+
+## Data Display Functions
+
+This section lists the functions used to visualize the simulation data.
+
+-   `plot_3d_scatter` (in `plotting_3d.py`): Creates a 3D scatter plot of object positions.
+-   `plot_pointing_vectors` (in `plotting_vectors.py`): Creates a 3D plot of satellites with their pointing vectors.

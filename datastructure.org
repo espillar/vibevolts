@@ -1,79 +1,106 @@
 * sim_data Dictionary Structure
 
-This document outlines the structure of the =sim_data= dictionary used in the VibeVolts simulation toolkit.
+This document outlines the structure of the ~sim_data~ dictionary used in the VibeVolts simulation toolkit.
 
 ** Top-Level Keys
 
-- *start_time* :: =datetime=
+- ~start_time~: ~datetime~
   - *Description*: The starting time and date of the simulation. Must be a timezone-aware datetime object set to UTC.
-  - *Modified by*: =create_empty_simulation= (initialization)
+  - *Modified by*: ~create_empty_simulation~ (initialization)
 
-- *delta_time* :: =float=
+- ~delta_time~: ~float~
   - *Description*: The time step for the simulation in seconds.
-  - *Modified by*: =create_empty_simulation= (initialization)
+  - *Modified by*: ~create_empty_simulation~ (initialization)
 
-- *counts* :: =dict=
+- ~counts~: ~dict~
   - *Description*: A dictionary holding counts of various simulation objects.
   - *Modified by*:
-    - =create_empty_simulation= (initialization)
-    - =add_celestial_bodies= (adds =celestial=)
-    - =add_fixed_points= (adds =fixedpoints=)
-    - =add_satellites_from_tle= (adds a satellite category)
-    - =add_observatories= (adds =observatories=)
-    - =geos= (modifies =satellites=)
+    - ~create_empty_simulation~ (initialization)
+    - ~add_celestial_bodies~ (adds ~celestial~)
+    - ~add_fixed_points~ (adds ~fixedpoints~)
+    - ~add_satellites_from_tle~ (adds a satellite category)
+    - ~add_observatories~ (adds ~observatories~)
+    - ~geos~ (modifies ~satellites~)
 
-- *pointing_spheres* :: =dict=
+- ~pointing_spheres~: ~dict~
   - *Description*: A dictionary to hold pre-computed pointing spheres. The keys are the number of points in the sphere.
   - *Modified by*:
-    - =create_empty_simulation= (initialization)
-    - =generate_pointing_sphere= (adds a new pointing sphere)
-    - =geos= (calls =generate_pointing_sphere=)
+    - ~create_empty_simulation~ (initialization)
+    - ~generate_pointing_sphere~ (adds a new pointing sphere)
+    - ~geos~ (calls ~generate_pointing_sphere~)
 
-- *celestial* :: =dict=
+- ~celestial~: ~dict~
   - *Description*: Holds data for celestial bodies (Sun and Moon).
   - *Modified by*:
-    - =add_celestial_bodies= (initialization)
-    - =celestial_update= (updates positions)
+    - ~add_celestial_bodies~ (initialization)
+    - ~celestial_update~ (updates positions)
   - *Sub-keys*:
-    - *position* :: =np.ndarray= (2, 3) - Position vectors (x, y, z) in meters.
-    - *velocity* :: =np.ndarray= (2, 3) - Velocity vectors in m/s.
-    - *acceleration* :: =np.ndarray= (2, 3) - Acceleration vectors in m/s^2.
+    - ~position~: ~np.ndarray~ (2, 3) - Position vectors (x, y, z) in meters.
+    - ~velocity~: ~np.ndarray~ (2, 3) - Velocity vectors in m/s.
+    - ~acceleration~: ~np.ndarray~ (2, 3) - Acceleration vectors in m/s^2.
 
-- *fixedpoints* :: =dict=
+- ~fixedpoints~: ~dict~
   - *Description*: Holds data for fixed reference points in the GCRS frame.
   - *Modified by*:
-    - =add_fixed_points= (initialization)
-    - =update_visibility_table= (modifies =visibility=)
+    - ~add_fixed_points~ (initialization)
+    - ~update_visibility_table~ (modifies ~visibility~)
   - *Sub-keys*:
-    - *position* :: =np.ndarray= (n, 3) - Position vectors of fixed points.
-    - *visibility* :: =np.ndarray= (n, m) - Visibility table where rows are fixed points and columns are satellites. Value is 1 if visible, 0 otherwise.
+    - ~position~: ~np.ndarray~ (n, 3) - Position vectors of fixed points.
+    - ~visibility~: ~np.ndarray~ (n, m) - Visibility table where rows are fixed points and columns are satellites. Value is 1 if visible, 0 otherwise.
 
-- *satellites* (and other satellite categories like =red_satellites=) :: =dict=
+- ~satellites~ (and other satellite categories like ~red_satellites~): ~dict~
   - *Description*: Holds data for a category of satellites.
   - *Modified by*:
-    - =add_satellites_from_tle= (initialization)
-    - =geos= (appends to existing satellite data)
-    - =propagate_satellites_new= (updates =position= and =pointing=)
-    - =pointing_place_update= (updates =pointing_state=)
-    - =jerk= (updates =pointing=)
-    - =update_satellite_pointing= (updates =pointing=)
-    - =update_visibility_table= (temporarily modifies =pointing=)
+    - ~add_satellites_from_tle~ (initialization)
+    - ~geos~ (appends to existing satellite data)
+    - ~propagate_satellites_new~ (updates ~position~ and ~pointing~)
+    - ~pointing_place_update~ (updates ~pointing_state~)
+    - ~jerk~ (updates ~pointing~)
+    - ~update_satellite_pointing~ (updates ~pointing~)
+    - ~update_visibility_table~ (temporarily modifies ~pointing~)
   - *Sub-keys*:
-    - *position* :: =np.ndarray= (n, 3) - Position vectors in meters.
-    - *velocity* :: =np.ndarray= (n, 3) - Velocity vectors in m/s.
-    - *acceleration* :: =np.ndarray= (n, 3) - Acceleration vectors in m/s^2.
-    - *orbital_elements* :: =np.ndarray= (n, 6) - Keplerian orbital elements.
-    - *epochs* :: =list[datetime]= - Epoch for each satellite's orbital elements.
-    - *pointing* :: =np.ndarray= (n, 3) - Pointing direction vector.
-    - *pointing_state* :: =np.ndarray= (n, 2) - State of the pointing sequence for each satellite.
-    - *detector* :: =np.ndarray= (n, 9) - Detector properties for each satellite.
+    - ~position~: ~np.ndarray~ (n, 3) - Position vectors in meters.
+    - ~velocity~: ~np.ndarray~ (n, 3) - Velocity vectors in m/s.
+    - ~acceleration~: ~np.ndarray~ (n, 3) - Acceleration vectors in m/s^2.
+    - ~orbital_elements~: ~np.ndarray~ (n, 6) - Keplerian orbital elements.
+    - ~epochs~: ~list[datetime]~ - Epoch for each satellite's orbital elements.
+    - ~pointing~: ~np.ndarray~ (n, 3) - Pointing direction vector.
+    - ~pointing_state~: ~np.ndarray~ (n, 2) - State of the pointing sequence for each satellite.
+    - ~detector~: ~np.ndarray~ (n, 9) - Detector properties for each satellite.
+      - *Indices*
+        - 0 (~DETECTOR_APERTURE_IDX~): Aperture size in meters
+        - 1 (~DETECTOR_PIXEL_SIZE_IDX~): Pixel size in radians
+        - 2 (~DETECTOR_QE_IDX~): Quantum efficiency as a fraction (0.0 to 1.0)
+        - 3 (~DETECTOR_PHOT_EFF_IDX~): Fraction of photons in photometry bucket
+        - 4 (~DETECTOR_PIXELS_IDX~): Total number of pixels in the detector (count)
+        - 5 (~DETECTOR_SOLAR_EXCL_IDX~): Solar exclusion angle in radians
+        - 6 (~DETECTOR_LUNAR_EXCL_IDX~): Lunar exclusion angle in radians
+        - 7 (~DETECTOR_EARTH_EXCL_IDX~): Earth exclusion angle (above the limb) in radians
+        - 8 (~DETECTOR_SKY_BACK_IDX~): Sky Background photons
 
-- *observatories* :: =dict=
+- ~observatories~: ~dict~
   - *Description*: Holds data for ground-based observatories.
-  - *Modified by*: =add_observatories= (initialization)
+  - *Modified by*: ~add_observatories~ (initialization)
   - *Sub-keys*:
-    - *position* :: =np.ndarray= (n, 3) - Position vectors in meters.
-    - *velocity* :: =np.ndarray= (n, 3) - Velocity vectors in m/s.
-    - *acceleration* :: =np.ndarray= (n, 3) - Acceleration vectors in m/s^2.
-    - *pointing* :: =np.ndarray= (n, 3) - Pointing direction vector.
-    - *detector* :: =np.ndarray= (n, 9) - Detector properties for each observatory.
+    - ~position~: ~np.ndarray~ (n, 3) - Position vectors in meters.
+    - ~velocity~: ~np.ndarray~ (n, 3) - Velocity vectors in m/s.
+    - ~acceleration~: ~np.ndarray~ (n, 3) - Acceleration vectors in m/s^2.
+    - ~pointing~: ~np.ndarray~ (n, 3) - Pointing direction vector.
+    - ~detector~: ~np.ndarray~ (n, 9) - Detector properties for each observatory.
+      - *Indices*
+        - 0 (~DETECTOR_APERTURE_IDX~): Aperture size in meters
+        - 1 (~DETECTOR_PIXEL_SIZE_IDX~): Pixel size in radians
+        - 2 (~DETECTOR_QE_IDX~): Quantum efficiency as a fraction (0.0 to 1.0)
+        - 3 (~DETECTOR_PHOT_EFF_IDX~): Fraction of photons in photometry bucket
+        - 4 (~DETECTOR_PIXELS_IDX~): Total number of pixels in the detector (count)
+        - 5 (~DETECTOR_SOLAR_EXCL_IDX~): Solar exclusion angle in radians
+        - 6 (~DETECTOR_LUNAR_EXCL_IDX~): Lunar exclusion angle in radians
+        - 7 (~DETECTOR_EARTH_EXCL_IDX~): Earth exclusion angle (above the limb) in radians
+        - 8 (~DETECTOR_SKY_BACK_IDX~): Sky Background photons
+
+** Data Display Functions
+
+This section lists the functions used to visualize the simulation data.
+
+-   ~plot_3d_scatter~ (in ~plotting_3d.py~): Creates a 3D scatter plot of object positions.
+-   ~plot_pointing_vectors~ (in ~plotting_vectors.py~): Creates a 3D plot of satellites with their pointing vectors.
