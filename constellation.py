@@ -93,20 +93,29 @@ def geos(sim_data, n,  fov) -> None:
 
 ##########################################################
 
-        
-def makeDetector(n, band, fov,ifov, aper,limitingmag):
-    detect = np.zeros((n,9), dtype=float)
+
+##########################################################
+
+def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5. lunarex =0.25,
+                 earthex=0.25):
+'''
+makeDetector takes parameters of a sensor and stuffs a detector array, which it returns
+'''
+   detect = np.zeros((n,9), dtype=float)
     detect[0,:] = aper  #aperture size me
     detect[1,:] = ifov  #pixel size rads
-    detect[2,:] = 0.5   # Total QE
-    detect[3,:] = 0.7   # fraction in photometry bucket
-    detect[4,:] = (ifov/fov)**2 # pixels
-    detect[5,:] = 0.5 # solar exclusion
-    detect[6,:] = 0.25 # lunar exclusion
-    detect[7,:] = 0.25 # Earth exclusion
+    detect[2,:] = qe   # Total QE
+    detect[3,:] = photfrac  # fraction in photometry bucket
+    pixels = (ifov/fov)**2 # pixels
+    detect[4,:] = pixels
+    detect[5,:] = solarex
+    detect[6,:] = lunarex
+    detect[7,:] = earthex
     detect[8,:] = FILTER_DATA[band]['space'] # photon backgroud
     return(detect)
-        
+
+
+
 ###########################################################
         
 def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
@@ -118,10 +127,10 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         n: The number of satellites to create.
         fov: The diameter of the field of view of the satellite in radians.
     """
+    asdf
 
 
-
-    detect = makeDetector(n, band, fov,ifov, aper,limitingmag):
+#    detect = makeDetector(n, band, fov,ifov, aper,limitingmag):
         
     # Calculate solid angle 
     theta = fov / 2
