@@ -1,0 +1,50 @@
+\documentclass[12pt]{article}
+\title{Equations for \'Etendue}
+\author{E Spillar}
+\date{\today}
+
+\usepackage{amsmath} % Required for \boxed
+
+\usepackage{amsmath}
+\newcommand{\amag}[1]{\ \mathrm{amag}\left(#1\right)}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Symbols}
+\begin{itemize}
+	\item $q$ is the net quantum efficiency of the whole system
+	\item $f$ is the fraction of light from an object captured
+	in the photometry aperture
+	\item $A$ is the collection area of the primary
+	\item $t$ is the integration time in seconds
+	\item $g$ is used in some places as the goal limiting magitude
+	\item $C$ gives the number of photons per second per squar meter for the band being used.
+	\item $\omega$ is the field of view of a detector in steradians
+	\item $\Omega$ is the overall FOV of the system in 
+	steradians.
+	\item $b$ is the background flux in photons per square
+\end{itemize}
+
+\section{Integration Time Required for an SNR}
+Given a few things I want to find the integration
+time needed for a given SNR, assuming for the moment BLIP.
+
+Factors we have in the code:
+$g$ is our goal limiting magnitude.
+$$S = q f A t \amag{g} C $$
+$$N = \sqrt{q A t \amag{b} C \omega} $$
+
+$$SNR^2 = \frac{q^2 f^2 A^2 t^2 \amag{g}^2 C^2 }{q A t \amag{b} C \omega} $$
+$$= \frac{q f^2 A t\amag{g}^2 C }
+		  {   \amag{b}  \omega} $$
+solving for $t$
+
+\begin{equation}
+\boxed{ 
+t = \frac{   \amag{b}  \omega}{{q f^2 A
+\amag{g}^2 C }}
+}
+\end{equation}
+\end{document}
+
