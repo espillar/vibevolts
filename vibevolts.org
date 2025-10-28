@@ -136,6 +136,10 @@ See the file datastructure.org
 
 ** 2025-10
 
+*** [2025-10-28 Tue]
+Did a little work on getting a limiting magnitude function.  I did up the
+calculation in a new latex file equations for etendue.tex.
+
 *** [2025-10-26 Sun]
 OK, I was sieck for some time with esophogitis. Let's get back to it.
 
