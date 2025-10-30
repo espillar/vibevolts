@@ -136,6 +136,11 @@ See the file datastructure.org
 
 ** 2025-10
 
+
+*** [2025-10-30 Thu]
+
+Add a document Equations for etendue.tex to keep track of that stuff.
+
 *** [2025-10-28 Tue]
 Did a little work on getting a limiting magnitude function.  I did up the
 calculation in a new latex file equations for etendue.tex.
@@ -665,6 +670,9 @@ two is less than the solar exclusion angle for the satellite,
 place a 1 in the exclusion list, othewise leave it as 0.
 Return this vector as well as a vector of the angle from
 the function.
+\section{Derivation of Search Rate}
+
+
 
 Create a test function that prints these two vectors out.
 
