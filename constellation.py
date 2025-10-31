@@ -25,7 +25,6 @@ def geos(sim_data, n,  fov) -> None:
     """
 
 
-
     # Calculate solid angle 
     theta = fov / 2
     solid_angle = 2 * np.pi * (1 - np.cos(theta)) 
@@ -96,23 +95,43 @@ def geos(sim_data, n,  fov) -> None:
 
 ##########################################################
 
-def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5. lunarex =0.25,
-                 earthex=0.25):
+def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5. lunarex =0.25,  earthex=0.25):
 '''
-makeDetector takes parameters of a sensor and stuffs a detector array, which it returns
+makeDetector takes parameters of a sensor and stuffs a detector array, which it returns.
+I expect this function to be calld when a new satellite is created.
 '''
    detect = np.zeros((n,9), dtype=float)
-    detect[0,:] = aper  #aperture size me
-    detect[1,:] = ifov  #pixel size rads
-    detect[2,:] = qe   # Total QE
-    detect[3,:] = photfrac  # fraction in photometry bucket
+    detect[DETECTOR_APERTURE_IDX,:] = aper  #aperture size me
+    detect[DETECTOR_PIXEL_SIZE_IDX,:] = ifov  #pixel size rads
+    detect[DETECTOR_QE_IDX,:] = qe   # Total QE
+    detect[DETECTOR_PHOT_EFF_IDX,:] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels
-    detect[4,:] = pixels
-    detect[5,:] = solarex
-    detect[6,:] = lunarex
-    detect[7,:] = earthex
-    detect[8,:] = FILTER_DATA[band]['space'] # photon backgroud
+    detect[DETECTOR_PIXELS_IDX,:] = pixels   # total pixels in the array
+    detect[DETECTOR_SOLAR_EXCL_IDX,:] = solarex  # solar exclusion angle
+    detect[DETECTOR_LUNAR_EXCL_IDX,:] = lunarex  # lunar exclusion angle
+    detect[DETECTOR_EARTH_EXCL_IDX,:] = earthex  # eearth exclusion angle
+    detect[DETECTOR_SKY_BACK_IDX,:] = FILTER_DATA[band]['space'] # photon backgroud
+    detect[DETECTOR_FILTER_BAND_IDX, :] = band # Band
+    detect[DETECTOR_FILTER_BAND_CAL_IDX, :] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
     return(detect)
+
+###########################################################
+
+def requiredIntegrationTime(limitingMag, d):
+    t  = d[DETECTOR_SKY_BACK_IDX,:] * d[DETECTOR_PIXEL_SIZE_IDX,:] /
+       ( d[DETECTOR_QE_IDX,:] *
+         d[DETECTOR_PHOT_EFF_IDX,:] *
+         d[DETECTOR_APERTURE_SIZE_IDX,:] *
+         amag(limiting_mag)**2 *
+         d[DETECOR_FILTER_ZP_IDX, :])
+    return(t)
+    
+'''
+requiredIntegrationTime(limitingMag, d)
+takes a two dimensional detector array ("detect")and calculates all the integration tiemes
+and returns those as a vector.
+'''
+
 
 
 

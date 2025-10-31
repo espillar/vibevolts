@@ -50,14 +50,14 @@ final_array = np.hstack([data, results_container])
 
 ** Details
 
-*** Coding [5/21]
+*** Coding [6/23]
 - [X] At some point create a good builder function for the constellations 
 - [X] Create the constellation
 - [X] create the appropirate targeting grid and rules for traversing it.
 - [X] Set up pytest 
 - [X] first stage testing that displays things
-- [ ] look at the function that creates a constellation. One of it's arguments should be a limiting magnitude, and it should create an integration time for that.
-- [ ] Get your documentation files for the math consistent in the cloud with what you have here.
+- [X] Get your documentation files for the math consistent in the cloud with what you have here.
+- [ ] look at the limiting magnitude, and it should create an integration time for that.
 - [ ] Think about how we deal with multiple constellations in the code.
 - [ ] Get the timing in there as well: that is how long it takes to move
   forward a step
@@ -78,7 +78,7 @@ final_array = np.hstack([data, results_container])
 - [ ] iterate over some cycles and make sure things are evolving
 - [ ] next build in something that stores these thing and computs gap times
 
-*** Infrastructure [1/1]
+*** Infrastructure [1/2]
 - [X] update your brew or whatever and get the google vetted gemini installed on
   Neptune.
 - [ ] I could probably run a linter and a formatter across things
@@ -137,9 +137,19 @@ See the file datastructure.org
 ** 2025-10
 
 
+*** [2025-10-31 Fri]
+Get started on work, but Max Yates texts, and I need to update homebrew, so
+that's thinking.
+Loading up the dichromacy theme, its a little higher contrast.  Taking
+forever to build Homebrew.  
+Delete and load directly using NPM.
+I think I have the limiting magnitude coded, but I need to review that!
+
 *** [2025-10-30 Thu]
 
-Add a document Equations for etendue.tex to keep track of that stuff.
+Add a document Equations for etendue.tex to keep track of that stuff. I think this is
+progress.
+
 
 *** [2025-10-28 Tue]
 Did a little work on getting a limiting magnitude function.  I did up the

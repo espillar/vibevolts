@@ -15,7 +15,9 @@ DETECTOR_PIXELS_IDX = 4        # Total number of pixels in the detector (count)
 DETECTOR_SOLAR_EXCL_IDX = 5    # Solar exclusion angle in radians
 DETECTOR_LUNAR_EXCL_IDX = 6    # Lunar exclusion angle in radians
 DETECTOR_EARTH_EXCL_IDX = 7    # Earth exclusion angle (above the limb) in radians
-DETECTOR_SKY_BACK_IDX   = 8    # Sky Background photonso
+DETECTOR_SKY_BACK_IDX   = 8    # Sky Background photons
+DETECTOR_FILTER_BAND_IDX = 9   # Filter band the detector is working in
+DETECTOR_FILTER_ZP_IDX = 10   # Filter calibration zeropointoo
 
 
 
