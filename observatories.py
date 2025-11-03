@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Dict, Any
+from constants import DETECTOR_ARRAY_SIZE
 
 def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
     """
@@ -18,5 +19,5 @@ def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
         'velocity': np.zeros((num_observatories, 3), dtype=float),
         'acceleration': np.zeros((num_observatories, 3), dtype=float),
         'pointing': np.zeros((num_observatories, 3), dtype=float),
-        'detector': np.zeros((num_observatories, 9), dtype=float),
+        'detector': np.zeros((num_observatories, DETECTOR_ARRAY_SIZE), dtype=object),
     }

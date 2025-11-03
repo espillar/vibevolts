@@ -9,6 +9,9 @@ from constants import *
 
 from pointing import generate_pointing_sphere
 
+
+
+
 #########################################################
 
 def geos(sim_data, n,  fov) -> None:
@@ -24,8 +27,8 @@ def geos(sim_data, n,  fov) -> None:
 
     # Calculate solid angle 
     theta = fov / 2
-    solid_angle = 2 * np.pi * (1 - np.cos(theta)) 
-
+    solid_angle = 2 * np.pi * (1 - np.cos(theta))
+    
     # Calculate grid_points - blow things up by 0.25 for overlap
     grid_points = int(4 * np.pi / solid_angle * 1.25)
 
@@ -73,7 +76,7 @@ def geos(sim_data, n,  fov) -> None:
             'epochs': epochs_list,
             'pointing': np.zeros((n, 3), dtype=float),
             'pointing_state': pointing_state_array,
-            'detector': np.zeros((n, 9), dtype=float),
+            'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
         }
     else:
         # Append to existing satellites
@@ -85,35 +88,43 @@ def geos(sim_data, n,  fov) -> None:
         sim_data['satellites']['epochs'].extend(epochs_list)
         sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, 9), dtype=float)])
-
-##########################################################
+        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=object)])
 
 
 ##########################################################
 
 def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5, lunarex =0.25,  earthex=0.25):
     '''
-    makeDetector takes parameters of a sensor and stuffs a detector array, which it returns.
+    makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
     I expect this function to be calld when a new satellite is created.
     '''
-    detect = np.zeros((n,11), dtype=float)
+    detect = np.zeros((n,DETECT_ARRAY_SIZE), dtype=float)
     print(detect.shape)
-    detect[:,DETECTOR_APERTURE_IDX] = aper  #aperture size me
-    detect[:,DETECTOR_PIXEL_SIZE_IDX] = ifov  #pixel size rads
-    detect[:,DETECTOR_QE_IDX] = qe   # Total QE
-    detect[:,DETECTOR_PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
+    detect[:,APERTURE_IDX] = aper  #aperture size me
+    detect[:,PIXEL_SIZE_IDX] = ifov  #pixel size rads
+    detect[:,QE_IDX] = qe   # Total QE
+    detect[:,PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels
-    detect[:,DETECTOR_PIXELS_IDX] = pixels   # total pixels in the array
-    detect[:,DETECTOR_SOLAR_EXCL_IDX] = solarex  # solar exclusion angle
-    detect[:,DETECTOR_LUNAR_EXCL_IDX] = lunarex  # lunar exclusion angle
-    detect[:,DETECTOR_EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
-    detect[:,DETECTOR_SKY_BACK_IDX] = FILTER_DATA[band]['space'] # photon backgroud
-    detect[:,DETECTOR_FILTER_BAND_IDX] = band # Band
-    detect[:,DETECTOR_FILTER_BAND_CAL_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
-    return(detect)
+    detect[:,PIXELS_IDX] = pixels   # total pixels in the array
+    detect[:,SOLAR_EXCL_IDX] = solarex  # solar exclusion angle
+    detect[:,LUNAR_EXCL_IDX] = lunarex  # lunar exclusion angle
+    detect[:,EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
+    detect[:,SKY_BACK_IDX] = FILTER_DATA[band]['space'] # photon backgroud
+    detect[:,FILTER_BAND_IDX] = band # Band
+    detect[:,FILTER_BAND_CAL_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
+    filt = [band] * n
+    return(filt,detect)
 
 ###########################################################
+
+def printDetector(detector):
+    '''
+    printDetector prints out a detector array with elements labeled
+    '''
+                                                       
+###########################################################
+                                                       
+
 
 def requiredIntegrationTime(limitingMag, d):
     '''
@@ -121,13 +132,13 @@ def requiredIntegrationTime(limitingMag, d):
     takes a two dimensional detector array ("detect")and calculates all the integration tiemes
     and returns those as a vector.
     '''
-    t  = (d[:,DETECTOR_SKY_BACK_IDX] * d[:,DETECTOR_PIXEL_SIZE_IDX]) / \
-       ( d[:,DETECTOR_QE_IDX] *
-         d[:,DETECTOR_PHOT_EFF_IDX]**2  *
-         math.pi * 
-         (d[:,DETECTOR_APERTURE_IDX]/2)**2 *
-         amag(limitingMag)**2 *
-         d[:,DETECTOR_FILTER_ZP_IDX])
+    t  = (d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
+       ( d[:,QE_IDX] *\
+         d[:,PHOT_EFF_IDX]**2  *\
+         math.pi * \
+         (d[:,APERTURE_IDX]/2)**2 *\
+         amag(limitingMag)**2 *\
+         d[:,FILTER_ZP_IDX])
     return(t)
 
 
@@ -200,7 +211,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
             'epochs': epochs_list,
             'pointing': np.zeros((n, 3), dtype=float),
             'pointing_state': pointing_state_array,
-            'detector': np.zeros((n, 9), dtype=float),
+            'detector': np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float),
         }
     else:
         # Append to existing satellites
@@ -212,4 +223,4 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         sim_data['satellites']['epochs'].extend(epochs_list)
         sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, 9), dtype=float)])
+        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float)])

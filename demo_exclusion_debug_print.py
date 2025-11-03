@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from demo_common import initialize_standard_simulation
 from propagation import celestial_update
 from visibility import update_visibility_table
-from simulation import DETECTOR_SOLAR_EXCL_IDX, DETECTOR_LUNAR_EXCL_IDX, DETECTOR_EARTH_EXCL_IDX
+from simulation import SOLAR_EXCL_IDX, LUNAR_EXCL_IDX, EARTH_EXCL_IDX
 
 def demo_exclusion_debug_print():
     """
@@ -18,9 +18,9 @@ def demo_exclusion_debug_print():
     sim_start_time = datetime(2025, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
     sim_data = initialize_standard_simulation(sim_start_time)
 
-    sim_data['satellites']['detector'][:, DETECTOR_SOLAR_EXCL_IDX] = np.deg2rad(30)
-    sim_data['satellites']['detector'][:, DETECTOR_LUNAR_EXCL_IDX] = np.deg2rad(15)
-    sim_data['satellites']['detector'][:, DETECTOR_EARTH_EXCL_IDX] = np.deg2rad(10)
+    sim_data['satellites']['detector'][:, SOLAR_EXCL_IDX] = np.deg2rad(30)
+    sim_data['satellites']['detector'][:, LUNAR_EXCL_IDX] = np.deg2rad(15)
+    sim_data['satellites']['detector'][:, EARTH_EXCL_IDX] = np.deg2rad(10)
 
     sim_data = celestial_update(sim_data, sim_start_time)
 

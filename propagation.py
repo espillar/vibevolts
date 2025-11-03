@@ -8,7 +8,8 @@ import astropy.units as u
 
 from constants import (
     ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
-    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX
+    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX,
+    DETECTOR_ARRAY_SIZE
 )
 
 def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
@@ -41,7 +42,7 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'epochs': epochs,
         'pointing': np.zeros((num_sats, 3), dtype=float),
         'pointing_state': np.zeros((num_sats, 2), dtype=int),
-        'detector': np.zeros((num_sats, 9), dtype=float),
+        'detector': np.zeros((num_sats, DETECTOR_ARRAY_SIZE), dtype=object),
     }
 
 def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:

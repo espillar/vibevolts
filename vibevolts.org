@@ -130,14 +130,17 @@ See the file datastructure.org
 
 * Log
 
-** 2025-10
+** 2025-11
 
-***  NEXT
+*** [2025-11-03 Mon]
 Working on getting all_demos to run, focusing right now on getting
 makeDetector in constellation.py to run, just importing things in Untitled.ipynb
-at the end. Probably go there and see what's going on.
-I should make the size of the  array not a constant 9 or 11, but  constant
-defined in cnstants.py and propagate that.
+at the end. Probably go there and see what's going on. I should make the size of the  array not a constant 9 or 11, but  constant defined in constants.py and propagate that. I'm having gemini fix that, and also truncate the DETECTOR_ from all of the constants related to detector- just too long.
+
+I see what's wrong with my code. I was trying to put the photometry band, a string, into a numpy array.  Need to fix that.
+
+
+
 *** [2025-11-02 Sun]
 Tried to run the top level demo and it failed.
 Ran gemini against the changes I may and it found a bunch of errors: let it fix
@@ -145,6 +148,8 @@ them. And then I messed up and had to redo it.
 
 Messed with it for a hour. Some progress but boy am I dumb: going too slowly.
 Not understanding the whole structure.  
+
+** 2025-10
 *** [2025-10-31 Fri]
 Get started on work, but Max Yates texts, and I need to update homebrew, so
 that's thinking.

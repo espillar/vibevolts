@@ -21,17 +21,17 @@ def demo_requiredIntegrationTime():
 
     # Print detector specs
     print("Detector Specifications:")
-    print(f"  Aperture: {detector[DETECTOR_APERTURE_IDX, 0]} m")
-    print(f"  Pixel Size: {detector[DETECTOR_PIXEL_SIZE_IDX, 0]} rad")
-    print(f"  QE: {detector[DETECTOR_QE_IDX, 0]}")
-    print(f"  Photometric Efficiency: {detector[DETECTOR_PHOT_EFF_IDX, 0]}")
-    print(f"  Pixels: {detector[DETECTOR_PIXELS_IDX, 0]}")
-    print(f"  Solar Exclusion: {detector[DETECTOR_SOLAR_EXCL_IDX, 0]} rad")
-    print(f"  Lunar Exclusion: {detector[DETECTOR_LUNAR_EXCL_IDX, 0]} rad")
-    print(f"  Earth Exclusion: {detector[DETECTOR_EARTH_EXCL_IDX, 0]} rad")
-    print(f"  Sky Background: {detector[DETECTOR_SKY_BACK_IDX, 0]}")
-    print(f"  Filter Band: {detector[DETECTOR_FILTER_BAND_IDX, 0]}")
-    print(f"  Filter Band Cal: {detector[DETECTOR_FILTER_BAND_CAL_IDX, 0]}")
+    print(f"  Aperture: {detector[APERTURE_IDX, 0]} m")
+    print(f"  Pixel Size: {detector[PIXEL_SIZE_IDX, 0]} rad")
+    print(f"  QE: {detector[QE_IDX, 0]}")
+    print(f"  Photometric Efficiency: {detector[PHOT_EFF_IDX, 0]}")
+    print(f"  Pixels: {detector[PIXELS_IDX, 0]}")
+    print(f"  Solar Exclusion: {detector[SOLAR_EXCL_IDX, 0]} rad")
+    print(f"  Lunar Exclusion: {detector[LUNAR_EXCL_IDX, 0]} rad")
+    print(f"  Earth Exclusion: {detector[EARTH_EXCL_IDX, 0]} rad")
+    print(f"  Sky Background: {detector[SKY_BACK_IDX, 0]}")
+    print(f"  Filter Band: {detector[FILTER_BAND_IDX, 0]}")
+    print(f"  Filter Band Cal: {detector[FILTER_BAND_CAL_IDX, 0]}")
 
 
     # Calculate required integration time for a range of limiting magnitudes
