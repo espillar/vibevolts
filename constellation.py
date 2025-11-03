@@ -4,12 +4,9 @@ from typing import Dict, Any
 import math
 import random
 import radiometry_data
+from radiometry_data import FILTER_DATA
+from constants import *
 
-from constants import (
-    ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
-    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX,
-    POINTING_COUNT_IDX, POINTING_PLACE_IDX
-)
 from pointing import generate_pointing_sphere
 
 #########################################################
@@ -95,42 +92,44 @@ def geos(sim_data, n,  fov) -> None:
 
 ##########################################################
 
-def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5. lunarex =0.25,  earthex=0.25):
-'''
-makeDetector takes parameters of a sensor and stuffs a detector array, which it returns.
-I expect this function to be calld when a new satellite is created.
-'''
-   detect = np.zeros((n,9), dtype=float)
-    detect[DETECTOR_APERTURE_IDX,:] = aper  #aperture size me
-    detect[DETECTOR_PIXEL_SIZE_IDX,:] = ifov  #pixel size rads
-    detect[DETECTOR_QE_IDX,:] = qe   # Total QE
-    detect[DETECTOR_PHOT_EFF_IDX,:] = photfrac  # fraction in photometry bucket
+def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5, lunarex =0.25,  earthex=0.25):
+    '''
+    makeDetector takes parameters of a sensor and stuffs a detector array, which it returns.
+    I expect this function to be calld when a new satellite is created.
+    '''
+    detect = np.zeros((n,11), dtype=float)
+    print(detect.shape)
+    detect[:,DETECTOR_APERTURE_IDX] = aper  #aperture size me
+    detect[:,DETECTOR_PIXEL_SIZE_IDX] = ifov  #pixel size rads
+    detect[:,DETECTOR_QE_IDX] = qe   # Total QE
+    detect[:,DETECTOR_PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels
-    detect[DETECTOR_PIXELS_IDX,:] = pixels   # total pixels in the array
-    detect[DETECTOR_SOLAR_EXCL_IDX,:] = solarex  # solar exclusion angle
-    detect[DETECTOR_LUNAR_EXCL_IDX,:] = lunarex  # lunar exclusion angle
-    detect[DETECTOR_EARTH_EXCL_IDX,:] = earthex  # eearth exclusion angle
-    detect[DETECTOR_SKY_BACK_IDX,:] = FILTER_DATA[band]['space'] # photon backgroud
-    detect[DETECTOR_FILTER_BAND_IDX, :] = band # Band
-    detect[DETECTOR_FILTER_BAND_CAL_IDX, :] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
+    detect[:,DETECTOR_PIXELS_IDX] = pixels   # total pixels in the array
+    detect[:,DETECTOR_SOLAR_EXCL_IDX] = solarex  # solar exclusion angle
+    detect[:,DETECTOR_LUNAR_EXCL_IDX] = lunarex  # lunar exclusion angle
+    detect[:,DETECTOR_EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
+    detect[:,DETECTOR_SKY_BACK_IDX] = FILTER_DATA[band]['space'] # photon backgroud
+    detect[:,DETECTOR_FILTER_BAND_IDX] = band # Band
+    detect[:,DETECTOR_FILTER_BAND_CAL_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
     return(detect)
 
 ###########################################################
 
 def requiredIntegrationTime(limitingMag, d):
-    t  = d[DETECTOR_SKY_BACK_IDX,:] * d[DETECTOR_PIXEL_SIZE_IDX,:] /
-       ( d[DETECTOR_QE_IDX,:] *
-         d[DETECTOR_PHOT_EFF_IDX,:] *
-         d[DETECTOR_APERTURE_SIZE_IDX,:] *
-         amag(limiting_mag)**2 *
-         d[DETECOR_FILTER_ZP_IDX, :])
+    '''
+    requiredIntegrationTime(limitingMag, d)
+    takes a two dimensional detector array ("detect")and calculates all the integration tiemes
+    and returns those as a vector.
+    '''
+    t  = (d[:,DETECTOR_SKY_BACK_IDX] * d[:,DETECTOR_PIXEL_SIZE_IDX]) / \
+       ( d[:,DETECTOR_QE_IDX] *
+         d[:,DETECTOR_PHOT_EFF_IDX]**2  *
+         math.pi * 
+         (d[:,DETECTOR_APERTURE_IDX]/2)**2 *
+         amag(limitingMag)**2 *
+         d[:,DETECTOR_FILTER_ZP_IDX])
     return(t)
-    
-'''
-requiredIntegrationTime(limitingMag, d)
-takes a two dimensional detector array ("detect")and calculates all the integration tiemes
-and returns those as a vector.
-'''
+
 
 
 
@@ -146,9 +145,6 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         n: The number of satellites to create.
         fov: The diameter of the field of view of the satellite in radians.
     """
-    asdf
-
-
 #    detect = makeDetector(n, band, fov,ifov, aper,limitingmag):
         
     # Calculate solid angle 

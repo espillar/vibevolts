@@ -16,7 +16,6 @@ It should be done across the whole vector.
 - earth - for satellite is the earth within FOV, for observatory
   make it above the horizon.
 
-
 * Notes
 
 ** Numpy scatter gather
@@ -30,7 +29,6 @@ computed_results = selected_rows.sum(axis=1, keepdims=True)
 final_array = np.hstack([data, results_container])
 
 * Todo
-
 ** visibility
 - Create a 2-d array that has a flag for each time the satellite
   might be observed, a row for each time in the simulaton,
@@ -49,7 +47,6 @@ final_array = np.hstack([data, results_container])
   them.
 
 ** Details
-
 *** Coding [6/23]
 - [X] At some point create a good builder function for the constellations 
 - [X] Create the constellation
@@ -128,7 +125,6 @@ other files.
 In addition to datastructure.md, keep that file, but make a copy
 in org format in datastrucure.org
 
-
 * Architecture
 See the file datastructure.org
 
@@ -136,7 +132,19 @@ See the file datastructure.org
 
 ** 2025-10
 
+***  NEXT
+Working on getting all_demos to run, focusing right now on getting
+makeDetector in constellation.py to run, just importing things in Untitled.ipynb
+at the end. Probably go there and see what's going on.
+I should make the size of the  array not a constant 9 or 11, but  constant
+defined in cnstants.py and propagate that.
+*** [2025-11-02 Sun]
+Tried to run the top level demo and it failed.
+Ran gemini against the changes I may and it found a bunch of errors: let it fix
+them. And then I messed up and had to redo it.
 
+Messed with it for a hour. Some progress but boy am I dumb: going too slowly.
+Not understanding the whole structure.  
 *** [2025-10-31 Fri]
 Get started on work, but Max Yates texts, and I need to update homebrew, so
 that's thinking.

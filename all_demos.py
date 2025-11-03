@@ -17,6 +17,7 @@ from demo_pointing_vectors import demo_pointing_vectors
 from demo_pointing_sequence import demo_pointing_sequence
 from demo_constellation import demo_constellation
 from show_geo_search import show_geo_search
+from demo_requiredIntegrationTime import demo_requiredIntegrationTime
 
 
 def run_all_demos(save_html=False):
@@ -40,6 +41,7 @@ def run_all_demos(save_html=False):
   #      demo_pointing_sequence,
         demo_constellation,
         show_geo_search,
+        demo_requiredIntegrationTime,
     ]
 
     figs = [] # This is a list
