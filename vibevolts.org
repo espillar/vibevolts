@@ -1,3 +1,4 @@
+
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and Gemini-cli
@@ -54,6 +55,7 @@ final_array = np.hstack([data, results_container])
 - [X] Set up pytest 
 - [X] first stage testing that displays things
 - [X] Get your documentation files for the math consistent in the cloud with what you have here.
+- [ ] break the detector stuff out into it's own module and do testing
 - [ ] look at the limiting magnitude, and it should create an integration time for that.
 - [ ] Think about how we deal with multiple constellations in the code.
 - [ ] Get the timing in there as well: that is how long it takes to move
@@ -131,16 +133,16 @@ See the file datastructure.org
 * Log
 
 ** 2025-11
-
+*** [2025-11-04 Tue]
+OK, I think I  need to seperate out the detector stuff into it's own module so I can test it right and see it in one piece!  Making progress on that
 *** [2025-11-03 Mon]
 Working on getting all_demos to run, focusing right now on getting
 makeDetector in constellation.py to run, just importing things in Untitled.ipynb
 at the end. Probably go there and see what's going on. I should make the size of the  array not a constant 9 or 11, but  constant defined in constants.py and propagate that. I'm having gemini fix that, and also truncate the DETECTOR_ from all of the constants related to detector- just too long.
 
 I see what's wrong with my code. I was trying to put the photometry band, a string, into a numpy array.  Need to fix that.
-
-
-
+Fixed.  I got demo_requiredIntegrationTime working to graph what I wanted. I need
+to check that the values are good still!
 *** [2025-11-02 Sun]
 Tried to run the top level demo and it failed.
 Ran gemini against the changes I may and it found a bunch of errors: let it fix

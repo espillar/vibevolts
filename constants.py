@@ -1,10 +1,17 @@
 # --- Global Constants for Array Indices ---
 # These constants define column indices for numpy arrays, making the
 # code more readable and preventing errors from using "magic numbers".
+from math import pi
+
 
 # -- Radii in Meters --
 EARTH_RADIUS = 6378137.0
 MOON_RADIUS = 1737400.0
+
+
+# -- Some UsefulConstants --
+ARCSEC = 2 *pi/(360*3600)
+DEGREE = 3600 * ARCSEC
 
 # -- Detector Array Indices --
 DETECTOR_ARRAY_SIZE = 11 # Size used to initialize detector arrays
@@ -17,8 +24,7 @@ SOLAR_EXCL_IDX = 5    # Solar exclusion angle in radians
 LUNAR_EXCL_IDX = 6    # Lunar exclusion angle in radians
 EARTH_EXCL_IDX = 7    # Earth exclusion angle (above the limb) in radians
 SKY_BACK_IDX   = 8    # Sky Background photons
-FILTER_BAND_IDX = 9   # Filter band the detector is working in
-FILTER_ZP_IDX = 10   # Filter calibration zeropointoo
+FILTER_ZP_IDX = 9   # Filter calibration zeropointoo
 
 
 

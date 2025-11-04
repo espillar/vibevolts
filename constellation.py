@@ -91,56 +91,6 @@ def geos(sim_data, n,  fov) -> None:
         sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=object)])
 
 
-##########################################################
-
-def makeDetector(n, band, fov,ifov, aper,limitingmag, qe = 0.5, photfrac=0.7, solarex = 0.5, lunarex =0.25,  earthex=0.25):
-    '''
-    makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
-    I expect this function to be calld when a new satellite is created.
-    '''
-    detect = np.zeros((n,DETECT_ARRAY_SIZE), dtype=float)
-    print(detect.shape)
-    detect[:,APERTURE_IDX] = aper  #aperture size me
-    detect[:,PIXEL_SIZE_IDX] = ifov  #pixel size rads
-    detect[:,QE_IDX] = qe   # Total QE
-    detect[:,PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
-    pixels = (ifov/fov)**2 # pixels
-    detect[:,PIXELS_IDX] = pixels   # total pixels in the array
-    detect[:,SOLAR_EXCL_IDX] = solarex  # solar exclusion angle
-    detect[:,LUNAR_EXCL_IDX] = lunarex  # lunar exclusion angle
-    detect[:,EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
-    detect[:,SKY_BACK_IDX] = FILTER_DATA[band]['space'] # photon backgroud
-    detect[:,FILTER_BAND_IDX] = band # Band
-    detect[:,FILTER_BAND_CAL_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
-    filt = [band] * n
-    return(filt,detect)
-
-###########################################################
-
-def printDetector(detector):
-    '''
-    printDetector prints out a detector array with elements labeled
-    '''
-                                                       
-###########################################################
-                                                       
-
-
-def requiredIntegrationTime(limitingMag, d):
-    '''
-    requiredIntegrationTime(limitingMag, d)
-    takes a two dimensional detector array ("detect")and calculates all the integration tiemes
-    and returns those as a vector.
-    '''
-    t  = (d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
-       ( d[:,QE_IDX] *\
-         d[:,PHOT_EFF_IDX]**2  *\
-         math.pi * \
-         (d[:,APERTURE_IDX]/2)**2 *\
-         amag(limitingMag)**2 *\
-         d[:,FILTER_ZP_IDX])
-    return(t)
-
 
 
 

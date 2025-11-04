@@ -6,11 +6,8 @@ from astropy.time import Time
 from astropy.coordinates import get_body, GCRS
 import astropy.units as u
 
-from constants import (
-    ORBITAL_A_IDX, ORBITAL_E_IDX, ORBITAL_I_IDX,
-    ORBITAL_RAAN_IDX, ORBITAL_ARGP_IDX, ORBITAL_M_IDX,
-    DETECTOR_ARRAY_SIZE
-)
+from constants import *
+
 
 def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
     """
