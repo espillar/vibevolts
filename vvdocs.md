@@ -10,22 +10,71 @@ VibeVolts is a Python-based simulation toolkit for space environment modeling. I
 The core of the simulation is a data structure that represents the state of the simulation at a given time. This data structure is initialized and updated by a set of functions that are organized into the following modules:
 
 *   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
+    *   `create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> Dict[str, Any]`: Initializes a minimal, empty data structure for a space simulation.
+    *   `add_celestial_bodies(sim_data: Dict[str, Any]) -> None`: Adds celestial body structures (for Sun and Moon) to the simulation data.
+    *   `add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None`: Adds a structure for fixed reference points in the GCRS frame.
 *   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
+    *   `add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None`: Adds and initializes a category of satellites from a TLE file.
+    *   `celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]`: Calculates and updates the positions of the Sun and Moon.
+    *   `readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]`: Reads a TLE file and extracts orbital elements and epochs for each satellite.
+    *   `propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None) -> Dict[str, Any]`: Updates satellite positions and pointing vectors based on their orbital elements.
 *   **`observatories.py`**: Defines functions to add ground-based observatories to the simulation.
-*   **`constellation.py`**: Defines functions for creating satellite constellations. The `geos` function in this module creates a constellation of GEO satellites and adds them to the main 'satellites' group.
+    *   `add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None`: Adds observatory data structures to the simulation data.
+*   **`constellation.py`**: Defines functions for creating satellite constellations. The `geos` function in this module creates a constellation of GEO satellites and adds them to the main 'satellites' group. The `geosmod` function is a modified version of `geos`.
+    *   `geos(sim_data, n,  fov) -> None`: Creates n equally spaced satellites in GEO and adds them to the 'satellites' group in the simulation.
+    *   `geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None`: Creates n equally spaced satellites in GEO and adds them to the 'satellites' group in the simulation.
 *   **`visibility.py`**: Performs line-of-sight and exclusion calculations.
+    *   `solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]`: Calculates solar exclusion for all satellites based on their pointing vectors.
+    *   `exclusion(data_struct: Dict[str, Any], satellite_index: int, print_debug: bool = False) -> int`: Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
+    *   `update_visibility_table(data_struct: Dict[str, Any], print_debug_for_sat: Optional[int] = None) -> None`: Updates the visibility table for each satellite against each fixed point.
 *   **`pointing.py`**: Manages satellite pointing control.
+    *   `pointing_place_update(data_struct: Dict[str, Any]) -> None`: Increments the pointing place for all satellites, wrapping around if necessary.
+    *   `jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]`: Moves the pointing vector of a specific satellite by 0.3 radians in a random direction.
+    *   `generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None`: Generates a pointing sphere with n_points and stores it in the data_struct.
+    *   `update_satellite_pointing(data_struct: Dict[str, Any]) -> None`: Updates the pointing vector for each satellite based on its pointing state.
+    *   `find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]`: Finds satellites with no visibility and applies the 'jerk' function to them.
+*   **`detector.py`**: Defines functions for creating and managing detector properties.
+    *   `makeBlankDetector(n)`: Creates a blank detector array and filter list.
+    *   `makeDetector(n, band, fov,ifov, aper,  qe = 0.5, photfrac=0.7, solarex = 20 * DEGREE, lunarex = 10 * DEGREE,  earthex= 15 * DEGREE)`: Takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
+    *   `requiredIntegrationTime(limitingMag, filt, d)`: Takes a two dimensional detector array ("detect")and calculates all the integration times and returns those as a vector.
 *   **`lambertian.py`**: Calculates Lambertian sphere brightness.
+    *   `simple_lambertian(diameter: float, distance: float, albedo: float, angle: float, base_brightness: float) -> float`: Calculates the apparent brightness of a Lambertian sphere.
+    *   `lambertiansphere(vec_from_sphere_to_light: np.ndarray, vec_from_sphere_to_observer: np.ndarray, albedo: float, radius: float) -> float`: Calculates the effective brightness of a Lambertian sphere.
 *   **`radiometry_data.py` & `radiometry_calcs.py`**: Provide radiometric data and functions.
+    *   `radiometry_data.py` contains a dictionary of filter data.
+    *   `radiometry_calcs.py` contains the following functions:
+        *   `mag(x: float) -> float`: Calculates a magnitude value from a linear ratio.
+        *   `amag(x: float) -> float`: Calculates the linear ratio from a magnitude value.
+        *   `_planck_law(wav_m: float, temp_k: float) -> float`: Helper function for Planck's law for spectral radiance.
+        *   `blackbody_flux(temperature: float, lambda_short: float, lambda_long: float) -> float`: Numerically computes the integrated spectral radiance of a blackbody over a given wavelength band.
+        *   `stefan_boltzmann_law(temperature: float) -> float`: Calculates the total power radiated per unit area by a blackbody using the Stefan-Boltzmann law.
+        *   `plot_blackbody_spectrum(temperature: float)`: Plots the spectral radiance of a blackbody from 0.5 to 30 microns.
+        *   `plot_blackbody_spectrum_visible_nir(temperature: float)`: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
+        *   `sat_magnitude(size: float, range: float, angle: float, band: str) -> float`: given a satellite size and a waveband and range pull the brightness of the sun and the calibration from radiometry_data.
 *   **`plotting_3d.py` & `plotting_vectors.py`**: Contain 3D visualization functions.
+    *   `plotting_3d.py` contains the following function:
+        *   `plot_3d_scatter(positions: np.ndarray, title: str, plot_time: datetime, labels: Optional[List[str]] = None, marker_size: int = 1, trace_name: str = 'Points') -> go.Figure`: Creates a 3D plot of object positions.
+    *   `plotting_vectors.py` contains the following function:
+        *   `plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: datetime) -> go.Figure`: Creates a 3D plot of satellites with pointing vectors.
 *   **`pointing_vectors.py`**: Includes functions for generating and visualizing uniformly distributed vectors on a sphere.
+    *   `pointing_vectors(n: int) -> np.ndarray`: Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
+    *   `plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure`: Creates a 3D plot of vectors on a sphere.
 *   **`generate_log_spherical_points.py`**: Provides tools for generating 3D point clouds.
+    *   `generate_log_spherical_points(num_points: int, inner_radius: float, outer_radius: float, object_size_m: float = 1.0, seed: int = None) -> tuple[np.ndarray, np.ndarray]`: Generates 3D points with logarithmic radial and uniform angular distribution.
 *   **`demo_common.py`**: A utility module that provides helper functions for the demo scripts.
+    *   `initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]`: Initializes a standard simulation with a predefined set of satellites.
 *   **`demo_constellation.py`**: A demo script for creating and visualizing satellite constellations.
+    *   `demo_constellation() -> go.Figure`: Runs a demonstration of the constellation creation tools.
 *   **`show_geo_search.py`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
+    *   `show_geo_search()`: This demo initializes a simulation, adds a GEO constellation, and then generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 *   **`demo_pointing_sequence.py`**: A demo script for demonstrating the satellite pointing sequence functionality.
+    *   `demo_pointing_sequence() -> go.Figure`: Demonstrates the satellite pointing sequence functionality.
 *   **`demo_sky_scan.py`**: A demo script for simulating a sky scan from a satellite.
-*   **`generate_report.py`**: A script for generating a PDF report of the project.
+    *   `demo_sky_scan() -> go.Figure`: Performs a sky scan from a GEO satellite to map celestial exclusion zones.
+*   **`demo_requiredIntegrationTime.py`**: A demo script for demonstrating the `requiredIntegrationTime` function.
+    *   `demo_requiredIntegrationTime() -> go.Figure`: Demonstrates the requiredIntegrationTime function.
+*   **`generate_report.py`**: A script for generating an HTML report of the project.
+    *   `generate_demo_html_report()`: Runs all plotting demos and saves the output to a single HTML file.
 
 ## Common Data Structures
 
@@ -68,7 +117,7 @@ The `sim_data` dictionary is the central data structure in the VibeVolts simulat
     - `epochs`: `list[datetime]` - Epoch for each satellite's orbital elements.
     - `pointing`: `np.ndarray` (n, 3) - Pointing direction vector.
     - `pointing_state`: `np.ndarray` (n, 2) - State of the pointing sequence for each satellite.
-    - `detector`: `np.ndarray` (n, 9) - Detector properties for each satellite.
+    - `detector`: `np.ndarray` (n, 11) - Detector properties for each satellite.
 
 - `observatories`: `dict`
   - **Description**: Holds data for ground-based observatories.
@@ -77,7 +126,7 @@ The `sim_data` dictionary is the central data structure in the VibeVolts simulat
     - `velocity`: `np.ndarray` (n, 3) - Velocity vectors in m/s.
     - `acceleration`: `np.ndarray` (n, 3) - Acceleration vectors in m/s^2.
     - `pointing`: `np.ndarray` (n, 3) - Pointing direction vector.
-    - `detector`: `np.ndarray` (n, 9) - Detector properties for each observatory.
+    - `detector`: `np.ndarray` (n, 11) - Detector properties for each observatory.
 
 ## Building and Running
 
