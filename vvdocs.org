@@ -1,193 +1,131 @@
 #+TITLE: VibeVolts Documentation
 
-This document provides an overview of the data structures,
-functions, and dependencies for the VibeVolts simulation toolkit.
+This document provides an overview of the data structures, functions, and
+dependencies for the VibeVolts simulation toolkit. It is based on the information in ~GEMINI.md~.
 
-* HTML Wiki
+* Project Overview
 
-A pure HTML version of this documentation is available in the file
-[[file:wiki.html][wiki.html]].
+VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. The toolkit is highly modular, with a clear separation of concerns between different components of the simulation.
 
-* 1. Common Data Structures
+The core of the simulation is a data structure that represents the state of the simulation at a given time. This data structure is initialized and updated by a set of functions that are organized into the following modules:
 
-The toolkit uses two primary data structures to manage simulation
-state and physical constants.
+- *~simulation.py~*: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
+- *~propagation.py~*: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
+- *~observatories.py~*: Defines functions to add ground-based observatories to the simulation.
+- *~constellation.py~*: Defines functions for creating satellite constellations. The ~geos~ function in this module creates a constellation of GEO satellites and adds them to the main 'satellites' group.
+- *~visibility.py~*: Performs line-of-sight and exclusion calculations.
+- *~pointing.py~*: Manages satellite pointing control.
+- *~lambertian.py~*: Calculates Lambertian sphere brightness.
+- *~radiometry_data.py~* & *~radiometry_calcs.py~*: Provide radiometric data and functions.
+- *~plotting_3d.py~* & *~plotting_vectors.py~*: Contain 3D visualization functions.
+- *~pointing_vectors.py~*: Includes functions for generating and visualizing uniformly distributed vectors on a sphere.
+- *~generate_log_spherical_points.py~*: Provides tools for generating 3D point clouds.
+- *~demo_common.py~*: A utility module that provides helper functions for the demo scripts.
+- *~demo_constellation.py~*: A demo script for creating and visualizing satellite constellations.
+- *~show_geo_search.py~*: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
+- *~demo_pointing_sequence.py~*: A demo script for demonstrating the satellite pointing sequence functionality.
+- *~demo_sky_scan.py~*: A demo script for simulating a sky scan from a satellite.
+- *~generate_report.py~*: A script for generating a PDF report of the project.
 
-** 1.1. Simulation State Dictionary (~simulation_data~)
+* Common Data Structures
 
-This is the central data structure, created by composition.
-A minimal simulation is created with ~create_empty_simulation~ and then
-populated by functions like ~add_satellites_from_tle~, ~add_observatories~, etc.
+The ~sim_data~ dictionary is the central data structure in the VibeVolts simulation toolkit.
 
-*** Example Initialization
+** Top-Level Keys
 
-#+BEGIN_SRC python
-from datetime import datetime, timezone
-from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
-from propagation import add_satellites_from_tle
-from observatories import add_observatories
+- ~start_time~: ~datetime~
+  - *Description*: The starting time and date of the simulation. Must be a timezone-aware datetime object set to UTC.
 
-# 1. Create an empty simulation with a start time
-start_time = datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-sim_data = create_empty_simulation(start_time)
+- ~delta_time~: ~float~
+  - *Description*: The time step for the simulation in seconds.
 
-# 2. Add components to the simulation
-add_satellites_from_tle(sim_data, 'tle/my_sats.txt', 'satellites')
-add_observatories(sim_data, 5)
-add_celestial_bodies(sim_data)
-add_fixed_points(sim_data, 1000)
+- ~counts~: ~dict~
+  - *Description*: A dictionary holding counts of various simulation objects.
 
-# The sim_data dictionary is now fully populated.
-#+END_SRC
+- ~pointing_spheres~: ~dict~
+  - *Description*: A dictionary to hold pre-computed pointing spheres. The keys are the number of points in the sphere.
 
-*** Key Components:
+- ~celestial~: ~dict~
+  - *Description*: Holds data for celestial bodies (Sun and Moon).
+  - *Sub-keys*:
+    - ~position~: ~np.ndarray~ (2, 3) - Position vectors (x, y, z) in meters.
+    - ~velocity~: ~np.ndarray~ (2, 3) - Velocity vectors in m/s.
+    - ~acceleration~: ~np.ndarray~ (2, 3) - Acceleration vectors in m/s^2.
 
-- */orbital_elements/*: A NumPy array (~n x 6~) containing the
-  classical orbital elements for each satellite.
-- */detector/*: A NumPy array (~n x 7~) containing the properties
-  of each sensor.
-- */pointing_state/*: A NumPy array (~n x 2~) containing the
-  pointing control state for each satellite.
-- */fixedpoints/*: A dictionary containing the properties of the
-  static points in space used as observation targets. It includes a
-  `visibility` table.
-- */pointing_spheres/*: A cache for pre-generated pointing grids.
+- ~fixedpoints~: ~dict~
+  - *Description*: Holds data for fixed reference points in the GCRS frame.
+  - *Sub-keys*:
+    - ~position~: ~np.ndarray~ (n, 3) - Position vectors of fixed points.
+    - ~visibility~: ~np.ndarray~ (n, m) - Visibility table where rows are fixed points and columns are satellites. Value is 1 if visible, 0 otherwise.
 
-** 1.2. Radiometric Filter Data (~FILTER_DATA~)
+- ~satellites~ (and other satellite categories like ~red_satellites~): ~dict~
+  - *Description*: Holds data for a category of satellites.
+  - *Sub-keys*:
+    - ~position~: ~np.ndarray~ (n, 3) - Position vectors in meters.
+    - ~velocity~: ~np.ndarray~ (n, 3) - Velocity vectors in m/s.
+    - ~acceleration~: ~np.ndarray~ (n, 3) - Acceleration vectors in m/s^2.
+    - ~orbital_elements~: ~np.ndarray~ (n, 6) - Keplerian orbital elements.
+    - ~epochs~: ~list[datetime]~ - Epoch for each satellite's orbital elements.
+    - ~pointing~: ~np.ndarray~ (n, 3) - Pointing direction vector.
+    - ~pointing_state~: ~np.ndarray~ (n, 2) - State of the pointing sequence for each satellite.
+    - ~detector~: ~np.ndarray~ (n, 9) - Detector properties for each satellite.
 
-This dictionary, located in ~radiometry_data.py~, provides standard
-data for a variety of astronomical filters.
+- ~observatories~: ~dict~
+  - *Description*: Holds data for ground-based observatories.
+  - *Sub-keys*:
+    - ~position~: ~np.ndarray~ (n, 3) - Position vectors in meters.
+    - ~velocity~: ~np.ndarray~ (n, 3) - Velocity vectors in m/s.
+    - ~acceleration~: ~np.ndarray~ (n, 3) - Acceleration vectors in m/s^2.
+    - ~pointing~: ~np.ndarray~ (n, 3) - Pointing direction vector.
+    - ~detector~: ~np.ndarray~ (n, 9) - Detector properties for each observatory.
 
-** 1.3. Physical Constants
+* Building and Running
 
-The ~radiometry_data.py~ module also defines the following physical
-constants:
+** Dependencies
 
-- *AU_M*: The astronomical unit in meters (~1.496e+11 m~).
-- *RSUN_M*: The radius of the Sun in meters (~6.957e+08 m~).
+VibeVolts requires the following Python libraries:
 
-* 2. Existing Functions
+- ~numpy~
+- ~astropy~
+- ~jplephem~
+- ~sgp4~
+- ~plotly~
+- ~scipy~
+- ~ipython~
 
-This section describes the functions available in the toolkit,
-organized by module.
-
-** 2.1. ~simulation.py~
-
-- *create_empty_simulation(start_time: datetime, delta_time: float = 60.0)*: Creates a minimal, empty data structure for a space simulation.
-- *add_celestial_bodies(sim_data: Dict[str, Any])*: Adds celestial body structures (for Sun and Moon) to the simulation data.
-- *add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100)*: Adds a structure for fixed reference points in the GCRS frame.
-
-** 2.2. ~propagation.py~
-
-- *add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str)*: Adds and initializes a category of satellites from a TLE file.
-- *celestial_update(data_struct: Dict[str, Any], time_date: datetime)*: Updates Sun and Moon positions.
-- *readtle(tle_file_path: str)*: Reads a TLE file.
-- *propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None)*: Updates satellite positions and pointing vectors based on their orbital elements to a new time using a vectorized Keplerian propagator. If `sat_category` is specified, only that category is propagated, otherwise all satellite categories are propagated.
-
-** 2.3. ~visibility.py~
-
-- *solarexclusion(data_struct: Dict[str, Any])*: Calculates solar exclusion for all satellites.
-- *exclusion(data_struct: Dict[str, Any], satellite_index: int, print_debug: bool = False)*: Checks for Sun, Moon, and Earth exclusion.
-- *update_visibility_table(data_struct: Dict[str, Any], print_debug_for_sat: Optional[int] = None)*: Updates the visibility table.
-
-** 2.4. ~pointing.py~
-
-- *jerk(data_struct: Dict[str, Any], satellite_number: int)*: Moves the pointing vector of a specific satellite by 0.3
-  radians in a random direction.
-- *find_and_jerk_blind_satellites(data_struct: Dict[str, Any])*: Finds satellites with no
-  visibility and applies the 'jerk' function to them.
-- *pointing_place_update(data_struct: Dict[str, Any])*: Increments the pointing place for all
-  satellites.
-- *generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int)*: Generates and caches a pointing
-  sphere.
-- *update_satellite_pointing(data_struct: Dict[str, Any])*: Updates satellite pointing vectors
-  based on their state.
-
-** 2.5. ~demo_common.py~
-- *initialize_standard_simulation(...)*: A helper function to set up
-  a standard simulation scenario.
-
-** 2.6. ~constants.py~
-- This module contains global constants for array indices to improve
-  code readability.
-
-** 2.7. Plotting Modules
-
-- *plotting_3d.plot_3d_scatter(positions: np.ndarray, title: str, plot_time: datetime, labels: Optional[List[str]] = None, marker_size: int = 1, trace_name: str = 'Points')*: Creates 3D scatter plots.
-- *plotting_vectors.plot_pointing_vectors(data_struct: Dict[str, Any], title: str, plot_time: datetime)*: Plots pointing vectors.
-
-** 2.8. ~pointing_vectors.py~
-
-- *pointing_vectors(n: int)*: Generates ~n~ equally spaced points on a
-  unit sphere using the Fibonacci lattice algorithm.
-- *plot_vectors_on_sphere(vectors: np.ndarray, title: str)*: Creates a 3D plot of
-  vectors on a sphere.
-
-** 2.9. Demos
-
-The ~demo*.py~ scripts showcase the toolkit's capabilities:
-- *demo1*: Initializes a standard simulation, propagates all
-  satellites by 1.5 hours, and plots their final positions.
-- *demo2*: Plots satellite positions at T=0 and T=300s, and
-  includes vectors indicating the direction to the Sun and Moon at
-  both times.
-- *demo3*: Plots the trajectory of a single LEO satellite over 90
-  minutes.
-- *demo4*: Plots the trajectory of a single GEO satellite over 23
-  hours.
-- *demo_constellation*: Demonstrates the creation of a GEO satellite
-  constellation.
-- *demo_exclusion_table*: Calculates the visibility of fixed points
-  for all satellites and displays the result as a heatmap.
-- *demo_exclusion_debug_print*: A non-plotting demo that shows the
-  detailed debug output of the ~exclusion~ function for a single
-  satellite.
-- *demo_fixedpoints*: Visualizes the distribution of the generated
-  "fixed points" (observation targets) in a 3D scatter plot.
-- *show_geo_search*: A demo that performs a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
-- *demo_lambertian*: Demonstrates the ~lambertiansphere~ brightness
-  calculation and plots brightness vs. phase angle.
-- *demo_pointing_plot*: Shows a 3D plot of all satellites with their
-  pointing vectors.
-- *demo_pointing_vectors*: Generates 1000 uniformly distributed
-  pointing vectors and plots them on a sphere.
-- *demo_sky_scan*: Simulates a sky scan from a GEO satellite,
-  mapping out the celestial exclusion zones as a heatmap.
-- *demo_pointing_sequence*: Demonstrates the satellite pointing
-  sequence functionality.
-- *plot_satellite_brightness*: Plots the apparent V-band photon flux and magnitude of satellites with various diameters over a range of distances.
-- *all_demos*: A script that runs all the demos and saves the plots to an HTML file.
-
-** 2.10. ~radiometry_calcs.py~
-
-- *mag(x: float)*, *amag(x: float)*: Magnitude conversions.
-- *blackbody_flux(temperature: float, lambda_short: float, lambda_long: float)*: Calculates blackbody flux in a band.
-- *stefan_boltzmann_law(temperature: float)*: Calculates total radiated power.
-- *plot_blackbody_spectrum(temperature: float)*: Plots blackbody spectrum.
-- *plot_blackbody_spectrum_visible_nir(temperature: float)*: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
-
-** 2.11. ~lambertian.py~
-
-- *lambertiansphere(vec_from_sphere_to_light: np.ndarray, vec_from_sphere_to_observer: np.ndarray, albedo: float, radius: float)*: Calculates brightness of a
-  Lambertian sphere.
-
-** 2.12. ~generate_log_spherical_points.py~
-
-- *generate_log_spherical_points(num_points: int, inner_radius: float, outer_radius: float, object_size_m: float = 1.0, seed: int = None)*: Generates 3D points.
-
-** 2.13. ~constellation.py~
-
-- *geos(sim_data: Dict[str, Any], n: int, fov: float)*: Creates `n` equally spaced satellites in GEO and adds them to the simulation.
-
-** 2.14. ~generate_report.py~
-
-- This script generates a PDF report of the project.
-
-* 3. Dependencies
-
-Required Python modules: ~numpy~, ~astropy~, ~jplephem~, ~sgp4~,
-~plotly~, ~scipy~, ~ipython~.
+You can install them using pip:
 
 #+BEGIN_SRC bash
 pip install numpy astropy jplephem sgp4 plotly scipy ipython
 #+END_SRC
+
+** Running the Demos
+
+The ~all_demos.py~ script provides a comprehensive demonstration of the toolkit's features. You can run the script directly from your terminal to see the plots displayed in your browser:
+
+#+BEGIN_SRC bash
+python all_demos.py
+#+END_SRC
+
+You can also import and run the ~run_all_demos~ function from a Jupyter Notebook to display all plots inline.
+
+#+BEGIN_SRC python
+import all_demos
+all_demos.run_all_demos()
+#+END_SRC
+
+To save all the demo plots to a single HTML file named ~all_demo_plots.html~, run the following from a Python script or notebook:
+
+#+BEGIN_SRC python
+import all_demos
+all_demos.run_all_demos(save_html=True)
+#+END_SRC
+
+* Development Conventions
+- *Text Files*: All purely text file have lines that are no more than 100 charcters long to aid reading.
+- *Data Structures*: The simulation state is managed in a central dictionary. This dictionary is initialized as a minimal structure using ~create_empty_simulation~ from ~simulation.py~. Components like satellites, observatories, and celestial bodies are then added incrementally using dedicated functions (e.g., ~add_satellites_from_tle~, ~add_observatories~), making the structure highly modular and flexible.
+- *Modularity*: The code is organized into modules, each with a specific responsibility. This makes the code easy to understand, maintain, and extend.
+- *Vectorization*: The code makes extensive use of NumPy for vectorized operations, which provides a significant performance improvement over iterating through lists.
+- *Type Hinting*: The code uses type hints to improve readability and allow for static analysis.
+- *Docstrings*: All functions have docstrings that explain their purpose, arguments, and return values.
+- *Constants*: Constants are defined in ~constants.py~ to avoid magic numbers in the code.
