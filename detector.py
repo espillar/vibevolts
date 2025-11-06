@@ -47,13 +47,14 @@ def makeDetector(n, band, fov,ifov, aper,  \
                                                   
 
 
-def requiredIntegrationTime(limitingMag, filt, d):
+def requiredIntegrationTime(limitingMag, SNR, filt,  d):
     '''
     requiredIntegrationTime(limitingMag, d)
     takes a two dimensional detector array ("detect")and calculates all the integration tiemes
     and returns those as a vector.
+    The SNR is set to 
     '''
-    t  = (d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
+    t  = (SNR * SNR * d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
        ( d[:,QE_IDX] *\
          d[:,PHOT_EFF_IDX]**2  *\
          math.pi * \
@@ -62,3 +63,15 @@ def requiredIntegrationTime(limitingMag, filt, d):
          d[:,FILTER_ZP_IDX])
     return(t)
 
+###########################################################
+
+def testdetector():
+    '''
+    testdetector creates an example that can be compared
+    with some of the stuff in Curio.
+    '''
+    filt, detect = makeDetector(1, "V", 1 * DEGREE,
+                              1 * ARCSEC, 1, 
+                              qe = 0.2, photfrac = 1.0)
+    print( requiredIntegrationTime(20.5,10, filt, detect) )
+    

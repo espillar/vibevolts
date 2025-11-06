@@ -56,7 +56,7 @@ final_array = np.hstack([data, results_container])
 - [X] first stage testing that displays things
 - [X] Get your documentation files for the math consistent in the cloud with what you have here.
 - [ ] break the detector stuff out into it's own module and do testing
-- [ ] look at the limiting magnitude, and it should create an integration time for that.
+z- [ ] look at the limiting magnitude, and it should create an integration time for that.
 - [ ] Think about how we deal with multiple constellations in the code.
 - [ ] Get the timing in there as well: that is how long it takes to move
   forward a step
@@ -133,6 +133,14 @@ See the file datastructure.org
 * Log
 
 ** 2025-11
+
+*** [2025-11-06 Thu]
+OK, missed a day, but I did read a bunch of stuff on
+AI for Air Dominance.
+First I want to make sure my limiting magnitudes are about right.  I need to compare with my V magnitude graph.
+Well, that didn't work right.  Somehow the computation is not working.
+Well, one mistake is I didn't put the right background in.
+
 *** [2025-11-04 Tue]
 OK, I think I  need to seperate out the detector stuff into it's own module so I can test it right and see it in one piece!  Making progress on that
 *** [2025-11-03 Mon]
