@@ -25,6 +25,7 @@ def demo_sky_scan() -> go.Figure:
     sim_data = create_empty_simulation(sim_start_time)
     add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
     add_celestial_bodies(sim_data)
+    
 
     # Set some reasonable exclusion angles
     sim_data['satellites']['detector'][:, SOLAR_EXCL_IDX] = np.deg2rad(30)

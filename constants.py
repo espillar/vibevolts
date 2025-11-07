@@ -15,16 +15,17 @@ DEGREE = 3600 * ARCSEC
 
 # -- Detector Array Indices --
 DETECTOR_ARRAY_SIZE = 11 # Size used to initialize detector arrays
-APERTURE_IDX = 0      # Aperture size in meters 
-PIXEL_SIZE_IDX = 1    # Pixel size in radians
-QE_IDX = 2            # Quantum efficiency as a fraction (0.0 to 1.0)
+
+APERTURE_IDX = 0      # Aperture area in square meters
+PIXEL_SIZE_IDX = 1    # pixel area in square arcsec
+QE_IDX = 2            # Quantum efficiency from aperture to detectoras a fraction (0.0 to 1.0)
 PHOT_EFF_IDX = 3      # Fraction of photons in photometry bucket 
 PIXELS_IDX = 4        # Total number of pixels in the detector (count)
 SOLAR_EXCL_IDX = 5    # Solar exclusion angle in radians
 LUNAR_EXCL_IDX = 6    # Lunar exclusion angle in radians
 EARTH_EXCL_IDX = 7    # Earth exclusion angle (above the limb) in radians
-SKY_BACK_IDX   = 8    # Sky Background photons
-FILTER_ZP_IDX = 9   # Filter calibration zeropointoo
+SKY_BACK_IDX   = 8    # Sky Background in photons per square arcsec
+FILTER_ZP_IDX = 9   # Filter calibration zeropoint" photons per square meter per second second
 
 
 

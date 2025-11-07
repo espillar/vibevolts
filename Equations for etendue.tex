@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 \title{Equations for \'Etendue}
 \author{E Spillar}
 \date{\today}
@@ -12,15 +12,19 @@
 \maketitle
 \tableofcontents
 \section{Symbols}
+The units are a bit of a mess here; to make the equations a bit more 
+transparent we work in photons, seconds, square meters, and 
+steradians, so conversions from magnitudes will be necessary in 
+places given common practice.
+\newpage
 \begin{itemize}
-
     \item $\alpha$ is the brightness of the target
     being sought in units commensurate with
-    $\mathrm{photons/second/meter^2}$
+    $\mathrm{photons/second/meter^2}.$
     \item $\beta$ is the brightness of the sky
-    ($\mathrm{photons/second/meter^2/steradian}$)
-    \item $\gamma$ will be the SNR ratio
-    \item $\Omega$ is the area of the  FOV of the sensor/optical system ($\mathrm{steradians^2}$)
+    ($\mathrm{photons/second/meter^2/steradian}$).
+    \item $\gamma$ will be the SNR ratio.
+    \item $\Omega$ is the area of the  FOV of the sensor/optical system ($\mathrm{steradians^2}$).
     \item $\omega$ is the area of the  FOV of a pixel ($\mathrm{steradians^2}$) or the seeing disk or the diffraction disk,
     whichever is largest. Basically this is the area over which
     the light is spread and needs to compete with the
@@ -29,22 +33,23 @@
     ($\mathrm{meter^2}$).
     \item $T$ is the integration time (seconds.) This may be the result
     	of processing $n$ shorter integrations $t.$ 
-     \item $g$ is used in some places as the goal limiting magitude
-	\item $q$ is the net quantum efficiency of the whole system
+     \item $g$ is used in some places as the limiting flux 
+   	in 	$\mathrm{photons/second/meter^2}.$
+   	\item $\eta$ is the net quantum efficiency of the whole system
 	\item $f$ is the fraction of light from an object captured
 			in the photometry aperture
-	\item $C$ gives the number of photons per second per squar meter for the band being used.
+	\item $C$ is the calibration which gives the number of photons per second per square meter for a 0 magnitude object for the band being used.
 \end{itemize}
 
 %
 %\begin{itemize}
-%	\item $q$ is the net quantum efficiency of the whole system
+%	\item $\eta$ is the net quantum efficiency of the whole system
 %	\item $f$ is the fraction of light from an object captured
 %	in the photometry aperture
 %	\item $A$ is the collection area of the primary
 %	\item $t$ is the integration time in seconds
-%	\item $g$ is used in some places as the goal limiting magitude
-%	\item $C$ gives the number of photons per second per squar meter for the band being used.
+%	\item $g$ is used in some places as the goal limiting magitude 
+%	\item $C$ gives the number of photons per second per square meter for the band being used.
 %	\item $\omega$ is the field of view of a detector in steradians
 %	\item $\Omega$ is the overall FOV of the system in 
 %	steradians.
@@ -55,43 +60,61 @@
 \section{Derivation of Search Rate}
 
 The signal from an object is 
-$S \propto \alpha A T.$
+$S \propto \alpha A T \eta f.$
 Assuming we are background limited, the noise is
-$N \propto \sqrt{\beta A T \omega}. $
+$N \propto \sqrt{\beta A T \eta \omega}. $
 Putting things together
-$$SNR^2 = \gamma^2 \propto 
-{\alpha^2 A^2 T^2 \over \beta A T \omega} 
-= {\alpha^2 A T \over \beta   \omega}  \ \ \mathrm{so } \ \
-{1\over T} \propto {\alpha^2 A \over \gamma^2 \beta \omega }.$$
-This is the rate at which fields are interrogated for objects to the desired `limiting magnitude."  To get the search rate,  multiply by the total area surveyed:
 
 \begin{equation} 
-\boxed{SR = {\Omega \over T} \propto 
-{\alpha^2 A  \Omega \over \gamma^2 \beta \omega }}
+SNR^2 = \gamma^2 =
+{\alpha^2 A^2 T^2 \eta^2 f^2\over 
+ \beta A T \eta \omega} 
 \end{equation}
-which has units commensurate with steradians/second.
 
 
-\section{Integration Time Required for an SNR}
-Given a few things I want to find the integration
-time needed for a given SNR, assuming for the moment BLIP.
+\begin{equation} 
+\gamma^2 = 
+{\alpha^2 A T \eta f^2\over 
+ \beta    \omega} 
+\end{equation}
+so  
 
-Factors we have in the code:
-$g$ is our goal limiting magnitude.
-$$S = q f A T \amag{g} C $$
-$$N = \sqrt{q A t \amag{\beta} C \omega} $$
+\begin{equation} 
+\boxed{
+T =
+\frac{\gamma^2 \beta \omega}{\alpha^2 A  \eta f^2}  }
+\end{equation}
 
-$$SNR^2 = \frac{q^2 f^2 A^2 t^2 \amag{g}^2 C^2 }{q A t \amag{\beta} C \omega} $$
-$$ \gamma^2 = \frac{q f^2 A t\amag{g}^2 C }
-		  {   \amag{\beta}  \omega} $$
-solving for $t$
+This the ``dwell time" required to reach the given SNR for the given
+object (assuming BLIP).
+
+To get the search rate,  multiply by the total area surveyed:
+
+
+\begin{equation}	\boxed{
+	SR = \frac{\Omega}{T}= 
+ \propto 
+\left(\frac{\alpha}{\gamma}\right)^2 
+ \frac{A  \Omega}{\omega} { \eta f^2  \over  \beta  }}
+\end{equation}
+which has units commensurate with steradians/second.  
+
+\section{Conventional Units: Magnitudes}
+Typically, we will be numbers in magnitudes in a selected band;
+this will be magnitude for a source or magnitude per square arc
+second for a background number. 
+For each band there is a calibration $C_b$ which gives the number
+of photons per second per square meter for the filter band $b$ in 
+question so the flux $f$ is given in terms of the magnitude $m$
 
 \begin{equation}
-\boxed{ 
-T = \frac{ \gamma^2  \amag{\beta}  \omega}{{q f^2 A
-\amag{g}^2 C }}
-}
+	m = -2.5 \log_{10}(f/C_b)
 \end{equation}
+and
+\begin{equation}
+f = C_b 10^{-0.4 m}
+\end{equation}
+
 
 \end{document}
 

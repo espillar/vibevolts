@@ -9,18 +9,18 @@ RSUN_M = 6.957e8 # Radius of the Sun in meters
 # Data is compiled for standard astronomical filters.
 #
 # Magnitudes are apparent magnitudes in the AB or Vega system.
-# Sky brightness is for a dark site at new moon, in
-# magnitudes per square arcsecond. For space-based IR
-# telescopes, this is the zodiacal + telescope background.
-# For ground-based IR, it's dominated by thermal emission.
+# sun is the apparent magnitude of the sun in the given filter band.
+# Sky brightness is for a dark site at new moon, in magnitudes per square arcsecond.
+#        For space-based IR  telescopes, this is the zodiacal + telescope background.
+#        For ground-based IR, it's dominated by thermal emission.
 # Wavelengths and bandwidths are in nanometers (nm).
-# Zero point is the photon flux for a 0-magnitude
-# object in photons per second per square meter.
+# Zero point is the photon flux for a 0-magnitude object in photons per second per square meter.
 
 
 
 FILTER_DATA = {
     # Johnson-Cousins UBVRI Filters
+    
     'U': {
         'sun': -26.03,
         'sky': 22.0,

@@ -40,7 +40,7 @@ def demo_requiredIntegrationTime():
     limiting_mags = np.arange(15, 26)
     integration_times = []
     for mag in limiting_mags:
-        integration_times.append(requiredIntegrationTime(mag, filt, detector))
+        integration_times.append(requiredIntegrationTime(mag, 10, filt, detector))
 
     # Create a plot
     fig = go.Figure()
