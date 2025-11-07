@@ -39,6 +39,8 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
     This function is called when a new satellite is created.
     It uses the data from FILTER_DATA in radiometry_data.py, which is
     often in units of magnitudes,and 
+
+    THIS VERSION IS FOR A GROUND OBSERVAOTRY
     '''
     filt, detect = makeBlankDetector(n)
     detect[:,APERTURE_IDX] = math.pi * (aper/2)**2  #aperture size me
@@ -50,7 +52,7 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
     detect[:,SOLAR_EXCL_IDX] = solarex  # solar exclusion angle
     detect[:,LUNAR_EXCL_IDX] = lunarex  # lunar exclusion angle
     detect[:,EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
-    detect[:,SKY_BACK_IDX] =  amag(FILTER_DATA[band]['space']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
+    detect[:,SKY_BACK_IDX] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
     detect[:,FILTER_ZP_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
     filt = [band] * n
     return(filt,detect)
@@ -95,7 +97,7 @@ def testdetector():
     with some of the stuff in Curio.
     '''
     filt, detect = makeDetector(1, "V", 1 * DEGREE,
-                              1 * ARCSEC, 1, 
+                              0.5 * ARCSEC, 1, 
                               qe = 0.2, photfrac = 1.0)
     print( requiredIntegrationTime(20.5,10, filt, detect) )
     

@@ -133,6 +133,12 @@ See the file datastructure.org
 
 * Log
 ** 2025-11
+*** [2025-11-07 Fri]
+I'm going to mess around with taking some note and do some calculations in a Jupyter notebook
+called VVnotes.ipynb That works out to agreeing with the old MMa calculation pretty well,
+although I was surprised that the MMa calculation took a photometry radius instead
+of a photometry diameter.
+I guess I need to look at my python code now!
 *** [2025-11-06 Thu]
 OK, missed a day, but I did read a bunch of stuff on
 AI for Air Dominance.

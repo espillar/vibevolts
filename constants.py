@@ -24,7 +24,7 @@ PIXELS_IDX = 4        # Total number of pixels in the detector (count)
 SOLAR_EXCL_IDX = 5    # Solar exclusion angle in radians
 LUNAR_EXCL_IDX = 6    # Lunar exclusion angle in radians
 EARTH_EXCL_IDX = 7    # Earth exclusion angle (above the limb) in radians
-SKY_BACK_IDX   = 8    # Sky Background in photons per square arcsec
+SKY_BACK_IDX   = 8    # Sky Background in photons per square steradian
 FILTER_ZP_IDX = 9   # Filter calibration zeropoint" photons per square meter per second second
 
 
