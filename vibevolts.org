@@ -133,6 +133,8 @@ See the file datastructure.org
 
 * Log
 ** 2025-11
+*** [2025-11-08 Sat]
+More working in the notebook to understand why my photometry is off - or not.
 *** [2025-11-07 Fri]
 I'm going to mess around with taking some note and do some calculations in a Jupyter notebook
 called VVnotes.ipynb That works out to agreeing with the old MMa calculation pretty well,

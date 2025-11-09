@@ -44,7 +44,7 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
     '''
     filt, detect = makeBlankDetector(n)
     detect[:,APERTURE_IDX] = math.pi * (aper/2)**2  #aperture size me
-    detect[:,PIXEL_SIZE_IDX] = ifov * ifov  #pixel size sterradianss
+    detect[:,PIXEL_SIZE_IDX] = math.pi * (ifov/2)**2  #pixel size sterradianss
     detect[:,QE_IDX] = qe   # Total QE
     detect[:,PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels
@@ -72,12 +72,19 @@ def requiredIntegrationTime(limitingMag, SNR, filt,  d):
     to the conventional names used in that paper.
     '''
     gamma = SNR
+    print("gamma", gamma)
     beta = d[: , SKY_BACK_IDX]
+    print("beta", beta)
     omega = d[: , PIXEL_SIZE_IDX]
+    print("omega", omega)
     alpha = amag(limitingMag) * d[:, FILTER_ZP_IDX]
+    print('alpha', alpha)
     A = d[:, APERTURE_IDX]
+    print('A', A)
     eta = d[:, QE_IDX]
+    print('eta', eta)
     f = d[:,PHOT_EFF_IDX]
+    print('f', f)
     t = gamma**2 * beta * omega /( alpha**2 * A * eta * f**2)
 #    t  = (SNR * SNR * d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
 #       ( d[:,QE_IDX] *\
@@ -97,7 +104,7 @@ def testdetector():
     with some of the stuff in Curio.
     '''
     filt, detect = makeDetector(1, "V", 1 * DEGREE,
-                              0.5 * ARCSEC, 1, 
+                              2 * ARCSEC, 1, 
                               qe = 0.2, photfrac = 1.0)
     print( requiredIntegrationTime(20.5,10, filt, detect) )
     
