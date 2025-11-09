@@ -43,7 +43,7 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
     THIS VERSION IS FOR A GROUND OBSERVAOTRY
     '''
     filt, detect = makeBlankDetector(n)
-    detect[:,APERTURE_IDX] = math.pi * (aper/2)**2  #aperture size me
+    detect[:,APERTURE_IDX] = math.pi * (aper/2)**2  #aperture size square meters
     detect[:,PIXEL_SIZE_IDX] = math.pi * (ifov/2)**2  #pixel size sterradianss
     detect[:,QE_IDX] = qe   # Total QE
     detect[:,PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
