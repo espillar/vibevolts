@@ -72,13 +72,13 @@ def requiredIntegrationTime(limitingMag, SNR, filt,  d):
     to the conventional names used in that paper.
     '''
     gamma = SNR
-    print("gamma", gamma)
-    beta = d[: , SKY_BACK_IDX]
-    print("beta", beta)
+    print(f"gamma {gamma:.2e}")
+    beta = d[0 , SKY_BACK_IDX]
+    print(f"beta is, {beta:.2e}")
     omega = d[: , PIXEL_SIZE_IDX]
     print("omega", omega)
-    alpha = amag(limitingMag) * d[:, FILTER_ZP_IDX]
-    print('alpha', alpha)
+    alpha = amag(limitingMag) * d[0, FILTER_ZP_IDX]
+    print(f"alpha is {alpha:.2e}")
     A = d[:, APERTURE_IDX]
     print('A', A)
     eta = d[:, QE_IDX]
