@@ -62,7 +62,7 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
                                                   
 
 
-def requiredIntegrationTime(limitingMag, SNR, filt,  d):
+def requiredIntegrationTime(limitingMag, SNR, filt,  d, debug = 0):
     '''
     requiredIntegrationTime(limitingMag, d)
     takes a two dimensional detector array ("detect")and calculates
@@ -72,19 +72,20 @@ def requiredIntegrationTime(limitingMag, SNR, filt,  d):
     to the conventional names used in that paper.
     '''
     gamma = SNR
-    print(f"gamma {gamma:.2e}")
-    beta = d[0 , SKY_BACK_IDX]
-    print(f"beta is, {beta:.2e}")
+    beta = d[0, SKY_BACK_IDX]
     omega = d[: , PIXEL_SIZE_IDX]
-    print("omega", omega)
     alpha = amag(limitingMag) * d[0, FILTER_ZP_IDX]
-    print(f"alpha is {alpha:.2e}")
     A = d[:, APERTURE_IDX]
-    print('A', A)
     eta = d[:, QE_IDX]
-    print('eta', eta)
     f = d[:,PHOT_EFF_IDX]
-    print('f', f)
+    if debug == 1:
+        print(f"gamma {gamma:.2e}")        
+        print(f"beta is, {beta:.2e}")
+        print("omega", omega)
+        print(f"alpha is {alpha:.2e}")
+        print('A', A)
+        print('eta', eta)
+        print('f', f)
     t = gamma**2 * beta * omega /( alpha**2 * A * eta * f**2)
 #    t  = (SNR * SNR * d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
 #       ( d[:,QE_IDX] *\
@@ -106,5 +107,5 @@ def testdetector():
     filt, detect = makeDetector(1, "V", 1 * DEGREE,
                               2 * ARCSEC, 1, 
                               qe = 0.2, photfrac = 1.0)
-    print( requiredIntegrationTime(20.5,10, filt, detect) )
+    print( requiredIntegrationTime(20.5,10, filt, detect, debug=1) )
     

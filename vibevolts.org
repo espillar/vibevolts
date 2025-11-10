@@ -58,7 +58,9 @@ final_array = np.hstack([data, results_container])
 - [X] Get your documentation files for the math consistent in the cloud with what you have here.
 - [X] break the detector stuff out into it's own module and do testing
 - [X] look at the limiting magnitude, and it should create an integration time for that.
-- [ ] Think about how we deal with multiple constellations in the code.
+- [ ] In both Mathematica and this code clarify what your photometry aperture is!!
+- [ ] Also clarify in your Vade Mecum
+- [ ] Think about how we deal with multiple constellations in the code.  
 - [ ] Get the timing in there as well: that is how long it takes to move
   forward a step
 - [ ] Add appropriate variables to the sensors
@@ -138,7 +140,19 @@ Went through and finished the comparison of the Mathematica numbers, the
 ad hoc numbers based on 866000 photons per second per square cm,
 and the code from the detector.py.
 They agree, although the defition of what the photometry aperture is vs. a pixel
-etc. needs to be payed attention to! 
+etc. needs to be payed attention to!
+
+Well, it seems like for fairly reasonable apertures you might only need to integrate a few
+seconds,  which means you might have to snapshot what's in the FOV every - I don't know,
+second, which is a bunch. So what's the answer?
+
+Maybe propagate the satellites every minute or whatever, but find the radiometry vectors
+more frequently and search all of them for matches. So now you want the integration times to
+be considerably shorter than the propagation time so we don't miss things.
+I guess i need a check for this in the code.
+Hmm, for smallish apertures and large photometry aperture the required integration time
+could be 10 minutes. Maybe we need to set the step time to 10 minutes, which would
+give you peculiar velocity tracks that are 9000 arcsec long: so that's unrealistic.  
 *** [2025-11-08 Sat]
 More working in the notebook to understand why my photometry is off - or not.
 *** [2025-11-07 Fri]
