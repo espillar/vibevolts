@@ -1,5 +1,4 @@
 
-
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and Gemini-cli
@@ -40,6 +39,17 @@ final_array = np.hstack([data, results_container])
 
 ** Pointing selections (OK, this one will take some developement!)
 
+** Search Implementation
+- Choose an interval for propagation short compared
+  to the time it takes an object to move significantly across fields.
+- Develop an algorithm to choose subsequent FOVs and remember how long
+  they take.
+- Every propagation tick, decide how many FOV's would have been used.
+  Include the next FOVs in what was surveiled during the interval.
+  Surveil those zones.
+- Rollover fractions accumulate to the next time interval.
+- This should work for FOV intervals both long and short compared to the
+  propagation time, as long as things don't move TOO fast.
 ** Scoring
 - use the visibilty matrix above
 - take the visibility vector and calculate the fraction
@@ -135,6 +145,30 @@ See the file datastructure.org
 
 * Log
 ** 2025-11
+*** [2025-11-10 Mon]
+Revelation about how to do search.
+- Choose an interval for propagation short compared
+  to the time it takes an object to move significantly across fields.
+- Develop an algorithm to choose subsequent FOVs and remember how long
+  they take.
+- Every propagation tick, decide how many FOV's would have been used.
+  Include the next FOVs in what was surveiled during the interval.
+  Surveil those zones.
+- Rollover fractions accumulate to the next time interval.
+- This should work for FOV intervals both long and short compared to the
+  propagation time, as long as things don't move TOO fast.
+
+Maybe I should treat a detector with it's pointing as a structure with
+some functions on it:
+- creation builds the data structure including.
+  Includes integration time.
+- nextfield yields the next pointing vector (depends on what type of
+  pointer) and the infield funciton. There may be a bunch of these-
+  or maybe it's just a structure that's an argument to be used.
+  Handles avoidance too.  (Will depend on
+  satellite state).  Probably stores a history.
+
+Let's build this out.
 *** [2025-11-09 Sun]
 Went through and finished the comparison of the Mathematica numbers, the
 ad hoc numbers based on 866000 photons per second per square cm,
@@ -153,6 +187,9 @@ I guess i need a check for this in the code.
 Hmm, for smallish apertures and large photometry aperture the required integration time
 could be 10 minutes. Maybe we need to set the step time to 10 minutes, which would
 give you peculiar velocity tracks that are 9000 arcsec long: so that's unrealistic.  
+**** Pointing Arrays
+***** 
+
 *** [2025-11-08 Sat]
 More working in the notebook to understand why my photometry is off - or not.
 *** [2025-11-07 Fri]
