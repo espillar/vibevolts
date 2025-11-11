@@ -26,7 +26,7 @@ LUNAR_EXCL_IDX = 6    # Lunar exclusion angle in radians
 EARTH_EXCL_IDX = 7    # Earth exclusion angle (above the limb) in radians
 SKY_BACK_IDX   = 8    # Sky Background in photons per square steradian
 FILTER_ZP_IDX = 9   # Filter calibration zeropoint" photons per square meter per second second
-
+INTEGRATION_TIME = 10 # Integration Time required to reach a desired limiting magniude
 
 
 # -- Orbital Elements Array Indices --

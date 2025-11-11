@@ -8,14 +8,12 @@ from constants import *
 from radiometry_calcs import mag, amag
 
 
-
 ##########################################################
 
 def makeBlankDetector(n):
     detector = np.zeros((n,DETECTOR_ARRAY_SIZE), dtype=float)
     filt = [""] * n
     return(filt, detector)
-
 
 
 
@@ -54,6 +52,7 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
     detect[:,EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
     detect[:,SKY_BACK_IDX] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
     detect[:,FILTER_ZP_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
+    detect[:,INTEGRATION_TIME] = requiredIntegrationTime(20, 4, "V", detect)
     filt = [band] * n
     return(filt,detect)
 

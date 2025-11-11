@@ -1,4 +1,3 @@
-
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and Gemini-cli
@@ -28,72 +27,6 @@ mask = np.array([True, False, True, False, True, False])
 selected_rows = data[mask]
 computed_results = selected_rows.sum(axis=1, keepdims=True)
 final_array = np.hstack([data, results_container])
-
-* Todo
-** visibility
-- Create a 2-d array that has a flag for each time the satellite
-  might be observed, a row for each time in the simulaton,
-  and a  vector of the times for the rows.
-- for each target, compute if its within anyones FOV, if the
-  observer isn't blinded, and the SNR is high enough.
-
-** Pointing selections (OK, this one will take some developement!)
-
-** Search Implementation
-- Choose an interval for propagation short compared
-  to the time it takes an object to move significantly across fields.
-- Develop an algorithm to choose subsequent FOVs and remember how long
-  they take.
-- Every propagation tick, decide how many FOV's would have been used.
-  Include the next FOVs in what was surveiled during the interval.
-  Surveil those zones.
-- Rollover fractions accumulate to the next time interval.
-- This should work for FOV intervals both long and short compared to the
-  propagation time, as long as things don't move TOO fast.
-** Scoring
-- use the visibilty matrix above
-- take the visibility vector and calculate the fraction
-  of the time that the thing is observed
-- Calculate the gap times- basically for each column,
-  compute the interobservation distances and histogram
-  them.
-
-** Details
-*** Coding [8/24]
-- [X] At some point create a good builder function for the constellations 
-- [X] Create the constellation
-- [X] create the appropirate targeting grid and rules for traversing it.
-- [X] Set up pytest 
-- [X] first stage testing that displays things
-- [X] Get your documentation files for the math consistent in the cloud with what you have here.
-- [X] break the detector stuff out into it's own module and do testing
-- [X] look at the limiting magnitude, and it should create an integration time for that.
-- [ ] In both Mathematica and this code clarify what your photometry aperture is!!
-- [ ] Also clarify in your Vade Mecum
-- [ ] Think about how we deal with multiple constellations in the code.  
-- [ ] Get the timing in there as well: that is how long it takes to move
-  forward a step
-- [ ] Add appropriate variables to the sensors
-- [ ] add appropriate function to radiometery
-- [ ] think about where you get the backgrounds
-- [ ] write some testing code that shows where things are looking
-- [ ] Create the targets with brightnesses.
-- [ ] Build a function that will
-- [ ] iterate over all pairs
-- [ ] create a mask that includes only those things that are in field and
-    not blinded
-- [ ] cut those out and process for limiting magnitude
-- [ ] fill back in an array of detected
-- [ ] resolve issues with having multiple constellations, potentially with
-  different names etc.
-- [ ] write some code that computes what been detected and do a 3-D map
-- [ ] iterate over some cycles and make sure things are evolving
-- [ ] next build in something that stores these thing and computs gap times
-
-*** Infrastructure [1/2]
-- [X] update your brew or whatever and get the google vetted gemini installed on
-  Neptune.
-- [ ] I could probably run a linter and a formatter across things
 
 * Prompts
 ** LaTeX Documentation
@@ -143,8 +76,101 @@ in org format in datastrucure.org
 * Architecture
 See the file datastructure.org
 
+* Todo
+** visibility
+- Create a 2-d array that has a flag for each time the satellite
+  might be observed, a row for each time in the simulaton,
+  and a  vector of the times for the rows.
+- for each target, compute if its within anyones FOV, if the
+  observer isn't blinded, and the SNR is high enough.
+
+** Pointing selections (OK, this one will take some developement!)
+
+** Search Implementation
+- Choose an interval for propagation short compared
+  to the time it takes an object to move significantly across fields.
+- Develop an algorithm to choose subsequent FOVs and remember how long
+  they take.
+- Every propagation tick, decide how many FOV's would have been used.
+  Include the next FOVs in what was surveiled during the interval.
+  Surveil those zones.
+- Rollover fractions accumulate to the next time interval.
+- This should work for FOV intervals both long and short compared to the
+  propagation time, as long as things don't move TOO fast.
+** Scoring
+- use the visibilty matrix above
+- take the visibility vector and calculate the fraction
+  of the time that the thing is observed
+- Calculate the gap times- basically for each column,
+  compute the interobservation distances and histogram
+  them.
+
+** Details
+*** Coding [9/26]
+- [X] At some point create a good builder function for the constellations 
+- [X] Create the constellation
+- [X] create the appropirate targeting grid and rules for traversing it.
+- [X] Set up pytest 
+- [X] first stage testing that displays things
+- [X] Get your documentation files for the math consistent in the cloud with what you have here.
+- [X] break the detector stuff out into it's own module and do testing
+- [X] look at the limiting magnitude, and it should create an integration time for that.
+- [X] Map out how detector tasking or searching fits in to the code
+- [ ] add integration time to the satellite detector structure
+- [ ] Implement roadmap (see below)
+- [ ] In both Mathematica and this code clarify what your photometry aperture is!!
+- [ ] Also clarify in your Vade Mecum
+- [ ] Think about how we deal with multiple constellations in the code.  
+- [ ] Get the timing in there as well: that is how long it takes to move
+  forward a step
+- [ ] add appropriate function to radiometery
+- [ ] think about where you get the backgrounds
+- [ ] write some testing code that shows where things are looking
+- [ ] Create the targets with brightnesses.
+- [ ] create a mask that includes only those things that are in field and
+    not blinded
+- [ ] cut those out and process for limiting magnitude
+- [ ] fill back in an array of detected
+- [ ] resolve issues with having multiple constellations, potentially with
+  different names etc.
+- [ ] write some code that computes what been detected and do a 3-D map
+- [ ] iterate over some cycles and make sure things are evolving
+- [ ] next build in something that stores these thing and computs gap times
+
+  
+*** Search Desin
+**** Strutures [/]
+- [X] detection:
+[[time, satnumber, targetnumber, SNR], 
+search: {
+   searchgrid: pointer to search grid
+   searchlocation: pointer to where we are in the grid
+   iterateSearch: function to iterate search
+   forTest: tests if a satellite is in the field of regard   
+} 
+**** Functions  [2/5]
+- [X] generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
+- [X] Create fibonacciPointing file steealing things that exist
+- [ ] initialize(some sort of label)
+    creates the data structure for each of the satellite detectors,
+  adds the structure to the detector
+- [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
+  skips occulted cells
+- [ ] iterateOverDetectors()
+  - [ ] forTest(targets, gridlist) -> 
+  iterates over gridlist puts hits in detectionDB
+*** Infrastructure [1/2]
+- [X] update your brew or whatever and get the google vetted gemini installed on
+  Neptune.
+- [ ] I could probably run a linter and a formatter across things
+
 * Log
 ** 2025-11
+*** [2025-11-11 Tue]
+The search code is harder than I thought to think about.  I wrote some
+things down on the remarkable, and then wrote down specs in the
+search design section.
+
 *** [2025-11-10 Mon]
 Revelation about how to do search.
 - Choose an interval for propagation short compared
