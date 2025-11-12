@@ -2,7 +2,7 @@ import numpy as np
 from typing import Dict, Any
 
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
-from pointing_vectors import pointing_vectors
+from fibonacciSearch import pointing_vectors
 
 def pointing_place_update(data_struct: Dict[str, Any]) -> None:
     """

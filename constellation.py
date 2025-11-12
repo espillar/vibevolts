@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Any
 import math
 import random
+import sys
 import radiometry_data
 from radiometry_data import FILTER_DATA
 from constants import *
@@ -23,8 +24,6 @@ def geos(sim_data, n,  fov) -> None:
         n: The number of satellites to create.
         fov: The diameter of the field of view of the satellite in radians.
     """
-
-
     # Calculate solid angle 
     theta = fov / 2
     solid_angle = 2 * np.pi * (1 - np.cos(theta))
@@ -34,6 +33,8 @@ def geos(sim_data, n,  fov) -> None:
 
     # Generate and store the pointing sphere and place in ['pointing_sphers'][n]
     generate_pointing_sphere(sim_data, grid_points)
+
+
 
     orbital_elements_list = []
     epochs_list = []
@@ -79,16 +80,18 @@ def geos(sim_data, n,  fov) -> None:
             'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
         }
     else:
+        print("Satellites is already filled- aborting")
+        sys.exit(0)
         # Append to existing satellites
-        sim_data['counts']['satellites'] += n
-        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
-        sim_data['satellites']['epochs'].extend(epochs_list)
-        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=object)])
+#        sim_data['counts']['satellites'] += n
+#        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])
+#        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], np.zeros((n, 3), dtype=float)])
+ #       sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
+#        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
+#        sim_data['satellites']['epochs'].extend(epochs_list)
+#        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
+#        sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
+#        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=object)])
 
 
 

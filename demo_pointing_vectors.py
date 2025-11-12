@@ -1,5 +1,5 @@
 import plotly.graph_objects as go
-from pointing_vectors import pointing_vectors, plot_vectors_on_sphere
+from fibonacciSearch import pointing_vectors, plot_vectors_on_sphere
 
 def demo_pointing_vectors() -> go.Figure:
     """

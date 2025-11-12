@@ -139,7 +139,7 @@ See the file datastructure.org
 
   
 *** Search Desin
-**** Strutures [/]
+**** Structures [/]
 - [X] detection:
 [[time, satnumber, targetnumber, SNR], 
 search: {
@@ -153,11 +153,11 @@ search: {
 - [X] Create fibonacciPointing file steealing things that exist
 - [ ] initialize(some sort of label)
     creates the data structure for each of the satellite detectors,
-  adds the structure to the detector
+    adds the structure to the detector
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
 - [ ] iterateOverDetectors()
-  - [ ] forTest(targets, gridlist) -> 
+- [ ] forTest(targets, gridlist) -> 
   iterates over gridlist puts hits in detectionDB
 *** Infrastructure [1/2]
 - [X] update your brew or whatever and get the google vetted gemini installed on
@@ -166,11 +166,21 @@ search: {
 
 * Log
 ** 2025-11
+*** [2025-11-12 Wed]
+Continuing on the quest to get search working.  Took a while to get started.
+Made a little progress. fibonacciSearch now holds the fibonacci code, so
+I can have a different module if I want to search differently.
+I need to run the tests again, even though I don't think I've changed much.
+Failure of course. I'm doing too much internal restucturing. I need to
+think about the way forward. Putting everyhing in this global vector
+thing SOUNDS efficient, but I think it's premature optimization and may
+be making it harder to understand all this code :-(
+
 *** [2025-11-11 Tue]
 The search code is harder than I thought to think about.  I wrote some
 things down on the remarkable, and then wrote down specs in the
 search design section.
-
+Creating fibonacciSearch.py to hold the new items.
 *** [2025-11-10 Mon]
 Revelation about how to do search.
 - Choose an interval for propagation short compared
