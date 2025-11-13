@@ -176,6 +176,8 @@ think about the way forward. Putting everyhing in this global vector
 thing SOUNDS efficient, but I think it's premature optimization and may
 be making it harder to understand all this code :-(
 
+Later, want to get the demos working again. Everything working
+except GeoConstellation- let's see if I'm making those
 *** [2025-11-11 Tue]
 The search code is harder than I thought to think about.  I wrote some
 things down on the remarkable, and then wrote down specs in the

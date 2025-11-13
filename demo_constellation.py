@@ -29,7 +29,7 @@ def demo_constellation() -> go.Figure:
     
     fig = plot_3d_scatter(
         positions=sim_data['satellites']['position'][num_sats_before:],
-        title=f"GEO Constellation at {time_t1.isoformat()}",
+        title=f"GEO Constellation at {time_t1.isoformat()} from demo_constellation",
         plot_time=time_t1,
         marker_size=5,
         trace_name='GEO Satellites'

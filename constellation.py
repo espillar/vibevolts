@@ -67,21 +67,17 @@ def geos(sim_data, n,  fov) -> None:
     orbital_elements = np.array(orbital_elements_list, dtype=float)
     pointing_state_array = np.array(pointing_state_list, dtype=int)
 
-    if 'satellites' not in sim_data:
-        sim_data['counts']['satellites'] = n
-        sim_data['satellites'] = {
-            'position': np.zeros((n, 3), dtype=float),
-            'velocity': np.zeros((n, 3), dtype=float),
-            'acceleration': np.zeros((n, 3), dtype=float),
-            'orbital_elements': orbital_elements,
-            'epochs': epochs_list,
-            'pointing': np.zeros((n, 3), dtype=float),
-            'pointing_state': pointing_state_array,
-            'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
-        }
-    else:
-        print("Satellites is already filled- aborting")
-        sys.exit(0)
+    sim_data['counts']['satellites'] = n
+    sim_data['satellites'] = {
+        'position': np.zeros((n, 3), dtype=float),
+        'velocity': np.zeros((n, 3), dtype=float),
+        'acceleration': np.zeros((n, 3), dtype=float),
+        'orbital_elements': orbital_elements,
+        'epochs': epochs_list,
+        'pointing': np.zeros((n, 3), dtype=float),
+        'pointing_state': pointing_state_array,
+        'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
+    }
         # Append to existing satellites
 #        sim_data['counts']['satellites'] += n
 #        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])
@@ -92,9 +88,6 @@ def geos(sim_data, n,  fov) -> None:
 #        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
 #        sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
 #        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=object)])
-
-
-
 
 
 
