@@ -187,6 +187,13 @@ Tryihg to get things done in the office.
 Realizing that I don't have a good understanding of my initializatoin. Create
 a new function sim_check that helps by running through the data structure and tells
 me when things don't exist. I think his will be useful. Lets check this in.
+
+Thinking about how to do the hierarchy of functions underneath a satellite.
+Underneath a satellite lets have a pointer to a  structure that's a detector.
+Actualy, I think it might be best to make detector a class, since I may want to 
+mutate varioius parts, and the alternative: a namedtuple- is immutable.
+This is a bit more than I want to tackle on my small screen at work, and 
+I am out of hours.
 *** [2025-11-13 Thu] 
 Back at work in the office.  seeing if I can work this in 
 a terminal window in GCE.  Seems sluggish, but maybe OK.I 
