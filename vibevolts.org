@@ -17,7 +17,23 @@ It should be done across the whole vector.
   make it above the horizon.
 
 * Notes
+** Infrastructure
+*** Jules
+Appears to hook into the system right,  including when logged in as 
+earl.s
+*** GCE
+Vibevolts
 
+https://safe.menlosecurity.com/https://sites.google.com/afresearchlab.com/portal
+(go ahead and give it your email if menlo asks)
+
+https://safe.menlosecurity.com/https://console.cloud.google.com/vertex-ai/workbench/instances?project=afrl-il2-sbx-dnkc1-nfor
+
+Instance *16047
+
+git pull is set up - so start with that. Make sure you are up to date
+gemini-cli is instaleld.  Done with a pip install gemini-cli, and then doing
+a brief authentication dance.
 ** Numpy scatter gather
 import numpy as np
 
@@ -166,6 +182,11 @@ search: {
 
 * Log
 ** 2025-11
+***[2025-11-14 Fri]
+Tryihg to get things done in the office. 
+Realizing that I don't have a good understanding of my initializatoin. Create
+a new function sim_check that helps by running through the data structure and tells
+me when things don't exist. I think his will be useful. Lets check this in.
 *** [2025-11-13 Thu] 
 Back at work in the office.  seeing if I can work this in 
 a terminal window in GCE.  Seems sluggish, but maybe OK.I 
@@ -409,11 +430,6 @@ without a lot of ceremony.
   an outline for this.
 
 
-
-
-
-
-
 *** [2025-10-05 Sun]
 Took me a while to get going, but I wrote down some prioriities on the remarkable and
 they seem to be sticking.
@@ -431,9 +447,6 @@ frustrating.  Took way to long.
 - [ ] write a function in radiometry to compute it for a particular system
 - [ ] Start building the functions to track what's seen - I probably need
   an outline for this.
-
-
-
 
 *** [2025-10-04 Sat]
 Well this has been a lost week! I need to see where I'm at.

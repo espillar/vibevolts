@@ -7,11 +7,9 @@ import sys
 import radiometry_data
 from radiometry_data import FILTER_DATA
 from constants import *
-
+from simulation import *
 from pointing import generate_pointing_sphere
-
-
-
+from propagation import propagate_satellites_new # Added import
 
 #########################################################
 
@@ -68,6 +66,7 @@ def geos(sim_data, n,  fov) -> None:
     pointing_state_array = np.array(pointing_state_list, dtype=int)
 
     sim_data['counts']['satellites'] = n
+    # print( 'the number of satellites should be ', n) # Commented out
     sim_data['satellites'] = {
         'position': np.zeros((n, 3), dtype=float),
         'velocity': np.zeros((n, 3), dtype=float),
@@ -78,9 +77,9 @@ def geos(sim_data, n,  fov) -> None:
         'pointing_state': pointing_state_array,
         'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
     }
-
-    print(sim_data['satellites'])
-    print('ATTENTION')
+    sim_data = propagate_satellites_new(sim_data, sim_data['start_time']) # Corrected start_time
+    # print(sim_data['satellites']) # Commented out
+    # print('ATTENTION') # Commented out
         # Append to existing satellites
 #        sim_data['counts']['satellites'] += n
 #        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])

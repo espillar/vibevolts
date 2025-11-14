@@ -26,6 +26,21 @@ The core of the simulation is a data structure that represents the state of the 
 - *~demo_sky_scan.py~*: A demo script for simulating a sky scan from a satellite.
 - *~generate_report.py~*: A script for generating a PDF report of the project.
 
+* Data Structure Initialization
+
+The ~sim_data~ dictionary is built incrementally. The following functions are responsible for initializing the different parts of the data structure:
+
+- *~create_empty_simulation~* (in ~simulation.py~): Initializes the top-level ~sim_data~ dictionary with ~start_time~, ~delta_time~, ~counts~, and ~pointing_spheres~.
+- *~add_celestial_bodies~* (in ~simulation.py~): Adds the ~celestial~ dictionary to ~sim_data~.
+- *~add_fixed_points~* (in ~simulation.py~): Adds the ~fixedpoints~ dictionary to ~sim_data~.
+- *~add_satellites_from_tle~* (in ~propagation.py~): Adds a satellite category dictionary (e.g., ~satellites~) to ~sim_data~.
+- *~add_observatories~* (in ~observatories.py~): Adds the ~observatories~ dictionary to ~sim_data~.
+- *~geos~* (in ~constellation.py~): Adds a ~satellites~ dictionary for a GEO constellation to ~sim_data~.
+- *~generate_pointing_sphere~* (in ~pointing.py~): Adds a pointing sphere to the ~pointing_spheres~ dictionary in ~sim_data~.
+- *~makeBlankDetector~* (in ~detector.py~): Creates a blank detector array.
+- *~makeDetector~* (in ~detector.py~): Creates a detector array with specified parameters.
+
+
 * Modules and Functions
 
 - *~all_demos.py~*: 

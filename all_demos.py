@@ -28,8 +28,7 @@ def run_all_demos(save_html=False):
         save_html (bool): If True, saves plots to HTML. If False, displays plots inline.
     """
     demo_functions = [
-        demo1,
-        demo2,
+       demo2,
         demo3,
         demo4,
         demo_fixedpoints,
