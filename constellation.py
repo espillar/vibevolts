@@ -78,6 +78,9 @@ def geos(sim_data, n,  fov) -> None:
         'pointing_state': pointing_state_array,
         'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
     }
+
+    print(sim_data['satellites'])
+    print('ATTENTION')
         # Append to existing satellites
 #        sim_data['counts']['satellites'] += n
 #        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])

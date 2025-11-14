@@ -166,6 +166,9 @@ search: {
 
 * Log
 ** 2025-11
+*** [2025-11-13 Thu] 
+Back at work in the office.  seeing if I can work this in 
+a terminal window in GCE.  Seems sluggish, but maybe OK.I 
 *** [2025-11-12 Wed]
 Continuing on the quest to get search working.  Took a while to get started.
 Made a little progress. fibonacciSearch now holds the fibonacci code, so
