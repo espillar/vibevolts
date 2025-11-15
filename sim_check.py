@@ -1,5 +1,6 @@
 import numpy as np
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 def sim_check(sim_data):
     """
@@ -46,8 +47,12 @@ def sim_check(sim_data):
             print("*** Satellite positions not found.")
 
         if 'detector' in sim_data['satellites']:
+            detector = sim_data['satellites']['detector']
             for i in range(num_sats):
-                if np.any(sim_data['satellites']['detector'][i] != 0):
+                # Check a few attributes to see if they are non-zero
+                if (hasattr(detector, 'aperture') and detector.aperture[i] != 0 or
+                    hasattr(detector, 'pixelArea') and detector.pixelArea[i] != 0 or
+                    hasattr(detector, 'qe') and detector.qe[i] != 0):
                     print(f"            - Satellite {i} has a detector.")
                 else:
                     print(f"***         - Satellite {i} does not have a detector.")
@@ -60,6 +65,21 @@ def sim_check(sim_data):
 
 if __name__ == '__main__':
     # Create a dummy sim_data for demonstration
+    dummy_detector = SimpleNamespace()
+    dummy_detector.aperture = np.array([0.785, 0.])
+    dummy_detector.pixelArea = np.array([1e-10, 0.])
+    dummy_detector.qe = np.array([0.5, 0.])
+    dummy_detector.photoEff = np.zeros(2)
+    dummy_detector.pixCount = np.zeros(2)
+    dummy_detector.solarEx = np.zeros(2)
+    dummy_detector.lunarex = np.zeros(2)
+    dummy_detector.earthEx = np.zeros(2)
+    dummy_detector.skyBack = np.zeros(2)
+    dummy_detector.zpCal = np.zeros(2)
+    dummy_detector.itime = np.zeros(2)
+    dummy_detector.fov = np.zeros(2)
+    dummy_detector.ifov = np.zeros(2)
+
     dummy_sim_data = {
         'start_time': datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
         'delta_time': 60.0,
@@ -75,7 +95,7 @@ if __name__ == '__main__':
         },
         'satellites': {
             'position': np.zeros((2, 3)),
-            'detector': np.array([[1, 2, 3], [0, 0, 0]]),
+            'detector': dummy_detector,
         }
     }
     sim_check(dummy_sim_data)

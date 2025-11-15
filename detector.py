@@ -6,20 +6,34 @@ import radiometry_data
 from radiometry_data import FILTER_DATA
 from constants import *
 from radiometry_calcs import mag, amag
+from types import SimpleNamespace
 
 
 ##########################################################
 
 def makeBlankDetector(n):
-    detector = np.zeros((n,DETECTOR_ARRAY_SIZE), dtype=float)
-    filt = [""] * n
-    return(filt, detector)
+    detector = SimpleNamespace()
+    detector.aperture = np.zeros(n, dtype=float)  # Aperture area in square meters
+    detector.pixelArea = np.zeros(n, dtype=float) # pixel area in square arcsec
+    detector.qe = np.zeros(n, dtype=float)        # Quantum efficiency from aperture to detectoras a fraction (0.0 to 1.0)
+    detector.photoEff = np.zeros(n, dtype=float)   # Fraction of photons in photometry bucket
+    detector.pixCount = np.zeros(n, dtype=float)   # Total number of pixels in the detector (count)
+    detector.solarEx = np.zeros(n, dtype=float)     # Solar exclusion angle in radians
+    detector.lunarex = np.zeros(n, dtype=float)    # Lunar exclusion angle in radians
+    detector.earthEx = np.zeros(n, dtype=float)    # Earth exclusion angle (above the limb) in radians
+    detector.skyBack = np.zeros(n, dtype=float)    # Sky Background in photons per square steradian
+    detector.zpCal = np.zeros(n, dtype=float)  # Filter calibration zeropoint" photons per square meter per second second
+    detector.itime = np.zeros(n, dtype=float)      # Integration Time required to reach a desired limiting magniude
+    detector.fov = np.zeros(n, dtype=float)       
+    detector.ifov = np.zeros(n, dtype=float)      
+    detector.filt = [""] * n                       # filter
+    return detector
 
 
 
 ##########################################################
 
-def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 * DEGREE,   lunarex = 10 * DEGREE,  earthex= 15 * DEGREE):    
+def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 * DEGREE,   lunarex = 10 * DEGREE,  earthex= 15 * DEGREE):
     '''
     makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
     n is the number of sensors to produce
@@ -36,34 +50,34 @@ def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 *
 
     This function is called when a new satellite is created.
     It uses the data from FILTER_DATA in radiometry_data.py, which is
-    often in units of magnitudes,and 
+    often in units of magnitudes,and
 
     THIS VERSION IS FOR A GROUND OBSERVAOTRY
     '''
-    filt, detect = makeBlankDetector(n)
-    detect[:,APERTURE_IDX] = math.pi * (aper/2)**2  #aperture size square meters
-    detect[:,PIXEL_SIZE_IDX] = math.pi * (ifov/2)**2  #pixel size sterradianss
-    detect[:,QE_IDX] = qe   # Total QE
-    detect[:,PHOT_EFF_IDX] = photfrac  # fraction in photometry bucket
+    detect = makeBlankDetector(n)
+    detect.aperture[:] = math.pi * (aper/2)**2  #aperture size square meters
+    detect.pixelArea[:] = math.pi * (ifov/2)**2  #pixel size sterradianss
+    detect.qe[:] = qe   # Total QE
+    detect.photoEff[:] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels
-    detect[:,PIXELS_IDX] = pixels   # total pixels in the array
-    detect[:,SOLAR_EXCL_IDX] = solarex  # solar exclusion angle
-    detect[:,LUNAR_EXCL_IDX] = lunarex  # lunar exclusion angle
-    detect[:,EARTH_EXCL_IDX] = earthex  # eearth exclusion angle
-    detect[:,SKY_BACK_IDX] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
-    detect[:,FILTER_ZP_IDX] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
-    detect[:,INTEGRATION_TIME] = requiredIntegrationTime(20, 4, "V", detect)
-    detect[:,FOV_IDX]= fov
-    detect[:,IFOV_IDX ] = ifov
-    filt = [band] * n
-    return(filt,detect)
+    detect.pixCount[:] = pixels   # total pixels in the array
+    detect.solarEx[:] = solarex  # solar exclusion angle
+    detect.lunarex[:] = lunarex  # lunar exclusion angle
+    detect.earthEx[:] = earthex  # eearth exclusion angle
+    detect.skyBack[:] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
+    detect.zpCal[:] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
+    detect.itime[:] = requiredIntegrationTime(20, 4, detect)
+    detect.fov[:] = fov
+    detect.ifov[:] = ifov
+    detect.filt = [band] * n
+    return detect
 
-                                                      
+
 ###########################################################
-                                                  
 
 
-def requiredIntegrationTime(limitingMag, SNR, filt,  d, debug = 0):
+
+def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
     '''
     requiredIntegrationTime(limitingMag, d)
     takes a two dimensional detector array ("detect")and calculates
@@ -73,14 +87,14 @@ def requiredIntegrationTime(limitingMag, SNR, filt,  d, debug = 0):
     to the conventional names used in that paper.
     '''
     gamma = SNR
-    beta = d[0, SKY_BACK_IDX]
-    omega = d[: , PIXEL_SIZE_IDX]
-    alpha = amag(limitingMag) * d[0, FILTER_ZP_IDX]
-    A = d[:, APERTURE_IDX]
-    eta = d[:, QE_IDX]
-    f = d[:,PHOT_EFF_IDX]
+    beta = d.skyBack[0]
+    omega = d.pixelArea
+    alpha = amag(limitingMag) * d.zpCal[0]
+    A = d.aperture
+    eta = d.qe
+    f = d.photoEff
     if debug == 1:
-        print(f"gamma {gamma:.2e}")        
+        print(f"gamma {gamma:.2e}")
         print(f"beta is, {beta:.2e}")
         print("omega", omega)
         print(f"alpha is {alpha:.2e}")
@@ -96,7 +110,7 @@ def requiredIntegrationTime(limitingMag, SNR, filt,  d, debug = 0):
 #         amag(limitingMag)**2 *\
 #         d[:,FILTER_ZP_IDX])
     return(t)
-                 
+
 
 ###########################################################
 
@@ -105,8 +119,10 @@ def testdetector():
     testdetector creates an example that can be compared
     with some of the stuff in Curio.
     '''
-    filt, detect = makeDetector(1, "V", 1 * DEGREE,
-                              2 * ARCSEC, 1, 
+    detect = makeDetector(1, "V", 1 * DEGREE,
+                              2 * ARCSEC, 1,
                               qe = 0.2, photfrac = 1.0)
-    print( requiredIntegrationTime(20.5,10, filt, detect, debug=1) )
-    
+    print( requiredIntegrationTime(20.5,10, detect, debug=1) )
+
+if __name__ == '__main__':
+    testdetector()

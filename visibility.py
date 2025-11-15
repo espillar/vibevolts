@@ -2,8 +2,7 @@ import numpy as np
 from typing import Dict, Any, Tuple, Optional
 
 from constants import (
-    EARTH_RADIUS, MOON_RADIUS, SOLAR_EXCL_IDX,
-    LUNAR_EXCL_IDX, EARTH_EXCL_IDX
+    EARTH_RADIUS, MOON_RADIUS
 )
 
 def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
@@ -32,7 +31,7 @@ def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]
     sun_pos = data_struct['celestial']['position'][0]
     sat_pos = data_struct['satellites']['position']
     sat_pointing = data_struct['satellites']['pointing']
-    solar_exclusion_angles = data_struct['satellites']['detector'][:, SOLAR_EXCL_IDX]
+    solar_exclusion_angles = data_struct['satellites']['detector'].solarEx
 
     vec_sat_to_sun = sun_pos - sat_pos
 
@@ -74,10 +73,10 @@ def exclusion(
     sun_pos = data_struct['celestial']['position'][0]
     moon_pos = data_struct['celestial']['position'][1]
 
-    detector_props = data_struct['satellites']['detector'][satellite_index]
-    solar_excl_angle = detector_props[SOLAR_EXCL_IDX]
-    lunar_excl_angle = detector_props[LUNAR_EXCL_IDX]
-    earth_excl_angle = detector_props[EARTH_EXCL_IDX]
+    detector_props = data_struct['satellites']['detector']
+    solar_excl_angle = detector_props.solarEx[satellite_index]
+    lunar_excl_angle = detector_props.lunarex[satellite_index]
+    earth_excl_angle = detector_props.earthEx[satellite_index]
 
     vec_to_sun = sun_pos - sat_pos
     vec_to_moon = moon_pos - sat_pos

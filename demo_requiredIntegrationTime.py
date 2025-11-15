@@ -18,29 +18,29 @@ def demo_requiredIntegrationTime():
     photfrac = 1.
     
 
-    filt,detector = makeDetector(n, band, fov,ifov, aper, qe, photfrac)
+    detector = makeDetector(n, band, fov,ifov, aper, qe, photfrac)
 
     print(detector)
     
     # Print detector specs
     print("Detector Specifications:")
-    print(f"  Aperture: {detector[0, APERTURE_IDX]} m")
-    print(f"  Pixel Size: {detector[0, PIXEL_SIZE_IDX]} rad")
-    print(f"  QE: {detector[0, QE_IDX]}")
-    print(f"  Photometric Efficiency: {detector[0, PHOT_EFF_IDX]}")
-    print(f"  Pixels: {detector[0, PIXELS_IDX]}")
-    print(f"  Solar Exclusion: {detector[0, SOLAR_EXCL_IDX]} rad")
-    print(f"  Lunar Exclusion: {detector[0, LUNAR_EXCL_IDX]} rad")
-    print(f"  Earth Exclusion: {detector[0, EARTH_EXCL_IDX]} rad")
-    print(f"  Sky Background: {detector[0, SKY_BACK_IDX]}")
-    print(f"  Filter Band Cal: {filt[0]}")
+    print(f"  Aperture: {detector.aperture[0]} m")
+    print(f"  Pixel Size: {detector.pixelArea[0]} rad")
+    print(f"  QE: {detector.qe[0]}")
+    print(f"  Photometric Efficiency: {detector.photoEff[0]}")
+    print(f"  Pixels: {detector.pixCount[0]}")
+    print(f"  Solar Exclusion: {detector.solarEx[0]} rad")
+    print(f"  Lunar Exclusion: {detector.lunarex[0]} rad")
+    print(f"  Earth Exclusion: {detector.earthEx[0]} rad")
+    print(f"  Sky Background: {detector.skyBack[0]}")
+    print(f"  Filter Band Cal: {detector.filt[0]}")
 
 
     # Calculate required integration time for a range of limiting magnitudes
     limiting_mags = np.arange(15, 26)
     integration_times = []
     for mag in limiting_mags:
-        integration_times.append(requiredIntegrationTime(mag, 10, filt, detector))
+        integration_times.append(requiredIntegrationTime(mag, 10, detector))
 
     # Create a plot
     fig = go.Figure()

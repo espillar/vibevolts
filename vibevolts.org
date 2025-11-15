@@ -122,7 +122,7 @@ See the file datastructure.org
   them.
 
 ** Details
-*** Coding [9/26]
+*** Coding [11/27]
 - [X] At some point create a good builder function for the constellations 
 - [X] Create the constellation
 - [X] create the appropirate targeting grid and rules for traversing it.
@@ -132,7 +132,8 @@ See the file datastructure.org
 - [X] break the detector stuff out into it's own module and do testing
 - [X] look at the limiting magnitude, and it should create an integration time for that.
 - [X] Map out how detector tasking or searching fits in to the code
-- [ ] add integration time to the satellite detector structure
+- [X] Switch detector so that it's a SimpleNamespace. Get rid of the array indices.
+- [X] add integration time to the satellite detector structure
 - [ ] Implement roadmap (see below)
 - [ ] In both Mathematica and this code clarify what your photometry aperture is!!
 - [ ] Also clarify in your Vade Mecum
@@ -182,7 +183,14 @@ search: {
 
 * Log
 ** 2025-11
-***[2025-11-14 Fri]
+*** [2025-11-15 Sat]
+Challenge: what's the best way to switch things over to SimpleNamespace?
+First lets try a few of the things we would like to see happen.
+OK, try except or hasattr can both be used to check what's going on
+in a SimpleNameSpace. Ask gemini to refactor detector.py first. It does that
+and then goes ahead and does all the files and even runs the demos- and
+they all passed.  Amazing. OK, let's move filt into detector.
+*** [2025-11-14 Fri]
 Tryihg to get things done in the office. 
 Realizing that I don't have a good understanding of my initializatoin. Create
 a new function sim_check that helps by running through the data structure and tells
@@ -194,6 +202,7 @@ Actualy, I think it might be best to make detector a class, since I may want to
 mutate varioius parts, and the alternative: a namedtuple- is immutable.
 This is a bit more than I want to tackle on my small screen at work, and 
 I am out of hours.
+Later investigation convinces me I want to use SimpleNamespace instead.
 *** [2025-11-13 Thu] 
 Back at work in the office.  seeing if I can work this in 
 a terminal window in GCE.  Seems sluggish, but maybe OK.I 

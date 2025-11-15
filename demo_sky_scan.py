@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation, add_celestial_bodies, SOLAR_EXCL_IDX, LUNAR_EXCL_IDX, EARTH_EXCL_IDX
+from simulation import create_empty_simulation, add_celestial_bodies
 from propagation import add_satellites_from_tle, propagate_satellites_new, celestial_update
 from visibility import exclusion
 
@@ -28,9 +28,9 @@ def demo_sky_scan() -> go.Figure:
     
 
     # Set some reasonable exclusion angles
-    sim_data['satellites']['detector'][:, SOLAR_EXCL_IDX] = np.deg2rad(30)
-    sim_data['satellites']['detector'][:, LUNAR_EXCL_IDX] = np.deg2rad(15)
-    sim_data['satellites']['detector'][:, EARTH_EXCL_IDX] = np.deg2rad(10)
+    sim_data['satellites']['detector'].solarEx[:] = np.deg2rad(30)
+    sim_data['satellites']['detector'].lunarex[:] = np.deg2rad(15)
+    sim_data['satellites']['detector'].earthEx[:] = np.deg2rad(10)
 
     # b. Update celestial body positions
     sim_data = propagate_satellites_new(sim_data, sim_start_time)

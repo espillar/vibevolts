@@ -10,6 +10,7 @@ from constants import *
 from simulation import *
 from pointing import generate_pointing_sphere
 from propagation import propagate_satellites_new # Added import
+from detector import makeBlankDetector, makeDetector
 
 #########################################################
 
@@ -67,6 +68,7 @@ def geos(sim_data, n,  fov) -> None:
 
     sim_data['counts']['satellites'] = n
     # print( 'the number of satellites should be ', n) # Commented out
+    detector = makeBlankDetector(n)
     sim_data['satellites'] = {
         'position': np.zeros((n, 3), dtype=float),
         'velocity': np.zeros((n, 3), dtype=float),
@@ -75,7 +77,7 @@ def geos(sim_data, n,  fov) -> None:
         'epochs': epochs_list,
         'pointing': np.zeros((n, 3), dtype=float),
         'pointing_state': pointing_state_array,
-        'detector': np.zeros((n, DETECTOR_ARRAY_SIZE)),
+        'detector': detector,
     }
     sim_data = propagate_satellites_new(sim_data, sim_data['start_time']) # Corrected start_time
     # print(sim_data['satellites']) # Commented out
@@ -104,7 +106,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         n: The number of satellites to create.
         fov: The diameter of the field of view of the satellite in radians.
     """
-#    detect = makeDetector(n, band, fov,ifov, aper,limitingmag):
+    detect = makeDetector(n, band, fov,ifov, aper)
         
     # Calculate solid angle 
     theta = fov / 2
@@ -159,7 +161,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
             'epochs': epochs_list,
             'pointing': np.zeros((n, 3), dtype=float),
             'pointing_state': pointing_state_array,
-            'detector': np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float),
+            'detector': detect,
         }
     else:
         # Append to existing satellites
@@ -171,4 +173,5 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         sim_data['satellites']['epochs'].extend(epochs_list)
         sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float)])
+        # TODO: This is not the right way to handle this with SimpleNamespace
+        # sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float)])

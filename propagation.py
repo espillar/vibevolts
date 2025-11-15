@@ -7,6 +7,7 @@ from astropy.coordinates import get_body, GCRS
 import astropy.units as u
 
 from constants import *
+from detector import makeBlankDetector
 
 
 def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
@@ -31,6 +32,7 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
     num_sats = len(epochs)
 
     sim_data['counts'][sat_category] = num_sats
+    detector = makeBlankDetector(num_sats)
     sim_data[sat_category] = {
         'position': np.zeros((num_sats, 3), dtype=float),
         'velocity': np.zeros((num_sats, 3), dtype=float),
@@ -39,7 +41,7 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'epochs': epochs,
         'pointing': np.zeros((num_sats, 3), dtype=float),
         'pointing_state': np.zeros((num_sats, 2), dtype=int),
-        'detector': np.zeros((num_sats, DETECTOR_ARRAY_SIZE), dtype=object),
+        'detector': detector,
     }
 
 def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
