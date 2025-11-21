@@ -115,6 +115,39 @@ and
 f = C_b 10^{-0.4 m}
 \end{equation}
 
+\section{Should a Volume Search Sensor be
+Near or Far to Targets?}
+Thinking naively, if you are further away
+from targets, you will be able to cover more area or volume much faster, so perhaps that's advantageous?   
+There are some subtleties here, but lets assume that the limiting factor is reaching the faintest outer shell of the volume to be surveiled.  Fixing the scanning of this shell as a requirement, and fixing the FOV of the telescope, the area of the FOV projected onto the shell 
+$ A_{FOV} \propto d^2;$ so assuming a fixed dwell time the search rate also goes as $d^2.$  But the dwell time
+needs to increase since sources will appear fainter.
+The flux from the target 
+$f \propto 1/d^2.$ Assuming BLIP once again, the required
+integration time, or required dwell time, goes as $t \propto d^{-4}.$  Hence our search rate goes as 
+\begin{equation}
+	\mathrm{search\ rate} \propto { 1\over d^2}
+\end{equation}
+It's best to place the sensor close to the surveilled volume.
+
+\section{Track Before Detect}
+\subsection{Definitions}
+\begin{itemize}
+	\item $\theta$ is the angular size of a pixel
+	\item $m$ by $m$ pixels are being explored for moving objects
+	\item $t$ is the frame time
+	\item $n$ is the maximum number of lags being calculated
+	and we assume that we will be doing motions of up to
+	1 pixel per lag.
+\end{itemize}
+\subsection{Quantities}
+	The maximum rate being detected is 
+\begin{equation}
+	\mathrm{Angular\ Rate\ Sensitivity} = \theta / t.
+\end{equation}
+The 
+
+\subsection{FAXT}
 
 \end{document}
 
