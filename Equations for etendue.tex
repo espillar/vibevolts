@@ -134,18 +134,31 @@ It's best to place the sensor close to the surveilled volume.
 \subsection{Definitions}
 \begin{itemize}
 	\item $\theta$ is the angular size of a pixel
-	\item $m$ by $m$ pixels are being explored for moving objects
-	\item $t$ is the frame time
+	\item $n_x$ by $n_y$ pixels are being explored for moving objects
+	\item $t$ is the time between frames frame time
 	\item $n$ is the maximum number of lags being calculated
 	and we assume that we will be doing motions of up to
 	1 pixel per lag.
+	\item $n_{vx}$ and $n_{y}$ are the velocities 
 \end{itemize}
 \subsection{Quantities}
 	The maximum rate being detected is 
 \begin{equation}
 	\mathrm{Angular\ Rate\ Sensitivity} = \theta / t.
 \end{equation}
-The 
+
+The number of operations using a naive algorithm is 
+\begin{equation}
+	4 n_x n_y n n_{vx} n_{vy}.
+\end{equation}
+{\it I am uncertain about the 4 in front, this needs to be reviewed.}
+
+If we use the FAXT algorith, I think that the number is reduced to
+\begin{equation}
+	4 n_x n_y n_{vx} n_{vy} \log_2{(n)}
+\end{equation}
+No this is too simple.  I need to spend some time and read the paper
+in detail.  Let's go ahead and do that.
 
 \subsection{FAXT}
 
