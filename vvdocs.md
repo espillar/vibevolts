@@ -1,4 +1,4 @@
-# VibeVolts Documentation
+# 1VibeVolts Documentation
 
 This document provides an overview of the data structures, functions, and dependencies for the VibeVolts simulation toolkit.
 
@@ -825,7 +825,23 @@ The `sim_data` dictionary is the central data structure in the VibeVolts simulat
     - `epochs`: `list[datetime]` - Epoch for each satellite's orbital elements.
     - `pointing`: `np.ndarray` (n, 3) - Pointing direction vector.
     - `pointing_state`: `np.ndarray` (n, 2) - State of the pointing sequence for each satellite.
-    - `detector`: `np.ndarray` (n, 11) - Detector properties for each satellite.
+    - `detector`: `SimpleNamespace`
+      - **Description**: A SimpleNamespace object containing the detector's properties.
+      - **Sub-keys**:
+        - `aperture`: `np.ndarray` (n) - Aperture area in square meters.
+        - `pixelArea`: `np.ndarray` (n) - Pixel area in square arcseconds.
+        - `qe`: `np.ndarray` (n) - Quantum efficiency (0.0 to 1.0).
+        - `photoEff`: `np.ndarray` (n) - Fraction of photons in photometry bucket.
+        - `pixCount`: `np.ndarray` (n) - Total number of pixels in the detector.
+        - `solarEx`: `np.ndarray` (n) - Solar exclusion angle in radians.
+        - `lunarex`: `np.ndarray` (n) - Lunar exclusion angle in radians.
+        - `earthEx`: `np.ndarray` (n) - Earth exclusion angle in radians.
+        - `skyBack`: `np.ndarray` (n) - Sky background in photons per square steradian.
+        - `zpCal`: `np.ndarray` (n) - Filter calibration zero point in photons/m^2/s.
+        - `itime`: `np.ndarray` (n) - Integration time to reach limiting magnitude.
+        - `fov`: `np.ndarray` (n) - Field of view in radians.
+        - `ifov`: `np.ndarray` (n) - Instantaneous field of view in radians.
+        - `filt`: `list[str]` (n) - Filter name.
 
 - `observatories`: `dict`
   - **Description**: Holds data for ground-based observatories.
@@ -834,7 +850,23 @@ The `sim_data` dictionary is the central data structure in the VibeVolts simulat
     - `velocity`: `np.ndarray` (n, 3) - Velocity vectors in m/s.
     - `acceleration`: `np.ndarray` (n, 3) - Acceleration vectors in m/s^2.
     - `pointing`: `np.ndarray` (n, 3) - Pointing direction vector.
-    - `detector`: `np.ndarray` (n, 11) - Detector properties for each observatory.
+    - `detector`: `SimpleNamespace`
+      - **Description**: A SimpleNamespace object containing the detector's properties.
+      - **Sub-keys**:
+        - `aperture`: `np.ndarray` (n) - Aperture area in square meters.
+        - `pixelArea`: `np.ndarray` (n) - Pixel area in square arcseconds.
+        - `qe`: `np.ndarray` (n) - Quantum efficiency (0.0 to 1.0).
+        - `photoEff`: `np.ndarray` (n) - Fraction of photons in photometry bucket.
+        - `pixCount`: `np.ndarray` (n) - Total number of pixels in the detector.
+        - `solarEx`: `np.ndarray` (n) - Solar exclusion angle in radians.
+        - `lunarex`: `np.ndarray` (n) - Lunar exclusion angle in radians.
+        - `earthEx`: `np.ndarray` (n) - Earth exclusion angle in radians.
+        - `skyBack`: `np.ndarray` (n) - Sky background in photons per square steradian.
+        - `zpCal`: `np.ndarray` (n) - Filter calibration zero point in photons/m^2/s.
+        - `itime`: `np.ndarray` (n) - Integration time to reach limiting magnitude.
+        - `fov`: `np.ndarray` (n) - Field of view in radians.
+        - `ifov`: `np.ndarray` (n) - Instantaneous field of view in radians.
+        - `filt`: `list[str]` (n) - Filter name.
 
 ## Building and Running
 

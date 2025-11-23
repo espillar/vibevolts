@@ -122,7 +122,8 @@ See the file datastructure.org
   them.
 
 ** Details
-*** Coding [11/27]
+*** Coding [12/26]
+**** Get the detector structure right [12/12]
 - [X] At some point create a good builder function for the constellations 
 - [X] Create the constellation
 - [X] create the appropirate targeting grid and rules for traversing it.
@@ -134,9 +135,14 @@ See the file datastructure.org
 - [X] Map out how detector tasking or searching fits in to the code
 - [X] Switch detector so that it's a SimpleNamespace. Get rid of the array indices.
 - [X] add integration time to the satellite detector structure
-- [ ] Get the timing in there as well: that is how long it takes to move
+- [X] Get the timing in there as well: that is how long it takes to move
   forward a step
-- [ ] create a mask that includes only those things that are in field and
+**** Get a simple search pattern going [1/1]
+- [X] Basic pointing iteration working
+- [ ] jump over missing exclusions until you can see something
+- [ ] make a new demo that plots what's going on somehow
+**** Photometer the objects and collect the results [/]
+- [ ] huh? create a mask that includes only those things that are in field and
     not blinded
 - [ ] cut those out and process for limiting magnitude
 - [ ] fill back in an array of detected
@@ -144,14 +150,14 @@ See the file datastructure.org
 - [ ] write some code that computes what been detected and do a 3-D map
 - [ ] next build in something that stores these thing and computs gap times
 - [ ] write some testing code that shows where things are looking
-- [ ] Think about how we deal with multiple constellations in the code.  
+- [ ] Think about how we deal with multiple constellations in the code.
+
+**** Future work [/]
 - [ ] resolve issues with having multiple constellations, potentially with
   different names etc.
-- [ ] Implement roadmap (see below)
 - [ ] In both Mathematica and this code clarify what your photometry aperture is!!
 - [ ] Also clarify in your Vade Mecum
 - [ ] think about where you get the backgrounds
-- [ ] Create the targets with brightnesses.
 
   
 *** Search Desin
@@ -184,6 +190,13 @@ search: {
 ** 2025-11
 *** NEXT
 I need to solidify how I update the pointing of all the detectors
+*** [2025-11-23 Sun]
+Well this has been an awful week for progress it seems! Although I
+have done some equation stuff in the TeX document and regarding FAXT.
+Have gemini update the detector documentation since it was out of date.
+Interesting that it knows about pandoc! Hmm, i keep hitting the escape key
+and deleting what I'm doing in gemini.
+OK, there were some bugs in the pointing demo that I got gemini to fix.
 *** [2025-11-15 Sat]
 Challenge: what's the best way to switch things over to SimpleNamespace?
 First lets try a few of the things we would like to see happen.
