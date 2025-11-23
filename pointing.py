@@ -4,6 +4,40 @@ from typing import Dict, Any
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from fibonacciSearch import pointing_vectors
 
+def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
+    """
+    Generates a pointing sphere with n_points and stores it in the data_struct.
+    The index is ['pointing_spheres'][n] 
+    If a sphere with the same number of points already exists, this function does nothing.
+    """
+    if n_points not in data_struct['pointing_spheres']:
+        print(f"Generating pointing sphere with {n_points} points...")
+        data_struct['pointing_spheres'][n_points] = pointing_vectors(n_points)
+
+
+def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
+    """
+    Updates the pointing vector for each satellite based on its pointing state.
+    """
+    num_sats = data_struct['counts']['satellites']
+    if num_sats == 0:
+        return
+
+    pointing_state = data_struct['satellites']['pointing_state']
+    pointing_vectors_all = data_struct['satellites']['pointing']
+
+    for i in range(num_sats):
+        count = int(pointing_state[i, POINTING_COUNT_IDX])
+        place = int(pointing_state[i, POINTING_PLACE_IDX])
+
+        if count > 0:
+            if count not in data_struct['pointing_spheres']:
+                raise ValueError(f"Pointing sphere for {count} points not generated.")
+
+            grid = data_struct['pointing_spheres'][count]
+            pointing_vectors_all[i] = grid[place]
+
+
 def pointing_place_update(data_struct: Dict[str, Any]) -> None:
     """
     Increments the pointing place for all satellites, wrapping around if necessary.
@@ -57,37 +91,7 @@ def jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]:
 
     return data_struct
 
-def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
-    """
-    Generates a pointing sphere with n_points and stores it in the data_struct.
-    The index is ['pointing_spheres'][n] 
-    If a sphere with the same number of points already exists, this function does nothing.
-    """
-    if n_points not in data_struct['pointing_spheres']:
-        print(f"Generating pointing sphere with {n_points} points...")
-        data_struct['pointing_spheres'][n_points] = pointing_vectors(n_points)
 
-def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
-    """
-    Updates the pointing vector for each satellite based on its pointing state.
-    """
-    num_sats = data_struct['counts']['satellites']
-    if num_sats == 0:
-        return
-
-    pointing_state = data_struct['satellites']['pointing_state']
-    pointing_vectors_all = data_struct['satellites']['pointing']
-
-    for i in range(num_sats):
-        count = int(pointing_state[i, POINTING_COUNT_IDX])
-        place = int(pointing_state[i, POINTING_PLACE_IDX])
-
-        if count > 0:
-            if count not in data_struct['pointing_spheres']:
-                raise ValueError(f"Pointing sphere for {count} points not generated.")
-
-            grid = data_struct['pointing_spheres'][count]
-            pointing_vectors_all[i] = grid[place]
 
 def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]:
     """
