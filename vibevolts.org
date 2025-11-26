@@ -194,6 +194,11 @@ are actually updated, and that exclusions are updated,
 and maybe implement the nearest neighbor sorting on the fibonacci
 generation to make things more reasonable.
 
+*** [2025-11-26 Wed]
+Fiddled around a little to get cloud shell working so emacs would work.
+There are still some weird keypmappng problems but I'm working it.
+Where was I? I ran the basic test and it worked... but now it's 2:30
+and local 59 minute rule is in effect.  Well, I think I will scoot. 
 *** [2025-11-23 Sun]
 Well this has been an awful week for progress it seems! Although I
 have done some equation stuff in the TeX document and regarding FAXT.
