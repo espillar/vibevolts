@@ -74,8 +74,8 @@ def demo_pointing_sequence() -> go.Figure:
     vectors = sim_data['satellites']['pointing']
     trajectories[0].append(vectors[0].copy())
 
-    # Simulation loop for 10 steps (T=0 to T=9)
-    for t in range(1, 10):
+    # Simulation loop for 30 steps (T=0 to T=29)
+    for t in range(1, 30):
         print(f"\n--- Time Step {t} ---")
         pointing_place_update(sim_data)
         update_satellite_pointing(sim_data)
@@ -84,8 +84,8 @@ def demo_pointing_sequence() -> go.Figure:
 
     # --- Plotting ---
     colors = ['red']
-    sat_names = ['Satellite 1 (10 steps)']
-    time_steps = list(range(10))
+    sat_names = ['Satellite 1 (30 steps)']
+    time_steps = list(range(30))
 
     x_coords = [p[0] for p in trajectories[0]]
     y_coords = [p[1] for p in trajectories[0]]
@@ -116,7 +116,7 @@ def demo_pointing_sequence() -> go.Figure:
             colorscale='Viridis',
             showscale=True,
             cmin=0,
-            cmax=9,
+            cmax=29,
             colorbar=dict(
                 title='Time Step',
                 tickvals=time_steps,
@@ -139,11 +139,11 @@ def demo_pointing_sequence() -> go.Figure:
     # Add a caption to the plot
     caption = """
     <b>Satellite Pointing Sequence:</b><br>
-    - <b>Satellite 1 (Red)</b>: 10-step pointing sequence. Changes position at each time step.
+    - <b>Satellite 1 (Red)</b>: 30-step pointing sequence. Changes position at each time step.
     """
 
     fig.update_layout(
-        title="Satellite Pointing Sequence Over 10 Time Steps",
+        title="Satellite Pointing Sequence Over 30 Time Steps",
         scene=dict(
             xaxis_title='X', yaxis_title='Y', zaxis_title='Z',
             aspectmode='data'

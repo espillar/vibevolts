@@ -2,7 +2,7 @@ import numpy as np
 from typing import Dict, Any
 
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
-from fibonacciSearch import pointing_vectors
+from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity
 
 def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: bool = False) -> None:
     """
@@ -14,7 +14,8 @@ def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: 
     """
     if n_points not in data_struct['pointing_spheres']:
         print(f"Generating pointing sphere with {n_points} points...")
-        data_struct['pointing_spheres'][n_points] = pointing_vectors(n_points)
+        data_struct['pointing_spheres'][n_points] = \
+           resort_vectors_by_proximity(pointing_vectors(n_points))
 
     if debug:
         print(f"\n--- Debugging Pointing Sphere (n_points={n_points}) ---")

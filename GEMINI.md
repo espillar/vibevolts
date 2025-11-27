@@ -19,7 +19,7 @@ The core of the simulation is a data structure that represents the state of the 
 *   **`generate_log_spherical_points.py`**: Provides tools for generating 3D point clouds.
 *   **`demo_common.py`**: A utility module that provides helper functions for the demo scripts.
 *   **`demo_constellation.py`**: A demo script for creating and visualizing satellite constellations.
-*   **`show_geo_search.py`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
+*   **`demo_show_geo_search.py`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
 *   **`demo_pointing_sequence.py`**: A demo script for demonstrating the satellite pointing sequence functionality.
 *   **`demo_sky_scan.py`**: A demo script for simulating a sky scan from a satellite.
 *   **`generate_report.py`**: A script for generating a PDF report of the project.

@@ -16,8 +16,17 @@ from demo_sky_scan import demo_sky_scan
 from demo_pointing_vectors import demo_pointing_vectors
 from demo_pointing_sequence import demo_pointing_sequence
 from demo_constellation import demo_constellation
-from show_geo_search import show_geo_search
+from demo_show_geo_search import demo_show_geo_search
 from demo_requiredIntegrationTime import demo_requiredIntegrationTime
+from fibonacciSearch import test_vector_resorting
+
+
+def demo_vector_resorting_plot() -> go.Figure:
+    """
+    Runs the test_vector_resorting function and returns its figure.
+    """
+    print("\n--- Starting Demo: Vector Resoring ---")
+    return test_vector_resorting()
 
 
 def run_all_demos(save_html=False):
@@ -39,8 +48,9 @@ def run_all_demos(save_html=False):
         demo_pointing_vectors,
         demo_pointing_sequence,
         demo_constellation,
-        show_geo_search,
+        demo_show_geo_search,
         demo_requiredIntegrationTime,
+        demo_vector_resorting_plot,
     ]
 
     figs = [] # This is a list
