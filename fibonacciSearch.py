@@ -4,6 +4,7 @@
 
 import numpy as np
 import plotly.graph_objects as go
+from scipy.spatial import distance
 
 def searchStruct(sim_data,detect):
     '''
@@ -45,6 +46,52 @@ def pointing_vectors(n: int) -> np.ndarray:
 
     unit_vectors = np.stack([x, y, z], axis=1)
     return unit_vectors
+
+def resort_vectors_by_proximity(unit_vectors: np.ndarray) -> np.ndarray:
+    """
+    Resorts a list of vectors by making each subsequent vector the closest one
+    in the remaining set to the previous one.
+
+    Args:
+        unit_vectors: A NumPy array of shape (n, 3) representing the vectors.
+
+    Returns:
+        A new NumPy array with the reordered vectors.
+    """
+    if unit_vectors.ndim != 2 or unit_vectors.shape[1] != 3:
+        raise ValueError("unit_vectors array must have shape (n, 3).")
+
+    n_vectors = unit_vectors.shape[0]
+    if n_vectors == 0:
+        return np.array([])
+
+    remaining_indices = list(range(n_vectors))
+    sorted_vectors = np.zeros_like(unit_vectors)
+    
+    # Start with the first vector
+    current_index = remaining_indices.pop(0)
+    sorted_vectors[0] = unit_vectors[current_index]
+    
+    for i in range(1, n_vectors):
+        last_vector = sorted_vectors[i-1]
+        
+        # Find the closest vector in the remaining set
+        min_dist = float('inf')
+        best_index = -1
+        
+        for j, index in enumerate(remaining_indices):
+            dist = distance.euclidean(last_vector, unit_vectors[index])
+            if dist < min_dist:
+                min_dist = dist
+                best_index_in_list = j
+                best_index = index
+
+        # Move the found vector to the sorted list
+        sorted_vectors[i] = unit_vectors[best_index]
+        remaining_indices.pop(best_index_in_list)
+
+    return sorted_vectors
+
 
 def plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure:
     """
@@ -94,3 +141,33 @@ def plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure:
     )
 
     return fig
+
+def test_vector_resorting():
+    """
+    Tests the vector resorting and plots the Euclidean distance between subsequent vectors.
+    """
+    # 1. Generate 100 vectors
+    vectors = pointing_vectors(100)
+
+    # 2. Calculate distances without resorting
+    diffs_unsorted = np.linalg.norm(np.diff(vectors, axis=0), axis=1)
+
+    # 3. Resort the vectors
+    sorted_vectors = resort_vectors_by_proximity(vectors)
+    
+    # 4. Calculate distances with resorting
+    diffs_sorted = np.linalg.norm(np.diff(sorted_vectors, axis=0), axis=1)
+
+    # 5. Plot the results
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(y=diffs_unsorted, mode='lines', name='Unsorted'))
+    fig.add_trace(go.Scatter(y=diffs_sorted, mode='lines', name='Resorted by Proximity'))
+    fig.update_layout(
+        title="Euclidean Distance Between Subsequent Vectors",
+        xaxis_title="Vector Index",
+        yaxis_title="Euclidean Distance"
+    )
+    fig.show()
+
+if __name__ == '__main__':
+    test_vector_resorting()

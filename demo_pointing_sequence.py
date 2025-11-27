@@ -49,11 +49,11 @@ def demo_pointing_sequence() -> go.Figure:
     add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
 
     # Generate pointing spheres
-    generate_pointing_sphere(sim_data, 10)
+    generate_pointing_sphere(sim_data, 100)
 
     # Assign pointing counts to satellites
     pointing_state = sim_data['satellites']['pointing_state']
-    pointing_state[0, POINTING_COUNT_IDX] = 10
+    pointing_state[0, POINTING_COUNT_IDX] = 100
 
     print("Initial pointing vectors:")
     update_satellite_pointing(sim_data)
