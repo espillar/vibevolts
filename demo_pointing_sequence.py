@@ -37,16 +37,10 @@ def demo_pointing_sequence() -> go.Figure:
     # Initialize a simulation with 3 satellites
     sim_data = create_empty_simulation(sim_start_time)
     
-    # Create a dummy TLE file for 3 satellites
+    # Create a dummy TLE file for 1 satellite
     tle_data = """SAT-1
 1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
 2 90401   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
-SAT-2
-1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9991
-2 90402   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
-SAT-3
-1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9991
-2 90403   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
 """
     dummy_tle_path = "dummy_tle_pointing.txt"
     with open(dummy_tle_path, "w") as f:
@@ -56,68 +50,63 @@ SAT-3
 
     # Generate pointing spheres
     generate_pointing_sphere(sim_data, 10)
-    generate_pointing_sphere(sim_data, 20)
 
     # Assign pointing counts to satellites
     pointing_state = sim_data['satellites']['pointing_state']
     pointing_state[0, POINTING_COUNT_IDX] = 10
-    pointing_state[1, POINTING_COUNT_IDX] = 20
-    # Satellite 2 will have a pointing_count of 0 and should not move
 
     print("Initial pointing vectors:")
     update_satellite_pointing(sim_data)
     print(sim_data['satellites']['pointing'])
 
     # --- Create a figure to animate ---
-    fig = go.Figure()
+    fig = go.Figure(
+        layout=go.Layout(
+            width=1000,  # Set width to 1000 pixels
+            height=800  # Set height to 800 pixels
+        )
+    )
     
     # Store trajectory of each satellite
-    trajectories = [[] for _ in range(3)]
+    trajectories = [[]]
     
     # Initial plot (T=0)
     vectors = sim_data['satellites']['pointing']
-    for i in range(3):
-        trajectories[i].append(vectors[i].copy())
+    trajectories[0].append(vectors[0].copy())
 
-    # Simulation loop
-    for t in range(1, 5):
+    # Simulation loop for 10 steps (T=0 to T=9)
+    for t in range(1, 10):
         print(f"\n--- Time Step {t} ---")
         pointing_place_update(sim_data)
         update_satellite_pointing(sim_data)
         vectors = sim_data['satellites']['pointing']
-        for i in range(3):
-            trajectories[i].append(vectors[i].copy())
+        trajectories[0].append(vectors[0].copy())
 
     # --- Plotting ---
-    colors = ['red', 'green', 'blue']
-    sat_names = ['Satellite 1 (10 steps)', 'Satellite 2 (20 steps)', 'Satellite 3 (0 steps)']
-    time_steps = list(range(5))
+    colors = ['red']
+    sat_names = ['Satellite 1 (10 steps)']
+    time_steps = list(range(10))
 
-    for i in range(3):
-        x_coords = [p[0] for p in trajectories[i]]
-        y_coords = [p[1] for p in trajectories[i]]
-        z_coords = [p[2] for p in trajectories[i]]
-        
-        # For Satellite 3 (no steps), plot only the first point as it doesn't move
-        if i == 2:
-            x_coords, y_coords, z_coords = [x_coords[0]], [y_coords[0]], [z_coords[0]]
-
-        fig.add_trace(go.Scatter3d(
-            x=x_coords, y=y_coords, z=z_coords,
-            mode='lines+markers',
-            marker=dict(
-                size=[(j + 2) * 2 for j in time_steps] if i < 2 else 6,  # Keep marker size constant for non-moving satellite
-                color=time_steps if i < 2 else 'blue', # Use time-based color for moving, static for non-moving
-                colorscale='Viridis',
-                showscale=False,  # A single colorbar will be added later
-                opacity=0.8
-            ),
-            line=dict(
-                color=colors[i],
-                width=2
-            ),
-            name=sat_names[i]
-        ))
+    x_coords = [p[0] for p in trajectories[0]]
+    y_coords = [p[1] for p in trajectories[0]]
+    z_coords = [p[2] for p in trajectories[0]]
+    
+    fig.add_trace(go.Scatter3d(
+        x=x_coords, y=y_coords, z=z_coords,
+        mode='lines+markers',
+        marker=dict(
+            size=[(j + 2) * 2 for j in time_steps],
+            color=time_steps,
+            colorscale='Viridis',
+            showscale=False,
+            opacity=0.8
+        ),
+        line=dict(
+            color=colors[0],
+            width=2
+        ),
+        name=sat_names[0]
+    ))
 
     # Add a dummy trace to create a single, shared colorbar for the time steps
     fig.add_trace(go.Scatter3d(
@@ -127,7 +116,7 @@ SAT-3
             colorscale='Viridis',
             showscale=True,
             cmin=0,
-            cmax=4,
+            cmax=9,
             colorbar=dict(
                 title='Time Step',
                 tickvals=time_steps,
@@ -150,13 +139,11 @@ SAT-3
     # Add a caption to the plot
     caption = """
     <b>Satellite Pointing Sequence:</b><br>
-    - <b>Satellite 1 (Red)</b>: 10-step pointing sequence. Changes position at each time step.<br>
-    - <b>Satellite 2 (Green)</b>: 20-step pointing sequence. Changes position at each time step.<br>
-    - <b>Satellite 3 (Blue)</b>: 0-step pointing sequence. Remains fixed.
+    - <b>Satellite 1 (Red)</b>: 10-step pointing sequence. Changes position at each time step.
     """
 
     fig.update_layout(
-        title="Satellite Pointing Sequence Over 5 Time Steps",
+        title="Satellite Pointing Sequence Over 10 Time Steps",
         scene=dict(
             xaxis_title='X', yaxis_title='Y', zaxis_title='Z',
             aspectmode='data'
