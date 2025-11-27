@@ -4,24 +4,23 @@
 
 import numpy as np
 import plotly.graph_objects as go
-from scipy.spatial import distance
 
-def searchStruct(sim_data,detect):
-    '''
-    creates the data structure for each of the satellite detectors,
-    adds the structure to the detector
-    '''
-    theta = detect[:,IFOV_IDX]/2
+# def searchStruct(sim_data,detect):
+#     '''
+#     creates the data structure for each of the satellite detectors,
+#     adds the structure to the detector
+#     '''
+#     theta = detect[:,IFOV_IDX]/2
 
-    # Calculate solid angle 
-    theta = fov / 2
-    solid_angle = 2 * np.pi * (1 - np.cos(theta))
+#     # Calculate solid angle 
+#     theta = fov / 2
+#     solid_angle = 2 * np.pi * (1 - np.cos(theta))
     
-    # Calculate grid_points - blow things up by 0.25 for overlap
-    grid_points = int(4 * np.pi / solid_angle * 1.25)
+#     # Calculate grid_points - blow things up by 0.25 for overlap
+#     grid_points = int(4 * np.pi / solid_angle * 1.25)
 
-    # Generate and store the pointing sphere and place in ['pointing_sphers'][n]
-    generate_pointing_sphere(sim_data, grid_points)
+#     # Generate and store the pointing sphere and place in ['pointing_sphers'][n]
+#     generate_pointing_sphere(sim_data, grid_points)
 
 def pointing_vectors(n: int) -> np.ndarray:
     """
@@ -80,7 +79,7 @@ def resort_vectors_by_proximity(unit_vectors: np.ndarray) -> np.ndarray:
         best_index = -1
         
         for j, index in enumerate(remaining_indices):
-            dist = distance.euclidean(last_vector, unit_vectors[index])
+            dist = np.linalg.norm(last_vector - unit_vectors[index])
             if dist < min_dist:
                 min_dist = dist
                 best_index_in_list = j
