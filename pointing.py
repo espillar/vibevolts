@@ -113,27 +113,119 @@ def jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str
 
 
 
-def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]:
+
+
+import math
+from datetime import datetime, timezone
+import plotly.graph_objects as go
+import os
+
+from simulation import create_empty_simulation, add_celestial_bodies
+from propagation import add_satellites_from_tle, propagate_satellites_new, celestial_update
+from plotting_3d import plot_3d_scatter
+from constants import DETECTOR_FOV_IDX, SOLAR_EXCLUSION_ANGLE_IDX, SAT_DETECTOR_IDX
+
+def demo_exclusion_pointing():
     """
-    Finds satellites with no exclusion and applies the 'jerk' function to them.
-
-    This function finds satellites with no visible fixed points (i.e., the
-    column sum in the exclusion table is 0) and calls the `jerk` function
-    to randomly adjust their pointing vectors.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-
-    Returns:
-        The modified data_struct.
+    Demonstrates satellite pointing with a solar exclusion angle and a detector
+    field of view, plotting the pointing history on a sphere.
     """
-    exclusion_table = data_struct['fixedpoints']['exclusion']
+    start_time = datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+    sim_data = create_empty_simulation(start_time)
+    add_celestial_bodies(sim_data)
 
-    column_sums = np.sum(exclusion_table, axis=0)
-    blind_satellite_indices = np.where(column_sums == 0)[0]
+    # Create a temporary TLE file with a single satellite for this demo
+    single_tle_content = """ISS (ZARYA)
+1 25544U 98067A   25209.52203988  .00012111  00000+0  22159-3 0  9991
+2 25544  51.6412 254.9961 0006733  98.4322 261.6813 15.49493393462383"""
+    
+    temp_tle_path = "temp_single_sat.tle"
+    with open(temp_tle_path, "w") as f:
+        f.write(single_tle_content)
 
-    if blind_satellite_indices.size > 0:
-        print(f"Satellites {blind_satellite_indices} have no visible points. Applying jerk.")
-        data_struct = jerk(data_struct, blind_satellite_indices)
+    add_satellites_from_tle(sim_data, temp_tle_path, 'satellites')
+    
+    # Clean up the temporary TLE file
+    os.remove(temp_tle_path)
 
-    return data_struct
+    # Set solar exclusion angle and detector FOV for the single satellite
+    sim_data['satellites']['detector'][0, SOLAR_EXCLUSION_ANGLE_IDX] = math.pi
+    sim_data['satellites']['detector'][0, DETECTOR_FOV_IDX] = math.pi / 2
+
+    # Generate 100 pointing points using the module's generate_pointing_sphere
+    n_points_sphere = 100
+    generate_pointing_sphere(sim_data, n_points_sphere)
+
+    # Initialize pointing_state for the single satellite
+    # Assuming the first satellite (index 0)
+    sim_data['satellites']['pointing_state'][0, POINTING_COUNT_IDX] = n_points_sphere
+    sim_data['satellites']['pointing_state'][0, POINTING_PLACE_IDX] = 0 # Start at the first point
+
+    pointed_directions_history = []
+    
+    # Propagate the satellite once to get an initial position
+    sim_data = celestial_update(sim_data, start_time)
+    sim_data = propagate_satellites_new(sim_data, start_time, 'satellites')
+    
+    initial_sat_pos = sim_data['satellites']['position'][0]
+    
+    for i in range(200):
+        update_satellite_pointing(sim_data)
+        current_pointed_direction = sim_data['satellites']['pointing'][0]
+        pointed_directions_history.append(current_pointed_direction)
+
+    pointed_directions_history = np.array(pointed_directions_history)
+
+    fig = plot_3d_scatter(
+        positions=np.array([initial_sat_pos]), # Plot initial satellite position
+        title="Satellite Pointing with Exclusion",
+        plot_time=start_time,
+        labels=["Satellite"],
+        marker_size=5,
+        trace_name="Satellite"
+    )
+
+    # Add the pointing history as markers
+    colors = np.arange(len(pointed_directions_history))
+    fig.add_trace(go.Scatter3d(
+        x=pointed_directions_history[:, 0],
+        y=pointed_directions_history[:, 1],
+        z=pointed_directions_history[:, 2],
+        mode='markers',
+        marker=dict(
+            size=3,
+            color=colors,
+            colorscale='Plasma', # Using a gradient color
+            opacity=0.7
+        ),
+        name='Pointing History'
+    ))
+
+    # Connect the pointing points with lines
+    fig.add_trace(go.Scatter3d(
+        x=pointed_directions_history[:, 0],
+        y=pointed_directions_history[:, 1],
+        z=pointed_directions_history[:, 2],
+        mode='lines',
+        line=dict(color='grey', width=1),
+        name='Pointing Path'
+    ))
+    
+    # Add a sphere at the origin to represent the pointing sphere itself for context
+    # Scaling it to be visible but transparent
+    sphere_radius = np.max(np.linalg.norm(pointed_directions_history, axis=1))
+    if sphere_radius == 0: sphere_radius = 1.0 # Avoid division by zero if no pointing history
+    
+    u_sphere = np.linspace(0, 2 * np.pi, 50)
+    v_sphere = np.linspace(0, np.pi, 50)
+    x_sphere = sphere_radius * np.outer(np.cos(u_sphere), np.sin(v_sphere))
+    y_sphere = sphere_radius * np.outer(np.sin(u_sphere), np.sin(v_sphere))
+    z_sphere = sphere_radius * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
+    fig.add_trace(go.Surface(
+        x=x_sphere, y=y_sphere, z=z_sphere,
+        colorscale='Viridis', showscale=False, opacity=0.1, name='Pointing Sphere'
+    ))
+
+    fig.show() 
+    return fig
+

@@ -181,8 +181,9 @@ I need to make sure the pointing positins in update_satellite+pointing
 are actually updated, and that exclusions are updated,
 and maybe implement the nearest neighbor sorting on the fibonacci
 generation to make things more reasonable.
-
-
+*** [2025-11-28 Fri]
+All tests seem to be running.
+I need to look at whether exclusions are making it in to the tracking part.
 
 *** [2025-11-27 Thu] Thanksgiving
 Looking at the pointing functions. I think I underetand
