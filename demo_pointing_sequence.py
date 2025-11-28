@@ -2,9 +2,9 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation
+from simulation import create_empty_simulation, add_celestial_bodies
 from observatories import add_observatories
-from propagation import add_satellites_from_tle
+from propagation import add_satellites_from_tle, celestial_update
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from pointing import generate_pointing_sphere, update_satellite_pointing
 from plotting_vectors import plot_pointing_vectors
@@ -36,6 +36,7 @@ def demo_pointing_sequence() -> go.Figure:
 
     # Initialize a simulation with 3 satellites
     sim_data = create_empty_simulation(sim_start_time)
+    add_celestial_bodies(sim_data)
     
     # Create a dummy TLE file for 1 satellite
     tle_data = """SAT-1
@@ -77,6 +78,8 @@ def demo_pointing_sequence() -> go.Figure:
     # Simulation loop for 30 steps (T=0 to T=29)
     for t in range(1, 30):
         print(f"\n--- Time Step {t} ---")
+        current_time = sim_start_time + timedelta(seconds=t * sim_data['delta_time'])
+        sim_data = celestial_update(sim_data, current_time)
         update_satellite_pointing(sim_data)
         vectors = sim_data['satellites']['pointing']
         trajectories[0].append(vectors[0].copy())

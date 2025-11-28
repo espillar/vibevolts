@@ -175,3 +175,4 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
         # TODO: This is not the right way to handle this with SimpleNamespace
         # sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float)])
+    sim_data = propagate_satellites_new(sim_data, sim_data['start_time'])

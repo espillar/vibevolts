@@ -20,7 +20,7 @@ The toolkit has been refactored into a modular structure:
 *   `simulation.py`: Functions to create the simulation data structure and add celestial bodies/fixed points.
 *   `propagation.py`: Orbit propagation, celestial mechanics, and adding satellites from TLE files.
 *   `observatories.py`: Functions to add ground-based observatories.
-*   `visibility.py`: Line-of-sight and exclusion calculations.
+*   `exclusion.py`: Line-of-sight and exclusion calculations.
 *   `pointing.py`: Satellite pointing control.
 *   `lambertian.py`: Lambertian sphere brightness calculations.
 *   `radiometry_data.py` & `radiometry_calcs.py`: Radiometric data and functions.

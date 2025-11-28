@@ -12,7 +12,7 @@ The core of the simulation is a data structure that represents the state of the 
 *   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
 *   **`observatories.py`**: Defines functions to add ground-based observatories to the simulation.
 *   **`constellation.py`**: Defines functions for creating satellite constellations. The `geos` function in this module creates a constellation of GEO satellites and adds them to the main 'satellites' group.
-*   **`visibility.py`**: Performs line-of-sight and exclusion calculations.
+
 *   **`pointing.py`**: Manages satellite pointing control.
 *   **`lambertian.py`**: Calculates Lambertian sphere brightness.
 *   **`radiometry_data.py` & `radiometry_calcs.py`**: Provide radiometric data and functions.
@@ -35,7 +35,7 @@ The `sim_data` dictionary is built incrementally. The following functions are re
 *   **`add_fixed_points`** (in `simulation.py`): Adds the `fixedpoints` dictionary to `sim_data`.
 *   **`add_satellites_from_tle`** (in `propagation.py`): Adds a satellite category dictionary (e.g., `satellites`) to `sim_data`.
 *   **`add_observatories`** (in `observatories.py`): Adds the `observatories` dictionary to `sim_data`.
-*   **`geos`** (in `constellation.py`): Adds a `satellites` dictionary for a GEO constellation to `sim_data`.
+
 *   **`generate_pointing_sphere`** (in `pointing.py`): Adds a pointing sphere to the `pointing_spheres` dictionary in `sim_data`.
 *   **`makeBlankDetector`** (in `detector.py`): Creates a blank detector array.
 *   **`makeDetector`** (in `detector.py`): Creates a detector array with specified parameters.
@@ -76,7 +76,11 @@ The `sim_data` dictionary is built incrementally. The following functions are re
     Args:
         sim_data: The main simulation data dictionary.
         n: The number of satellites to create.
+        band: The band the measurement takes place in (see radiometry_data).
         fov: The diameter of the field of view of the satellite in radians.
+        ifov: The pixel fov - assumed square - in radians
+        aper: The aperature diameter - assumed round - in meters
+        limitingmag: The limiting magnitude of the sensor
     """
         ```
 
@@ -735,28 +739,7 @@ The `sim_data` dictionary is built incrementally. The following functions are re
         """
         ```
 
-*   **`visibility.py`**: 
-    *   `solarexclusion(data_struct: Dict[str, Any])`: Calculates solar exclusion for all satellites based on their pointing vectors.
-        ```python
-        """
-        Calculates solar exclusion for all satellites based on their pointing vectors.
-
-    This function operates in a vectorized manner on all satellites in the
-    'satellites' category. It computes the angle between each satellite's
-    pointing vector and the vector from the satellite to the Sun.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-
-    Returns:
-        A tuple containing:
-        - exclusion_vector (np.ndarray): An array of the same length as the
-          number of satellites. An element is 1 if the satellite is within
-          the solar exclusion angle, 0 otherwise.
-        - angle_vector (np.ndarray): An array containing the calculated angle
-          in radians for each satellite.
-    """
-        ```
+*   **`exclusion.py`**: 
     *   `exclusion(data_struct: Dict[str, Any], satellite_index: int, print_debug: bool=False)`: Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
         ```python
         """
@@ -771,10 +754,10 @@ The `sim_data` dictionary is built incrementally. The following functions are re
         0 if the satellite's view is excluded, 1 otherwise.
     """
         ```
-    *   `update_visibility_table(data_struct: Dict[str, Any], print_debug_for_sat: Optional[int]=None)`: Updates the visibility table for each satellite against each fixed point.
+    *   `update_exclusion_table(data_struct: Dict[str, Any], print_debug_for_sat: Optional[int]=None)`: Updates the exclusion table for each satellite against each fixed point.
         ```python
         """
-        Updates the visibility table for each satellite against each fixed point.
+        Updates the exclusion table for each satellite against each fixed point.
 
     Args:
         data_struct: The main simulation data dictionary.
