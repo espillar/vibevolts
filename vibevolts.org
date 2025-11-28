@@ -1,3 +1,4 @@
+
 * Vibevolts
 
 Creating a new version of volts that runs faster using jules and Gemini-cli
@@ -123,22 +124,9 @@ See the file datastructure.org
 
 ** Details
 *** Coding [12/26]
-**** Get the detector structure right [12/12]
-- [X] At some point create a good builder function for the constellations 
-- [X] Create the constellation
-- [X] create the appropirate targeting grid and rules for traversing it.
-- [X] Set up pytest 
-- [X] first stage testing that displays things
-- [X] Get your documentation files for the math consistent in the cloud with what you have here.
-- [X] break the detector stuff out into it's own module and do testing
-- [X] look at the limiting magnitude, and it should create an integration time for that.
-- [X] Map out how detector tasking or searching fits in to the code
-- [X] Switch detector so that it's a SimpleNamespace. Get rid of the array indices.
-- [X] add integration time to the satellite detector structure
-- [X] Get the timing in there as well: that is how long it takes to move
-  forward a step
 **** Get a simple search pattern going [1/1]
 - [X] Basic pointing iteration working
+- [ ] have gemini write something to display what the jumping around looks like 
 - [ ] jump over missing exclusions until you can see something
 - [ ] make a new demo that plots what's going on somehow
 **** Photometer the objects and collect the results [/]
@@ -194,6 +182,15 @@ are actually updated, and that exclusions are updated,
 and maybe implement the nearest neighbor sorting on the fibonacci
 generation to make things more reasonable.
 
+
+
+*** [2025-11-27 Thu] Thanksgiving
+Looking at the pointing functions. I think I underetand
+Doing some demos to see if that's all looking good- generating a longer chain with one satellite (gemini doing the grunt work.)
+Task gemini with creating a greedy vector sorter to get the fibonacci sequence to be more efficient, and have it write a test.
+That seems to work well!  Add to all demos.
+Rename visibility to exclusion for clarity.
+Attempting to move exclusion into the pointing.py funcitons.
 *** [2025-11-26 Wed]
 Fiddled around a little to get cloud shell working so emacs would work.
 There are still some weird keypmappng problems but I'm working it.

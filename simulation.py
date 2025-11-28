@@ -60,5 +60,5 @@ def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None:
             inner_radius=2000000,
             outer_radius=84328000
         )[0],
-        'visibility': np.zeros((num_points, 0), dtype=int) # Visibility will be resized later
+        'exclusion': np.zeros((num_points, 0), dtype=int) # Exclusion will be resized later
     }

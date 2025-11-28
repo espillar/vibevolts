@@ -6,7 +6,7 @@ from simulation import create_empty_simulation
 from observatories import add_observatories
 from propagation import add_satellites_from_tle
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
-from pointing import generate_pointing_sphere, update_satellite_pointing, pointing_place_update
+from pointing import generate_pointing_sphere, update_satellite_pointing
 from plotting_vectors import plot_pointing_vectors
 
 def demo_pointing_sequence() -> go.Figure:
@@ -77,7 +77,6 @@ def demo_pointing_sequence() -> go.Figure:
     # Simulation loop for 30 steps (T=0 to T=29)
     for t in range(1, 30):
         print(f"\n--- Time Step {t} ---")
-        pointing_place_update(sim_data)
         update_satellite_pointing(sim_data)
         vectors = sim_data['satellites']['pointing']
         trajectories[0].append(vectors[0].copy())

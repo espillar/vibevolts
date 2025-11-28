@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from demo_common import initialize_standard_simulation
 from propagation import celestial_update
-from visibility import update_visibility_table
+from exclusion import update_exclusion_table
 
 def demo_exclusion_debug_print():
     """
@@ -27,7 +27,7 @@ def demo_exclusion_debug_print():
     original_fixed_points = sim_data['fixedpoints']['position']
     sim_data['fixedpoints']['position'] = original_fixed_points[:100]
 
-    update_visibility_table(sim_data, print_debug_for_sat=0)
+    update_exclusion_table(sim_data, print_debug_for_sat=0)
 
     sim_data['fixedpoints']['position'] = original_fixed_points
     print("\n--- Debug Print Demo Complete ---")

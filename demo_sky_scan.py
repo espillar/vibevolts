@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from simulation import create_empty_simulation, add_celestial_bodies
 from propagation import add_satellites_from_tle, propagate_satellites_new, celestial_update
-from visibility import exclusion
+from exclusion import exclusion
 
 def demo_sky_scan() -> go.Figure:
     """
@@ -70,7 +70,7 @@ def demo_sky_scan() -> go.Figure:
         colorscale=[[0, 'red'], [1, 'lightgreen']],
         showscale=False,
         colorbar=dict(
-            title='Visibility',
+            title='Exclusion',
             tickvals=[0, 1],
             ticktext=['Excluded', 'Clear']
         )

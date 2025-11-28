@@ -3,6 +3,7 @@ from typing import Dict, Any
 
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity
+from exclusion import exclusion
 
 def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: bool = False) -> None:
     """
@@ -35,8 +36,7 @@ def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: 
 
 def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
     """
-    Updates the pointing vector for each satellite based on its pointing state.
-    Currently uses a point in 'pointing_spheres'.
+    Updates the pointing vector for each satellite, skipping excluded pointing directions.
     """
     num_sats = data_struct['counts']['satellites']
     if num_sats == 0:
@@ -47,32 +47,33 @@ def update_satellite_pointing(data_struct: Dict[str, Any]) -> None:
 
     for i in range(num_sats):
         count = int(pointing_state[i, POINTING_COUNT_IDX])
+        if count <= 0:
+            continue
+
+        if count not in data_struct['pointing_spheres']:
+            raise ValueError(f"Pointing sphere for {count} points not generated.")
+
+        grid = data_struct['pointing_spheres'][count]
+        
         place = int(pointing_state[i, POINTING_PLACE_IDX])
+        start_place = place
 
-        if count > 0:
-            if count not in data_struct['pointing_spheres']:
-                raise ValueError(f"Pointing sphere for {count} points not generated.")
+        while True:
+            place += 1
+            if place >= count:
+                place = 0
 
-            grid = data_struct['pointing_spheres'][count]
             pointing_vectors_all[i] = grid[place]
+            
+            if exclusion(data_struct, i) == 0:
+                pointing_state[i, POINTING_PLACE_IDX] = place
+                break
+            
+            if place == start_place:
+                print(f"Warning: Satellite {i} has all pointing vectors excluded.")
+                pointing_state[i, POINTING_PLACE_IDX] = place
+                break
 
-
-def pointing_place_update(data_struct: Dict[str, Any]) -> None:
-    """
-    Increments the pointing place for all satellites, wrapping around if necessary.
-    Basically this usges data_struct['satellites']['pointing_state'] and wraps to
-    0 if its     POINTING_COUNT_IDX or greater.
-    """
-
-    pointing_state = data_struct['satellites']['pointing_state']
-    pointing_counts = pointing_state[:, POINTING_COUNT_IDX]
-
-    # Increment pointing place
-    pointing_state[:, POINTING_PLACE_IDX] += 1
-
-    # Wrap around where place >= count
-    wrap_around_indices = np.where(pointing_state[:, POINTING_PLACE_IDX] >= pointing_counts)
-    pointing_state[wrap_around_indices, POINTING_PLACE_IDX] = 0
 
 def jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, Any]:
     """
@@ -114,10 +115,10 @@ def jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str
 
 def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Finds satellites with no visibility and applies the 'jerk' function to them.
+    Finds satellites with no exclusion and applies the 'jerk' function to them.
 
     This function finds satellites with no visible fixed points (i.e., the
-    column sum in the visibility table is 0) and calls the `jerk` function
+    column sum in the exclusion table is 0) and calls the `jerk` function
     to randomly adjust their pointing vectors.
 
     Args:
@@ -126,9 +127,9 @@ def find_and_jerk_blind_satellites(data_struct: Dict[str, Any]) -> Dict[str, Any
     Returns:
         The modified data_struct.
     """
-    visibility_table = data_struct['fixedpoints']['visibility']
+    exclusion_table = data_struct['fixedpoints']['exclusion']
 
-    column_sums = np.sum(visibility_table, axis=0)
+    column_sums = np.sum(exclusion_table, axis=0)
     blind_satellite_indices = np.where(column_sums == 0)[0]
 
     if blind_satellite_indices.size > 0:
