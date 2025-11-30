@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation, add_fixed_points
+from simulation import create_empty_simulation
+from targets import add_fixed_points
 from plotting_3d import plot_3d_scatter
 
 def demo_fixedpoints() -> go.Figure:
@@ -18,7 +19,7 @@ def demo_fixedpoints() -> go.Figure:
     sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
 
     sim_data = create_empty_simulation(sim_start_time)
-    add_fixed_points(sim_data, 10000)
+    add_fixed_points(sim_data, 100)
 
     fixed_positions = sim_data['fixedpoints']['position']
 
@@ -29,7 +30,10 @@ def demo_fixedpoints() -> go.Figure:
         title="Fixed Points Distribution",
         plot_time=sim_start_time,
         labels=[f"Point {i}" for i in range(len(fixed_positions))],
-        marker_size=1,
+        marker_size=3,
         trace_name='Fixed Points'
     )
     return fig
+
+
+

@@ -101,15 +101,21 @@ in org format in datastrucure.org
   them.
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [1/7]
+**** Get a simple search pattern going [5/8]
 - [X] Basic pointing iteration working
-- [ ] Code review-review what your are doing and make sure it's documented
-- [ ] have gemini write something to display what the jumping around looks like
-- [ ] jump over missing exclusions until you can see something
-- [ ] make a new demo that plots what's going on somehow
-  - [ ] initialize(some sort of label)
-     creates the data structure for each of the satellite detectors,
+- [X] Code review-review what your are doing and make sure it's documented
+- [X] have gemini write something to display what the jumping around looks like
+- [X] jump over missing exclusions until you can see something
+- [X] make a new demo that plots what's going on somehow
+- [ ] clean up extraneous links to fixedpoints
+- [ ] Check that you have targets with sizes- what are they again? Review, make
+  a section in documentation - I don't think fixedpoints has the right stuff in it
+- [ ] disentangle detectors from satellites - 
+- [ ] create function that takes a satellite and the targets and determines all
+  of the SNRs 
+- [ ] creates the data structure for each of the satellite detectors,
      adds the structure to the detector
+- [ ] Get temporal evolution of the models to work
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
 - [ ] iterateOverDetectors()
@@ -145,6 +151,14 @@ I wonder exactly who changed those variable names when? Somewhat frustrating.
 Cleaned up my documentation on where I was going
 Looks like some of the MD documentation is in correct, some functions are not where they
 say they are. Task gemini to fix.
+I can tell I'm not focusing, I'm being distracted by my tools and not in flow.
+Back from lunch run the demos one time to be sure things are still basically running.
+OK,figured the bug out by printing where things weren't agreeing on the same side and
+feeding to gemini. Problem: copying references instead of values.
+OK, calling that part done for now.
+Move add_fixed_points to target.py
+I think I will add a new module visibility to create and collect the visibilty data.
+Or maybe I could put it in pointing?
 
 *** [2025-11-28 Fri]
 All tests seem to be running.

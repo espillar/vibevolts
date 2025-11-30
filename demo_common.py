@@ -5,7 +5,8 @@ from astropy.coordinates import solar_system_ephemeris
 
 # Adjusting import paths for the new project structure
 from propagation import add_satellites_from_tle, propagate_satellites_new
-from simulation import create_empty_simulation, add_celestial_bodies, add_fixed_points
+from simulation import create_empty_simulation, add_celestial_bodies
+from targets import add_fixed_points
 from observatories import add_observatories
 
 def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:

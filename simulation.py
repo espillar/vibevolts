@@ -45,20 +45,3 @@ def add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
         'acceleration': np.zeros((2, 3), dtype=float),
     }
 
-def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100) -> None:
-    """
-    Adds a structure for fixed reference points in the GCRS frame.
-
-    Args:
-        sim_data: The simulation data dictionary.
-        num_points: The number of fixed points to generate.
-    """
-    sim_data['counts']['fixedpoints'] = num_points
-    sim_data['fixedpoints'] = {
-        'position': generate_log_spherical_points(
-            num_points=num_points,
-            inner_radius=2000000,
-            outer_radius=84328000
-        )[0],
-        'exclusion': np.zeros((num_points, 0), dtype=int) # Exclusion will be resized later
-    }
