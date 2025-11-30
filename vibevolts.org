@@ -1,23 +1,6 @@
-
-* Vibevolts
-
+* Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
-
-* Done
-** Create new points instead of red satellties
-- Do a little research to figure out how to create a nice 3d
-  space filling set of points.
-- create a nice grid of points to be observed for now. 
-
-** exclusions Satellites and observatories
-This test needs to be applied to any potential or actual pointing.
-It should be done across the whole vector.
-- solar - is the sun within the FOV
-- lunar - is the moon within the FOV  
-- earth - for satellite is the earth within FOV, for observatory
-  make it above the horizon.
-
-* Notes
+* Notes: infrastrucure, some code ideas
 ** Infrastructure
 *** Jules
 Appears to hook into the system right,  including when logged in as 
@@ -90,20 +73,15 @@ other files.
 In addition to datastructure.md, keep that file, but make a copy
 in org format in datastrucure.org
 
-* Architecture
-See the file datastructure.org
-
 * Todo
-** visibility
-- Create a 2-d array that has a flag for each time the satellite
+** Fuzzy Thoughts
+*** satellite visibiilty [0/2]
+- [ ] Create a 2-d array that has a flag for each time the satellite
   might be observed, a row for each time in the simulaton,
   and a  vector of the times for the rows.
-- for each target, compute if its within anyones FOV, if the
+- [ ] for each target, compute if its within anyones FOV, if the
   observer isn't blinded, and the SNR is high enough.
-
-** Pointing selections (OK, this one will take some developement!)
-
-** Search Implementation
+*** Search Implementation
 - Choose an interval for propagation short compared
   to the time it takes an object to move significantly across fields.
 - Develop an algorithm to choose subsequent FOVs and remember how long
@@ -114,21 +92,30 @@ See the file datastructure.org
 - Rollover fractions accumulate to the next time interval.
 - This should work for FOV intervals both long and short compared to the
   propagation time, as long as things don't move TOO fast.
-** Scoring
+*** Scoring
 - use the visibilty matrix above
 - take the visibility vector and calculate the fraction
   of the time that the thing is observed
 - Calculate the gap times- basically for each column,
   compute the interobservation distances and histogram
   them.
-
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [1/1]
+**** Get a simple search pattern going [1/7]
 - [X] Basic pointing iteration working
-- [ ] have gemini write something to display what the jumping around looks like 
+- [ ] Code review-review what your are doing and make sure it's documented
+- [ ] have gemini write something to display what the jumping around looks like
 - [ ] jump over missing exclusions until you can see something
 - [ ] make a new demo that plots what's going on somehow
+  - [ ] initialize(some sort of label)
+     creates the data structure for each of the satellite detectors,
+     adds the structure to the detector
+- [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
+  skips occulted cells
+- [ ] iterateOverDetectors()
+- [ ] forTest(targets, gridlist) -> 
+  iterates over gridlist puts hits in detectionDB
+
 **** Photometer the objects and collect the results [/]
 - [ ] huh? create a mask that includes only those things that are in field and
     not blinded
@@ -147,44 +134,22 @@ See the file datastructure.org
 - [ ] Also clarify in your Vade Mecum
 - [ ] think about where you get the backgrounds
 
-  
-*** Search Desin
-**** Structures [/]
-- [X] detection:
-[[time, satnumber, targetnumber, SNR], 
-search: {
-   searchgrid: pointer to search grid
-   searchlocation: pointer to where we are in the grid
-   iterateSearch: function to iterate search
-   forTest: tests if a satellite is in the field of regard   
-} 
-**** Functions  [2/5]
-- [X] generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int) -> None:
-- [X] Create fibonacciPointing file steealing things that exist
-- [ ] initialize(some sort of label)
-    creates the data structure for each of the satellite detectors,
-    adds the structure to the detector
-- [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
-  skips occulted cells
-- [ ] iterateOverDetectors()
-- [ ] forTest(targets, gridlist) -> 
-  iterates over gridlist puts hits in detectionDB
-*** Infrastructure [1/2]
-- [X] update your brew or whatever and get the google vetted gemini installed on
-  Neptune.
-- [ ] I could probably run a linter and a formatter across things
-
 * Log
 ** 2025-11
-*** NEXT
-I need to make sure the pointing positins in update_satellite+pointing
-are actually updated, and that exclusions are updated,
-and maybe implement the nearest neighbor sorting on the fibonacci
-generation to make things more reasonable.
+*** [2025-11-30 Sun]
+Having Gemini run the demos crashes immediately. On one hand this is irritating,
+on the other hand it's a good check! Let's examine this deliberately.
+It looks like some constants changed at some point: I think I'm going to let it change
+things since it will be hard to trace all the changes.  I need to pay more attention though.
+I wonder exactly who changed those variable names when? Somewhat frustrating.
+Cleaned up my documentation on where I was going
+Looks like some of the MD documentation is in correct, some functions are not where they
+say they are. Task gemini to fix.
+
 *** [2025-11-28 Fri]
 All tests seem to be running.
 I need to look at whether exclusions are making it in to the tracking part.
-
+Got way to distracted by life
 *** [2025-11-27 Thu] Thanksgiving
 Looking at the pointing functions. I think I underetand
 Doing some demos to see if that's all looking good- generating a longer chain with one satellite (gemini doing the grunt work.)

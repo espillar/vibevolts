@@ -53,6 +53,12 @@ The `sim_data` dictionary is built incrementally. The following functions are re
             save_html (bool): If True, saves plots to HTML. If False, displays plots inline.
         """
         ```
+    *   `demo_vector_resorting_plot()`: Runs the test_vector_resorting function and returns its figure.
+        ```python
+        """
+        Runs the test_vector_resorting function and returns its figure.
+        """
+        ```
 
 *   **`constants.py`**: This module contains global constants for array indices and physical constants.
 
@@ -317,12 +323,49 @@ The `sim_data` dictionary is built incrementally. The following functions are re
         ```
 
 *   **`fibonacciSearch.py`**:
-    *   `searchStruct(detect)`: Creates the data structure for each of the satellite detectors.
+    *   `pointing_vectors(n: int)`: Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
         ```python
-        '''
-        creates the data structure for each of the satellite detectors,
-        adds the structure to the detector
-        '''
+        """
+        Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
+
+    Args:
+        n: The number of points to generate.
+
+    Returns:
+        A NumPy array of shape (n, 3) for the Cartesian coordinates of the points.
+    """
+        ```
+    *   `resort_vectors_by_proximity(unit_vectors: np.ndarray)`: Resorts a list of vectors by making each subsequent vector the closest one in the remaining set to the previous one.
+        ```python
+        """
+        Resorts a list of vectors by making each subsequent vector the closest one
+    in the remaining set to the previous one.
+
+    Args:
+        unit_vectors: A NumPy array of shape (n, 3) representing the vectors.
+
+    Returns:
+        A new NumPy array with the reordered vectors.
+    """
+        ```
+    *   `plot_vectors_on_sphere(vectors: np.ndarray, title: str)`: Creates a 3D plot of vectors on a sphere.
+        ```python
+        """
+        Creates a 3D plot of vectors on a sphere.
+
+    Args:
+        vectors: A NumPy array of shape (n, 3) representing the vectors.
+        title: The title of the plot.
+
+    Returns:
+        A Plotly figure object.
+    """
+        ```
+    *   `test_vector_resorting()`: Tests the vector resorting and plots the Euclidean distance between subsequent vectors.
+        ```python
+        """
+        Tests the vector resorting and plots the Euclidean distance between subsequent vectors.
+        """
         ```
 
 *   **`generate_log_spherical_points.py`**: 
@@ -516,33 +559,6 @@ The `sim_data` dictionary is built incrementally. The following functions are re
 
     Returns:
         The modified data_struct.
-    """
-        ```
-
-*   **`pointing_vectors.py`**: 
-    *   `pointing_vectors(n: int)`: Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
-        ```python
-        """
-        Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
-
-    Args:
-        n: The number of points to generate.
-
-    Returns:
-        A NumPy array of shape (n, 3) for the Cartesian coordinates of the points.
-    """
-        ```
-    *   `plot_vectors_on_sphere(vectors: np.ndarray, title: str)`: Creates a 3D plot of vectors on a sphere.
-        ```python
-        """
-        Creates a 3D plot of vectors on a sphere.
-
-    Args:
-        vectors: A NumPy array of shape (n, 3) representing the vectors.
-        title: The title of the plot.
-
-    Returns:
-        A Plotly figure object.
     """
         ```
 
