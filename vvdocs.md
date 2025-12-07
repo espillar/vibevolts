@@ -8,16 +8,18 @@ VibeVolts is a Python-based simulation toolkit for space environment modeling. I
 
 The core of the simulation is a data structure that represents the state of the simulation at a given time. This data structure is initialized and updated by a set of functions that are organized into the following modules:
 
-*   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
+*   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies.
 *   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
 *   **`observatories.py`**: Defines functions to add ground-based observatories to the simulation.
 *   **`constellation.py`**: Defines functions for creating satellite constellations. The `geos` function in this module creates a constellation of GEO satellites and adds them to the main 'satellites' group.
+*   **`targets.py`**: Defines functions for creating fixed points (targets).
+*   **`sim_check.py`**: A script for checking the integrity of the simulation data structure.
 
 *   **`pointing.py`**: Manages satellite pointing control.
 *   **`lambertian.py`**: Calculates Lambertian sphere brightness.
 *   **`radiometry_data.py` & `radiometry_calcs.py`**: Provide radiometric data and functions.
 *   **`plotting_3d.py` & `plotting_vectors.py`**: Contain 3D visualization functions.
-*   **`pointing_vectors.py`**: Includes functions for generating and visualizing uniformly distributed vectors on a sphere.
+*   **`fibonacciSearch.py`**: Includes functions for generating and visualizing uniformly distributed vectors on a sphere.
 *   **`generate_log_spherical_points.py`**: Provides tools for generating 3D point clouds.
 *   **`demo_common.py`**: A utility module that provides helper functions for the demo scripts.
 *   **`demo_constellation.py`**: A demo script for creating and visualizing satellite constellations.
@@ -32,7 +34,7 @@ The `sim_data` dictionary is built incrementally. The following functions are re
 
 *   **`create_empty_simulation`** (in `simulation.py`): Initializes the top-level `sim_data` dictionary with `start_time`, `delta_time`, `counts`, and `pointing_spheres`.
 *   **`add_celestial_bodies`** (in `simulation.py`): Adds the `celestial` dictionary to `sim_data`.
-*   **`add_fixed_points`** (in `simulation.py`): Adds the `fixedpoints` dictionary to `sim_data`.
+*   **`add_fixed_points`** (in `targets.py`): Adds the `fixedpoints` dictionary to `sim_data`.
 *   **`add_satellites_from_tle`** (in `propagation.py`): Adds a satellite category dictionary (e.g., `satellites`) to `sim_data`.
 *   **`add_observatories`** (in `observatories.py`): Adds the `observatories` dictionary to `sim_data`.
 
@@ -704,42 +706,10 @@ The `sim_data` dictionary is built incrementally. The following functions are re
     *   `record_ra_dec()`: Records the RA and Dec of a satellite.
 
 *   **`simulation.py`**: 
-    *   `create_empty_simulation(start_time: datetime, delta_time: float=60.0)`: Initializes a minimal, empty data structure for a space simulation.
-        ```python
-        """
-        Initializes a minimal, empty data structure for a space simulation.
-
-    Args:
-        start_time: The starting time and date of the simulation. This must be a
-                    timezone-aware datetime object set to UTC.
-        delta_time: The time step for the simulation in seconds.
-
-    Returns:
-        A dictionary representing the basic simulation state.
-     This includes s
-    
-    """
-        ```
-    *   `add_celestial_bodies(sim_data: Dict[str, Any])`: Adds celestial body structures (for Sun and Moon) to the simulation data.
-        ```python
-        """
-        Adds celestial body structures (for Sun and Moon) to the simulation data.
-
-    Args:
-        sim_data: The simulation data dictionary.
-    """
-        ```
-    *   `add_fixed_points(sim_data: Dict[str, Any], num_points: int=100)`: Adds a structure for fixed reference points in the GCRS frame.
-        ```python
-        """
-        Adds a structure for fixed reference points in the GCRS frame.
-
-    Args:
-        sim_data: The simulation data dictionary.
-        num_points: The number of fixed points to generate.
-    """
-        ```
-
+*   **`sim_check.py`**:
+    *   `sim_check(sim_data)`: Prints a brief summary of what's present in a sim_data structure.
+*   **`targets.py`**:
+    *   `add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100)`: Adds a structure for fixed reference points in the GCRS frame.
 *   **`tests/test_simulation.py`**: 
     *   `test_create_empty_simulation_structure()`: Tests that create_empty_simulation returns a dictionary with the expected keys and initial values.
         ```python

@@ -1,10 +1,26 @@
 # VibeVolts Gemini Documentation
 
-## Project Overview
+## Project OvervieW
 
-VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. The toolkit is highly modular, with a clear separation of concerns between different components of the simulation.
 
-The core of the simulation is a data structure that represents the state of the simulation at a given time. This data structure is initialized and updated by a set of functions that are organized into the following modules:
+
+VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. These are intended be evolved in a discrete event simulation. 
+
+
+
+## Data Structure
+
+There is a "global" data structure 
+
+The current state of the simulation is stored in a dictionary typically called sim_data which is passed between the routines that initialize and operate on the components to initialize, evolve, and interrogate the overall system.  The different components of the system are typically dealt with by different modules.   
+
+In order to maximize the use of numpy and other parallel tools,  components like satellite elements are typically stored in arrays comprising all of the satellites in one numpy array, in this way efficient parallel numpy routines can easily be leveraged.
+
+Here is current trace of what the structure looks like and how it evolves.
+
+
+
+ This data structure is initialized and updated by a set of functions that are organized into the following modules:
 
 *   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
 *   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
