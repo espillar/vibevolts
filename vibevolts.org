@@ -107,9 +107,9 @@ in org format in datastrucure.org
 - [X] have gemini write something to display what the jumping around looks like
 - [X] jump over missing exclusions until you can see something
 - [X] make a new demo that plots what's going on somehow
-- [ ] clean up extraneous links to fixedpoints
 - [ ] Check that you have targets with sizes- what are they again? Review, make
   a section in documentation - I don't think fixedpoints has the right stuff in it
+- [ ] clean up extraneous links to fixedpoints
 - [ ] disentangle detectors from satellites - 
 - [ ] create function that takes a satellite and the targets and determines all
   of the SNRs 
@@ -141,6 +141,12 @@ in org format in datastrucure.org
 - [ ] think about where you get the backgrounds
 
 * Log
+
+** 2025-12
+
+*** [2025-12-07 Sun]
+Well that was a week without progress.
+
 ** 2025-11
 *** [2025-11-30 Sun]
 Having Gemini run the demos crashes immediately. On one hand this is irritating,
