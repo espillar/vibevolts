@@ -44,25 +44,6 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'detector': detector,
     }
 
-def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
-    """
-    Calculates and updates the positions of the Sun and Moon.
-    """
-    if time_date.tzinfo is None:
-        raise ValueError("time_date must be timezone-aware.")
-
-    astro_time = Time(time_date)
-    sun_coords = get_body("sun", astro_time)
-    sun_gcrs = sun_coords.transform_to(GCRS(obstime=astro_time))
-    moon_coords = get_body("moon", astro_time)
-    moon_gcrs = moon_coords.transform_to(GCRS(obstime=astro_time))
-
-    celestial_pos = data_struct['celestial']['position']
-    celestial_pos[0] = sun_gcrs.cartesian.xyz.to(u.m).value
-    celestial_pos[1] = moon_gcrs.cartesian.xyz.to(u.m).value
-
-    return data_struct
-
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
     """
     Reads a TLE file and extracts orbital elements and epochs for each satellite.

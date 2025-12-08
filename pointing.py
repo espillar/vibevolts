@@ -5,8 +5,9 @@ from datetime import datetime, timezone
 import plotly.graph_objects as go
 import os
 
-from simulation import create_empty_simulation, add_celestial_bodies
-from propagation import add_satellites_from_tle, propagate_satellites_new, celestial_update
+from simulation import create_empty_simulation
+from celestialbodies import add_celestial_bodies, celestial_update
+from propagation import add_satellites_from_tle, propagate_satellites_new
 from plotting_3d import plot_3d_scatter
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity

@@ -2,7 +2,8 @@ from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
 from demo_common import initialize_standard_simulation
-from propagation import celestial_update, propagate_satellites_new
+from celestialbodies import celestial_update
+from propagation import propagate_satellites_new
 from plotting_3d import plot_3d_scatter
 
 def demo1() -> go.Figure:

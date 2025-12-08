@@ -4,10 +4,6 @@ from typing import Dict, Any
 from constants import *
 
 
-
-
-
-
 def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> Dict[str, Any]:
     """
     Initializes a minimal, empty data structure for a space simulation.
@@ -18,8 +14,8 @@ def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> D
         delta_time: The time step for the simulation in seconds.
 
     Returns:
-        A dictionary representing the basic simulation state.
-     This includes s
+        A dictionary representing the basic simulation state, not yet filled except
+        for date and time and counts and pointing spheres
     
     """
     if not isinstance(start_time, datetime):
@@ -34,18 +30,4 @@ def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> D
         'pointing_spheres': {},
     }
     return simulation_data
-
-def add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
-    """
-    Adds celestial body structures (for Sun and Moon) to the simulation data.
-
-    Args:
-        sim_data: The simulation data dictionary.
-    """
-    sim_data['counts']['celestial'] = 2  # Sun and Moon
-    sim_data['celestial'] = {
-        'position': np.zeros((2, 3), dtype=float),
-        'velocity': np.zeros((2, 3), dtype=float),
-        'acceleration': np.zeros((2, 3), dtype=float),
-    }
 

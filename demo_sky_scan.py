@@ -2,8 +2,9 @@ import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation, add_celestial_bodies
-from propagation import add_satellites_from_tle, propagate_satellites_new, celestial_update
+from simulation import create_empty_simulation
+from celestialbodies import add_celestial_bodies, celestial_update
+from propagation import add_satellites_from_tle, propagate_satellites_new
 from exclusion import exclusion
 
 def demo_sky_scan() -> go.Figure:

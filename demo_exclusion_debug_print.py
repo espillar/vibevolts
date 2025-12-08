@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timezone
 
 from demo_common import initialize_standard_simulation
-from propagation import celestial_update
+from celestialbodies import celestial_update
 from exclusion import update_exclusion_table
 
 def demo_exclusion_debug_print():

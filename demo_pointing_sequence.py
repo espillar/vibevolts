@@ -2,9 +2,11 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation, add_celestial_bodies
+from simulation import create_empty_simulation
+from celestialbodies import add_celestial_bodies
 from observatories import add_observatories
-from propagation import add_satellites_from_tle, celestial_update
+from propagation import add_satellites_from_tle
+from celestialbodies import celestial_update
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from pointing import generate_pointing_sphere, update_satellite_pointing
 from plotting_vectors import plot_pointing_vectors

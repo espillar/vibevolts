@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import plotly.graph_objects as go
 
 from demo_common import initialize_standard_simulation
-from propagation import celestial_update
+from celestialbodies import celestial_update
 from exclusion import update_exclusion_table
 
 def demo_exclusion_table() -> go.Figure:

@@ -1,3 +1,4 @@
+
 * Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
 * Notes: infrastrucure, some code ideas
@@ -143,9 +144,17 @@ in org format in datastrucure.org
 * Log
 
 ** 2025-12
+*** [2025-12-08 Mon]
+Refactoring a little, putting celestialbody code into celestialbodies.py instead
+of elsewhere. Trying to see if gemini can handle this right.
 
 *** [2025-12-07 Sun]
 Well that was a week without progress.
+Didn't make TOO much progress today, I had a cold. However,
+I did have gemini produce a nice documentation file
+simulation_data_trace.md
+that I think will be very helpful going forward.
+
 
 ** 2025-11
 *** [2025-11-30 Sun]
