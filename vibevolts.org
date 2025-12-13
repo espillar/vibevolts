@@ -75,42 +75,15 @@ In addition to datastructure.md, keep that file, but make a copy
 in org format in datastrucure.org
 
 * Todo
-** Fuzzy Thoughts
-*** satellite visibiilty [0/2]
-- [ ] Create a 2-d array that has a flag for each time the satellite
-  might be observed, a row for each time in the simulaton,
-  and a  vector of the times for the rows.
-- [ ] for each target, compute if its within anyones FOV, if the
-  observer isn't blinded, and the SNR is high enough.
-*** Search Implementation
-- Choose an interval for propagation short compared
-  to the time it takes an object to move significantly across fields.
-- Develop an algorithm to choose subsequent FOVs and remember how long
-  they take.
-- Every propagation tick, decide how many FOV's would have been used.
-  Include the next FOVs in what was surveiled during the interval.
-  Surveil those zones.
-- Rollover fractions accumulate to the next time interval.
-- This should work for FOV intervals both long and short compared to the
-  propagation time, as long as things don't move TOO fast.
-*** Scoring
-- use the visibilty matrix above
-- take the visibility vector and calculate the fraction
-  of the time that the thing is observed
-- Calculate the gap times- basically for each column,
-  compute the interobservation distances and histogram
-  them.
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [5/8]
-- [X] Basic pointing iteration working
-- [X] Code review-review what your are doing and make sure it's documented
-- [X] have gemini write something to display what the jumping around looks like
-- [X] jump over missing exclusions until you can see something
-- [X] make a new demo that plots what's going on somehow
-- [ ] Check that you have targets with sizes- what are they again? Review, make
+**** Get a simple search pattern going [3/12]
+- [X] Review that your targets are defined and have sizes
+- [X] add radii and types to your targets
+- [X] Check that you have targets with sizes- what are they again? Review, make
   a section in documentation - I don't think fixedpoints has the right stuff in it
 - [ ] clean up extraneous links to fixedpoints
+- [ ] create a simulation skeleton you are going to work with
 - [ ] disentangle detectors from satellites - 
 - [ ] create function that takes a satellite and the targets and determines all
   of the SNRs 
@@ -120,14 +93,9 @@ in org format in datastrucure.org
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
 - [ ] iterateOverDetectors()
-- [ ] forTest(targets, gridlist) -> 
-  iterates over gridlist puts hits in detectionDB
-
+- [ ] mark targets that are in eclipse
+  
 **** Photometer the objects and collect the results [/]
-- [ ] huh? create a mask that includes only those things that are in field and
-    not blinded
-- [ ] cut those out and process for limiting magnitude
-- [ ] fill back in an array of detected
 - [ ] iterate over some cycles and make sure things are evolving
 - [ ] write some code that computes what been detected and do a 3-D map
 - [ ] next build in something that stores these thing and computs gap times
@@ -141,9 +109,27 @@ in org format in datastrucure.org
 - [ ] Also clarify in your Vade Mecum
 - [ ] think about where you get the backgrounds
 
+*** satellite visibiilty [0/2]
+- [ ] Create a 2-d array that has a flag for each time the satellite
+  might be observed, a row for each time in the simulaton,
+  and a  vector of the times for the rows.
+- [ ] for each target, compute if its within anyones FOV, if the
+  observer isn't blinded, and the SNR is high enough.
+- This should work for FOV intervals both long and short compared to the
+  propagation time, as long as things don't move TOO fast.
+- use the visibilty matrix above
+- take the visibility vector and calculate the fraction
+  of the time that the thing is observed
+- Calculate the gap times- basically for each column,
+  compute the interobservation distances and histogram
+  them.
 * Log
 
 ** 2025-12
+
+** [2025-12-13 Sat]
+Been a slow two weeks.  I need to do some focus here.
+
 *** [2025-12-08 Mon]
 Refactoring a little, putting celestialbody code into celestialbodies.py instead
 of elsewhere. Trying to see if gemini can handle this right.

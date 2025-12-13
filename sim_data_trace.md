@@ -10,10 +10,21 @@ For each module, the functions are organized into two subsections:
 
 ## `simulation.py`
 
-**Description:** This module lays the foundation of the simulation data structure. It initializes the dictionary and adds fundamental simulation parameters, celestial bodies, and fixed ground points.
+**Description:** This module lays the foundation of the simulation data structure. It initializes the dictionary and adds fundamental simulation parameters.
 
 ### Defined Functions:
 - `create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> Dict[str, Any]`
+
+### Called Functions:
+- None
+
+---
+
+## `celestialbodies.py`
+
+**Description:** This module adds celestial bodies to the simulation.
+
+### Defined Functions:
 - `add_celestial_bodies(sim_data: Dict[str, Any]) -> None`
 
 ### Called Functions:
@@ -88,7 +99,7 @@ For each module, the functions are organized into two subsections:
 - `generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: bool = False) -> None`
 - `update_satellite_pointing(data_struct: Dict[str, Any], debug: bool = False) -> None`
 - `demo_exclusion_pointing()`
-- `jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, Any]`
+- `jerk(data_struct: Dict[str, Any], satellite_number: int) -> Dict[str, Any]`
 
 ### Called Functions:
 - `generate_pointing_sphere` calls:
@@ -125,6 +136,14 @@ For each module, the functions are organized into two subsections:
 ## Modules for Calculation (No `sim_data` Modification)
 
 The following modules contain functions that primarily perform calculations using data from `sim_data` but do not modify the structure itself. Their outputs are typically returned directly to the caller.
+
+### `visibility.py`
+
+#### Defined Functions:
+- `is_visible(r1, r2, R_body)`
+
+#### Called Functions:
+- None
 
 ### `exclusion.py`
 

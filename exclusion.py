@@ -128,10 +128,10 @@ def exclusion(
 
     return 1 if np.any(is_excluded) else 0
 
-def update_exclusion_table(
-    data_struct: Dict[str, Any],
-    print_debug_for_sat: Optional[int] = None
-) -> None:
+#def update_exclusion_table(
+#    data_struct: Dict[str, Any],
+#    print_debug_for_sat: Optional[int] = None
+#) -> None:
     """
     Updates the exclusion table for each satellite against each fixed point.
     This is mostly used for debugging, when we are actually running a simulation,
@@ -143,26 +143,26 @@ def update_exclusion_table(
         print_debug_for_sat: If an integer is provided, the `exclusion` function's
                              debug printout will be enabled for that satellite index.
     """
-    num_satellites = data_struct['counts']['satellites']
-    fixed_points = data_struct['fixedpoints']['position']
-    num_fixed_points = len(fixed_points)
-    exclusion_table = data_struct['fixedpoints']['exclusion']
+ #   num_satellites = data_struct['counts']['satellites']
+ #   fixed_points = data_struct['fixedpoints']['position']
+ #   num_fixed_points = len(fixed_points)
+#    exclusion_table = data_struct['fixedpoints']['exclusion']
+#
+#    # Ensure the exclusion table has the correct shape
+#    if exclusion_table.shape != (num_fixed_points, num_satellites):
+#        data_struct['fixedpoints']['exclusion'] = np.zeros((num_fixed_points, num_satellites), dtype=int)
+#        exclusion_table = data_struct['fixedpoints']['exclusion']
 
-    # Ensure the exclusion table has the correct shape
-    if exclusion_table.shape != (num_fixed_points, num_satellites):
-        data_struct['fixedpoints']['exclusion'] = np.zeros((num_fixed_points, num_satellites), dtype=int)
-        exclusion_table = data_struct['fixedpoints']['exclusion']
+#    if num_satellites == 0 or num_fixed_points == 0:
+#        return
 
-    if num_satellites == 0 or num_fixed_points == 0:
-        return
+#    satellite_positions = data_struct['satellites']['position']
 
-    satellite_positions = data_struct['satellites']['position']
-
-    for i in range(num_satellites):
-        sat_pos = satellite_positions[i]
-        should_print_debug = (i == print_debug_for_sat)
-        for j in range(num_fixed_points):
-            fixed_point_pos = fixed_points[j]
-            pointing_vector = fixed_point_pos - sat_pos
-            data_struct['satellites']['pointing'][i] = pointing_vector
-            exclusion_table[j, i] = exclusion(data_struct, i, print_debug=should_print_debug)
+#    for i in range(num_satellites):
+#        sat_pos = satellite_positions[i]
+#        should_print_debug = (i == print_debug_for_sat)
+#        for j in range(num_fixed_points):
+#            fixed_point_pos = fixed_points[j]
+#            pointing_vector = fixed_point_pos - sat_pos
+#            data_struct['satellites']['pointing'][i] = pointing_vector
+#            exclusion_table[j, i] = exclusion(data_struct, i, print_debug=should_print_debug)
