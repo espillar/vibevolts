@@ -77,14 +77,14 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [3/12]
+**** Get a simple search pattern going [4/12]
 - [X] Review that your targets are defined and have sizes
 - [X] add radii and types to your targets
 - [X] Check that you have targets with sizes- what are they again? Review, make
   a section in documentation - I don't think fixedpoints has the right stuff in it
-- [ ] clean up extraneous links to fixedpoints
+- [X] clean up extraneous links to fixedpoints
+- [ ] create a function that creates a matrix satellites and targets
 - [ ] create a simulation skeleton you are going to work with
-- [ ] disentangle detectors from satellites - 
 - [ ] create function that takes a satellite and the targets and determines all
   of the SNRs 
 - [ ] creates the data structure for each of the satellite detectors,
@@ -94,6 +94,7 @@ in org format in datastrucure.org
   skips occulted cells
 - [ ] iterateOverDetectors()
 - [ ] mark targets that are in eclipse
+- [ ] disentangle detectors from satellites - 
   
 **** Photometer the objects and collect the results [/]
 - [ ] iterate over some cycles and make sure things are evolving
