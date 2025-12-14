@@ -1,10 +1,24 @@
 # VibeVolts Gemini Documentation
 
-## Project OvervieW
+## Project Overview
 
 
 
 VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. These are intended be evolved in a discrete event simulation. 
+
+
+
+## Documentation
+
+Gemini should maintain a document file vibevolts.md as follows. 
+
+The first section should list the main data structure dictionary, and all the python files should be reviewed for functions which add data to the dictionary if called.  The dictionary items added should be listed, the functions that add or modify each of them should be listed next to them, and any inline documentation should be listed along with a function signature.
+
+The next section should list the demos in the python files.
+
+The next section list each of the python files, in a subsection, and in subsubsections list each of the functions inthe python file along with a signature for each function and any documentaiton.
+
+The next section should list dependencies of the code.
 
 
 
@@ -15,30 +29,6 @@ There is a "global" data structure
 The current state of the simulation is stored in a dictionary typically called sim_data which is passed between the routines that initialize and operate on the components to initialize, evolve, and interrogate the overall system.  The different components of the system are typically dealt with by different modules.   
 
 In order to maximize the use of numpy and other parallel tools,  components like satellite elements are typically stored in arrays comprising all of the satellites in one numpy array, in this way efficient parallel numpy routines can easily be leveraged.
-
-Here is current trace of what the structure looks like and how it evolves.
-
-
-
- This data structure is initialized and updated by a set of functions that are organized into the following modules:
-
-*   **`simulation.py`**: Defines the functions to create the basic simulation data structure and to add celestial bodies and fixed points.
-*   **`propagation.py`**: Handles orbit propagation, celestial mechanics, and adding satellites from TLE files.
-*   **`observatories.py`**: Defines functions to add ground-based observatories to the simulation.
-*   **`constellation.py`**: Defines functions for creating satellite constellations. The `geos` function in this module creates a constellation of GEO satellites and adds them to the main 'satellites' group.
-*   **`visibility.py`**: Performs line-of-sight and exclusion calculations.
-*   **`pointing.py`**: Manages satellite pointing control.
-*   **`lambertian.py`**: Calculates Lambertian sphere brightness.
-*   **`radiometry_data.py` & `radiometry_calcs.py`**: Provide radiometric data and functions.
-*   **`plotting_3d.py` & `plotting_vectors.py`**: Contain 3D visualization functions.
-*   **`pointing_vectors.py`**: Includes functions for generating and visualizing uniformly distributed vectors on a sphere.
-*   **`generate_log_spherical_points.py`**: Provides tools for generating 3D point clouds.
-*   **`demo_common.py`**: A utility module that provides helper functions for the demo scripts.
-*   **`demo_constellation.py`**: A demo script for creating and visualizing satellite constellations.
-*   **`demo_show_geo_search.py`**: A demo script that demonstrates a geometric search for satellites using a GEO constellation, and generates several plots to visualize the satellite pointing updates and the RA/Dec history of one satellite.
-*   **`demo_pointing_sequence.py`**: A demo script for demonstrating the satellite pointing sequence functionality.
-*   **`demo_sky_scan.py`**: A demo script for simulating a sky scan from a satellite.
-*   **`generate_report.py`**: A script for generating a PDF report of the project.
 
 ## Building and Running
 
@@ -82,8 +72,9 @@ import all_demos
 all_demos.run_all_demos(save_html=True)
 ```
 
-
 ## Documentation
+
+
 
 ## Development Conventions
 *  **Text Files**: All purely text file have lines that are no more than 100 charcters long to aid reading.
