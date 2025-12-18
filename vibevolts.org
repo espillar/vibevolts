@@ -128,6 +128,8 @@ in org format in datastrucure.org
 
 ** 2025-12
 
+** [2025-12-18 Thu] 
+set up on il4 GCE. 
 ** [2025-12-13 Sat]
 Been a slow two weeks.  I need to do some focus here.
 
