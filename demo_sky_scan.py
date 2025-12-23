@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from simulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies, celestial_update
-from propagation import add_satellites_from_tle, propagate_satellites_new
+from propagation import add_satellites_from_tle, propagate_satellites
 from exclusion import exclusion
 
 def demo_sky_scan() -> go.Figure:
@@ -34,7 +34,7 @@ def demo_sky_scan() -> go.Figure:
     sim_data['satellites']['detector'].earthEx[:] = np.deg2rad(10)
 
     # b. Update celestial body positions
-    sim_data = propagate_satellites_new(sim_data, sim_start_time)
+    sim_data = propagate_satellites(sim_data, sim_start_time)
     sim_data = celestial_update(sim_data, sim_start_time)
     print("Initialized GEO satellite and celestial bodies.")
 

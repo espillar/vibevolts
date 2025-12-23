@@ -2,7 +2,7 @@ import numpy as np
 from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
-from propagation import add_satellites_from_tle, propagate_satellites_new
+from propagation import add_satellites_from_tle, propagate_satellites
 from simulation import create_empty_simulation
 
 def demo4() -> go.Figure:
@@ -37,7 +37,7 @@ def demo4() -> go.Figure:
 
     for hours in time_steps:
         prop_time = sim_start_time + timedelta(hours=int(hours))
-        sim_data = propagate_satellites_new(sim_data, prop_time)
+        sim_data = propagate_satellites(sim_data, prop_time)
         positions_over_time.append(sim_data['satellites']['position'][0])
 
     positions_array = np.array(positions_over_time)

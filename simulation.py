@@ -25,6 +25,7 @@ def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> D
 
     simulation_data: Dict[str, Any] = {
         'start_time': start_time,
+        'time': start_time, 
         'delta_time': delta_time,
         'counts': {},
         'pointing_spheres': {},

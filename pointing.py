@@ -7,7 +7,7 @@ import os
 
 from simulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies, celestial_update
-from propagation import add_satellites_from_tle, propagate_satellites_new
+from propagation import add_satellites_from_tle, propagate_satellites
 from plotting_3d import plot_3d_scatter
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
 from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity
@@ -134,7 +134,7 @@ def demo_exclusion_pointing():
     
     # Propagate the satellite once to get an initial position
     sim_data = celestial_update(sim_data, start_time)
-    sim_data = propagate_satellites_new(sim_data, start_time, 'satellites')
+    sim_data = propagate_satellites(sim_data, start_time, 'satellites')
     
     initial_sat_pos = sim_data['satellites']['position'][0]
     

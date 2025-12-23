@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 
 from demo_common import initialize_standard_simulation
 from celestialbodies import celestial_update
-from propagation import propagate_satellites_new
+from propagation import propagate_satellites
 from plotting_3d import plot_3d_scatter
 
 def demo1() -> go.Figure:
@@ -28,7 +28,8 @@ def demo1() -> go.Figure:
     # --- Satellite Propagation and Plotting ---
     time_t1 = sim_start_time + timedelta(hours=1, minutes=30)
     print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
-    sim_data = propagate_satellites_new(sim_data, time_t1)
+    sim_data = propagate_satellites(sim_data, time_t1)
+    sim_data["time"] = time_t1
 
     fig = plot_3d_scatter(
         positions=sim_data['satellites']['position'],

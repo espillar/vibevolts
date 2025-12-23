@@ -6,7 +6,7 @@ from simulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from targets import add_fixed_points
 from observatories import add_observatories
-from propagation import propagate_satellites_new
+from propagation import propagate_satellites
 from plotting_3d import plot_3d_scatter
 from constellation import geos
 from sim_check import sim_check
@@ -21,8 +21,8 @@ def demo_constellation() -> go.Figure:
     Returns:
         The Plotly figure object for the satellite positions plot.
     """
-    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
-    sim_data = create_empty_simulation(sim_start_time)
+    sim_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+    sim_data = create_empty_simulation(sim_time)
 
     add_observatories(sim_data, 0)
     add_celestial_bodies(sim_data)
@@ -30,14 +30,16 @@ def demo_constellation() -> go.Figure:
     sim_check(sim_data)
     solar_system_ephemeris.set('jpl')
 
-    sim_data = propagate_satellites_new(sim_data, sim_start_time)
+    sim_data = propagate_satellites(sim_data, time)
 
     num_sats_before = sim_data['counts'].get('satellites', 0)
     geos(sim_data, 10, 0.1)
     
     # Propagate the satellites for 1 hour
-    time_t1 = sim_start_time + timedelta(hours=1)
-    sim_data = propagate_satellites_new(sim_data, time_t1)
+    time_t1 = sim_time + timedelta(hours=1)
+    # MIGHT HAVE MESSED THIS UP- MAYBE FEED TIME_T1 directly
+    sim_data['time'] = time_t1
+    sim_data = propagate_satellites(sim_data, time)
 
     sim_check(sim_data)
     fig = plot_3d_scatter(

@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from simulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from constellation import geos
-from propagation import propagate_satellites_new
+from propagation import propagate_satellites
 from pointing import update_satellite_pointing
 from plotting_vectors import plot_pointing_vectors
 
@@ -21,7 +21,7 @@ def demo_show_geo_search():
 
     geos(sim_data, 12, 0.4)
 
-    propagate_satellites_new(sim_data, sim_start_time)
+    propagate_satellites(sim_data, sim_start_time)
     
     update_satellite_pointing(sim_data)
     fig1 = plot_pointing_vectors(sim_data, 'Initial Pointing Vectors', sim_start_time)

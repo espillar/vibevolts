@@ -83,6 +83,12 @@ in org format in datastrucure.org
 - [X] Check that you have targets with sizes- what are they again? Review, make
   a section in documentation - I don't think fixedpoints has the right stuff in it
 - [X] clean up extraneous links to fixedpoints
+- [ ] update the time - do I need a function that does this?
+- [ ] update sensor fields of view
+- [ ] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
+- [ ] If there is a hit, compute the SNR
+- [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
+
 - [ ] create a function that creates a matrix satellites and targets
 - [ ] create a simulation skeleton you are going to work with
 - [ ] create function that takes a satellite and the targets and determines all
@@ -127,6 +133,19 @@ in org format in datastrucure.org
 * Log
 
 ** 2025-12
+
+** [2025-12-23 Tue]
+Man.  Another week. Not doing well here. I need to make some progress.
+Add a new file literatevolts.org to start reasining more carefully. OK, I didn't have a variable for simulation time but was using sim_start_time for that purpose. Use gemini in a sandbox to search all files.
+Arg.  This seems more complex than it should be. Let's pause and try running everything. Ok, seems to be working.  Let's stand up and let Jay outside.
+Grr, I am getting lost in all the variables and all the odd ways they are geting called. rgrep helps, but ... it's kind of painful. Let's go through and replace all references of propagate_satellites_new with propagate_satellites, since that was confusing.
+Lunch break and nap. 1334 Finish that. Let me spend time looking at all time references.
+
+start_time will be the tag used in the data structure
+time will be the tag for the current execution time stored in the strucutre
+delta_time is the "auto-increment time" used by autoincrepment (somewhere)
+
+
 
 ** [2025-12-18 Thu] 
 set up on il4 GCE. 

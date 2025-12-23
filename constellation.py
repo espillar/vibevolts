@@ -9,7 +9,7 @@ from radiometry_data import FILTER_DATA
 from constants import *
 from simulation import *
 from pointing import generate_pointing_sphere
-from propagation import propagate_satellites_new # Added import
+from propagation import propagate_satellites # Added import
 from detector import makeBlankDetector, makeDetector
 
 #########################################################
@@ -79,7 +79,7 @@ def geos(sim_data, n,  fov) -> None:
         'pointing_state': pointing_state_array,
         'detector': detector,
     }
-    sim_data = propagate_satellites_new(sim_data, sim_data['start_time']) # Corrected start_time
+    sim_data = propagate_satellites(sim_data, sim_data['time']) # Corrected start_time
     # print(sim_data['satellites']) # Commented out
     # print('ATTENTION') # Commented out
         # Append to existing satellites
@@ -136,7 +136,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         elements[ORBITAL_ARGP_IDX] = 0.0
         elements[ORBITAL_M_IDX] = 0.0
         orbital_elements_list.append(elements)
-        epochs_list.append(sim_data['start_time'])
+        epochs_list.append(sim_data['time'])
 
    # And these are the pointing state of the satellite. Make the position random.
    
@@ -175,4 +175,4 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
         # TODO: This is not the right way to handle this with SimpleNamespace
         # sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float)])
-    sim_data = propagate_satellites_new(sim_data, sim_data['start_time'])
+    sim_data = propagate_satellites(sim_data, sim_data['time'])

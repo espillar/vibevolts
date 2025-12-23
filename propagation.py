@@ -83,9 +83,14 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
 
     return np.array(orbital_elements_list, dtype=float), epochs_list
 
-def propagate_satellites_new(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None) -> Dict[str, Any]:
+def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None) -> Dict[str, Any]:
     """
+    data_struct is the "standard" structure for the simulation
+    time_date - a datetime - is the time that the satellites are propagated to.
+    NOTE that the datetime structure in simulation_data is NOT updated to this value by this function!
+
     Updates satellite positions and pointing vectors based on their orbital elements.
+    
     """
     MU_EARTH = 3.986004418e14
     time_date_timestamp = time_date.timestamp()
