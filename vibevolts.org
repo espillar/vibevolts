@@ -77,63 +77,42 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [4/12]
-- [X] Review that your targets are defined and have sizes
-- [X] add radii and types to your targets
-- [X] Check that you have targets with sizes- what are they again? Review, make
-  a section in documentation - I don't think fixedpoints has the right stuff in it
-- [X] clean up extraneous links to fixedpoints
-- [ ] update the time - do I need a function that does this?
-- [ ] update sensor fields of view
+**** Right Now
+
+**** Get a simple search pattern going [1/10]
+- [X] update sensor fields of view-make sure they are OK
 - [ ] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
 - [ ] If there is a hit, compute the SNR
 - [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
-
-- [ ] create a function that creates a matrix satellites and targets
 - [ ] create a simulation skeleton you are going to work with
-- [ ] create function that takes a satellite and the targets and determines all
-  of the SNRs 
-- [ ] creates the data structure for each of the satellite detectors,
-     adds the structure to the detector
 - [ ] Get temporal evolution of the models to work
+- [ ] Get the timesteps commensurate with the search pattern
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
-- [ ] iterateOverDetectors()
 - [ ] mark targets that are in eclipse
-- [ ] disentangle detectors from satellites - 
-  
-**** Photometer the objects and collect the results [/]
-- [ ] iterate over some cycles and make sure things are evolving
 - [ ] write some code that computes what been detected and do a 3-D map
-- [ ] next build in something that stores these thing and computs gap times
-- [ ] write some testing code that shows where things are looking
-- [ ] Think about how we deal with multiple constellations in the code.
-
 **** Future work [/]
+- [ ] Think about how  to associate detectors with satellites
+- [ ] Think about how we deal with multiple constellations in the code.
+- [ ] disentangle detectors from satellites - 
 - [ ] resolve issues with having multiple constellations, potentially with
   different names etc.
 - [ ] In both Mathematica and this code clarify what your photometry aperture is!!
-- [ ] Also clarify in your Vade Mecum
 - [ ] think about where you get the backgrounds
-
-*** satellite visibiilty [0/2]
-- [ ] Create a 2-d array that has a flag for each time the satellite
-  might be observed, a row for each time in the simulaton,
-  and a  vector of the times for the rows.
-- [ ] for each target, compute if its within anyones FOV, if the
-  observer isn't blinded, and the SNR is high enough.
 - This should work for FOV intervals both long and short compared to the
   propagation time, as long as things don't move TOO fast.
-- use the visibilty matrix above
-- take the visibility vector and calculate the fraction
-  of the time that the thing is observed
-- Calculate the gap times- basically for each column,
+*** Metric Calculations
+- [ ] Calculate the gap times- basically for each column,
   compute the interobservation distances and histogram
   them.
+
 * Log
 
 ** 2025-12
-
+** [2025-12-24 Wed] Christmas Eve
+Update the todo list, it was a mess with too man doubleed features.
+Make some progress on iterating through the sensor target pairs.
+Get in a couple of good pomodoros, wish I did more, but some progress!
 ** [2025-12-23 Tue]
 Man.  Another week. Not doing well here. I need to make some progress.
 Add a new file literatevolts.org to start reasining more carefully. OK, I didn't have a variable for simulation time but was using sim_start_time for that purpose. Use gemini in a sandbox to search all files.
@@ -143,7 +122,7 @@ Lunch break and nap. 1334 Finish that. Let me spend time looking at all time ref
 
 start_time will be the tag used in the data structure
 time will be the tag for the current execution time stored in the strucutre
-delta_time is the "auto-increment time" used by autoincrepment (somewhere)
+delta_time is the "auto-increment time" used by autoincrepment (somewhere).
 
 
 

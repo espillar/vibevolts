@@ -74,7 +74,17 @@ all_demos.run_all_demos(save_html=True)
 
 ## Documentation
 
+### scansensors.py
+#### scansensors(sim_data: dict)
+```python
+def scansensors(sim_data: dict)
+```
+Scans for and processes sensor data within the simulation.
 
+Args:
+    sim_data (dict): The main simulation data dictionary.
+                     This dictionary is expected to contain all
+                     relevant simulation state and parameters.
 
 ## Development Conventions
 *  **Text Files**: All purely text file have lines that are no more than 100 charcters long to aid reading.
