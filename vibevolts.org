@@ -109,6 +109,10 @@ in org format in datastrucure.org
 * Log
 
 ** 2025-12
+
+** [2025-12-25 Thu] Christmas Day
+I think I'm going to look in to magit, since I seem to be spending a
+fair a mount of time in git!
 ** [2025-12-24 Wed] Christmas Eve
 Update the todo list, it was a mess with too man doubleed features.
 Make some progress on iterating through the sensor target pairs.
