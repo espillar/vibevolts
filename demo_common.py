@@ -1,5 +1,5 @@
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
 
@@ -10,7 +10,7 @@ from celestialbodies import add_celestial_bodies
 from targets import add_fixed_points
 from observatories import add_observatories
 
-def initialize_standard_simulation(start_time: datetime) -> Dict[str, Any]:
+def initialize_standard_simulation(start_time=None) -> Dict[str, Any]:
     """
     Initializes a standard simulation with a predefined set of satellites.
 
@@ -99,6 +99,9 @@ LEO-05
     dummy_tle_path = "standard_tle.txt"
     with open(dummy_tle_path, "w") as f:
         f.write(tle_data)
+
+    if start_time is None:
+        start_time = datetime.now(tz=timezone.utc)
 
     sim_data = create_empty_simulation(start_time)
 

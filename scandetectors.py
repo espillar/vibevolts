@@ -21,9 +21,9 @@ def get_spherical_coords(arr):
 
 
 
-def scansensors(sim_data: dict):
+def scandetectors(sim_data: dict):
     """
-    Scans for and processes sensor data within the simulation.
+    Scans for and processes detector data within the simulation.
 
     Args:
         sim_data (dict): The main simulation data dictionary.
@@ -39,11 +39,13 @@ def scansensors(sim_data: dict):
     targets = sim_data['fixedpoints']['position']
     targetsize = sim_data['fixedpoints']['size']
     sun = sim_data['celestial'][0]['position']
-
+    
 
 
 # Calculate the vector from detector to target
     totargets = targets - satpositions
+
+
 # Determine which ones are in the fov
 # Skinny down the vector to be calculated to which ones are in the fov
 # make sure you have some label so you can keep track

@@ -112,11 +112,17 @@ in org format in datastrucure.org
 
 ** [2025-12-25 Thu] Christmas Day
 I think I'm going to look in to magit, since I seem to be spending a
-fair a mount of time in git!
+fair a mount of time in git! Learned the bare minimum in 15 minutes,
+C-x g is what I need to do to start it up.  Looks very nice actually.
+
+Rename scansensors.py scandetectors.py
+
 ** [2025-12-24 Wed] Christmas Eve
 Update the todo list, it was a mess with too man doubleed features.
 Make some progress on iterating through the sensor target pairs.
 Get in a couple of good pomodoros, wish I did more, but some progress!
+
+Building scansensors.py
 ** [2025-12-23 Tue]
 Man.  Another week. Not doing well here. I need to make some progress.
 Add a new file literatevolts.org to start reasining more carefully. OK, I didn't have a variable for simulation time but was using sim_start_time for that purpose. Use gemini in a sandbox to search all files.

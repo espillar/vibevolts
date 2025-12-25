@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 from astropy.time import Time
 from astropy.coordinates import get_body, GCRS
@@ -19,10 +19,13 @@ def add_celestial_bodies(sim_data: Dict[str, Any]) -> None:
         'acceleration': np.zeros((2, 3), dtype=float),
     }
 
-def celestial_update(data_struct: Dict[str, Any], time_date: datetime) -> Dict[str, Any]:
+def celestial_update(data_struct: Dict[str, Any], time_date: Optional[datetime] = None) -> Dict[str, Any]:
     """
     Calculates and updates the positions of the Sun and Moon.
     """
+    if time_date is None:
+        time_date = data_struct['time']
+
     if time_date.tzinfo is None:
         raise ValueError("time_date must be timezone-aware.")
 
