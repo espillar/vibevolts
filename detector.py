@@ -12,6 +12,24 @@ from types import SimpleNamespace
 ##########################################################
 
 def makeBlankDetector(n):
+    """
+    makeBlankDetector makes and returns a detector SipleNamespace
+    with parameters
+    aperture
+    pixelArea
+    qe
+    photoEff
+    pixCount
+    solarEx
+    lunarEx
+    earlEx
+    skyBack
+    zpCal
+    itime
+    fov
+    ifov
+    filt
+    """
     detector = SimpleNamespace()
     detector.aperture = np.zeros(n, dtype=float)  # Aperture area in square meters
     detector.pixelArea = np.zeros(n, dtype=float) # pixel area in square arcsec

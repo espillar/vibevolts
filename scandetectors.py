@@ -20,7 +20,6 @@ def get_spherical_coords(arr):
 
 
 
-
 def scandetectors(sim_data: dict):
     """
     Scans for and processes detector data within the simulation.
@@ -31,21 +30,31 @@ def scandetectors(sim_data: dict):
                          relevant simulation state and parameters.
     """
     print("scansensors function called with simulation data.")
+
     
-    satpositions = sim_data['satellites']['position']
-    detectvect = sim_data['satellites']['detector']
-    detectorfov = sim_data['satellites']['fov']
+    satpositions = sim_data['satellites']['position'] # all satellite positions
+    detectorVect = sim_data['satellites']['detector'] # deteector pointings
+    detectorFov = sim_data['satellites']['fov'] # detector fields of view
 
-    targets = sim_data['fixedpoints']['position']
-    targetsize = sim_data['fixedpoints']['size']
-    sun = sim_data['celestial'][0]['position']
+    targets = sim_data['fixedpoints']['position'] # all target positions
+    targetSize = sim_data['fixedpoints']['size'] # all target sizes
+    sun = sim_data['celestial'][0]['position'] # sun position
     
 
+# #  Iterate over the satellites
 
-# Calculate the vector from detector to target
-    totargets = targets - satpositions
+#     for i in len(satpositions):
+#         satposition = satpositions[i]
+#         toTargets = targets - satposition
+        
+# #    Assuming V and W are (n, 3) arrays
+#         dot_products = np.einsum('ij,ij->i', toTargets, detectorVect)
+#         norms_V = np.linalg.norm(toTargets, axis=1)
+#         norms_W = np.linalg.norm(detectorVect, axis=1)
+#         angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
 
-
+    return(sun)
+        
 # Determine which ones are in the fov
 # Skinny down the vector to be calculated to which ones are in the fov
 # make sure you have some label so you can keep track
@@ -54,14 +63,6 @@ def scandetectors(sim_data: dict):
 # again clip to only the ones where the SNR is good enough
 # save these to a database
     
-    
-
-    # Assuming V and W are (n, 3) arrays
-    # dot_products = np.einsum('ij,ij->i', V, W)
-    # norms_V = np.linalg.norm(V, axis=1)
-    # norms_W = np.linalg.norm(W, axis=1)
-
-    # angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
 
 
     # Assume A and B are your (n, 3) arrays

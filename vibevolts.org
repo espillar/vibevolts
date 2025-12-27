@@ -79,9 +79,11 @@ in org format in datastrucure.org
 *** Coding [12/26]
 **** Right Now
 
+
 **** Get a simple search pattern going [1/10]
 - [X] update sensor fields of view-make sure they are OK
 - [ ] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
+  This in detector.py
 - [ ] If there is a hit, compute the SNR
 - [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
 - [ ] create a simulation skeleton you are going to work with
@@ -110,6 +112,17 @@ in org format in datastrucure.org
 
 ** 2025-12
 
+** [2025-12-27 Sat]
+eglot workig.  back to work.  Slow start. Thinking is fuzzy,
+I'm distracted and somehat grumpy. I need to document better,
+and get a calmer background sound running.
+** [2025-12-26 Fri] Boxing Day
+First, let me see if I can figure out how to get
+autocompletion working in a python directory.  I think this
+would greatly accelerate my progres.
+TRY TO Install pyright using npm
+Install lsp-mode lsp-ui-mode global-company-mode in .emacs
+end up going to eglot after struggles.
 ** [2025-12-25 Thu] Christmas Day
 I think I'm going to look in to magit, since I seem to be spending a
 fair a mount of time in git! Learned the bare minimum in 15 minutes,

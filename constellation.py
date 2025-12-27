@@ -12,6 +12,7 @@ from pointing import generate_pointing_sphere
 from propagation import propagate_satellites # Added import
 from detector import makeBlankDetector, makeDetector
 
+
 #########################################################
 
 def geos(sim_data, n,  fov) -> None:
