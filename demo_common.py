@@ -2,6 +2,8 @@ import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
+import detector
+
 
 # Adjusting import paths for the new project structure
 from propagation import add_satellites_from_tle, propagate_satellites
@@ -110,6 +112,7 @@ LEO-05
     add_celestial_bodies(sim_data)
     add_fixed_points(sim_data, 100)
 
+    
     print(f"Initializing standard simulation with {sim_data['counts']['satellites']} satellites.")
 
     solar_system_ephemeris.set('jpl')

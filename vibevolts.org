@@ -117,7 +117,8 @@ eglot workig.  back to work.  Slow start. Thinking is fuzzy,
 I'm distracted and somehat grumpy. I need to document better,
 and get a calmer background sound running.
 Getting better after better sound. Moving detector up from inside
-satellite using gemini-cli.
+satellite using gemini-cli. That worked.
+Now back into scandetectors.
 ** [2025-12-26 Fri] Boxing Day
 First, let me see if I can figure out how to get
 autocompletion working in a python directory.  I think this

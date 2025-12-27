@@ -33,14 +33,16 @@ def scandetectors(sim_data: dict):
 
     
     satpositions = sim_data['satellites']['position'] # all satellite positions
-    detectorVect = sim_data['detector'] # deteector pointings
+    detectorVect = sim_data['detector'] # detector pointings
     detectorFov = sim_data['detector'].fov # detector fields of view
 
     targets = sim_data['fixedpoints']['position'] # all target positions
     targetSize = sim_data['fixedpoints']['size'] # all target sizes
-    sun = sim_data['celestial'][0]['position'] # sun position
+    sun = sim_data['celestial']['position'][0] # sun position
     
 
+
+    
 # #  Iterate over the satellites
 
 #     for i in len(satpositions):
@@ -53,7 +55,7 @@ def scandetectors(sim_data: dict):
 #         norms_W = np.linalg.norm(detectorVect, axis=1)
 #         angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
 
-    return(sun)
+    return(detectorVect)
         
 # Determine which ones are in the fov
 # Skinny down the vector to be calculated to which ones are in the fov
