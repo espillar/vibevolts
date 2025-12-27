@@ -46,8 +46,8 @@ def sim_check(sim_data):
         else:
             print("*** Satellite positions not found.")
 
-        if 'detector' in sim_data['satellites']:
-            detector = sim_data['satellites']['detector']
+        if 'detector' in sim_data:
+            detector = sim_data['detector']
             for i in range(num_sats):
                 # Check a few attributes to see if they are non-zero
                 if (hasattr(detector, 'aperture') and detector.aperture[i] != 0 or
@@ -95,8 +95,8 @@ if __name__ == '__main__':
         },
         'satellites': {
             'position': np.zeros((2, 3)),
-            'detector': dummy_detector,
-        }
+        },
+        'detector': dummy_detector,
     }
     sim_check(dummy_sim_data)
 

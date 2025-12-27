@@ -33,8 +33,8 @@ def scandetectors(sim_data: dict):
 
     
     satpositions = sim_data['satellites']['position'] # all satellite positions
-    detectorVect = sim_data['satellites']['detector'] # deteector pointings
-    detectorFov = sim_data['satellites']['fov'] # detector fields of view
+    detectorVect = sim_data['detector'] # deteector pointings
+    detectorFov = sim_data['detector'].fov # detector fields of view
 
     targets = sim_data['fixedpoints']['position'] # all target positions
     targetSize = sim_data['fixedpoints']['size'] # all target sizes

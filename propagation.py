@@ -32,7 +32,7 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
     num_sats = len(epochs)
 
     sim_data['counts'][sat_category] = num_sats
-    detector = makeBlankDetector(num_sats)
+    sim_data['detector'] = makeBlankDetector(num_sats)
     sim_data[sat_category] = {
         'position': np.zeros((num_sats, 3), dtype=float),
         'velocity': np.zeros((num_sats, 3), dtype=float),
@@ -41,7 +41,6 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'epochs': epochs,
         'pointing': np.zeros((num_sats, 3), dtype=float),
         'pointing_state': np.zeros((num_sats, 2), dtype=int),
-        'detector': detector,
     }
 
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:

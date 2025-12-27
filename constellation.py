@@ -69,7 +69,7 @@ def geos(sim_data, n,  fov) -> None:
 
     sim_data['counts']['satellites'] = n
     # print( 'the number of satellites should be ', n) # Commented out
-    detector = makeBlankDetector(n)
+    sim_data['detector'] = makeBlankDetector(n)
     sim_data['satellites'] = {
         'position': np.zeros((n, 3), dtype=float),
         'velocity': np.zeros((n, 3), dtype=float),
@@ -78,7 +78,6 @@ def geos(sim_data, n,  fov) -> None:
         'epochs': epochs_list,
         'pointing': np.zeros((n, 3), dtype=float),
         'pointing_state': pointing_state_array,
-        'detector': detector,
     }
     sim_data = propagate_satellites(sim_data, sim_data['time']) # Corrected start_time
     # print(sim_data['satellites']) # Commented out
@@ -154,6 +153,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
     
     if 'satellites' not in sim_data:
         sim_data['counts']['satellites'] = n
+        sim_data['detector'] = detect
         sim_data['satellites'] = {
             'position': np.zeros((n, 3), dtype=float),
             'velocity': np.zeros((n, 3), dtype=float),
@@ -162,7 +162,6 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
             'epochs': epochs_list,
             'pointing': np.zeros((n, 3), dtype=float),
             'pointing_state': pointing_state_array,
-            'detector': detect,
         }
     else:
         # Append to existing satellites

@@ -30,7 +30,7 @@ def demo_constellation() -> go.Figure:
     sim_check(sim_data)
     solar_system_ephemeris.set('jpl')
 
-    sim_data = propagate_satellites(sim_data, time)
+    sim_data = propagate_satellites(sim_data, sim_time)
 
     num_sats_before = sim_data['counts'].get('satellites', 0)
     geos(sim_data, 10, 0.1)
@@ -39,7 +39,7 @@ def demo_constellation() -> go.Figure:
     time_t1 = sim_time + timedelta(hours=1)
     # MIGHT HAVE MESSED THIS UP- MAYBE FEED TIME_T1 directly
     sim_data['time'] = time_t1
-    sim_data = propagate_satellites(sim_data, time)
+    sim_data = propagate_satellites(sim_data, time_t1)
 
     sim_check(sim_data)
     fig = plot_3d_scatter(

@@ -89,7 +89,7 @@ def exclusion(
     body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
 
     # Satellite-specific exclusion angles
-    detector_props = data_struct['satellites']['detector']
+    detector_props = data_struct['detector']
     exclusion_angles = np.array([
         detector_props.solarEx[satellite_index],
         detector_props.lunarex[satellite_index],

@@ -118,8 +118,8 @@ def demo_exclusion_pointing():
     os.remove(temp_tle_path)
 
     # Set solar exclusion angle and detector FOV for the single satellite
-    sim_data['satellites']['detector'].solarEx[0] = math.pi/2
-    sim_data['satellites']['detector'].fov[0] = math.pi/5
+    sim_data['detector'].solarEx[0] = math.pi/2
+    sim_data['detector'].fov[0] = math.pi/5
 
     # Generate 400 pointing points using the module's generate_pointing_sphere
     n_points_sphere = 400
