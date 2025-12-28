@@ -10,7 +10,7 @@ MOON_RADIUS = 1737400.0
 
 
 # -- Some UsefulConstants --
-ARCSEC = 2 *pi/(360*3600)
+ARCSEC = 2.0 *pi/(360*3600)
 DEGREE = 3600 * ARCSEC
 
 # -- Detector Array Indices --

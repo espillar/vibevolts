@@ -8,22 +8,16 @@ def get_spherical_coords(arr):
     """
     x, y, z = arr[:, 0], arr[:, 1], arr[:, 2]
     r = np.linalg.norm(arr, axis=1)
-
     # theta: angle from the z-axis [0, pi]
     # We use np.divide to handle potential division by zero if r is 0
     theta = np.arccos(np.clip(z / r, -1.0, 1.0))
-
     # phi: angle in the x-y plane [-pi, pi]
     phi = np.arctan2(y, x)
-
     return theta, phi
-
-
 
 def scandetectors(sim_data: dict):
     """
     Scans for and processes detector data within the simulation.
-
     Args:
         sim_data (dict): The main simulation data dictionary.
                          This dictionary is expected to contain all
@@ -31,31 +25,29 @@ def scandetectors(sim_data: dict):
     """
     print("scansensors function called with simulation data.")
 
-    
     satpositions = sim_data['satellites']['position'] # all satellite positions
     detectorVect = sim_data['detector'] # detector pointings
     detectorFov = sim_data['detector'].fov # detector fields of view
-
     targets = sim_data['fixedpoints']['position'] # all target positions
     targetSize = sim_data['fixedpoints']['size'] # all target sizes
     sun = sim_data['celestial']['position'][0] # sun position
-    
 
-
-    
-# #  Iterate over the satellites
-
-#     for i in len(satpositions):
-#         satposition = satpositions[i]
-#         toTargets = targets - satposition
-        
-# #    Assuming V and W are (n, 3) arrays
+    # Scan over detectors
+#    for i in range(len(satpositions)):
+    for i in range(1): #This line for testing
+         satposition = satpositions[i]
+         print(targets.shape(), ' tagets')
+         print(satposition.shape(), ' satposition')
+         toTargets = targets - satposition
+#         print(toTargets.shape())
+         #         print(toTargets)
+#     Assuming V and W are (n, 3) arrays
 #         dot_products = np.einsum('ij,ij->i', toTargets, detectorVect)
-#         norms_V = np.linalg.norm(toTargets, axis=1)
+#         print(dot_products)
+         #         norms_V = np.linalg.norm(toTargets, axis=1)
 #         norms_W = np.linalg.norm(detectorVect, axis=1)
 #         angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
 
-    return(detectorVect)
         
 # Determine which ones are in the fov
 # Skinny down the vector to be calculated to which ones are in the fov
@@ -85,3 +77,4 @@ def scandetectors(sim_data: dict):
     # # This handles the "wrap-around" at the 180-degree boundary
     # delta_phi = (delta_phi + np.pi) % (2 * np.pi) - np.pi    
         
+    return(0)

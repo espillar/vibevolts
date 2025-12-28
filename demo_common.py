@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any
 from astropy.coordinates import solar_system_ephemeris
 import detector
+from constants import *
 
 
 # Adjusting import paths for the new project structure
@@ -11,6 +12,7 @@ from simulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from targets import add_fixed_points
 from observatories import add_observatories
+
 
 def initialize_standard_simulation(start_time=None) -> Dict[str, Any]:
     """
@@ -111,7 +113,8 @@ LEO-05
     add_observatories(sim_data, 0)
     add_celestial_bodies(sim_data)
     add_fixed_points(sim_data, 100)
-
+    sim_data['detector'] =detector.makeDetector(23, "V", 10 * DEGREE, 3 * ARCSEC, 1)
+    
     
     print(f"Initializing standard simulation with {sim_data['counts']['satellites']} satellites.")
 

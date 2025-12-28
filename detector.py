@@ -1,12 +1,9 @@
 from constants import *
 import numpy as np
 import math
-import random
-import radiometry_data
 from radiometry_data import FILTER_DATA
-from constants import *
-from radiometry_calcs import mag, amag
 from types import SimpleNamespace
+from radiometry_calcs import *
 
 
 ##########################################################
@@ -51,7 +48,8 @@ def makeBlankDetector(n):
 
 ##########################################################
 
-def makeDetector(n, band, fov,ifov, aper, qe = 0.5, photfrac=0.7, solarex = 20 * DEGREE,   lunarex = 10 * DEGREE,  earthex= 15 * DEGREE):
+def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
+     solarex= 20.0 * DEGREE,   lunarex= 10.0 * DEGREE,  earthex= 15.0 * DEGREE):
     '''
     makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
     n is the number of sensors to produce

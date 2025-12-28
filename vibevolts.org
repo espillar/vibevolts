@@ -77,11 +77,12 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** Right Now
+**** subtasks for the next big item 
+- [ ] why are the targets in an array or something instead of one big numpy? fix it.
 
-
-**** Get a simple search pattern going [1/10]
+**** Get a simple search pattern going [2/11]
 - [X] update sensor fields of view-make sure they are OK
+- [X] Get detectors declared in initialize_standard_simulation
 - [ ] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
   This in detector.py
 - [ ] If there is a hit, compute the SNR
@@ -112,6 +113,10 @@ in org format in datastrucure.org
 
 ** 2025-12
 
+** [2025-12-28 Sun]
+Getting a late start after worldly commitments. A little ADHD or maybe
+the right word is yak shaving.
+- I need to get detectors de
 ** [2025-12-27 Sat]
 eglot workig.  back to work.  Slow start. Thinking is fuzzy,
 I'm distracted and somehat grumpy. I need to document better,
