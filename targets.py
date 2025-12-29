@@ -13,13 +13,14 @@ def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100, size: floa
         num_points: The number of fixed points to generate.
         size: the size of the objects, 
     """
-    sim_data['counts']['fixedpoints'] = num_points
-    sim_data['fixedpoints'] = {
-        'position': generate_log_spherical_points(
+    positions, sizes = generate_log_spherical_points(
             num_points=num_points,
             inner_radius=2000000,
             outer_radius=84328000
-        )[0],
+        )
+    sim_data['counts']['fixedpoints'] = num_points
+    sim_data['fixedpoints'] = {
+        'position': positions,        
         'exclusion': np.zeros(num_points, dtype=int), # Exclusion will be resized later,
-        'size' : np.full( num_points, size) #
+        'size' : sizes #
     }

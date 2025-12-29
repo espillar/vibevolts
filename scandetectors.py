@@ -32,15 +32,16 @@ def scandetectors(sim_data: dict):
     targetSize = sim_data['fixedpoints']['size'] # all target sizes
     sun = sim_data['celestial']['position'][0] # sun position
 
+    print(satpositions.shape, ' sat positions')
     # Scan over detectors
 #    for i in range(len(satpositions)):
     for i in range(1): #This line for testing
-         satposition = satpositions[i]
-         print(targets.shape(), ' tagets')
-         print(satposition.shape(), ' satposition')
+         satposition = satpositions[i,:]
+         print(targets.shape, ' tagets')
+         print(satposition.shape, ' satposition')
          toTargets = targets - satposition
-#         print(toTargets.shape())
-         #         print(toTargets)
+         print(toTargets.shape,' toTargests')
+         print(detectorVect.shape, ' detectorVect')
 #     Assuming V and W are (n, 3) arrays
 #         dot_products = np.einsum('ij,ij->i', toTargets, detectorVect)
 #         print(dot_products)

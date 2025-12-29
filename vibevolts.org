@@ -77,8 +77,9 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** subtasks for the next big item 
-- [ ] why are the targets in an array or something instead of one big numpy? fix it.
+**** subtasks for the next big item [/]
+- [ ] Mess around and install ipython/anaconda as an emacs tool
+- [ ] why are the targets in an array or something instead of one big numpy? fix it. This is in 
 
 **** Get a simple search pattern going [2/11]
 - [X] update sensor fields of view-make sure they are OK
@@ -116,7 +117,11 @@ in org format in datastrucure.org
 ** [2025-12-28 Sun]
 Getting a late start after worldly commitments. A little ADHD or maybe
 the right word is yak shaving.
-- I need to get detectors de
+- I need to get detectors set up right.
+Get things kinda going inthe morning, break, back, spend a little
+time understanding einsum, then really waste some time getting ipython
+installed as the python interpreter in emacs.  Sigh.
+
 ** [2025-12-27 Sat]
 eglot workig.  back to work.  Slow start. Thinking is fuzzy,
 I'm distracted and somehat grumpy. I need to document better,
