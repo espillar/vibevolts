@@ -55,7 +55,7 @@ def demo_sky_scan() -> go.Figure:
             pointing_vector = np.array([x, y, z])
 
             # Update the satellite's pointing vector
-            sim_data['satellites']['pointing'][0] = pointing_vector
+            sim_data['detector'].pointing[0] = pointing_vector
 
             # Call the exclusion function
             is_clear = exclusion(sim_data, satellite_index=0)

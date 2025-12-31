@@ -15,7 +15,7 @@ def plot_pointing_vectors(
     Creates a 3D plot of satellites with pointing vectors.
     """
     sat_positions = data_struct['satellites']['position'].copy()
-    sat_pointing = data_struct['satellites']['pointing'].copy()
+    sat_pointing = data_struct['detector'].pointing.copy()
     num_sats = data_struct['counts']['satellites']
 
     if num_sats == 0:

@@ -26,6 +26,8 @@ def makeBlankDetector(n):
     fov
     ifov
     filt
+    pointing = (n,3) vectors where you are pointing
+    pointing_state (n,2) length of chain and current index
     """
     detector = SimpleNamespace()
     detector.aperture = np.zeros(n, dtype=float)  # Aperture area in square meters
@@ -42,8 +44,9 @@ def makeBlankDetector(n):
     detector.fov = np.zeros(n, dtype=float)       
     detector.ifov = np.zeros(n, dtype=float)      
     detector.filt = [""] * n                       # filter
+    detector.pointing = np.zeros((n,3), dtype = float)
+    detector.pointing_state = np.zeros((3,n),dtype=int)
     return detector
-
 
 
 ##########################################################
@@ -86,6 +89,8 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     detect.fov[:] = fov
     detect.ifov[:] = ifov
     detect.filt = [band] * n
+    # detect.pointing = np.zeros((n,3), dtype = float)
+    # detect.pointing_state = np.zeros((3,n),dtype=int)
     return detect
 
 

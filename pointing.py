@@ -14,10 +14,9 @@ from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity
 from exclusion import exclusion
 
 
-
-def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: bool = False) -> None:
+def generate_pointing_sphere(sim_data: Dict[str, Any], n_points: int, debug: bool = False) -> None:
     """
-    Generates a pointing sphere with n_points and stores it in the data_struct['pointing_sphers'][n_points]
+    Generates a pointing sphere with n_points and stores it in the sim_data['pointing_sphers'][n_points]
     A pointing sphere is a 3 by n_points numpy array with the 3 representing unit vectors to be
     pointed to
     These positions will be used by the update_satellte_pointing to
@@ -27,14 +26,14 @@ def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: 
     The current version of the code resorts the vector by proximity to make the sky search
     more efficient, although this is not deeply optimized yet.
     """
-    if n_points not in data_struct['pointing_spheres']:
+    if n_points not in sim_data['pointing_spheres']:
         print(f"Generating pointing sphere with {n_points} points...")
-        data_struct['pointing_spheres'][n_points] = \
+        sim_data['pointing_spheres'][n_points] = \
            resort_vectors_by_proximity(pointing_vectors(n_points))
 
     if debug:
         print(f"\n--- Debugging Pointing Sphere (n_points={n_points}) ---")
-        generated_vectors = data_struct['pointing_spheres'][n_points]
+        generated_vectors = sim_data['pointing_spheres'][n_points]
         print(f"Total number of pointing vectors generated: {len(generated_vectors)}")
 
         num_to_show = min(5, len(generated_vectors))
@@ -48,25 +47,25 @@ def generate_pointing_sphere(data_struct: Dict[str, Any], n_points: int, debug: 
         print("-------------------------------------------\n")
 
 
-def update_satellite_pointing(data_struct: Dict[str, Any], debug: bool = False) -> None:
+def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> None:
     """
-    Updates the pointing vector for each satellite, skipping excluded pointing directions.
+    Updates the pointing vector for each detector, skipping excluded pointing directions.
     """
-    num_sats = data_struct['counts']['satellites']  
-    if num_sats == 0:
+    num_detectors = len(sim_data['detector'].filt)  
+    if num_detectors == 0:
         return
 
 # Bring in the approprieate pieces of the data structure for easier reference
-    pointing_state = data_struct['satellites']['pointing_state'] 
-    pointing_vectors_all = data_struct['satellites']['pointing']
+    pointing_state = sim_data['detector'].pointing_state 
+    pointing_vectors_all = sim_data['detector'].pointing
 
 # Iterate over satellites
-    for i in range(num_sats):
+    for i in range(num_detectors):
 # Place a grid of vectors to use in grid
         count = int(pointing_state[i, POINTING_COUNT_IDX])
         if count == 0:
             continue
-        grid = data_struct['pointing_spheres'][count]
+        grid = sim_data['pointing_spheres'][count]
         
         place = int(pointing_state[i, POINTING_PLACE_IDX])
         start_place = place
@@ -79,9 +78,9 @@ def update_satellite_pointing(data_struct: Dict[str, Any], debug: bool = False) 
                 place = 0
             pointing_vectors_all[i] = grid[place]
             
-            excluded = exclusion(data_struct, i)
+            excluded = exclusion(sim_data, i)
             if debug:
-                print(f"Satellite {i}: Pointing location {place}, Excluded: {excluded != 0}")
+                print(f"Detector {i}: Pointing location {place}, Excluded: {excluded != 0}")
                 print(grid[place])
 
             if excluded == 0:
@@ -125,10 +124,10 @@ def demo_exclusion_pointing():
     n_points_sphere = 400
     generate_pointing_sphere(sim_data, n_points_sphere)
 
-    # Initialize pointing_state for the single satellite
-    # Assuming the first satellite (index 0)
-    sim_data['satellites']['pointing_state'][0, POINTING_COUNT_IDX] = n_points_sphere
-    sim_data['satellites']['pointing_state'][0, POINTING_PLACE_IDX] = 0 # Start at the first point
+    # Initialize pointing_state for the single detector
+    # Assuming the first detector (index 0)
+    sim_data['detector'].pointing_state[0, POINTING_COUNT_IDX] = n_points_sphere
+    sim_data['detector'].pointing_state[0, POINTING_PLACE_IDX] = 0 # Start at the first point
 
     pointed_directions_history = []
     
@@ -165,8 +164,8 @@ def demo_exclusion_pointing():
     ))
 
     for i in range(400):
-        update_satellite_pointing(sim_data, debug=False) # Turn off debug
-        current_pointed_direction = sim_data['satellites']['pointing'][0]
+        update_detector_pointing(sim_data, debug=False) # Turn off debug
+        current_pointed_direction = sim_data['detector'].pointing[0]
         snapshot = current_pointed_direction.copy()
 #        print(f"Current pointed direction: {snapshot}") # Print current direction
         pointed_directions_history.append(snapshot)
@@ -201,7 +200,7 @@ def demo_exclusion_pointing():
     ))
     
     fig.update_layout(
-        title="Satellite Pointing with Exclusion",
+        title="Detector Pointing with Exclusion",
         scene=dict(
             xaxis_title='X (Unit Vector)', yaxis_title='Y (Unit Vector)', zaxis_title='Z (Unit Vector)',
             aspectmode='data'
@@ -213,7 +212,7 @@ def demo_exclusion_pointing():
     fig.show() 
     return fig
 
-def jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, Any]:
+def jerk(sim_data: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, Any]:
     """
     Moves the pointing vector of specific satellites by 0.3 radians in a
     random direction.
@@ -221,16 +220,16 @@ def jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str
     This function applies a random rotation to the satellites' pointing vectors.
 
     Args:
-        data_struct: The main simulation data dictionary.
+        sim_data: The main simulation data dictionary.
         satellite_indices: The indices of the satellites to modify.
 
     Returns:
-        The modified data_struct with the updated pointing vectors.
+        The modified sim_data with the updated pointing vectors.
     """
     if satellite_indices.size == 0:
-        return data_struct
+        return sim_data
 
-    p = data_struct['satellites']['pointing'][satellite_indices]
+    p = sim_data['detector'].pointing[satellite_indices]
     p_norm = p / np.linalg.norm(p, axis=1)[:, np.newaxis]
 
     # Generate a random vector not parallel to p_norm
@@ -245,6 +244,6 @@ def jerk(data_struct: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str
     # Rodrigues' rotation formula
     p_new = p_norm * cos_theta + np.cross(k_hat, p_norm) * sin_theta
 
-    data_struct['satellites']['pointing'][satellite_indices] = p_new
+    sim_data['satellites'].pointing[satellite_indices] = p_new
 
-    return data_struct
+    return sim_data

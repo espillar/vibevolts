@@ -158,6 +158,6 @@ def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime, sat_c
 
         norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
         norms[norms == 0] = 1.0
-        data_struct[category]['pointing'] = positions / norms
+#        data_struct[category]['pointing'] = positions / norms
 
     return data_struct

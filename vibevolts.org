@@ -1,4 +1,3 @@
-
 * Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
 * Notes: infrastrucure, some code ideas
@@ -77,9 +76,9 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** subtasks for the next big item [/]
-- [ ] Mess around and install ipython/anaconda as an emacs tool
-- [ ] why are the targets in an array or something instead of one big numpy? fix it. This is in 
+**** subtasks for the next big item [1/2]
+- [X] Mess around and install ipython/anaconda as an emacs tool
+- [ ] why are the targets in an array or something instead of one big numpy? fix it. 
 
 **** Get a simple search pattern going [2/11]
 - [X] update sensor fields of view-make sure they are OK
@@ -96,6 +95,10 @@ in org format in datastrucure.org
 - [ ] mark targets that are in eclipse
 - [ ] write some code that computes what been detected and do a 3-D map
 **** Future work [/]
+- [ ] It would be nice to consolidate all those demos a little better
+  put the demo code in the same files as what they are testing
+  make them all rely on a standard initial "build", chaning
+  the particulars of what they need each time.  Maybe, pros and cons.
 - [ ] Think about how  to associate detectors with satellites
 - [ ] Think about how we deal with multiple constellations in the code.
 - [ ] disentangle detectors from satellites - 
@@ -114,6 +117,38 @@ in org format in datastrucure.org
 
 ** 2025-12
 
+** [2025-12-31 Wed]
+Lost a couple of days there.  Maybe lost some comments too? Not sure.
+*** Today's ad-hoc checklist [9/21]
+- [X] Check that the demos all run. They do.
+- [X] Review where we are at and start adding items.
+- [X] what is detectorVect and what should it be?
+  Answer, it should be the pointing vector, but this has been placed
+  in satellite, NOT in the detector structure.
+- [X] find and move all initializations of pointings to somewhere in
+  detector code - have gemini give you a report to help.
+- [X] change update_satellite_pointing to update_detector_pointing
+- [X] find out every place that is called and retarget
+- [X] argg.  Since I've declared detector as a simplenamespace instead
+  of a dictionary, references to it are different then references to dictionaries.
+- [X] look for any spare ['pointing']
+- [X] look for spare ['pointing_state'] 
+- [ ] move pointing_state and pointing from inside satellites to inside detector
+- [ ] fix the pointing demo and get it to run.
+- [ ] check where generate_poining_sphere puts stuff
+- [ ] constellation.py
+  - [ ] move references of pointing and pointing_state to detectors
+- [ ] in propagation.py what are we even doing with the pointing?
+- [ ] check on celestial_update
+- [ ] check on propogate satellites
+- [ ] build a links between detectors and satellites - start with 1:1, just
+  and index, to extend
+- [ ] fix the detectorVect in scandetectors
+- [ ] Start stepping through scandetectors, using jupyter for the moment,
+  fixing a line at a time. Just check what you have is right.
+- [ ] Figure out how to move the pointing stuff into the detector code.
+- [ ] outline what we need to do in comments in scandetectors.py
+  
 ** [2025-12-28 Sun]
 Getting a late start after worldly commitments. A little ADHD or maybe
 the right word is yak shaving.

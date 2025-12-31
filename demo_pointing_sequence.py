@@ -8,7 +8,7 @@ from observatories import add_observatories
 from propagation import add_satellites_from_tle
 from celestialbodies import celestial_update
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
-from pointing import generate_pointing_sphere, update_satellite_pointing
+from pointing import generate_pointing_sphere, update_detector_pointing
 from plotting_vectors import plot_pointing_vectors
 
 def demo_pointing_sequence() -> go.Figure:
@@ -55,12 +55,12 @@ def demo_pointing_sequence() -> go.Figure:
     generate_pointing_sphere(sim_data, 100)
 
     # Assign pointing counts to satellites
-    pointing_state = sim_data['satellites']['pointing_state']
+    pointing_state = sim_data['detector'].pointing_state
     pointing_state[0, POINTING_COUNT_IDX] = 100
 
     print("Initial pointing vectors:")
-    update_satellite_pointing(sim_data)
-    print(sim_data['satellites']['pointing'])
+    update_detector_pointing(sim_data)
+    print(sim_data['satellites'].pointing)
 
     # --- Create a figure to animate ---
     fig = go.Figure(
@@ -74,7 +74,7 @@ def demo_pointing_sequence() -> go.Figure:
     trajectories = [[]]
     
     # Initial plot (T=0)
-    vectors = sim_data['satellites']['pointing']
+    vectors = sim_data['satellites'].pointing
     trajectories[0].append(vectors[0].copy())
 
     # Simulation loop for 30 steps (T=0 to T=29)
@@ -82,8 +82,8 @@ def demo_pointing_sequence() -> go.Figure:
         print(f"\n--- Time Step {t} ---")
         current_time = sim_start_time + timedelta(seconds=t * sim_data['delta_time'])
         sim_data = celestial_update(sim_data, current_time)
-        update_satellite_pointing(sim_data)
-        vectors = sim_data['satellites']['pointing']
+        update_detector_pointing(sim_data)
+        vectors = sim_data['satellites'].pointing
         trajectories[0].append(vectors[0].copy())
 
     # --- Plotting ---

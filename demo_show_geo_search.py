@@ -6,7 +6,7 @@ from simulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from constellation import geos
 from propagation import propagate_satellites
-from pointing import update_satellite_pointing
+from pointing import update_detector_pointing
 from plotting_vectors import plot_pointing_vectors
 
 def demo_show_geo_search():
@@ -23,14 +23,14 @@ def demo_show_geo_search():
 
     propagate_satellites(sim_data, sim_start_time)
     
-    update_satellite_pointing(sim_data)
+    update_detector_pointing(sim_data)
     fig1 = plot_pointing_vectors(sim_data, 'Initial Pointing Vectors', sim_start_time)
 
     ra_history = []
     dec_history = []
 
     def record_ra_dec():
-        p = sim_data['satellites']['pointing'][0]
+        p = sim_data['detector'].pointing[0]
         p_norm = p / np.linalg.norm(p)
         ra = np.arctan2(p_norm[1], p_norm[0])
         dec = np.arcsin(p_norm[2])
@@ -41,21 +41,21 @@ def demo_show_geo_search():
 
     for _ in range(5):
 
-        update_satellite_pointing(sim_data)
+        update_detector_pointing(sim_data)
         record_ra_dec()
     
     fig2 = plot_pointing_vectors(sim_data, 'After 5 Updates', sim_start_time)
 
     for _ in range(10):
 
-        update_satellite_pointing(sim_data)
+        update_detector_pointing(sim_data)
         record_ra_dec()
 
     fig3 = plot_pointing_vectors(sim_data, 'After 15 Updates', sim_start_time)
 
     for _ in range(85):
 
-        update_satellite_pointing(sim_data)
+        update_detector_pointing(sim_data)
         record_ra_dec()
 
     fig4 = go.Figure()

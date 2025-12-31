@@ -34,8 +34,6 @@ def geos(sim_data, n,  fov) -> None:
     # Generate and store the pointing sphere and place in ['pointing_sphers'][n]
     generate_pointing_sphere(sim_data, grid_points)
 
-
-
     orbital_elements_list = []
     epochs_list = []
     pointing_state_list = []
@@ -80,18 +78,6 @@ def geos(sim_data, n,  fov) -> None:
         'pointing_state': pointing_state_array,
     }
     sim_data = propagate_satellites(sim_data, sim_data['time']) # Corrected start_time
-    # print(sim_data['satellites']) # Commented out
-    # print('ATTENTION') # Commented out
-        # Append to existing satellites
-#        sim_data['counts']['satellites'] += n
-#        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])
-#        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], np.zeros((n, 3), dtype=float)])
- #       sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
-#        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
-#        sim_data['satellites']['epochs'].extend(epochs_list)
-#        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
-#        sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-#        sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=object)])
 
 
 
@@ -171,8 +157,6 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
         sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
         sim_data['satellites']['epochs'].extend(epochs_list)
-        sim_data['satellites']['pointing'] = np.vstack([sim_data['satellites']['pointing'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['pointing_state'] = np.vstack([sim_data['satellites']['pointing_state'], pointing_state_array])
-        # TODO: This is not the right way to handle this with SimpleNamespace
-        # sim_data['satellites']['detector'] = np.vstack([sim_data['satellites']['detector'], np.zeros((n, DETECTOR_ARRAY_SIZE), dtype=float)])
+        sim_data['detector.py'].pointing = np.vstack([sim_data['detector'].pointing, np.zeros((n, 3), dtype=float)])
+        sim_data['detector'].pointing_state = np.vstack([sim_data['detector'].pointing_state, pointing_state_array])
     sim_data = propagate_satellites(sim_data, sim_data['time'])
