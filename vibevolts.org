@@ -133,6 +133,7 @@ Lost a couple of days there.  Maybe lost some comments too? Not sure.
   of a dictionary, references to it are different then references to dictionaries.
 - [X] look for any spare ['pointing']
 - [X] look for spare ['pointing_state'] 
+- [ ] pointing state dimensions seem incompatible in pointing?
 - [ ] move pointing_state and pointing from inside satellites to inside detector
 - [ ] fix the pointing demo and get it to run.
 - [ ] check where generate_poining_sphere puts stuff

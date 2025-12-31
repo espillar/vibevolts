@@ -89,8 +89,8 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     detect.fov[:] = fov
     detect.ifov[:] = ifov
     detect.filt = [band] * n
-    # detect.pointing = np.zeros((n,3), dtype = float)
-    # detect.pointing_state = np.zeros((3,n),dtype=int)
+    detect.pointing = np.zeros((n,3), dtype = float)
+    detect.pointing_state = np.zeros((3,n),dtype=int)
     return detect
 
 

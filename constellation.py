@@ -62,9 +62,10 @@ def geos(sim_data, n,  fov) -> None:
     
         pointing_state_list.append(pointing_state)
 
+
     orbital_elements = np.array(orbital_elements_list, dtype=float)
     pointing_state_array = np.array(pointing_state_list, dtype=int)
-
+    print(' pointing_state_aray.shaoe ', pointing_state_array.shape)
     sim_data['counts']['satellites'] = n
     # print( 'the number of satellites should be ', n) # Commented out
     sim_data['detector'] = makeBlankDetector(n)
@@ -74,9 +75,10 @@ def geos(sim_data, n,  fov) -> None:
         'acceleration': np.zeros((n, 3), dtype=float),
         'orbital_elements': orbital_elements,
         'epochs': epochs_list,
-        'pointing': np.zeros((n, 3), dtype=float),
-        'pointing_state': pointing_state_array,
     }
+    sim_data['detector'].pointing = np.zeros((n,3), dtype = float)
+    sim_data['detector'].pointing_state = pointing_state_array
+    
     sim_data = propagate_satellites(sim_data, sim_data['time']) # Corrected start_time
 
 
