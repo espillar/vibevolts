@@ -76,9 +76,6 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** subtasks for the next big item [1/2]
-- [X] Mess around and install ipython/anaconda as an emacs tool
-- [ ] why are the targets in an array or something instead of one big numpy? fix it. 
 
 **** Get a simple search pattern going [2/11]
 - [X] update sensor fields of view-make sure they are OK
@@ -89,6 +86,9 @@ in org format in datastrucure.org
 - [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
 - [ ] create a simulation skeleton you are going to work with
 - [ ] Get temporal evolution of the models to work
+- [ ] Move the satellite creation stuff out of propagtation into a new
+  file satellite.py that is concerned with the creation of satellites.
+  Blue? Red? How does his interact with constellateion?
 - [ ] Get the timesteps commensurate with the search pattern
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
@@ -115,11 +115,33 @@ in org format in datastrucure.org
 
 * Log
 
-** 2025-12
+** 2026-01
+*** [2026-01-01 Thu] New Years Day
+**** Today's ad-hoc checklist [3/11]
+- [X] recreate todays list
+- [X] fix the detectorVect in scandetectors
+- [X] why is detectorVect not set up? See below
+- [ ] Remove any default creation of pointing_spheres
+- [ ] I need a function like "pointingInit"
+- [ ] Set up pointing spheres
+- [ ] follow the example in constellation to initialize detectors
+- 
+- [ ] how is it right in the demos?
+- [ ] Continue stepping through scandetectors, using jupyter for the moment,
+  fixing a line at a time. Just check what you have is right.
+- [ ] outline what we need to do in comments in scandetectors.py
+- [ ] build better links between detectors and satellites - started with
+  1:1, we need [0,1]:n
 
-** [2025-12-31 Wed]
+**** Tasks for AI [/]
+- [ ] Respin documentation.
+
+
+
+** 2025-12
+*** [2025-12-31 Wed]
 Lost a couple of days there.  Maybe lost some comments too? Not sure.
-*** Today's ad-hoc checklist [9/21]
+**** Today's ad-hoc checklist [9/21]
 - [X] Check that the demos all run. They do.
 - [X] Review where we are at and start adding items.
 - [X] what is detectorVect and what should it be?
@@ -150,7 +172,7 @@ Lost a couple of days there.  Maybe lost some comments too? Not sure.
 - [ ] Figure out how to move the pointing stuff into the detector code.
 - [ ] outline what we need to do in comments in scandetectors.py
   
-** [2025-12-28 Sun]
+*** [2025-12-28 Sun]
 Getting a late start after worldly commitments. A little ADHD or maybe
 the right word is yak shaving.
 - I need to get detectors set up right.
@@ -158,34 +180,34 @@ Get things kinda going inthe morning, break, back, spend a little
 time understanding einsum, then really waste some time getting ipython
 installed as the python interpreter in emacs.  Sigh.
 
-** [2025-12-27 Sat]
+*** [2025-12-27 Sat]
 eglot workig.  back to work.  Slow start. Thinking is fuzzy,
 I'm distracted and somehat grumpy. I need to document better,
 and get a calmer background sound running.
 Getting better after better sound. Moving detector up from inside
 satellite using gemini-cli. That worked.
 Now back into scandetectors.
-** [2025-12-26 Fri] Boxing Day
+*** [2025-12-26 Fri] Boxing Day
 First, let me see if I can figure out how to get
 autocompletion working in a python directory.  I think this
 would greatly accelerate my progres.
 TRY TO Install pyright using npm
 Install lsp-mode lsp-ui-mode global-company-mode in .emacs
 end up going to eglot after struggles.
-** [2025-12-25 Thu] Christmas Day
+*** [2025-12-25 Thu] Christmas Day
 I think I'm going to look in to magit, since I seem to be spending a
 fair a mount of time in git! Learned the bare minimum in 15 minutes,
 C-x g is what I need to do to start it up.  Looks very nice actually.
 
 Rename scansensors.py scandetectors.py
 
-** [2025-12-24 Wed] Christmas Eve
+*** [2025-12-24 Wed] Christmas Eve
 Update the todo list, it was a mess with too man doubleed features.
 Make some progress on iterating through the sensor target pairs.
 Get in a couple of good pomodoros, wish I did more, but some progress!
 
 Building scansensors.py
-** [2025-12-23 Tue]
+*** [2025-12-23 Tue]
 Man.  Another week. Not doing well here. I need to make some progress.
 Add a new file literatevolts.org to start reasining more carefully. OK, I didn't have a variable for simulation time but was using sim_start_time for that purpose. Use gemini in a sandbox to search all files.
 Arg.  This seems more complex than it should be. Let's pause and try running everything. Ok, seems to be working.  Let's stand up and let Jay outside.
@@ -197,10 +219,9 @@ time will be the tag for the current execution time stored in the strucutre
 delta_time is the "auto-increment time" used by autoincrepment (somewhere).
 
 
-
-** [2025-12-18 Thu] 
+*** [2025-12-18 Thu] 
 set up on il4 GCE. 
-** [2025-12-13 Sat]
+*** [2025-12-13 Sat]
 Been a slow two weeks.  I need to do some focus here.
 
 *** [2025-12-08 Mon]
@@ -213,7 +234,6 @@ Didn't make TOO much progress today, I had a cold. However,
 I did have gemini produce a nice documentation file
 simulation_data_trace.md
 that I think will be very helpful going forward.
-
 
 ** 2025-11
 *** [2025-11-30 Sun]

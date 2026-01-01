@@ -26,23 +26,23 @@ def scandetectors(sim_data: dict):
     print("scansensors function called with simulation data.")
 
     satpositions = sim_data['satellites']['position'] # all satellite positions
-    detectorVect = sim_data['detector'] # detector pointings
+    detectorVect = sim_data['detector'].pointing # detector pointings
+    print('detectorVect ', detectorVect)
     detectorFov = sim_data['detector'].fov # detector fields of view
     targets = sim_data['fixedpoints']['position'] # all target positions
     targetSize = sim_data['fixedpoints']['size'] # all target sizes
     sun = sim_data['celestial']['position'][0] # sun position
 
     print(satpositions.shape, ' sat positions')
-    # Scan over detectors
+
+# Scan over detectors
 #    for i in range(len(satpositions)):
-    for i in range(1): #This line for testing
+    for i in range(1): # Only one set for testing
          satposition = satpositions[i,:]
-         print(targets.shape, ' tagets')
-         print(satposition.shape, ' satposition')
+         ray = detectorVect[i,:]
+         print("ray to target is ", ray)
          toTargets = targets - satposition
-         print(toTargets.shape,' toTargests')
-         print(detectorVect.shape, ' detectorVect')
-#     Assuming V and W are (n, 3) arrays
+         print(toTargets)
 #         dot_products = np.einsum('ij,ij->i', toTargets, detectorVect)
 #         print(dot_products)
          #         norms_V = np.linalg.norm(toTargets, axis=1)

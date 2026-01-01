@@ -63,12 +63,13 @@ def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> N
 # Iterate over satellites
     for i in range(num_detectors):
 # Place a grid of vectors to use in grid
-        count = int(pointing_state[i, POINTING_COUNT_IDX])
+        count = int(pointing_state[POINTING_COUNT_IDX, i])
         if count == 0:
             continue
+        print(' sim_data pointng spheres keys ', sim_data['pointing_spheres'].keys())
         grid = sim_data['pointing_spheres'][count]
         
-        place = int(pointing_state[i, POINTING_PLACE_IDX])
+        place = int(pointing_state[POINTING_PLACE_IDX, i])
         start_place = place
 
         
@@ -85,12 +86,12 @@ def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> N
                 print(grid[place])
 
             if excluded == 0:
-                pointing_state[i, POINTING_PLACE_IDX] = place
+                pointing_state[POINTING_PLACE_IDX, i] = place
                 break
             
             if place == start_place:
                 print(f"Warning: Satellite {i} has all pointing vectors excluded.")
-                pointing_state[i, POINTING_PLACE_IDX] = place
+                pointing_state[POINTING_PLACE_IDX, i] = place
                 break
 
 
@@ -127,8 +128,8 @@ def demo_exclusion_pointing():
 
     # Initialize pointing_state for the single detector
     # Assuming the first detector (index 0)
-    sim_data['detector'].pointing_state[0, POINTING_COUNT_IDX] = n_points_sphere
-    sim_data['detector'].pointing_state[0, POINTING_PLACE_IDX] = 0 # Start at the first point
+    sim_data['detector'].pointing_state[POINTING_COUNT_IDX, 0] = n_points_sphere
+    sim_data['detector'].pointing_state[POINTING_PLACE_IDX, 0] = 0 # Start at the first point
 
     pointed_directions_history = []
     

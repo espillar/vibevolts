@@ -7,7 +7,7 @@ from astropy.coordinates import get_body, GCRS
 import astropy.units as u
 
 from constants import *
-from detector import makeBlankDetector
+
 
 
 def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
@@ -28,6 +28,7 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
     epochs
     pointing
     """
+    from detector import makeBlankDetector
     orbital_elements, epochs = readtle(tle_file_path)
     num_sats = len(epochs)
 

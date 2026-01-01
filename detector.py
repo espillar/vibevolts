@@ -4,6 +4,8 @@ import math
 from radiometry_data import FILTER_DATA
 from types import SimpleNamespace
 from radiometry_calcs import *
+from pointing import update_detector_pointing, generate_pointing_sphere
+import random
 
 
 ##########################################################
@@ -45,7 +47,7 @@ def makeBlankDetector(n):
     detector.ifov = np.zeros(n, dtype=float)      
     detector.filt = [""] * n                       # filter
     detector.pointing = np.zeros((n,3), dtype = float)
-    detector.pointing_state = np.zeros((n,2),dtype=int)
+    detector.pointing_state = np.zeros((2,n),dtype=int)
     return detector
 
 
@@ -90,10 +92,34 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     detect.ifov[:] = ifov
     detect.filt = [band] * n
     detect.pointing = np.zeros((n,3), dtype = float)
-    detect.pointing_state = np.zeros((n,2),dtype=int)
+    detect.pointing_state = np.zeros((2,n),dtype=int)
     return detect
 
 
+
+###########################################################
+
+def detectorPointingInitialize(sim_data, grid_points):
+    """
+    We assume that sim_data['detectors'] loaded, but the
+    pointing part of detectors is currently empty.
+    pointing and pointing_state inside detect are initialized, and
+    also adding a pointing sphere to sim_data.
+    """
+
+
+    # BROKEN the number of points should be the number of sensors
+    sensorCount = len(sim_data['detector'].filt)
+    generate_pointing_sphere(sim_data, grid_points)
+    detect = sim_data['detector']
+    detect.pointing_state = np.zeros((2,sensorCount), dtype = int)
+    print( 'detect.pointing_state.shape ', detect.pointing_state.shape)
+    detect.pointing_state[POINTING_COUNT_IDX,:] = grid_points
+    detect.pointing_state[POINTING_PLACE_IDX,:] = np.random.randint(0, grid_points-1, size=sensorCount)
+    update_detector_pointing(sim_data)
+
+    
+    
 ###########################################################
 
 
