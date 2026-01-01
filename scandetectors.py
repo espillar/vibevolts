@@ -40,16 +40,20 @@ def scandetectors(sim_data: dict):
     for i in range(1): # Only one set for testing
          satposition = satpositions[i,:]
          ray = detectorVect[i,:]
-         print("ray to target is ", ray)
          toTargets = targets - satposition
-         print(toTargets)
-#         dot_products = np.einsum('ij,ij->i', toTargets, detectorVect)
-#         print(dot_products)
-         #         norms_V = np.linalg.norm(toTargets, axis=1)
-#         norms_W = np.linalg.norm(detectorVect, axis=1)
-#         angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
-
-        
+         print(' toTargets, ray shapes ', toTargets.shape, ray.shape)
+         dot_products = np.einsum('ij,j->i', toTargets, ray)
+         print(dot_products)
+         norms_V = np.linalg.norm(toTargets, axis=1)
+         norms_W = np.linalg.norm(ray, axis=0)
+         angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
+         print('angles ', angles)
+# Compare the the angles to the acceptance angle and create a mask for those
+# For those in the mask, computer the SNR
+# store an appropriately labeled vector with the detector number, the target number, the time,
+# and the SNR in a pandas array, or maybe a numpy array.
+# 
+         
 # Determine which ones are in the fov
 # Skinny down the vector to be calculated to which ones are in the fov
 # make sure you have some label so you can keep track
@@ -59,8 +63,6 @@ def scandetectors(sim_data: dict):
 # save these to a database
     
 
-
-    # Assume A and B are your (n, 3) arrays
     # A = np.array([[x1, y1, z1], ...])
     # B = np.array([[x2, y2, z2], ...])
 

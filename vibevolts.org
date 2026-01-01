@@ -92,6 +92,7 @@ in org format in datastrucure.org
 - [ ] Get the timesteps commensurate with the search pattern
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
+- [ ] Fix angle of sensor from circular to square
 - [ ] mark targets that are in eclipse
 - [ ] write some code that computes what been detected and do a 3-D map
 **** Future work [/]
@@ -116,22 +117,27 @@ in org format in datastrucure.org
 * Log
 
 ** 2026-01
+
+*** [2026-01-02 Fri]
+Check which targets are in view, calculate SNR,
+tabulate those that are right, get ready for statistics,
+do some checking.
 *** [2026-01-01 Thu] New Years Day
-**** Today's ad-hoc checklist [3/11]
+New approach, build an interactive ad-hoc list below.
+Success, got lots of messy variables moved to the right places.
+
+**** Today's ad-hoc checklist [10/10]
 - [X] recreate todays list
 - [X] fix the detectorVect in scandetectors
 - [X] why is detectorVect not set up? See below
-- [ ] Remove any default creation of pointing_spheres
-- [ ] I need a function like "pointingInit"
-- [ ] Set up pointing spheres
-- [ ] follow the example in constellation to initialize detectors
-- 
-- [ ] how is it right in the demos?
-- [ ] Continue stepping through scandetectors, using jupyter for the moment,
+- [X] Remove any default creation of pointing_spheres
+- [X] I need a function like "pointingInit"
+- [X] Set up pointing spheres
+- [X] follow the example in constellation to initialize detectors
+- [X] how is it right in the demos?
+- [X] Continue stepping through scandetectors, using jupyter for the moment,
   fixing a line at a time. Just check what you have is right.
-- [ ] outline what we need to do in comments in scandetectors.py
-- [ ] build better links between detectors and satellites - started with
-  1:1, we need [0,1]:n
+- [X] Get to the stage where we are getting angles right.
 
 **** Tasks for AI [/]
 - [ ] Respin documentation.
