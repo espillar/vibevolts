@@ -57,6 +57,7 @@ def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> N
 
 # Bring in the approprieate pieces of the data structure for easier reference
     pointing_state = sim_data['detector'].pointing_state 
+    print('pointing_state in pointing.py ', pointing_state)
     pointing_vectors_all = sim_data['detector'].pointing
 
 # Iterate over satellites
@@ -244,6 +245,6 @@ def jerk(sim_data: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, A
     # Rodrigues' rotation formula
     p_new = p_norm * cos_theta + np.cross(k_hat, p_norm) * sin_theta
 
-    sim_data['satellites'].pointing[satellite_indices] = p_new
+    sim_data['detector'].pointing[satellite_indices] = p_new
 
     return sim_data

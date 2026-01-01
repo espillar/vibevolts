@@ -60,7 +60,7 @@ def demo_pointing_sequence() -> go.Figure:
 
     print("Initial pointing vectors:")
     update_detector_pointing(sim_data)
-    print(sim_data['satellites'].pointing)
+    print(sim_data['detector'].pointing)
 
     # --- Create a figure to animate ---
     fig = go.Figure(
@@ -74,7 +74,7 @@ def demo_pointing_sequence() -> go.Figure:
     trajectories = [[]]
     
     # Initial plot (T=0)
-    vectors = sim_data['satellites'].pointing
+    vectors = sim_data['detector'].pointing
     trajectories[0].append(vectors[0].copy())
 
     # Simulation loop for 30 steps (T=0 to T=29)
@@ -83,7 +83,7 @@ def demo_pointing_sequence() -> go.Figure:
         current_time = sim_start_time + timedelta(seconds=t * sim_data['delta_time'])
         sim_data = celestial_update(sim_data, current_time)
         update_detector_pointing(sim_data)
-        vectors = sim_data['satellites'].pointing
+        vectors = sim_data['detector'].pointing
         trajectories[0].append(vectors[0].copy())
 
     # --- Plotting ---

@@ -45,7 +45,7 @@ def makeBlankDetector(n):
     detector.ifov = np.zeros(n, dtype=float)      
     detector.filt = [""] * n                       # filter
     detector.pointing = np.zeros((n,3), dtype = float)
-    detector.pointing_state = np.zeros((3,n),dtype=int)
+    detector.pointing_state = np.zeros((n,2),dtype=int)
     return detector
 
 
@@ -90,7 +90,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     detect.ifov[:] = ifov
     detect.filt = [band] * n
     detect.pointing = np.zeros((n,3), dtype = float)
-    detect.pointing_state = np.zeros((3,n),dtype=int)
+    detect.pointing_state = np.zeros((n,2),dtype=int)
     return detect
 
 

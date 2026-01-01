@@ -39,8 +39,8 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'acceleration': np.zeros((num_sats, 3), dtype=float),
         'orbital_elements': orbital_elements,
         'epochs': epochs,
-#        'pointing': np.zeros((num_sats, 3), dtype=float),
-#        'pointing_state': np.zeros((num_sats, 2), dtype=int),
+        'pointing': np.zeros((num_sats, 3), dtype=float),
+        'pointing_state': np.zeros((num_sats, 2), dtype=int),
     }
 
     

@@ -38,7 +38,7 @@ def run_all_demos(save_html=False):
         save_html (bool): If True, saves plots to HTML. If False, displays plots inline.
     """
     demo_functions = [
-       demo2,
+        demo2,
         demo3,
         demo4,
         demo_fixedpoints,
@@ -68,6 +68,7 @@ def run_all_demos(save_html=False):
             for fig in res:
                 figs.append(fig)
                 print("extracting an item from a tuple")
+            
 
     if save_html:
         with open("all_demo_plots.html", "w") as f:

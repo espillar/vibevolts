@@ -148,9 +148,9 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
             'acceleration': np.zeros((n, 3), dtype=float),
             'orbital_elements': orbital_elements,
             'epochs': epochs_list,
-            'pointing': np.zeros((n, 3), dtype=float),
-            'pointing_state': pointing_state_array,
         }
+        sim_data['detector'].pointing = np.zeros((n, 3), dtype=float)
+        sim_data['detector'].pointing_state = pointing_state_array
     else:
         # Append to existing satellites
         sim_data['counts']['satellites'] += n
@@ -159,6 +159,6 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
         sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
         sim_data['satellites']['epochs'].extend(epochs_list)
-        sim_data['detector.py'].pointing = np.vstack([sim_data['detector'].pointing, np.zeros((n, 3), dtype=float)])
+        sim_data['detector'].pointing = np.vstack([sim_data['detector'].pointing, np.zeros((n, 3), dtype=float)])
         sim_data['detector'].pointing_state = np.vstack([sim_data['detector'].pointing_state, pointing_state_array])
     sim_data = propagate_satellites(sim_data, sim_data['time'])
