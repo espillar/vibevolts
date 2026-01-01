@@ -60,7 +60,7 @@ def demo_pointing_sequence() -> go.Figure:
 
     print("Initial pointing vectors:")
     update_detector_pointing(sim_data)
-    print(sim_data['detector'].pointing)
+#    print(sim_data['detector'].pointing)
 
     # --- Create a figure to animate ---
     fig = go.Figure(

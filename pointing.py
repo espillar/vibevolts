@@ -57,7 +57,7 @@ def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> N
 
 # Bring in the approprieate pieces of the data structure for easier reference
     pointing_state = sim_data['detector'].pointing_state 
-    print('pointing_state in pointing.py ', pointing_state)
+#    print('pointing_state in pointing.py ', pointing_state)
     pointing_vectors_all = sim_data['detector'].pointing
 
 # Iterate over satellites
@@ -209,7 +209,7 @@ def demo_exclusion_pointing():
         margin=dict(r=20, b=10, l=10, t=40)
     )
 
-    print(pointed_directions_history[:100])
+#    print(pointed_directions_history[:100])
     fig.show() 
     return fig
 
