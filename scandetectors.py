@@ -1,5 +1,5 @@
 import numpy as np
-
+import lambertian
 
 def get_spherical_coords(arr):
     """
@@ -15,6 +15,9 @@ def get_spherical_coords(arr):
     phi = np.arctan2(y, x)
     return theta, phi
 
+#######################################################
+
+
 def scandetectors(sim_data: dict):
     """
     Scans for and processes detector data within the simulation.
@@ -27,6 +30,7 @@ def scandetectors(sim_data: dict):
 
     satpositions = sim_data['satellites']['position'] # all satellite positions
     detectorVect = sim_data['detector'].pointing # detector pointings
+    
     print('detectorVect ', detectorVect)
     detectorFov = sim_data['detector'].fov # detector fields of view
     targets = sim_data['fixedpoints']['position'] # all target positions
@@ -48,6 +52,7 @@ def scandetectors(sim_data: dict):
          norms_W = np.linalg.norm(ray, axis=0)
          angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
          print('angles ', angles)
+
 # Compare the the angles to the acceptance angle and create a mask for those
 # For those in the mask, computer the SNR
 # store an appropriately labeled vector with the detector number, the target number, the time,
@@ -81,3 +86,29 @@ def scandetectors(sim_data: dict):
     # delta_phi = (delta_phi + np.pi) % (2 * np.pi) - np.pi    
         
     return(0)
+
+
+
+#######################################################
+
+
+
+def findVectorMask(values: np.ndarray, floorValue: float) -> np.ndarray:
+    """
+    Compares values in a 1D numpy array to a floorValue and returns a boolean mask.
+
+    The mask will have True where values are greater than or equal to floorValue,
+    and False otherwise.
+
+    Args:
+        values (np.ndarray): A 1D numpy array of numerical values.
+        floorValue (float): The threshold value to compare against.
+
+    Returns:
+        np.ndarray: A boolean numpy array (mask) of the same shape as 'values'.
+    """
+
+
+    return values >= floorValue
+
+

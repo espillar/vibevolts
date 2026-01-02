@@ -76,7 +76,6 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-
 **** Get a simple search pattern going [2/11]
 - [X] update sensor fields of view-make sure they are OK
 - [X] Get detectors declared in initialize_standard_simulation
@@ -122,6 +121,27 @@ in org format in datastrucure.org
 Check which targets are in view, calculate SNR,
 tabulate those that are right, get ready for statistics,
 do some checking.
+
+**** Today [2/7]
+- [X] Reveiw what we have to do and write this list
+- [X] create a function compareToVectorMask
+- [ ] check that lambertian sphere works adequantely for vectors of
+  all the pieces
+- [ ] check that lambertian is using the right "base brightness"
+- [ ] Compare the the angles to the acceptance angle and create a mask for those
+- [ ] For those in the mask, computer the SNR.
+- [ ]  store an appropriately labeled vector with the detector number, the target number, the time, and the SNR in a pandas array, or maybe a numpy array.
+
+
+**** Tasks for AI [/]
+- [ ] Respin documentation. Specifically,I think there should be a section
+  for each of the items in sim_data descibing whats in there, and an
+  additional section fro constants and for radiomentry_data.
+
+
+
+
+
 *** [2026-01-01 Thu] New Years Day
 New approach, build an interactive ad-hoc list below.
 Success, got lots of messy variables moved to the right places.

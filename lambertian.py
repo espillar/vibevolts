@@ -9,6 +9,8 @@ def simple_lambertian(
 ) -> float:
     """
     Calculates the apparent brightness of a Lambertian sphere.
+    See Also lambertiansphere, which works with complete vectors
+    of objects in a more code friendly way!
 
     This function computes the apparent brightness of a diffusely
     reflecting sphere based on its physical properties, viewing
@@ -81,49 +83,53 @@ def simple_lambertian(
 def lambertiansphere(
     vec_from_sphere_to_light: np.ndarray,
     vec_from_sphere_to_observer: np.ndarray,
-    albedo: float,
-    radius: float
-) -> float:
+    albedo: np.ndarray,
+    radius: np.ndarray,
+    base_brightness: np.ndarray
+) -> np.ndarray:
     """
-    Calculates the effective brightness of a
-    Lambertian sphere.
+    Calculates the apparent brightness of multiple Lambertian spheres in a vectorized manner.
 
-    This function determines the apparent brightness of
-    a diffusely reflecting sphere based on the angle
-    between the light source and the observer, the
-    sphere's albedo (reflectivity), and its size.
+    This function determines the apparent brightness of diffusely reflecting spheres
+    based on the angle between the light source and the observer, the spheres'
+    albedos (reflectivity), their sizes, and the distance to the observer.
 
     Args:
-        vec_from_sphere_to_light: A 3-element NumPy
-            array representing the direction vector from
-            the sphere to the light source.
-        vec_from_sphere_to_observer: A 3-element NumPy
-            array representing the direction vector from
-            the sphere to the observer.
-        albedo: The fraction of incident light that is
-            reflected (0.0 to 1.0).
-        radius: The radius of the sphere in meters.
+        vec_from_sphere_to_light: An (N, 3) NumPy array where each row is a
+            vector from a sphere to the light source.
+        vec_from_sphere_to_observer: An (N, 3) NumPy array where each row is a
+            vector from a sphere to the observer. The magnitude of this vector
+            is the distance.
+        albedo: A 1D NumPy array of shape (N,) with the fraction of incident
+            light that is reflected for each sphere (0.0 to 1.0).
+        radius: A 1D NumPy array of shape (N,) with the radius of each sphere
+            in meters.
+        base_brightness: A 1D NumPy array of shape (N,) with the incident
+            flux or brightness of the light source at each sphere's location.
 
     Returns:
-        The effective brightness cross-section in
-        square meters. This value is proportional to
-        the total light reflected towards the observer.
+        A 1D NumPy array of shape (N,) containing the apparent brightness
+        for each sphere, e.g. in Watts per square meter.
     """
-    if not 0.0 <= albedo <= 1.0:
-        raise ValueError("Albedo must be between 0.0 and 1.0.")
-    if radius < 0:
+    if not np.all((albedo >= 0.0) & (albedo <= 1.0)):
+        raise ValueError("All albedo values must be between 0.0 and 1.0.")
+    if np.any(radius < 0):
         raise ValueError("Radius cannot be negative.")
 
-    norm_light = np.linalg.norm(vec_from_sphere_to_light)
-    norm_observer = np.linalg.norm(vec_from_sphere_to_observer)
+    norm_light = np.linalg.norm(vec_from_sphere_to_light, axis=1)
+    norm_observer = np.linalg.norm(vec_from_sphere_to_observer, axis=1)
 
-    if norm_light == 0 or norm_observer == 0:
-        raise ValueError("Input vectors cannot have zero length.")
+    # To avoid division by zero, we'll suppress warnings and handle NaNs later
+    with np.errstate(divide='ignore', invalid='ignore'):
+        unit_vec_light = vec_from_sphere_to_light / norm_light[:, np.newaxis]
+        unit_vec_observer = vec_from_sphere_to_observer / norm_observer[:, np.newaxis]
 
-    unit_vec_light = vec_from_sphere_to_light / norm_light
-    unit_vec_observer = vec_from_sphere_to_observer / norm_observer
+    # Row-wise dot product
+    cos_alpha = np.einsum('ij,ij->i', unit_vec_light, unit_vec_observer)
 
-    cos_alpha = np.dot(unit_vec_light, unit_vec_observer)
+    # Handle cases where dot product resulted in NaN from zero-length vectors
+    cos_alpha = np.nan_to_num(cos_alpha)
+    
     cos_alpha = np.clip(cos_alpha, -1.0, 1.0)
     alpha = np.arccos(cos_alpha)
 
@@ -133,13 +139,27 @@ def lambertiansphere(
 
     cross_sectional_area = np.pi * (radius ** 2)
 
-    effective_brightness = (
+    effective_cross_section = (
         albedo *
         cross_sectional_area *
         phase_function_value
     )
 
-    return effective_brightness
+    # The apparent brightness is the incident brightness multiplied
+    # by the effective reflecting area, with the resulting light
+    # distributed according to the inverse square law.
+    with np.errstate(divide='ignore', invalid='ignore'):
+        apparent_brightness = (
+            (base_brightness * effective_cross_section) /
+            (np.pi * norm_observer ** 2)
+        )
+
+
+    # Ensure that entries corresponding to zero-norm vectors have zero brightness
+    invalid_mask = (norm_light == 0) | (norm_observer == 0)
+    apparent_brightness[invalid_mask] = 0.0
+
+    return apparent_brightness
 
 
 
