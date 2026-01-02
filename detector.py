@@ -59,7 +59,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
     n is the number of sensors to produce
     band is the band the measurement takes place in (see radiometry_data)
-    fov is the field of view- assumed square- in radians
+    fov is the field of view- assumed square?- in radians
     ifov is the pixel fov - assumed square - in radians
     aper is the aperture diameter - assumed round - in meters
     qe is th quantum efficiency of the system from entrance aperture
@@ -113,7 +113,7 @@ def detectorPointingInitialize(sim_data, grid_points):
     generate_pointing_sphere(sim_data, grid_points)
     detect = sim_data['detector']
     detect.pointing_state = np.zeros((2,sensorCount), dtype = int)
-    print( 'detect.pointing_state.shape ', detect.pointing_state.shape)
+#    print( 'detect.pointing_state.shape ', detect.pointing_state.shape)
     detect.pointing_state[POINTING_COUNT_IDX,:] = grid_points
     detect.pointing_state[POINTING_PLACE_IDX,:] = np.random.randint(0, grid_points-1, size=sensorCount)
     update_detector_pointing(sim_data)

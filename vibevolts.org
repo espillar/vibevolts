@@ -122,13 +122,13 @@ Check which targets are in view, calculate SNR,
 tabulate those that are right, get ready for statistics,
 do some checking.
 
-**** Today [2/7]
+**** Today [4/7]
 - [X] Reveiw what we have to do and write this list
 - [X] create a function compareToVectorMask
-- [ ] check that lambertian sphere works adequantely for vectors of
+- [X] check that lambertian sphere works adequantely for vectors of
   all the pieces
 - [ ] check that lambertian is using the right "base brightness"
-- [ ] Compare the the angles to the acceptance angle and create a mask for those
+- [X] Compare the the angles to the acceptance angle and create a mask for those
 - [ ] For those in the mask, computer the SNR.
 - [ ]  store an appropriately labeled vector with the detector number, the target number, the time, and the SNR in a pandas array, or maybe a numpy array.
 

@@ -78,8 +78,6 @@ def simple_lambertian(
     return apparent_brightness
 
 
-
-
 def lambertiansphere(
     vec_from_sphere_to_light: np.ndarray,
     vec_from_sphere_to_observer: np.ndarray,

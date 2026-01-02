@@ -66,7 +66,6 @@ def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> N
         count = int(pointing_state[POINTING_COUNT_IDX, i])
         if count == 0:
             continue
-        print(' sim_data pointng spheres keys ', sim_data['pointing_spheres'].keys())
         grid = sim_data['pointing_spheres'][count]
         
         place = int(pointing_state[POINTING_PLACE_IDX, i])

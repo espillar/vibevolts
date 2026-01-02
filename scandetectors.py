@@ -31,13 +31,13 @@ def scandetectors(sim_data: dict):
     satpositions = sim_data['satellites']['position'] # all satellite positions
     detectorVect = sim_data['detector'].pointing # detector pointings
     
-    print('detectorVect ', detectorVect)
+#    print('detectorVect ', detectorVect)
     detectorFov = sim_data['detector'].fov # detector fields of view
     targets = sim_data['fixedpoints']['position'] # all target positions
     targetSize = sim_data['fixedpoints']['size'] # all target sizes
     sun = sim_data['celestial']['position'][0] # sun position
-
-    print(satpositions.shape, ' sat positions')
+    fovs = sim_data['detector'].fov # field of view of the detector
+#    print(satpositions.shape, ' sat positions')
 
 # Scan over detectors
 #    for i in range(len(satpositions)):
@@ -45,13 +45,17 @@ def scandetectors(sim_data: dict):
          satposition = satpositions[i,:]
          ray = detectorVect[i,:]
          toTargets = targets - satposition
-         print(' toTargets, ray shapes ', toTargets.shape, ray.shape)
+#         print(' toTargets, ray shapes ', toTargets.shape, ray.shape)
          dot_products = np.einsum('ij,j->i', toTargets, ray)
-         print(dot_products)
+#         print(dot_products)
          norms_V = np.linalg.norm(toTargets, axis=1)
          norms_W = np.linalg.norm(ray, axis=0)
          angles = np.arccos(np.clip(dot_products / (norms_V * norms_W), -1.0, 1.0))
-         print('angles ', angles)
+#         print('angles ', angles)
+         fov = fovs[i]
+         mask = angles < fov
+#         print(mask)
+         
 
 # Compare the the angles to the acceptance angle and create a mask for those
 # For those in the mask, computer the SNR
