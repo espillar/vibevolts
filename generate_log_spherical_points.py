@@ -7,7 +7,6 @@ def generate_log_spherical_points(
     num_points: int,
     inner_radius: float,
     outer_radius: float,
-    object_size_m: float = 1.0,
     seed: int = None
 ) -> tuple[np.ndarray, np.ndarray]:
     """
@@ -15,22 +14,19 @@ def generate_log_spherical_points(
 
     This function creates a point cloud where point distances from the origin are
     logarithmically spaced. On any given spherical shell, points are distributed
-    uniformly using the Fibonacci lattice method. Each point is associated with a
-    specified object size.
+    uniformly using the Fibonacci lattice method.
+    
 
     Args:
         num_points: The total number of points to generate.
         inner_radius: The minimum distance from the origin (must be positive).
         outer_radius: The maximum distance from the origin (must be >= inner_radius).
-        object_size_m: The size in meters to be associated with each point.
-                       Defaults to 1.0.
         seed: An optional integer to seed the random number generator for
               reproducible shuffling.
 
     Returns:
         A tuple containing:
         - A NumPy array of shape (num_points, 3) for the Cartesian coordinates.
-        - A NumPy array of shape (num_points,) for the object size in meters.
     """
     # Input validation
     if not isinstance(num_points, int) or num_points <= 0:
@@ -77,10 +73,7 @@ def generate_log_spherical_points(
     # Reshape radii to (N, 1) to broadcast with (N, 3) unit_vectors
     points = unit_vectors * radii[:, np.newaxis]
 
-    # --- 5. Create an array for the object sizes ---
-    sizes = np.full(num_points, object_size_m, dtype=float)
-
-    return points, sizes
+    return points
 
 if __name__ == '__main__':
     # --- Demo of Point Generation and Visualization ---
@@ -92,7 +85,7 @@ if __name__ == '__main__':
     OBJECT_SIZE = 1.0
 
     print(f"Generating {NUM_POINTS} points from radius {INNER_RADIUS} to {OUTER_RADIUS}...")
-    generated_points, _ = generate_log_spherical_points(
+    generated_points = generate_log_spherical_points(
         num_points=NUM_POINTS,
         inner_radius=INNER_RADIUS,
         outer_radius=OUTER_RADIUS,

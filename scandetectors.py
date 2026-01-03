@@ -1,5 +1,7 @@
 import numpy as np
 import lambertian
+import radiometry_calcs
+
 
 def get_spherical_coords(arr):
     """
@@ -25,6 +27,8 @@ def scandetectors(sim_data: dict):
         sim_data (dict): The main simulation data dictionary.
                          This dictionary is expected to contain all
                          relevant simulation state and parameters.
+
+    TODO: we are using the same filter for all the detectors!
     """
     print("scansensors function called with simulation data.")
 
@@ -35,9 +39,12 @@ def scandetectors(sim_data: dict):
     detectorFov = sim_data['detector'].fov # detector fields of view
     targets = sim_data['fixedpoints']['position'] # all target positions
     targetSize = sim_data['fixedpoints']['size'] # all target sizes
-    sun = sim_data['celestial']['position'][0] # sun position
+    sunVect = sim_data['celestial']['position'][0] # sun position
     fovs = sim_data['detector'].fov # field of view of the detector
-#    print(satpositions.shape, ' sat positions')
+    sun, space, sky = radiometry_calcs.fluxes(sim_data['detector'].filt[0])
+    albedo = sim_data['fixedpoints']['albedo']
+    radius = sim_data['fixedpoints']['size']/2
+  
 
 # Scan over detectors
 #    for i in range(len(satpositions)):
@@ -54,8 +61,19 @@ def scandetectors(sim_data: dict):
 #         print('angles ', angles)
          fov = fovs[i]
          mask = angles < fov
-#         print(mask)
+         print(mask)
+         # print('sunvect.shape ', sunVect.shape)
+         # print( 'toTargets.shape ', toTargets.shape)
+         # print( ' albed[mask].shape ' , albedo[mask].shape)
+         signal = lambertian.lambertiansphere(
+             -sunVect,
+             -toTargets[mask],
+             albedo[mask],
+             radius[mask],
+             sun)
+         print(signal)
          
+
 
 # Compare the the angles to the acceptance angle and create a mask for those
 # For those in the mask, computer the SNR

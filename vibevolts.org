@@ -1,6 +1,15 @@
+
 * Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
 * Notes: infrastrucure, some code ideas
+** Clocks: how to run discrete events 
+The fundamental idea for these deep sky threats is that the sensor will
+be scanning much faster than the satellites move, so the clock rate is
+set by the sensors readouts with the satellites frozen.
+- Each sensor has next measurnebt time and a integration time.
+- a master scheduler looks for the next cohort of sensors to
+  be read out at the same time, sets the time there,
+  runs the sensors and updates their clocks.
 ** Infrastructure
 *** Jules
 Appears to hook into the system right,  including when logged in as 
@@ -18,6 +27,7 @@ Instance *16047
 git pull is set up - so start with that. Make sure you are up to date
 gemini-cli is instaleld.  Done with a pip install gemini-cli, and then doing
 a brief authentication dance.
+`
 ** Numpy scatter gather
 import numpy as np
 
@@ -76,10 +86,10 @@ in org format in datastrucure.org
 * Todo
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [2/11]
+**** Get a simple search pattern going [3/13]
 - [X] update sensor fields of view-make sure they are OK
 - [X] Get detectors declared in initialize_standard_simulation
-- [ ] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
+- [X] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
   This in detector.py
 - [ ] If there is a hit, compute the SNR
 - [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
@@ -94,7 +104,8 @@ in org format in datastrucure.org
 - [ ] Fix angle of sensor from circular to square
 - [ ] mark targets that are in eclipse
 - [ ] write some code that computes what been detected and do a 3-D map
-**** Future work [/]
+**** Future work [0/8]
+- [ ] We are using he same filter for all the detectors: split into cohorts
 - [ ] It would be nice to consolidate all those demos a little better
   put the demo code in the same files as what they are testing
   make them all rely on a standard initial "build", chaning
@@ -117,6 +128,19 @@ in org format in datastrucure.org
 
 ** 2026-01
 
+*** [2026-01-03 Sat]
+
+**** Toddo [5/9]
+- [X] Record some of the architectural ideas I had while walking
+- [X] move fluxes into radiometry.calcs
+- [X] move the size out of generate_log_spherical_points to targets
+- [X] test that things are still running in demos
+- [ ] Collect all fluxes of the marked objects
+- [X] get the backgrounds
+- [ ] calculate the SNRs
+- [ ] capture the results in some sort of database
+- [ ] start writing tests for SNRs
+
 *** [2026-01-02 Fri]
 Check which targets are in view, calculate SNR,
 tabulate those that are right, get ready for statistics,
@@ -131,14 +155,6 @@ do some checking.
 - [X] Compare the the angles to the acceptance angle and create a mask for those
 - [ ] For those in the mask, computer the SNR.
 - [ ]  store an appropriately labeled vector with the detector number, the target number, the time, and the SNR in a pandas array, or maybe a numpy array.
-
-
-**** Tasks for AI [/]
-- [ ] Respin documentation. Specifically,I think there should be a section
-  for each of the items in sim_data descibing whats in there, and an
-  additional section fro constants and for radiomentry_data.
-
-
 
 
 

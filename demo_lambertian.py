@@ -13,8 +13,7 @@ def demo_lambertian():
     OBSERVER_DISTANCE = 1000e3  # 1000 km
 
     print(f"--- Simulating a sphere with Albedo={SATELLITE_ALBEDO}, Radius={SATELLITE_RADIUS}m, at a distance of {OBSERVER_DISTANCE / 1e3} km ---")
-    print(f"--- Base Brightness (e.g., Solar Constant) = {BASE_BRIGHTNESS} W/m^2 ---
-")
+    print(f"--- Base Brightness (e.g., Solar Constant) = {BASE_BRIGHTNESS} W/m^2 ---")
 
     # --- Example 1: Full Illumination (Phase Angle = 0) ---
     print("--- Example 1: Full Illumination ---")

@@ -64,7 +64,7 @@ def geos(sim_data, n,  fov) -> None:
 
 
     orbital_elements = np.array(orbital_elements_list, dtype=float)
-    pointing_state_array = np.array(pointing_state_list, dtype=int)
+    pointing_state_array = np.array(pointing_state_list, dtype=int).T
     print(' pointing_state_aray.shaoe ', pointing_state_array.shape)
     sim_data['counts']['satellites'] = n
     # print( 'the number of satellites should be ', n) # Commented out
@@ -135,7 +135,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
         pointing_state_list.append(pointing_state)
 
     orbital_elements = np.array(orbital_elements_list, dtype=float)
-    pointing_state_array = np.array(pointing_state_list, dtype=int)
+    pointing_state_array = np.array(pointing_state_list, dtype=int).T
 
 
     
