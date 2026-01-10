@@ -20,7 +20,7 @@ def demo_lambertian():
     vec_sun_1 = np.array([1, 0, 0])  # Light source direction
     vec_obs_1 = np.array([1, 0, 0]) * OBSERVER_DISTANCE  # Observer direction and distance
     brightness_1 = lambertiansphere(
-        np.array([vec_sun_1]), np.array([vec_obs_1]), np.array([SATELLITE_ALBEDO]), np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
+        vec_sun_1, np.array([vec_obs_1]), np.array([SATELLITE_ALBEDO]), np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
     )
     angle_1 = np.rad2deg(np.arccos(np.dot(vec_sun_1, vec_obs_1 / np.linalg.norm(vec_obs_1))))
     print(f"Phase Angle: {angle_1:.2f} degrees")
@@ -31,7 +31,7 @@ def demo_lambertian():
     vec_sun_2 = np.array([1, 0, 0])
     vec_obs_2 = np.array([0, 1, 0]) * OBSERVER_DISTANCE
     brightness_2 = lambertiansphere(
-        np.array([vec_sun_2]), np.array([vec_obs_2]), np.array([SATELLITE_ALBEDO]), np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
+        vec_sun_2, np.array([vec_obs_2]), np.array([SATELLITE_ALBEDO]), np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
     )
     angle_2 = np.rad2deg(np.arccos(np.dot(vec_sun_2, vec_obs_2 / np.linalg.norm(vec_obs_2))))
     print(f"Phase Angle: {angle_2:.2f} degrees")
@@ -42,7 +42,7 @@ def demo_lambertian():
     vec_sun_3 = np.array([1, 0, 0])
     vec_obs_3 = np.array([-1, 0, 0]) * OBSERVER_DISTANCE
     brightness_3 = lambertiansphere(
-        np.array([vec_sun_3]), np.array([vec_obs_3]), np.array([SATELLITE_ALBEDO]), np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
+        vec_sun_3, np.array([vec_obs_3]), np.array([SATELLITE_ALBEDO]), np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
     )
     angle_3 = np.rad2deg(np.arccos(np.dot(vec_sun_3, vec_obs_3 / np.linalg.norm(vec_obs_3))))
     print(f"Phase Angle: {angle_3:.2f} degrees")
@@ -55,7 +55,7 @@ def demo_lambertian():
 
     # Prepare inputs for vectorized calculation
     num_points = len(angles_rad)
-    plot_vec_light = np.tile([1, 0, 0], (num_points, 1))
+    plot_vec_light = np.array([1, 0, 0])  # Single light source vector
     plot_vec_obs = np.zeros((num_points, 3))
     plot_vec_obs[:, 0] = np.cos(angles_rad)
     plot_vec_obs[:, 1] = np.sin(angles_rad)

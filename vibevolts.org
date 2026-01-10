@@ -1,4 +1,3 @@
-
 * Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
 * Notes: infrastrucure, some code ideas
@@ -126,11 +125,34 @@ in org format in datastrucure.org
 
 * Log
 
+
 ** 2026-01
+
+*** [2026-01-10 Sat]
+Well, this was evidently not a good week!
+First, lets move over our .emacs file from the jupiter.
+Had to install magit "by hand" but the instructins in .emacs
+were there! And helped!
+Took about 22 minutes, not too bad actually. Sorted some laundry.
+What's next?
+Hmm, somehow flymake works now, and it's fixing my formatting. Wasted
+some time on this, but I do think it's ultimately useful!
+Looks like there were some more mistakes in the dimensions of arguments.
+I think some may have been introduced last week. Letting gemini
+clean things up.
+
+**** Todo [3/5]
+- [X] port my emacs setup over.
+- [X] figure out why lambertian is busted, or what's wrong
+  with its arguments
+- [X] run all demos
+- [ ] start running the other guy and label better
+
+  
 
 *** [2026-01-03 Sat]
 
-**** Toddo [5/9]
+**** Todo [5/9]
 - [X] Record some of the architectural ideas I had while walking
 - [X] move fluxes into radiometry.calcs
 - [X] move the size out of generate_log_spherical_points to targets
