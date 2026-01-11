@@ -95,7 +95,7 @@ Added by ~add_observatories~ in ~observatories.py~.
 
 The ~detector~ object is a ~SimpleNamespace~ that holds detector properties. It is created by ~makeBlankDetector~ or ~makeDetector~ and assigned to ~sim_data['detector']~ by various functions (~add_satellites_from_tle~, ~add_observatories~, ~geos~, ~geosmod~).
 
-- *~aperture~*: ~np.ndarray~ (n,) - Aperture area in square meters.
+- *~apertureArea~*: ~np.ndarray~ (n,) - Aperture area in square meters.
 - *~pixelArea~*: ~np.ndarray~ (n,) - Pixel area in square arcsec.
 - *~qe~*: ~np.ndarray~ (n,) - Quantum efficiency.
 - *~photoEff~*: ~np.ndarray~ (n,) - Fraction of photons in photometry bucket.
@@ -105,7 +105,7 @@ The ~detector~ object is a ~SimpleNamespace~ that holds detector properties. It 
 - *~earthEx~*: ~np.ndarray~ (n,) - Earth exclusion angle in radians.
 - *~skyBack~*: ~np.ndarray~ (n,) - Sky background in photons per square steradian.
 - *~zpCal~*: ~np.ndarray~ (n,) - Filter calibration zeropoint.
-- *~itime~*: ~np.ndarray~ (n,) - Integration time.
+- *~integrationTime~*: ~np.ndarray~ (n,) - Integration time.
 - *~fov~*: ~np.ndarray~ (n,) - Field of view.
 - *~ifov~*: ~np.ndarray~ (n,) - Instantaneous field of view.
 - *~filt~*: ~list[str]~ (n) - Filter name.

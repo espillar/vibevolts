@@ -8,13 +8,38 @@ from pointing import update_detector_pointing, generate_pointing_sphere
 import random
 
 
+#########################################################
+
+def setDetectorFOV(sim_data, fovSize):
+    """
+    setDetectorFOV goes through the detectors in sim_data
+    and changes the FOVs of all of them to size (radians).
+    This is meant to be an ad-hoc function for test,
+    not a regular operational thing.
+    """
+    count = len(sim_data['detector'].fov)
+    sim_data['detector'].fov = np.full(count, fovSize)
+
+    #########################################################
+
+def setDetectorIntegrationTime(sim_data, itime):
+    """
+    setDetectorFOV goes through the detectors in sim_data
+    and changes the FOVs of all of them to size (radians).
+    This is meant to be an ad-hoc function for test,
+    not a regular operational thing.
+    """
+    count = len(sim_data['detector'].fov)
+    sim_data['detector'].itime = np.full(count, itime)
+
+
 ##########################################################
 
 def makeBlankDetector(n):
     """
     makeBlankDetector makes and returns a detector SipleNamespace
     with parameters
-    aperture
+    apertureArea
     pixelArea
     qe
     photoEff
@@ -24,7 +49,7 @@ def makeBlankDetector(n):
     earlEx
     skyBack
     zpCal
-    itime
+    integrationTime
     fov
     ifov
     filt
@@ -32,9 +57,9 @@ def makeBlankDetector(n):
     pointing_state (n,2) length of chain and current index
     """
     detector = SimpleNamespace()
-    detector.aperture = np.zeros(n, dtype=float)  # Aperture area in square meters
+    detector.apertureArea = np.zeros(n, dtype=float)  # Aperture area in square meters
     detector.pixelArea = np.zeros(n, dtype=float) # pixel area in square arcsec
-    detector.qe = np.zeros(n, dtype=float)        # Quantum efficiency from aperture to detectoras a fraction (0.0 to 1.0)
+    detector.qe = np.zeros(n, dtype=float)        # Quantum efficiency from apertureArea to detectoras a fraction (0.0 to 1.0)
     detector.photoEff = np.zeros(n, dtype=float)   # Fraction of photons in photometry bucket
     detector.pixCount = np.zeros(n, dtype=float)   # Total number of pixels in the detector (count)
     detector.solarEx = np.zeros(n, dtype=float)     # Solar exclusion angle in radians
@@ -42,9 +67,9 @@ def makeBlankDetector(n):
     detector.earthEx = np.zeros(n, dtype=float)    # Earth exclusion angle (above the limb) in radians
     detector.skyBack = np.zeros(n, dtype=float)    # Sky Background in photons per square steradian
     detector.zpCal = np.zeros(n, dtype=float)  # Filter calibration zeropoint" photons per square meter per second second
-    detector.itime = np.zeros(n, dtype=float)      # Integration Time required to reach a desired limiting magniude
-    detector.fov = np.zeros(n, dtype=float)       
-    detector.ifov = np.zeros(n, dtype=float)      
+    detector.integrationTime = np.zeros(n, dtype=float)      # Integration Time required to reach a desired limiting magniude
+    detector.fov = np.zeros(n, dtype=float)
+    detector.ifov = np.zeros(n, dtype=float)
     detector.filt = [""] * n                       # filter
     detector.pointing = np.zeros((n,3), dtype = float)
     detector.pointing_state = np.zeros((2,n),dtype=int)
@@ -61,7 +86,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     band is the band the measurement takes place in (see radiometry_data)
     fov is the field of view- assumed square?- in radians
     ifov is the pixel fov - assumed square - in radians
-    aper is the aperture diameter - assumed round - in meters
+    aper is the apertureArea diameter - assumed round - in meters
     qe is th quantum efficiency of the system from entrance aperture
         to detectro
     photfrac is the fraction of the light captured in the photometry aperture
@@ -87,7 +112,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     detect.earthEx[:] = earthex  # eearth exclusion angle
     detect.skyBack[:] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
     detect.zpCal[:] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
-    detect.itime[:] = requiredIntegrationTime(20, 4, detect)
+    detect.integrationTime[:] = requiredIntegrationTime(20, 4, detect)
     detect.fov[:] = fov
     detect.ifov[:] = ifov
     detect.filt = [band] * n

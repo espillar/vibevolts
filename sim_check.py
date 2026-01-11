@@ -50,7 +50,7 @@ def sim_check(sim_data):
             detector = sim_data['detector']
             for i in range(num_sats):
                 # Check a few attributes to see if they are non-zero
-                if (hasattr(detector, 'aperture') and detector.aperture[i] != 0 or
+                if (hasattr(detector, 'apertureArea') and detector.apertureArea[i] != 0 or
                     hasattr(detector, 'pixelArea') and detector.pixelArea[i] != 0 or
                     hasattr(detector, 'qe') and detector.qe[i] != 0):
                     print(f"            - Satellite {i} has a detector.")
@@ -66,7 +66,7 @@ def sim_check(sim_data):
 if __name__ == '__main__':
     # Create a dummy sim_data for demonstration
     dummy_detector = SimpleNamespace()
-    dummy_detector.aperture = np.array([0.785, 0.])
+    dummy_detector.apertureArea = np.array([0.785, 0.])
     dummy_detector.pixelArea = np.array([1e-10, 0.])
     dummy_detector.qe = np.array([0.5, 0.])
     dummy_detector.photoEff = np.zeros(2)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     dummy_detector.earthEx = np.zeros(2)
     dummy_detector.skyBack = np.zeros(2)
     dummy_detector.zpCal = np.zeros(2)
-    dummy_detector.itime = np.zeros(2)
+    dummy_detector.integrationTime = np.zeros(2)
     dummy_detector.fov = np.zeros(2)
     dummy_detector.ifov = np.zeros(2)
 

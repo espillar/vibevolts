@@ -50,7 +50,7 @@ In order to maximize the use of numpy and other parallel tools,  components like
     - `detector`: `SimpleNamespace`
       - **Description**: A SimpleNamespace object containing the detector's properties.
       - **Sub-keys**:
-        - `aperture`: `np.ndarray` (n) - Aperture area in square meters.
+        - `apertureArea`: `np.ndarray` (n) - Aperture area in square meters.
         - `pixelArea`: `np.ndarray` (n) - Pixel area in square arcseconds.
         - `qe`: `np.ndarray` (n) - Quantum efficiency (0.0 to 1.0).
         - `photoEff`: `np.ndarray` (n) - Fraction of photons in photometry bucket.
@@ -60,7 +60,7 @@ In order to maximize the use of numpy and other parallel tools,  components like
         - `earthEx`: `np.ndarray` (n) - Earth exclusion angle in radians.
         - `skyBack`: `np.ndarray` (n) - Sky background in photons per square steradian.
         - `zpCal`: `np.ndarray` (n) - Filter calibration zero point in photons/m^2/s.
-        - `itime`: `np.ndarray` (n) - Integration time to reach limiting magnitude.
+        - `integrationTime`: `np.ndarray` (n) - Integration time to reach limiting magnitude.
         - `fov`: `np.ndarray` (n) - Field of view in radians.
         - `ifov`: `np.ndarray` (n) - Instantaneous field of view in radians.
         - `filt`: `list[str]` (n) - Filter name.
@@ -75,7 +75,7 @@ In order to maximize the use of numpy and other parallel tools,  components like
     - `detector`: `SimpleNamespace`
       - **Description**: A SimpleNamespace object containing the detector's properties.
       - **Sub-keys**:
-        - `aperture`: `np.ndarray` (n) - Aperture area in square meters.
+        - `apertureArea`: `np.ndarray` (n) - Aperture area in square meters.
         - `pixelArea`: `np.ndarray` (n) - Pixel area in square arcseconds.
         - `qe`: `np.ndarray` (n) - Quantum efficiency (0.0 to 1.0).
         - `photoEff`: `np.ndarray` (n) - Fraction of photons in photometry bucket.
@@ -85,7 +85,7 @@ In order to maximize the use of numpy and other parallel tools,  components like
         - `earthEx`: `np.ndarray` (n) - Earth exclusion angle in radians.
         - `skyBack`: `np.ndarray` (n) - Sky background in photons per square steradian.
         - `zpCal`: `np.ndarray` (n) - Filter calibration zero point in photons/m^2/s.
-        - `itime`: `np.ndarray` (n) - Integration time to reach limiting magnitude.
+        - `integrationTime`: `np.ndarray` (n) - Integration time to reach limiting magnitude.
         - `fov`: `np.ndarray` (n) - Field of view in radians.
         - `ifov`: `np.ndarray` (n) - Instantaneous field of view in radians.
         - `filt`: `list[str]` (n) - Filter name.

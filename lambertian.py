@@ -8,7 +8,9 @@ def lambertiansphere(
     base_brightness: np.ndarray
 ) -> np.ndarray:
     """
-    Calculates the apparent brightness of multiple Lambertian spheres from a single light source.
+    Calculates the illuminance of multiple lambertian spheres.
+    If base brightness is given in photons/m^2, the result will be in the
+    same units at the observer defined by the specified geometry
 
     This function determines the apparent brightness of diffusely reflecting spheres
     based on the angle between the light source and the observer, the spheres'

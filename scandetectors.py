@@ -38,15 +38,20 @@ def scandetectors(sim_data: dict):
     #    print('detectorVect ', detectorVect)
 
     detectorFov = sim_data['detector'].fov  # detector fields of view
+    integrationTime = sim_data['detector'].integrationTime
+    fovs = sim_data['detector'].fov  # field of view of the detector
+    detectorArea = sim_data['detector'].apertureArea
+
+    
     targets = sim_data['fixedpoints']['position']  # all target positions
     targetSize = sim_data['fixedpoints']['size']  # all target sizes
     sunVect = sim_data['celestial']['position'][0]  # sun position
-    fovs = sim_data['detector'].fov  # field of view of the detector
+
     sun, space, sky = radiometry_calcs.fluxes(sim_data['detector'].filt[0])
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
 
-    for i in range(1):  # Only one set for testing
+    for i in range(2):  # Only one set for testing
         satposition = satpositions[i, :]
         ray = detectorVect[i, :]
         toTargets = targets - satposition
@@ -58,18 +63,29 @@ def scandetectors(sim_data: dict):
         fov = fovs[i]
         mask = angles < fov
         print(mask)
+        visibleIndices = np.flatnonzero(mask)
+        print('\n  visibleIndicies ', visibleIndices, '\n') 
         print('sunvect.shape ', sunVect.shape)
         print( 'toTargets.shape ', toTargets.shape)
         print( ' albed[mask].shape ' , albedo[mask].shape)
-        signal = lambertian.lambertiansphere(
+        detectorFlux = lambertian.lambertiansphere(
              -sunVect,
              -toTargets[mask],
              albedo[mask],
              radius[mask],
              sun)
-        print(signal)
+        print(' the inegration time is ', integrationTime[i])
+        signal = detectorFlux * integrationTime[i] * detectorArea[i]
+        noise = np.sqrt(space * integrationTime[i] * detectorArea[i])
+        snr = signal/noise
+        print(' SNR ', snr)
+                        
 
+        # I need
+        
+        
 
+        
 # Compare the the angles to the acceptance angle and create a mask for those
 # For those in the mask, computer the SNR
 # store an appropriately labeled vector with the detector number,

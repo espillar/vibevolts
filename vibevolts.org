@@ -128,6 +128,22 @@ in org format in datastrucure.org
 
 ** 2026-01
 
+*** [2026-01-11 Sun]
+
+Progress, I got through calculating SNR and a mask, but things are
+not check out and working right yet.  Still, progress, at least
+I have something to debug now. 
+
+**** Todo [6/6]
+- [X] run through alldemos
+- [X] test scandetector
+- [X] what was I doing in patch? Merge it in somewhere
+- [X] Try to run through scandetector
+- [X] change variable names aper to aperArea to make more consistent
+- [X] run through all demos one more time
+  
+
+
 *** [2026-01-10 Sat]
 Well, this was evidently not a good week!
 First, lets move over our .emacs file from the jupiter.

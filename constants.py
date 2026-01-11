@@ -16,7 +16,7 @@ DEGREE = 3600 * ARCSEC
 # -- Detector Array Indices --
 # DETECTOR_ARRAY_SIZE = 13 # Size used to initialize detector arrays
 
-# APERTURE_IDX = 0     
+# APERTURE_AREA_IDX = 0     
 # PIXEL_SIZE_IDX = 1    # pixel area in square arcsec
 # QE_IDX = 2            # Quantum efficiency from aperture to detectoras a fraction (0.0 to 1.0)
 # PHOT_EFF_IDX = 3      # Fraction of photons in photometry bucket 
