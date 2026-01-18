@@ -101,7 +101,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     THIS VERSION IS FOR A GROUND OBSERVAOTRY
     '''
     detect = makeBlankDetector(n)
-    detect.aperture[:] = math.pi * (aper/2)**2  #aperture size square meters
+    detect.apertureArea[:] = math.pi * (aper/2)**2  #aperture size square meters
     detect.pixelArea[:] = math.pi * (ifov/2)**2  #pixel size sterradianss
     detect.qe[:] = qe   # Total QE
     detect.photoEff[:] = photfrac  # fraction in photometry bucket
@@ -151,18 +151,31 @@ def detectorPointingInitialize(sim_data, grid_points):
 
 def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
     '''
-    requiredIntegrationTime(limitingMag, d)
-    takes a two dimensional detector array ("detect")and calculates
-          all the integration tiemes
-    and returns those as a vector.
-    For comparison with the equations paper, we first extract the variables
-    to the conventional names used in that paper.
+    Calculates the required integration time to achieve a given limiting magnitude with a specified signal-to-noise ratio (SNR).
+
+    This function is based on the radiometric equation, solving for the integration time 't'.
+    The calculation is derived from the following relationship:
+    SNR = (Signal) / sqrt(Signal + Background)
+    t = SNR^2 * (beta * omega) / (alpha^2 * A * eta * f^2)
+
+    For comparison with an external document ("equations paper"), the function
+    extracts variables from the detector object 'd' and assigns them to conventional names.
+
+    Args:
+        limitingMag (float): The desired limiting magnitude.
+        SNR (float): The target signal-to-noise ratio.
+        d (SimpleNamespace): A detector object containing the required parameters.
+        debug (int, optional): If set to 1, prints the intermediate variables
+                               used in the calculation. Defaults to 0.
+
+    Returns:
+        float: The required integration time in seconds.
     '''
     gamma = SNR
     beta = d.skyBack[0]
     omega = d.pixelArea
     alpha = amag(limitingMag) * d.zpCal[0]
-    A = d.aperture
+    A = d.apertureArea
     eta = d.qe
     f = d.photoEff
     if debug == 1:
@@ -178,7 +191,7 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
 #       ( d[:,QE_IDX] *\
 #         d[:,PHOT_EFF_IDX]**2  *\
 #         math.pi * \
-#         (d[:,APERTURE_IDX]/2)**2 *\
+#         (d[:,APERTURE_AREA_IDX]/2)**2 *\
 #         amag(limitingMag)**2 *\
 #         d[:,FILTER_ZP_IDX])
     return(t)

@@ -76,7 +76,7 @@ def scandetectors(sim_data: dict):
              sun)
         print(' the inegration time is ', integrationTime[i])
         signal = detectorFlux * integrationTime[i] * detectorArea[i]
-        noise = np.sqrt(space * integrationTime[i] * detectorArea[i])
+        noise = np.sqrt(detectorFlux * integrationTime[i] * detectorArea[i] + space * integrationTime[i] * detectorArea[i])
         snr = signal/noise
         print(' SNR ', snr)
                         
