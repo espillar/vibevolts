@@ -128,6 +128,73 @@ in org format in datastrucure.org
 
 ** 2026-01
 
+
+*** [2026-01-18 Sun]
+Travel interruptions to work, although I did have some good meetings
+out there!
+
+OK, the big thing to debug now is the SNR ratio for a satellite.
+I think I need to set up something where I create one use case
+to make work. You know.  (I wonder if literate programming would help??)
+
+Interesting, I am doing most of my work today with prompts, and I am
+getting somewhere. IF i had a relatively good overview of all the variables
+I might be able to do it pretty quickly by hand.
+
+Too a while but I did make some pretty good progress leveraging AI
+quite heavily. 
+
+**** todo [4/5]
+- [X] you may need to do some cleanup to do all of this.
+- [X] create a test case with satellite looking straight up away from
+  the sun with a satellite straight above it at a known range.
+- [X] Set up so you can do the following
+- [ ] vary the following variables and graph vs. expectations:
+  size
+  distance
+  angles
+- [X] computer the SNR "by hand" or from a paper and compare
+  with the test case
+
+
+
+
+**** Prompts used
+
+To the python file celesitalbodies.py add a function fixSun(sim_data) that creates a
+  sun by setting the sun on the negative x axis at the normal distance to the sun by
+  setting the variable sun_coords and transforming them to GCRS
+  
+In a new file test fixedSat.py create a function fixedSate(sim_data) that 
+Creates a single satellite fixed at the surface of the earth along the positive x axis,
+converted to GCRS, with 
+with a single detector with a 2 pi field of view poinging up  so it can see everything.
+
+In the same file create a function fixedTarget(sim_data,size,  x, y, z) that first converts
+the x y z coordianates to GCRS and then places a fixedtarget at that position with size size.
+
+
+add a new function called demoFixed to the testObjects.py file that runs the other
+  functions in the file, and then displays the positions of the sun, the stellite, the
+  test object, and the viewing vector in a 3d plot, for the distance from the earth,
+  convert that radius length to the log of the radius distance so the points all fit on
+  the same plot and separations from the earth remain visible.
+
+  OK, something isn't working right here. In the testObjects.py file, remove all the
+  conversions to GTRS coordinates, stay in the original x y z coordinates.  Rerun the
+  plot.
+
+  move the satellite to 1 meter along the x axis from the center of the earth and rerun
+  the demo
+
+change the fixedSat function so it takes x y and z coordiants and make sure you change
+  the demoFixed function so that it feeds those variables.  make x 100 instead of the
+  current 1 and rerun the demo.
+
+ at th eend of demoFixed, run scandetector from scandetectors.py and print the output.
+  Make sure demoFixed is the all_demos.py function.
+
+  
 *** [2026-01-11 Sun]
 
 Progress, I got through calculating SNR and a mask, but things are

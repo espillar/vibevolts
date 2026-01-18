@@ -51,7 +51,7 @@ def scandetectors(sim_data: dict):
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
 
-    for i in range(2):  # Only one set for testing
+    for i in range(sim_data['counts']['satellites']):  # Only one set for testing
         satposition = satpositions[i, :]
         ray = detectorVect[i, :]
         toTargets = targets - satposition

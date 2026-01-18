@@ -10,6 +10,7 @@ from demo4 import demo4
 from demo_fixedpoints import demo_fixedpoints
 # from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
+from testObjects import demoFixed
 
 from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
@@ -53,6 +54,7 @@ def run_all_demos(save_html=False):
         demo_requiredIntegrationTime,
         demo_vector_resorting_plot,
         demo_exclusion_pointing,
+        demoFixed,
     ]
 
     figs = [] # This is a list
