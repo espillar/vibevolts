@@ -22,7 +22,7 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
     
     pos = np.array([x, y, z])
     vel = np.array([0, 0, 0])
-
+    breakpoint()
     sim_data['satellites'] = {
         'position': pos.reshape(1, 3),
         'velocity': vel.reshape(1, 3),

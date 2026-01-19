@@ -136,11 +136,18 @@ Irritating I had emacs hanging, appeared to be because I
 had a very large ipynb file that had a huge changeset.
 Was I not running magit on these before?  
 
-**** todo [1/7]
+Trick with Jupyter kernel debugging: you need to create a
+console and link it to the notebook you are running!
+
+
+**** todo [5/10]
 - [X] run scandetectors demo to see what it's doing
-- [ ] configure the new fixedtest.ipynb to test radiometry
-- [ ] get debugging going with breakpoints so  you can see
+- [X] update to the latest jupyter
+- [X] do a conda update --all
+- [X] try out debugging a little in jupyter notebooks
+- [X] get debugging going with breakpoints so  you can see
   what's going on
+- [ ] configure the new fixedtest.ipynb to test radiometry
 - [ ] check that detector area is defined and derived right
 - [ ] clean up scandetectors so it not printing so much
 - [ ] vary the following variables and graph vs. expectations:
@@ -149,7 +156,6 @@ Was I not running magit on these before?
   angles
 - [ ] computer the SNR "by hand" or from a paper and compare
   with the test case
-
 
 *** [2026-01-18 Sun]
 Travel interruptions to work, although I did have some good meetings
