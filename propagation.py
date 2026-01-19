@@ -44,8 +44,6 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
         'pointing_state': np.zeros((num_sats, 2), dtype=int),
     }
 
-    
-    
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
     """
     Reads a TLE file and extracts orbital elements and epochs for each satellite.

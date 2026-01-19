@@ -128,6 +128,21 @@ in org format in datastrucure.org
 
 ** 2026-01
 
+*** [2026-01-19 Mon]
+
+Making very slow progress today. Too many things moving around that
+I'm not tracking. 
+**** todo [1/5]
+- [X] run scandetectors demo to see what it's doing
+- [ ] check that detector area is defined and derived right
+- [ ] clean up scandetectors so it not printing so much
+- [ ] vary the following variables and graph vs. expectations:
+  size
+  distance
+  angles
+- [ ] computer the SNR "by hand" or from a paper and compare
+  with the test case
+
 
 *** [2026-01-18 Sun]
 Travel interruptions to work, although I did have some good meetings
@@ -142,7 +157,7 @@ getting somewhere. IF i had a relatively good overview of all the variables
 I might be able to do it pretty quickly by hand.
 
 Too a while but I did make some pretty good progress leveraging AI
-quite heavily. 
+quite heavily.  
 
 **** todo [4/5]
 - [X] you may need to do some cleanup to do all of this.
@@ -155,8 +170,6 @@ quite heavily.
   angles
 - [X] computer the SNR "by hand" or from a paper and compare
   with the test case
-
-
 
 
 **** Prompts used

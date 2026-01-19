@@ -160,14 +160,4 @@ def plot_blackbody_spectrum_visible_nir(temperature: float):
     )
     fig.show()
 
-def sat_magnitude(size: float, range: float, angle: float, band: str) -> float:
-    """
-    given a satellite size and a waveband and range
-    pull the brightness of the sun and the calibration from radiometry_data
-    
-    """
-
-    sun = FILTER_DATA[band]['sun']
-    zp = FILTER_DATA[band]['zero_point']
-
 

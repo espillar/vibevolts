@@ -30,8 +30,9 @@ def scandetectors(sim_data: dict):
 
     TODO: we are using the same filter for all the detectors!
     """
-    print("scansensors function called with simulation data.")
+    # print("scansensors function called with simulation data.")
 
+    
     satpositions = sim_data['satellites']['position']  # all sat positions
     detectorVect = sim_data['detector'].pointing  # detector pointings
 
@@ -51,7 +52,8 @@ def scandetectors(sim_data: dict):
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
 
-    for i in range(sim_data['counts']['satellites']):  # Only one set for testing
+    # for i in range(sim_data['counts']['satellites']):
+    for i in range(1):
         satposition = satpositions[i, :]
         ray = detectorVect[i, :]
         toTargets = targets - satposition
@@ -62,28 +64,24 @@ def scandetectors(sim_data: dict):
                                    (norms_V * norms_W), -1.0, 1.0))
         fov = fovs[i]
         mask = angles < fov
-        print(mask)
+        # print(mask)             
         visibleIndices = np.flatnonzero(mask)
-        print('\n  visibleIndicies ', visibleIndices, '\n') 
-        print('sunvect.shape ', sunVect.shape)
-        print( 'toTargets.shape ', toTargets.shape)
-        print( ' albed[mask].shape ' , albedo[mask].shape)
+        # print('\n  visibleIndicies ', visibleIndices, '\n') 
+        # print('sunvect.shape ', sunVect.shape)
+        # print( 'toTargets.shape ', toTargets.shape)
+        # print( ' albed[mask].shape ' , albedo[mask].shape)
         detectorFlux = lambertian.lambertiansphere(
              -sunVect,
              -toTargets[mask],
              albedo[mask],
              radius[mask],
              sun)
-        print(' the inegration time is ', integrationTime[i])
         signal = detectorFlux * integrationTime[i] * detectorArea[i]
-        noise = np.sqrt(detectorFlux * integrationTime[i] * detectorArea[i] + space * integrationTime[i] * detectorArea[i])
+        noise = np.sqrt(detectorFlux * integrationTime[i] * detectorArea[i] +
+                        space * integrationTime[i] * detectorArea[i])
         snr = signal/noise
-        print(' SNR ', snr)
-                        
+        print('>> ', signal,noise, snr, integrationTime[i], ' \n')
 
-        # I need
-        
-        
 
         
 # Compare the the angles to the acceptance angle and create a mask for those
@@ -120,11 +118,7 @@ def scandetectors(sim_data: dict):
     # delta_phi = (delta_phi + np.pi) % (2 * np.pi) - np.pi
 
     return(0)
-
-
-
 #######################################################
-
 
 
 def findVectorMask(values: np.ndarray, floorValue: float) -> np.ndarray:
