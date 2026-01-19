@@ -131,9 +131,16 @@ in org format in datastrucure.org
 *** [2026-01-19 Mon]
 
 Making very slow progress today. Too many things moving around that
-I'm not tracking. 
-**** todo [1/5]
+I'm not tracking.
+Irritating I had emacs hanging, appeared to be because I
+had a very large ipynb file that had a huge changeset.
+Was I not running magit on these before?  
+
+**** todo [1/7]
 - [X] run scandetectors demo to see what it's doing
+- [ ] configure the new fixedtest.ipynb to test radiometry
+- [ ] get debugging going with breakpoints so  you can see
+  what's going on
 - [ ] check that detector area is defined and derived right
 - [ ] clean up scandetectors so it not printing so much
 - [ ] vary the following variables and graph vs. expectations:
