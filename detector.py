@@ -57,17 +57,28 @@ def makeBlankDetector(n):
     pointing_state (n,2) length of chain and current index
     """
     detector = SimpleNamespace()
-    detector.apertureArea = np.zeros(n, dtype=float)  # Aperture area in square meters
-    detector.pixelArea = np.zeros(n, dtype=float) # pixel area in square arcsec
-    detector.qe = np.zeros(n, dtype=float)        # Quantum efficiency from apertureArea to detectoras a fraction (0.0 to 1.0)
-    detector.photoEff = np.zeros(n, dtype=float)   # Fraction of photons in photometry bucket
-    detector.pixCount = np.zeros(n, dtype=float)   # Total number of pixels in the detector (count)
-    detector.solarEx = np.zeros(n, dtype=float)     # Solar exclusion angle in radians
-    detector.lunarex = np.zeros(n, dtype=float)    # Lunar exclusion angle in radians
-    detector.earthEx = np.zeros(n, dtype=float)    # Earth exclusion angle (above the limb) in radians
-    detector.skyBack = np.zeros(n, dtype=float)    # Sky Background in photons per square steradian
-    detector.zpCal = np.zeros(n, dtype=float)  # Filter calibration zeropoint" photons per square meter per second second
-    detector.integrationTime = np.zeros(n, dtype=float)      # Integration Time required to reach a desired limiting magniude
+    detector.apertureArea = np.zeros(n, dtype=float)
+        # Aperture area in square meters
+    detector.pixelArea = np.zeros(n, dtype=float)
+        # pixel area in square arcsec
+    detector.qe = np.zeros(n, dtype=float)
+    # Quantum efficiency from apertureArea to detectoras a fraction (0.0 to 1.0)
+    detector.photoEff = np.zeros(n, dtype=float)
+    # Fraction of photons in photometry bucket
+    detector.pixCount = np.zeros(n, dtype=float)
+    # Total number of pixels in the detector (count)
+    detector.solarEx = np.zeros(n, dtype=float)
+    # Solar exclusion angle in radians
+    detector.lunarex = np.zeros(n, dtype=float)
+    # Lunar exclusion angle in radians
+    detector.earthEx = np.zeros(n, dtype=float)
+    # Earth exclusion angle (above the limb) in radians
+    detector.skyBack = np.zeros(n, dtype=float)
+    # Sky Background in photons per square steradian
+    detector.zpCal = np.zeros(n, dtype=float)
+    # Filter calibration zeropoint" photons per square meter per second second
+    detector.integrationTime = np.zeros(n, dtype=float)
+    # Integration Time required to reach a desired limiting magniude
     detector.fov = np.zeros(n, dtype=float)
     detector.ifov = np.zeros(n, dtype=float)
     detector.filt = [""] * n                       # filter
