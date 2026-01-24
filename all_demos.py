@@ -6,7 +6,7 @@ from IPython.display import display, HTML
 from demo1 import demo1
 from demo2 import demo2
 from demo3 import demo3
-from demo4 import demo4
+from demogeo import demogeo
 from demo_fixedpoints import demo_fixedpoints
 # from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
@@ -41,7 +41,7 @@ def run_all_demos(save_html=False):
     demo_functions = [
         demo2,
         demo3,
-        demo4,
+        demogeo,
         demo_fixedpoints,
 #        demo_exclusion_table,
         demo_pointing_plot,

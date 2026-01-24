@@ -128,9 +128,37 @@ in org format in datastrucure.org
 
 ** 2026-01
 
+*** [2026-01-24 Sat]
+Sitting down at 0830, I really want to get two hours in!
+
+**** Prompts
+Modify vvdocs.md and datastructure.md only. Preserve there basic
+structure but update them to match the current state of the code.
+Add a section to datastructure.md summarizing the contents of the
+constants.py file.
+
+Anaconda was giving me problems and I wasn't able to update.
+Clear it out, change to miniconda, from now on I will start with
+conda activate dev.  
+
+**** todo [3/8]
+- [X] figure out which md files are worth it and update them.
+  Prepare to print them.
+- [X] Once and for all remove anaconda and switch to miniconda
+- [X] Install required packages in dev and run alldemos
+- [ ] configure the new fixedtest.ipynb to test radiometry-
+- [ ] write assocated tests in 
+- [ ] Get a couple of specific distances in there 
+- [ ] vary the following variables and graph vs. expectations:
+  size
+  distance
+  angles
+- [ ] computer the SNR "by hand" or from a paper and compare
+  with the test case
+
 *** [2026-01-23 Fri]
 Sucky week in terms of getting work done here.
-
+Got little done since I was prepping for AI
 **** todo [2/5]
 - [X] Review last couple of days lessons
 - [X] check that detector area is defined and derived right
@@ -142,9 +170,6 @@ Sucky week in terms of getting work done here.
   angles
 - [ ] computer the SNR "by hand" or from a paper and compare
   with the test case
-
-
-
 
 *** [2026-01-19 Mon]
 
