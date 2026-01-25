@@ -16,35 +16,71 @@ from scandetectors import scandetectors
 def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
     """
     Creates a single satellite fixed at the given x, y, z coordinates.
-    This function initializes or replaces the satellite data in sim_data.
+    This function adds to existing satellite data in sim_data if present,
+    otherwise initializes it.
     """
-    sim_data['counts']['satellites'] = 1
-    
-    pos = np.array([x, y, z])
-    vel = np.array([0, 0, 0])
-    breakpoint()
-    sim_data['satellites'] = {
-        'position': pos.reshape(1, 3),
-        'velocity': vel.reshape(1, 3),
-        'acceleration': np.zeros((1, 3), dtype=float),
-        'orbital_elements': np.zeros((1, 6), dtype=float), # Dummy
-        'epochs': [sim_data['time']],
-    }
+    new_pos = np.array([x, y, z]).reshape(1, 3)
+    new_vel = np.array([0, 0, 0]).reshape(1, 3)
+    new_accel = np.zeros((1, 3), dtype=float)
+    new_orbital_elements = np.zeros((1, 6), dtype=float)
 
-    # --- Detector ---
-    detector = makeDetector(n=1, band='V', fov=90 * DEGREE, ifov=1 * ARCSEC, aper=1)
-    
-    # Pointing "up" is radially outward from Earth's center
-    # Handle the case where the position is at the origin
-    norm_pos = np.linalg.norm(pos)
+    # Calculate pointing vector for the new satellite
+    norm_pos = np.linalg.norm(new_pos)
     if norm_pos > 0:
-        pointing_vector = pos / norm_pos
+        new_pointing_vector = new_pos / norm_pos
     else:
-        pointing_vector = np.array([1, 0, 0]) # Default pointing vector if at origin
+        new_pointing_vector = np.array([1, 0, 0]).reshape(1, 3) # Default if at origin
 
-    detector.pointing[0, :] = pointing_vector
-    
-    sim_data['detector'] = detector
+    if 'satellites' not in sim_data or not sim_data.get('satellites'):
+        # Initialize for the first satellite
+        sim_data['counts']['satellites'] = 1
+        sim_data['satellites'] = {
+            'position': new_pos,
+            'velocity': new_vel,
+            'acceleration': new_accel,
+            'orbital_elements': new_orbital_elements,
+            'epochs': [sim_data['time']],
+        }
+        # Initialize detector for the first satellite
+        detector = makeDetector(n=1, band='V', fov=90 * DEGREE, ifov=1 * ARCSEC, aper=1)
+        detector.pointing[0, :] = new_pointing_vector[0]
+        sim_data['detector'] = detector
+    else:
+        # Append for subsequent satellites
+        sim_data['counts']['satellites'] += 1
+
+        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], new_pos])
+        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], new_vel])
+        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], new_accel])
+        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], new_orbital_elements])
+        sim_data['satellites']['epochs'].append(sim_data['time']) # epochs is a list, not numpy array
+
+        # Append detector attributes for the new satellite
+        current_detector = sim_data['detector']
+
+        # Append to 1D arrays - copy last element's value (assuming uniform detector properties from makeDetector)
+        current_detector.apertureArea = np.append(current_detector.apertureArea, current_detector.apertureArea[-1])
+        current_detector.pixelArea = np.append(current_detector.pixelArea, current_detector.pixelArea[-1])
+        current_detector.qe = np.append(current_detector.qe, current_detector.qe[-1])
+        current_detector.photoEff = np.append(current_detector.photoEff, current_detector.photoEff[-1])
+        current_detector.pixCount = np.append(current_detector.pixCount, current_detector.pixCount[-1])
+        current_detector.solarEx = np.append(current_detector.solarEx, current_detector.solarEx[-1])
+        current_detector.lunarex = np.append(current_detector.lunarex, current_detector.lunarex[-1])
+        current_detector.earthEx = np.append(current_detector.earthEx, current_detector.earthEx[-1])
+        current_detector.skyBack = np.append(current_detector.skyBack, current_detector.skyBack[-1])
+        current_detector.zpCal = np.append(current_detector.zpCal, current_detector.zpCal[-1])
+        current_detector.integrationTime = np.append(current_detector.integrationTime, current_detector.integrationTime[-1])
+        current_detector.fov = np.append(current_detector.fov, current_detector.fov[-1])
+        current_detector.ifov = np.append(current_detector.ifov, current_detector.ifov[-1])
+        
+        # Append to list attribute
+        current_detector.filt.append(current_detector.filt[-1])
+
+        # Append to 2D array: pointing
+        current_detector.pointing = np.vstack([current_detector.pointing, new_pointing_vector])
+        
+        # For pointing_state, append a new zero column for the new satellite
+        current_detector.pointing_state = np.hstack([current_detector.pointing_state, np.zeros((2,1), dtype=int)])
 
 def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: float):
     """
@@ -95,15 +131,11 @@ def demoFixed():
     fixSun(sim_data)
     fixedSat(sim_data, x=100, y=0, z=0)
     # Place a target somewhere, using EARTH_RADIUS which is imported in the file
-    fixedTarget(sim_data, size=1.0, x=100_000_000, y=0, z=0)
+    original_target_x = 100_000_000
+    fixedTarget(sim_data, size=1.0, x=original_target_x, y=0, z=0)
+    fixedTarget(sim_data, size=1.0, x=original_target_x * 10, y=0, z=0) # New target at 10 times the range
 
-    # --- Extract data for plotting ---
-    sun_pos = sim_data['celestial']['position'][0]
-    sat_pos = sim_data['satellites']['position'][0]
-    target_pos = sim_data['fixedpoints']['position'][0]
-    viewing_vector = sim_data['detector'].pointing[0]
-
-    # --- Log-scale positions ---
+    # --- Log-scale positions helper function ---
     def log_scale_pos(pos):
         r = np.linalg.norm(pos)
         if r == 0:
@@ -111,9 +143,19 @@ def demoFixed():
         log_r = np.log(r)
         return pos * (log_r / r)
 
+    # --- Extract data for plotting ---
+    sun_pos = sim_data['celestial']['position'][0]
+    sat_pos = sim_data['satellites']['position'][0]
+    
+    # Get all target positions and log-scale them
+    all_target_positions = sim_data['fixedpoints']['position']
+    all_target_positions_log = np.array([log_scale_pos(pos) for pos in all_target_positions])
+
+    viewing_vector = sim_data['detector'].pointing[0] # Assuming first satellite's detector
+
     sun_pos_log = log_scale_pos(sun_pos)
     sat_pos_log = log_scale_pos(sat_pos)
-    target_pos_log = log_scale_pos(target_pos)
+    # target_pos_log is now handled by all_target_positions_log
 
     # --- Plotting ---
     fig = go.Figure()
@@ -127,8 +169,15 @@ def demoFixed():
     # Satellite
     fig.add_trace(go.Scatter3d(x=[sat_pos_log[0]], y=[sat_pos_log[1]], z=[sat_pos_log[2]], mode='markers', marker=dict(size=5, color='red'), name='Satellite'))
     
-    # Target
-    fig.add_trace(go.Scatter3d(x=[target_pos_log[0]], y=[target_pos_log[1]], z=[target_pos_log[2]], mode='markers', marker=dict(size=3, color='green'), name='Target'))
+    # Targets (both original and new)
+    fig.add_trace(go.Scatter3d(
+        x=all_target_positions_log[:, 0],
+        y=all_target_positions_log[:, 1],
+        z=all_target_positions_log[:, 2],
+        mode='markers',
+        marker=dict(size=3, color='green'),
+        name='Targets'
+    ))
 
     # Viewing vector
     vec_len_log = np.linalg.norm(sat_pos_log) * 0.3

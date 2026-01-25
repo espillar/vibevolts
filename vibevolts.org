@@ -131,21 +131,40 @@ in org format in datastrucure.org
 *** [2026-01-24 Sat]
 Sitting down at 0830, I really want to get two hours in!
 
+Anaconda was giving me problems and I wasn't able to update.
+Clear it out, change to miniconda, from now on I will start with
+conda activate dev.  
+
+Return at 2045
+
 **** Prompts
 Modify vvdocs.md and datastructure.md only. Preserve there basic
 structure but update them to match the current state of the code.
 Add a section to datastructure.md summarizing the contents of the
 constants.py file.
 
-Anaconda was giving me problems and I wasn't able to update.
-Clear it out, change to miniconda, from now on I will start with
-conda activate dev.  
+
+In the file testObjects.py change the function fixedSat so that
+if sim_data has an existing satellite, rather than overwriting the
+existing satellite, the 'counts' 'satellites' counter is incremented
+and the new satellite is added to the sim_data array of satellites
+
+(There was some banter to get this to work)
+
+In the function demoFixed in the file testObjects.py I would like to add
+some analysis after the current figure.
+In demo
+to add which consists of the target being moved from the position
+it's in a 100000000 along the x axis to 1/2, 2, 3, 4, and 5 times that distance.
+The 
 
 **** todo [3/8]
 - [X] figure out which md files are worth it and update them.
   Prepare to print them.
 - [X] Once and for all remove anaconda and switch to miniconda
 - [X] Install required packages in dev and run alldemos
+- [ ] Chage fixedSat so that new satellites are added when
+  it is called again
 - [ ] configure the new fixedtest.ipynb to test radiometry-
 - [ ] write assocated tests in 
 - [ ] Get a couple of specific distances in there 
