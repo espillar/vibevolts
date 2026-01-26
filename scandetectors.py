@@ -80,8 +80,9 @@ def scandetectors(sim_data: dict):
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
 
-    # for i in range(sim_data['counts']['satellites']):
-    for i in range(1):
+
+    # for i in range(1):
+    for i in range(sim_data['counts']['satellites']):    
         satposition = satpositions[i, :]
         ray = detectorVect[i, :]
         toTargets = targets - satposition
@@ -108,13 +109,16 @@ def scandetectors(sim_data: dict):
         noise = np.sqrt(detectorFlux * integrationTime[i] * detectorArea[i] +
                         space * integrationTime[i] * detectorArea[i])
         snr = signal/noise
+        print('SignAl, noise, snr, integration time \n')
+#        for j in len(signal):
+#            print(signal[j], noise[j], snr[j], integrationTime[i])
         print('>> ', signal,noise, snr, integrationTime[i], ' \n')
 
 
         
 # Compare the the angles to the acceptance angle and create a mask for those
 # For those in the mask, computer the SNR
-# store an appropriately labeled vector with the detector number,
+# store an appropriately labeled vector with the detector numb3
 # the target number, the time,
 # and the SNR in a pandas array, or maybe a numpy array.
 #

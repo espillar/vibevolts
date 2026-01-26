@@ -1,3 +1,4 @@
+
 import numpy as np
 from typing import Dict, Any
 import math
@@ -269,11 +270,11 @@ def demoFixed():
         )
     )
     
-    # print("--- Running scandetector ---")
-    # scan_output = scandetectors(sim_data)
-    # print(f"Output of scandetector: {scan_output}") 
+    print("--- Running scandetector ---")
+    scan_output = scandetectors(sim_data)
+    print(f"Output of scandetector: {scan_output}") 
 
-    return fig, sim_data
+    return fig
 
 if __name__ == '__main__':
     fig, simdata = demoFixed()

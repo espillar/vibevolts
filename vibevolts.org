@@ -136,10 +136,19 @@ in the library.
 Seems like I can't authenticate using my accounts on the Aerospace
 network, but I can over my phone.  Might be able to use an API
 key, but let's leave tht aside for today.
-**** todo [1/6]
+
+Argghh, some of those changes in signatues broke all_demos. Also
+all demos is missing geodemo, where did that go? Maybe it's
+only on Neptune?
+
+I've been working for an hour and made almost no progress.
+Break and thing about this.
+
+
+**** todo [2/7]
 - [X] Chage fixedSat so that new satellites are added when
   it is called again
-- [ ] get gemini to add docmentation to a few functions:
+- [X] get gemini to add docmentation to a few functions:
   scandetectors testObjects 
 - [ ] configure the new fixedtest.ipynb to test radiometry-
 - [ ] write asysocated tests in 
