@@ -77,9 +77,10 @@ def scandetectors(sim_data: dict):
     sunVect = sim_data['celestial']['position'][0]  # sun position
 
     sun, space, sky = radiometry_calcs.fluxes(sim_data['detector'].filt[0])
+    print(f'sun, space, sky  {sun:.3e}, {space:.3e}, {sky:.3e}')
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
-
+    
 
     # for i in range(1):
     for i in range(sim_data['counts']['satellites']):    
@@ -93,12 +94,7 @@ def scandetectors(sim_data: dict):
                                    (norms_V * norms_W), -1.0, 1.0))
         fov = fovs[i]
         mask = angles < fov
-        # print(mask)             
         visibleIndices = np.flatnonzero(mask)
-        # print('\n  visibleIndicies ', visibleIndices, '\n') 
-        # print('sunvect.shape ', sunVect.shape)
-        # print( 'toTargets.shape ', toTargets.shape)
-        # print( ' albed[mask].shape ' , albedo[mask].shape)
         detectorFlux = lambertian.lambertiansphere(
              -sunVect,
              -toTargets[mask],
@@ -110,9 +106,9 @@ def scandetectors(sim_data: dict):
                         space * integrationTime[i] * detectorArea[i])
         snr = signal/noise
         print('SignAl, noise, snr, integration time \n')
-#        for j in len(signal):
-#            print(signal[j], noise[j], snr[j], integrationTime[i])
-        print('>> ', signal,noise, snr, integrationTime[i], ' \n')
+        for j in range(len(signal)):
+            print(f"{signal[j]:.3e}, {noise[j]:.3e}, {snr[j]:.3e}, {integrationTime[i]:.3e}")
+#        print('>> ', signal,noise, snr, integrationTime[i], ' \n')
 
 
         

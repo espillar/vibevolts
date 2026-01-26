@@ -144,12 +144,16 @@ only on Neptune?
 I've been working for an hour and made almost no progress.
 Break and thing about this.
 
+Well, I learned another tool
+import ipdb; ipdb.set_trace()
 
-**** todo [2/7]
+
+**** todo [3/8]
 - [X] Chage fixedSat so that new satellites are added when
   it is called again
 - [X] get gemini to add docmentation to a few functions:
-  scandetectors testObjects 
+  scandetectors testObjects
+- [X] import ipdb; ipdb.set_trace()
 - [ ] configure the new fixedtest.ipynb to test radiometry-
 - [ ] write asysocated tests in 
 - [ ] Get a couple of specific distances in there 
