@@ -128,6 +128,30 @@ in org format in datastrucure.org
 
 ** 2026-01
 
+*** [2026-01-26 Mon]
+Got bumbed out by an episode of afib yesterday :-(
+Today trying to focus at work and get some stuff done
+in the library.
+
+Seems like I can't authenticate using my accounts on the Aerospace
+network, but I can over my phone.  Might be able to use an API
+key, but let's leave tht aside for today.
+**** todo [1/6]
+- [X] Chage fixedSat so that new satellites are added when
+  it is called again
+- [ ] get gemini to add docmentation to a few functions:
+  scandetectors testObjects 
+- [ ] configure the new fixedtest.ipynb to test radiometry-
+- [ ] write asysocated tests in 
+- [ ] Get a couple of specific distances in there 
+- [ ] vary the following variables and graph vs. expectations:
+  size
+  distance
+  angles
+- [ ] computer the SNR "by hand" or from a paper and compare
+  with the test case
+
+
 *** [2026-01-24 Sat]
 Sitting down at 0830, I really want to get two hours in!
 

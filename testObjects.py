@@ -15,9 +15,23 @@ from scandetectors import scandetectors
 
 def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
     """
-    Creates a single satellite fixed at the given x, y, z coordinates.
-    This function adds to existing satellite data in sim_data if present,
-    otherwise initializes it.
+    Creates a single satellite fixed at the given x, y, z coordinates in meters.
+
+    This function is responsible for adding satellite data to the simulation.
+    If no satellite data exists in `sim_data`, it initializes the necessary
+    data structures for a single satellite, including its position, velocity,
+    acceleration, orbital elements, and associated detector properties.
+    If satellite data already exists, it appends the new satellite's
+    information to the existing arrays, ensuring that detector parameters
+    are consistently added for the new satellite based on the last existing
+    detector's properties. It also calculates an initial pointing vector
+    for the detector based on the satellite's position (pointing away from Earth).
+
+    Args:
+        sim_data (Dict[str, Any]): The main simulation data dictionary.
+        x (float): The x-coordinate of the satellite's position in meters.
+        y (float): The y-coordinate of the satellite's position in meters.
+        z (float): The z-coordinate of the satellite's position in meters.
     """
     new_pos = np.array([x, y, z]).reshape(1, 3)
     new_vel = np.array([0, 0, 0]).reshape(1, 3)
@@ -84,8 +98,21 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
 
 def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: float):
     """
-    Places a fixed target at the given x, y, z coordinates.
-    Appends to existing fixedpoints if they exist.
+    Places a fixed target at the given x, y, z coordinates in meters.
+
+    This function adds a stationary target to the simulation environment.
+    If no fixed target data exists in `sim_data`, it initializes the required
+    data structures, including arrays for position, exclusion flags, size,
+    and albedo. If fixed target data already exists, it appends the new
+    target's information to the existing arrays. A default albedo of 0.2
+    is assigned to new targets.
+
+    Args:
+        sim_data (Dict[str, Any]): The main simulation data dictionary.
+        size (float): The physical size (e.g., diameter or characteristic length) of the target.
+        x (float): The x-coordinate of the target's position in meters.
+        y (float): The y-coordinate of the target's position in meters.
+        z (float): The z-coordinate of the target's position in meters.
     """
     if 'fixedpoints' not in sim_data or not sim_data.get('fixedpoints'):
         sim_data['counts']['fixedpoints'] = 0
@@ -107,7 +134,16 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
 
 def fixSun(sim_data: Dict[str, Any]) -> None:
     """
-    Fixes the sun's position on the negative x-axis at 1 AU.
+    Fixes the sun's position in the simulation.
+
+    This function ensures that celestial body data is initialized in `sim_data`
+    if it doesn't already exist. It then sets the Sun's position to a fixed
+    point on the negative x-axis at a distance of 1 Astronomical Unit (AU)
+    from the origin (Earth-centered). This provides a static illumination
+    source for simulations.
+
+    Args:
+        sim_data (Dict[str, Any]): The main simulation data dictionary.
     """
     if 'celestial' not in sim_data:
         add_celestial_bodies(sim_data)
@@ -119,9 +155,40 @@ def fixSun(sim_data: Dict[str, Any]) -> None:
 
 def demoFixed():
     """
-    Demonstrates the use of the fixedSat and fixedTarget functions.
-    Displays the positions of the sun, satellite, and target in a 3D plot
-    with a logarithmic scale for distance.
+    Demonstrates the use of the fixedSat, fixedTarget, and fixSun functions
+    to set up a basic simulation scenario with a fixed satellite and targets.
+
+    The general flow of this demonstration function is as follows:
+    1.  **Simulation Setup**: Initializes an empty simulation data structure
+        with a specified start time using `create_empty_simulation`.
+    2.  **Object Creation**:
+        -   The Sun's position is fixed using `fixSun`.
+        -   A single satellite is placed at a static `(x, y, z)` coordinate
+            using `fixedSat`.
+        -   Multiple fixed targets are placed at specific coordinates and
+            assigned a size using `fixedTarget`.
+    3.  **Log-Scale Transformation**: A helper function `log_scale_pos` is defined
+        and applied to all celestial body, satellite, and target positions.
+        This transforms the actual physical distances into a logarithmic scale
+        for better visualization in a 3D plot, allowing widely separated objects
+        to be viewed within a single plot.
+    4.  **3D Plotting**: A Plotly 3D scatter plot is generated to visualize
+        the Earth (origin), the log-scaled Sun, the log-scaled satellite,
+        and the log-scaled fixed targets. A viewing vector originating from
+        the satellite, representing its detector's pointing direction, is also
+        added to the plot.
+    5.  **Scandetectors (Commented)**: The function includes a commented-out
+        call to `scandetectors`, which would process the created simulation
+        data to determine target visibility and SNR. This part is
+        intentionally commented out in the demonstration but shows how
+        `scandetectors` would integrate into the workflow.
+
+    Returns:
+        tuple: A tuple containing:
+            -   fig (plotly.graph_objects.Figure): The Plotly figure object
+                displaying the 3D visualization.
+            -   sim_data (Dict[str, Any]): The simulation data dictionary
+                after all objects have been added.
     """
     # --- Setup ---
     start_time = datetime(2024, 7, 1, 0, 0, 0, tzinfo=timezone.utc)
@@ -192,7 +259,7 @@ def demoFixed():
         name='Viewing Vector'
     ))
 
-    fig.update_layout(
+    fig.update_layout(          # 
         title_text='Demonstration of Fixed Objects (Log Scale Distance)',
         scene=dict(
             xaxis_title='X (log-scaled)',
@@ -202,12 +269,12 @@ def demoFixed():
         )
     )
     
-    print("--- Running scandetector ---")
-    scan_output = scandetectors(sim_data)
-    print(f"Output of scandetector: {scan_output}")
+    # print("--- Running scandetector ---")
+    # scan_output = scandetectors(sim_data)
+    # print(f"Output of scandetector: {scan_output}") 
 
-    return fig
+    return fig, sim_data
 
 if __name__ == '__main__':
-    fig = demoFixed()
+    fig, simdata = demoFixed()
     fig.show()

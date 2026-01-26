@@ -23,6 +23,34 @@ def get_spherical_coords(arr):
 def scandetectors(sim_data: dict):
     """
     Scans for and processes detector data within the simulation.
+
+    This function orchestrates the process of determining which fixed targets
+    are visible to each satellite's detector and calculates the resulting
+    signal-to-noise ratio (SNR).
+
+    The general flow involves:
+    1.  **Data Extraction**: Relevant simulation parameters such as satellite positions,
+        detector characteristics (pointing, FOV, integration time, aperture area),
+        target properties (positions, sizes, albedo), and celestial body positions
+        (e.g., Sun) are extracted from the `sim_data` dictionary.
+    2.  **Background Flux Calculation**: Utilizes `radiometry_calcs.fluxes` to determine
+        the background contributions from the Sun, space, and sky based on the
+        detector's filter.
+    3.  **Visibility Determination**: For each satellite, the function calculates
+        the angular separation between the detector's pointing vector and the
+        vector from the satellite to each fixed target. A mask is then applied
+        to identify only those targets that fall within the detector's field of view (FOV).
+    4.  **Detector Flux Calculation**: For the visible targets, the incident flux
+        on the detector is calculated using the `lambertian.lambertiansphere` model.
+        This calculation considers the Sun's position, the target's position, albedo,
+        radius, and the solar flux.
+    5.  **SNR Calculation**: Based on the calculated detector flux, the integration time,
+        and the detector's aperture area, the signal and noise levels are determined.
+        The signal-to-noise ratio (SNR) is then computed from these values.
+    6.  **Output/Storage**: The calculated signal, noise, and SNR for each detected
+        target are made available, currently printed to console. Future enhancements
+        might include storing these results in a structured format (e.g., pandas DataFrame).
+
     Args:
         sim_data (dict): The main simulation data dictionary.
                          This dictionary is expected to contain all
