@@ -101,7 +101,7 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
     """
     Places a fixed target at the given x, y, z coordinates in meters.
 
-    This function adds a stationary target to the simulation environment.
+    This function adds a stationary lambertian sphere target to the simulation environment.
     If no fixed target data exists in `sim_data`, it initializes the required
     data structures, including arrays for position, exclusion flags, size,
     and albedo. If fixed target data already exists, it appends the new
@@ -110,7 +110,7 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
 
     Args:
         sim_data (Dict[str, Any]): The main simulation data dictionary.
-        size (float): The physical size (e.g., diameter or characteristic length) of the target.
+        size (float): The radius of the target, assumed to be a lambertian sphere.
         x (float): The x-coordinate of the target's position in meters.
         y (float): The y-coordinate of the target's position in meters.
         z (float): The z-coordinate of the target's position in meters.

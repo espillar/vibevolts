@@ -6,7 +6,7 @@ from IPython.display import display, HTML
 from demo1 import demo1
 from demo2 import demo2
 from demo3 import demo3
-# from demogeo import demogeo
+from demogeo import demogeo
 from demo_fixedpoints import demo_fixedpoints
 # from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
@@ -42,7 +42,8 @@ def run_all_demos(save_html=False):
         demo2,
         demo3,
         demo_fixedpoints,
-#        demo_exclusion_table,
+        #        demo_exclusion_table,
+        demogeo,
         demo_pointing_plot,
         demo_lambertian,
         demo_sky_scan,

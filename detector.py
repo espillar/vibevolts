@@ -86,7 +86,6 @@ def makeBlankDetector(n):
     detector.pointing_state = np.zeros((2,n),dtype=int)
     return detector
 
-
 ##########################################################
 
 def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \

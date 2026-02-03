@@ -125,6 +125,31 @@ in org format in datastrucure.org
 
 * Log
 
+** 2026-02
+
+*** [2026-02-03 Tue]
+Last week was not a productive week. Furlough today helps.
+
+NOTE working on the lambertian function in fixedtest notebook
+
+**** todo [4/10]
+- [X] put geodemo back into the  demos
+- [X] Record some of the debug information i learned in obsidian
+  "python breakpoint debugging."
+- [X] outline the computation  I need to do for radiometry checking
+- [X] follow up to see how size is used in fixed target for the
+  targets.
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+- [ ] fill in the elements in the notebook
+- [ ] Get a couple of specific distances into notebook
+- [ ] compare with a base case and fix
+- [ ] Now we need to get all the scaling laws right
+   configure the new fixedtest.ipynb to test radiometry-
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+
+
 
 ** 2026-01
 
@@ -1254,6 +1279,7 @@ the function.
 
 
 Create a test function that prints these two vectors out.
+
 
 
 
