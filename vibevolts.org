@@ -127,6 +127,35 @@ in org format in datastrucure.org
 
 ** 2026-02
 
+
+*** [2026-02-07 Sat]
+
+That twas an unfortunate week 1/2 occupied by Jury duty, most
+of the rest by Furlough. 
+
+Fixedtest.ipynb almost has the tests I need run.
+Lets check what I have and go forward.
+
+Slow progress.
+
+**** Todos [/]
+
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+- [ ] fill in the elements in the notebook
+- [ ] convert the equations to LaTeX and compare with cognion:
+  equations look good 
+- [ ] Get a couple of specific distances into notebook
+- [ ] compare with a base case and fix
+- [ ] Now we need to get all the scaling laws right
+   configure the new fixedtest.ipynb to test radiometry-
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+
+
+
+
+
 *** [2026-02-03 Tue]
 Last week was not a productive week. Furlough today helps.
 
@@ -383,6 +412,7 @@ clean things up.
 
   
 
+@
 *** [2026-01-03 Sat]
 
 **** Todo [5/9]
