@@ -11,21 +11,21 @@ This document details the structure of the main `sim_data` dictionary used throu
 | `delta_time`| `float` | The time step for the simulation in seconds. | `simulation.create_empty_simulation` |
 | `counts` | `dict` | A dictionary containing the counts of various objects. | `simulation.create_empty_simulation` (initializes) |
 | | | `counts['celestial']` (int): Number of celestial bodies. | `celestialbodies.add_celestial_bodies` |
-| | | `counts['satellites']` (int): Number of satellites. | `constellation.geos`, `constellation.geosmod`, `propagation.add_satellites_from_tle`, `testObjects.fixedSat` |
+| | | `counts['satellites']` (int): Number of satellites. | `constellation.geos`, `constellation.geosmod`, `propagation.add_satellites_from_tle`, `radiometry_test.fixedSat` |
 | | | `counts['observatories']` (int): Number of observatories. | `observatories.add_observatories` |
-| | | `counts['fixedpoints']` (int): Number of fixed points. | `targets.add_fixed_points`, `testObjects.fixedTarget` |
+| | | `counts['fixedpoints']` (int): Number of fixed points. | `targets.add_fixed_points`, `radiometry_test.fixedTarget` |
 | `pointing_spheres` | `dict` | A dictionary of pre-calculated pointing spheres, where keys are the number of points. | `simulation.create_empty_simulation` (initializes), `pointing.generate_pointing_sphere` |
-| `celestial` | `dict` | Dictionary containing data for celestial bodies (Sun, Moon). | `celestialbodies.add_celestial_bodies`, `testObjects.fixSun` |
+| `celestial` | `dict` | Dictionary containing data for celestial bodies (Sun, Moon). | `celestialbodies.add_celestial_bodies`, `radiometry_test.fixSun` |
 | | | `celestial['position']` (np.ndarray): `(2, 3)` array of positions. | `celestialbodies.add_celestial_bodies` (initializes), `celestialbodies.celestial_update` (modifies) |
 | | | `celestial['velocity']` (np.ndarray): `(2, 3)` array of velocities. | `celestialbodies.add_celestial_bodies` |
 | | | `celestial['acceleration']` (np.ndarray): `(2, 3)` array of accelerations. | `celestialbodies.add_celestial_bodies` |
-| `satellites`| `dict` | Dictionary containing data for satellites. | `constellation.geos`, `constellation.geosmod`, `propagation.add_satellites_from_tle`, `testObjects.fixedSat` |
+| `satellites`| `dict` | Dictionary containing data for satellites. | `constellation.geos`, `constellation.geosmod`, `propagation.add_satellites_from_tle`, `radiometry_test.fixedSat` |
 | | | `satellites['position']` (np.ndarray): `(n, 3)` array of GCRS positions. | `propagation.propagate_satellites` |
 | | | `satellites['velocity']` (np.ndarray): `(n, 3)` array of GCRS velocities. | |
 | | | `satellites['acceleration']` (np.ndarray): `(n, 3)` array of GCRS accelerations. | |
 | | | `satellites['orbital_elements']` (np.ndarray): `(n, 6)` array of orbital elements. | |
 | | | `satellites['epochs']` (list): List of `datetime` objects for TLE epochs. | |
-| `fixedpoints`| `dict` | Dictionary for fixed reference points in the GCRS frame. | `targets.add_fixed_points`, `testObjects.fixedTarget` |
+| `fixedpoints`| `dict` | Dictionary for fixed reference points in the GCRS frame. | `targets.add_fixed_points`, `radiometry_test.fixedTarget` |
 | | | `fixedpoints['position']` (np.ndarray): `(n, 3)` array of GCRS positions. | |
 | | | `fixedpoints['exclusion']` (np.ndarray): `(n,)` array of exclusion flags. | `exclusion.update_exclusion_table` (inferred from `demo_exclusion_table.py`) |
 | | | `fixedpoints['size']` (np.ndarray): `(n,)` array of object sizes. | |
@@ -35,7 +35,7 @@ This document details the structure of the main `sim_data` dictionary used throu
 | | | `observatories['velocity']` (np.ndarray): `(n, 3)` array of GCRS velocities. | |
 | | | `observatories['acceleration']` (np.ndarray): `(n, 3)` array of GCRS accelerations. | |
 | | | `observatories['pointing']` (np.ndarray): `(n, 3)` array of pointing vectors. | |
-| `detector` | `SimpleNamespace` | A namespace object containing detector parameters for all satellites/observatories. | `constellation.geos`, `constellation.geosmod`, `observatories.add_observatories`, `propagation.add_satellites_from_tle`, `detector.makeBlankDetector`, `detector.makeDetector`, `testObjects.fixedSat` |
+| `detector` | `SimpleNamespace` | A namespace object containing detector parameters for all satellites/observatories. | `constellation.geos`, `constellation.geosmod`, `observatories.add_observatories`, `propagation.add_satellites_from_tle`, `detector.makeBlankDetector`, `detector.makeDetector`, `radiometry_test.fixedSat` |
 
 ---
 

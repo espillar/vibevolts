@@ -25,21 +25,21 @@ The current state of the simulation is stored in a dictionary typically called `
     *   `propagation.add_satellites_from_tle`: Adds `sat_category`.
     *   `observatories.add_observatories`: Adds `'observatories'`.
     *   `targets.add_fixed_points`: Adds `'fixedpoints'`.
-    *   `testObjects.fixedSat`: Adds/increments `'satellites'`.
-    *   `testObjects.fixedTarget`: Adds/increments `'fixedpoints'`.
+    *   `radiometry_test.fixedSat`: Adds/increments `'satellites'`.
+    *   `radiometry_test.fixedTarget`: Adds/increments `'fixedpoints'`.
 *   `pointing_spheres`: `Dict[int, np.ndarray]`
     *   `simulation.create_empty_simulation`: Initializes.
     *   `pointing.generate_pointing_sphere`: Adds a new pointing sphere.
 *   `celestial`: `Dict[str, np.ndarray]`
     *   `celestialbodies.add_celestial_bodies`: Initializes `position`, `velocity`, `acceleration`.
     *   `celestialbodies.celestial_update`: Updates `position`.
-    *   `testObjects.fixSun`: Updates `position` of the sun.
+    *   `radiometry_test.fixSun`: Updates `position` of the sun.
 *   `satellites`: `Dict[str, any]`
     *   `constellation.geos`: Initializes `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
     *   `constellation.geosmod`: Initializes or appends to `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
     *   `propagation.add_satellites_from_tle`: Initializes `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`, `pointing`, `pointing_state`.
     *   `propagation.propagate_satellites`: Updates `position`.
-    *   `testObjects.fixedSat`: Initializes or appends to `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
+    *   `radiometry_test.fixedSat`: Initializes or appends to `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
 *   `detector`: `SimpleNamespace`
     *   `constellation.geos`: Initializes with `makeBlankDetector`.
     *   `constellation.geosmod`: Initializes with `makeDetector`.
@@ -52,10 +52,10 @@ The current state of the simulation is stored in a dictionary typically called `
     *   `detector.detectorPointingInitialize`: Initializes `pointing_state` and updates `pointing`.
     *   `pointing.update_detector_pointing`: Updates `pointing` and `pointing_state`.
     *   `pointing.jerk`: Updates `pointing`.
-    *   `testObjects.fixedSat`: Initializes or appends to the detector object.
+    *   `radiometry_test.fixedSat`: Initializes or appends to the detector object.
 *   `fixedpoints`: `Dict[str, np.ndarray]`
     *   `targets.add_fixed_points`: Initializes `position`, `exclusion`, `size`, `albedo`.
-    *   `testObjects.fixedTarget`: Initializes or appends to `position`, `exclusion`, `size`, `albedo`.
+    *   `radiometry_test.fixedTarget`: Initializes or appends to `position`, `exclusion`, `size`, `albedo`.
 *   `observatories`: `Dict[str, np.ndarray]`
     *   `observatories.add_observatories`: Initializes `position`, `velocity`, `acceleration`, `pointing`.
 
@@ -82,7 +82,7 @@ This section describes the demo scripts that are available in the toolkit.
     *   `plot_blackbody_spectrum_visible_nir(temperature: float)`: Plots the spectral radiance of a blackbody from 0.1 to 1 micron.
 *   `sim_check.py`:
     *   The `if __name__ == '__main__':` block contains a demo of the `sim_check` function.
-*   `testObjects.py`:
+*   `radiometry_test.py`:
     *   `demoFixed()`: Demonstrates the use of the fixedSat and fixedTarget functions.
 
 ## Python Files and Functions
@@ -195,7 +195,7 @@ This file contains radiometric data for standard astronomical filters.
 
 *   `add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100, size: float = 1.0) -> None`: Adds a structure for fixed reference points in the GCRS frame.
 
-### `testObjects.py`
+### `radiometry_test.py`
 
 *   `fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float)`: Creates a single satellite fixed at the given x, y, z coordinates.
 *   `fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: float)`: Places a fixed target at the given x, y, z coordinates.

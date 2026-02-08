@@ -128,6 +128,51 @@ in org format in datastrucure.org
 ** 2026-02
 
 
+*** [2026-02-08 Sun]
+Still most  things running from yesterday- much faster to start.
+I think some of my workflow processes are kinda broken, or
+at least not aligned well. Outlining what I'm doing really does
+help.
+
+Mess around with figuring out query-replace to get checkmarks right
+
+I forgot that testObjects.py does most or all of what I need to do
+to set up and test radiometry.  How should I fix this?
+
+
+**** Todos [15/25]
+- [x] keep track of units the whole way in secondary lines
+- [X] Choose V band
+- [X] Get the solar brightness in magnitudes
+- [X] Convert to photons/sec on a $1 m^2$ satellite
+- [X] Assume face on, calculate the lambertian flux at earth or at that range
+- [X] multiply by area of the telescope and any efficiency factors
+- [X] Multiply by integration time
+- [X] output this number
+- [X] Find the background flux
+- [X] convert to photons per second per meters per $\Omega$
+- [X] multply by area, $\Omega$, efficiency, integration tiem
+- [X] output this number
+- [X] computer SNR by flux over $\sqrt{noise}$
+- [X] output this number
+- [X] convert the equations to LaTeX and compare with cognion:
+  equations look good
+- [X] Figure out what variable you need to set to do the right comparison.
+  Does scandeteectors need to be refactored?
+- [ ] Improve names documentation so you don't forget testObjects.py
+- [ ] make sure the details of this case agree with what you're testing in the code
+- [ ] compare with a base case and fix
+- [ ] put in equations document
+- [ ] Compare with numbers from the Mathematica notebook
+- [ ] Get a couple of specific distances into notebook
+- [ ] Now we need to get all the scaling laws right
+   configure the new fixedtest.ipynb to test radiometry-
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+
+
 *** [2026-02-07 Sat]
 
 That twas an unfortunate week 1/2 occupied by Jury duty, most
@@ -138,12 +183,11 @@ Lets check what I have and go forward.
 
 Slow progress.
 
-**** Todos [/]
-
+**** Todos [1/7]
 - [ ] follow up to see how the aperture size is expressed in all the
   code. What is it?
 - [ ] fill in the elements in the notebook
-- [ ] convert the equations to LaTeX and compare with cognion:
+- [X] convert the equations to LaTeX and compare with cognion:
   equations look good 
 - [ ] Get a couple of specific distances into notebook
 - [ ] compare with a base case and fix

@@ -108,61 +108,6 @@ def scandetectors(sim_data: dict):
         print('SignAl, noise, snr, integration time \n')
         for j in range(len(signal)):
             print(f"{signal[j]:.3e}, {noise[j]:.3e}, {snr[j]:.3e}, {integrationTime[i]:.3e}")
-#        print('>> ', signal,noise, snr, integrationTime[i], ' \n')
-
-
-        
-# Compare the the angles to the acceptance angle and create a mask for those
-# For those in the mask, computer the SNR
-# store an appropriately labeled vector with the detector numb3
-# the target number, the time,
-# and the SNR in a pandas array, or maybe a numpy array.
-#
-
-# Determine which ones are in the fov
-# Skinny down the vector to be calculated to which ones are in the fov
-# make sure you have some label so you can keep track
-# calculate the SNR using the sun vector and the satellite vector and the
-# function you have saved somewhere
-# again clip to only the ones where the SNR is good enough
-# save these to a database
-
-
-    # A = np.array([[x1, y1, z1], ...])
-    # B = np.array([[x2, y2, z2], ...])
-
-
-
-    # # Calculate coords for both sets
-    # theta_a, phi_a = get_spherical_coords(A)
-    # theta_b, phi_b = get_spherical_coords(B)
-
-    # # Calculate differences
-    # delta_theta = theta_b - theta_a
-    # delta_phi = phi_b - phi_a
-
-    # # Optional: Normalize delta_phi to be within [-pi, pi]
-    # # This handles the "wrap-around" at the 180-degree boundary
-    # delta_phi = (delta_phi + np.pi) % (2 * np.pi) - np.pi
 
     return(0)
-#######################################################
 
-
-def findVectorMask(values: np.ndarray, floorValue: float) -> np.ndarray:
-    """
-    Compares values in a 1D numpy array to a floorValue
-    and returns a boolean mask.
-
-    The mask will have True where values are greater than or
-    equal to floorValue, and False otherwise.
-
-    Args:
-        values (np.ndarray): A 1D numpy array of numerical values.
-        floorValue (float): The threshold value to compare against.
-
-    Returns:
-        np.ndarray: A boolean numpy array (mask) of the same shape as 'values'.
-    """
-
-    return(values >= floorValue)

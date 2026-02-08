@@ -10,7 +10,7 @@ from demogeo import demogeo
 from demo_fixedpoints import demo_fixedpoints
 # from demo_exclusion_table import demo_exclusion_table
 from demo_pointing_plot import demo_pointing_plot
-from testObjects import demoFixed
+from radiometry_test import demoFixed
 
 from demo_lambertian import demo_lambertian
 from demo_sky_scan import demo_sky_scan
