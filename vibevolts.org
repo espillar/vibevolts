@@ -140,7 +140,7 @@ I forgot that testObjects.py does most or all of what I need to do
 to set up and test radiometry.  How should I fix this?
 
 
-**** Todos [15/25]
+**** Todos [16/25]
 - [x] keep track of units the whole way in secondary lines
 - [X] Choose V band
 - [X] Get the solar brightness in magnitudes
@@ -159,7 +159,9 @@ to set up and test radiometry.  How should I fix this?
   equations look good
 - [X] Figure out what variable you need to set to do the right comparison.
   Does scandeteectors need to be refactored?
-- [ ] Improve names documentation so you don't forget testObjects.py
+- [X] rename fixedObjects.py to radiometry_test.py
+- [ ] Check worksheet results against MMa results.
+- [ ] Signal is totally broken. Do a line by line debug.
 - [ ] make sure the details of this case agree with what you're testing in the code
 - [ ] compare with a base case and fix
 - [ ] put in equations document
@@ -172,7 +174,7 @@ to set up and test radiometry.  How should I fix this?
 - [ ] follow up to see how the aperture size is expressed in all the
   code. What is it?
 
-
+  
 *** [2026-02-07 Sat]
 
 That twas an unfortunate week 1/2 occupied by Jury duty, most
