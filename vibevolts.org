@@ -127,6 +127,36 @@ in org format in datastrucure.org
 
 ** 2026-02
 
+*** [2026-02-13 Fri]
+I need to focus on debugging this chunk of radiometry code
+so I can get on with "life."  I need to trace what's going on with the
+signal calculation one line at a time.
+
+I wonder if I can have GEMIMI help me with this- actually have it
+start a process while I go ahead and do it the old fashion way.
+
+
+**** Prompts
+The value calculated for signal in scandetectors.py seems incorrect to me.
+Inside the code in this directory, please trace back all the variables
+and algorithms that contribute to this value and produce a document
+signal.md that records step by step how it is built up from it's constituents.
+If there are single constants that contribute any any step include
+them.  Reference what file any change is made in.
+
+**** Todos [1/10]
+- [ ] Signal is totally broken. Do a line by line debug.
+- [ ] make sure the details of this case agree with what you're testing in the code
+- [ ] compare with a base case and fix
+- [ ] put in equations document
+- [ ] Compare with numbers from the Mathematica notebook
+- [ ] Get a couple of specific distances into notebook
+- [ ] Now we need to get all the scaling laws right
+   configure the new fixedtest.ipynb to test radiometry-
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
 
 *** [2026-02-08 Sun]
 Still most  things running from yesterday- much faster to start.
@@ -137,7 +167,8 @@ help.
 Mess around with figuring out query-replace to get checkmarks right
 
 I forgot that testObjects.py does most or all of what I need to do
-to set up and test radiometry.  How should I fix this?
+to set up and test radiometry.  How should I fix this? I renamed it
+radiometry_test.py
 
 
 **** Todos [16/25]
