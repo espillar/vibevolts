@@ -5,7 +5,8 @@ def lambertiansphere(
     vec_from_sphere_to_observer: np.ndarray,
     albedo: np.ndarray,
     radius: np.ndarray,
-    base_brightness: np.ndarray
+    base_brightness: np.ndarray,
+    debug: int = 0
 ) -> np.ndarray:
     """
     Calculates the illuminance of multiple lambertian spheres.
@@ -28,6 +29,8 @@ def lambertiansphere(
             in meters.
         base_brightness: A 1D NumPy array of shape (N,) with the incident
             flux or brightness of the light source at each sphere's location.
+        debug: An optional integer. If set to 1, a table of inputs and outputs
+            will be printed before the function returns. Defaults to 0.
 
     Returns:
         A 1D NumPy array of shape (N,) containing the apparent brightness
@@ -81,6 +84,27 @@ def lambertiansphere(
     # Ensure that entries corresponding to zero-norm vectors have zero brightness
     invalid_mask = (norm_light == 0) | (norm_observer == 0)
     apparent_brightness[invalid_mask] = 0.0
+
+    if debug == 1:
+        print("\n--- Debug Info: lambertiansphere ---")
+        print(f"vec_from_sphere_to_light: {vec_from_sphere_to_light}")
+        print(f"norm_light: {norm_light:.4e}\n")
+
+        num_spheres = len(albedo)
+        header = f"{'Index':<5} {'Dist to Obs (m)':<18} {'Albedo':<10} {'Radius (m)':<12} {'Base Brightness':<18} {'Apparent Brightness':<22}"
+        print(header)
+        print("-" * len(header))
+
+        display_limit = 5
+        for i in range(num_spheres):
+            if num_spheres > 2 * display_limit and display_limit <= i < num_spheres - display_limit:
+                if i == display_limit:
+                    print(f"{'.':<5} {'...':<18} {'...':<10} {'...':<12} {'...':<18} {'...':<22}")
+                continue
+
+            print(f"{i:<5} {norm_observer[i]:<18.4e} {albedo[i]:<10.4f} {radius[i]:<12.4e} {base_brightness[i]:<18.4e} {apparent_brightness[i]:<22.4e}")
+        print("-----------------------------------\n")
+
 
     return apparent_brightness
 

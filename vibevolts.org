@@ -127,6 +127,40 @@ in org format in datastrucure.org
 
 ** 2026-02
 
+*** [2026-02-14 Sat]
+Trying to follow up on whwat gemini gave me but I'm kind
+of lost on how to do it!  Wasted 20 min and came
+back to reset. What do I want to do?  I want to follow the
+values up the chain from the primitives and see if
+they build up properly.
+
+Installed the command line version of jules that I
+didn't know existed.  Have gemini reorder.
+Re-read. Reordering was very helpful but I don't yet see what's wrong.
+Grrr.
+
+OK. let's break it in the middle.  Print out the inputs to to
+lambertain sphere and the outputs and see if I agree.
+
+
+
+**** Todos [1/10]
+- [ ] review the output gemini gave me yesterday.
+- [ ] Signal is totally broken. Do a line by line debug.
+- [ ] make sure the details of this case agree with what you're testing in the code
+- [ ] compare with a base case and fix
+- [ ] put in equations document
+- [ ] Compare with numbers from the Mathematica notebook
+- [ ] Get a couple of specific distances into notebook
+- [ ] Now we need to get all the scaling laws right
+   configure the new fixedtest.ipynb to test radiometry-
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+-  [ ] Check the equation for required integration time w.r.t. f
+
+
 *** [2026-02-13 Fri]
 I need to focus on debugging this chunk of radiometry code
 so I can get on with "life."  I need to trace what's going on with the
@@ -134,6 +168,8 @@ signal calculation one line at a time.
 
 I wonder if I can have GEMIMI help me with this- actually have it
 start a process while I go ahead and do it the old fashion way.
+
+Stopped after not enough time by AI class, which was interesting
 
 
 **** Prompts

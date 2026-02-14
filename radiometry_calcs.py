@@ -19,7 +19,7 @@ def fluxes(band):
     x = FILTER_DATA[band]
     zp = x['zero_point']
     sun = amag(x['sun']) * zp
-    space = amag(x['space']) * zp / (ARCSEC**2)
+    space = amag(x['space']) * zp / (ARCSEC**2) # convert to per sterad
     sky = amag(x['sky']) * zp / (ARCSEC**2)
     return(sun, space, sky)
     

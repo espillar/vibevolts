@@ -166,7 +166,7 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
     This function is based on the radiometric equation, solving for the integration time 't'.
     The calculation is derived from the following relationship:
     SNR = (Signal) / sqrt(Signal + Background)
-    t = SNR^2 * (beta * omega) / (alpha^2 * A * eta * f^2)
+    t = SNR^2 * (beta * omega) / (alpha^2 * A * eta * f)
 
     For comparison with an external document ("equations paper"), the function
     extracts variables from the detector object 'd' and assigns them to conventional names.
@@ -196,7 +196,7 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
         print('A', A)
         print('eta', eta)
         print('f', f)
-    t = gamma**2 * beta * omega /( alpha**2 * A * eta * f**2)
+    t = gamma**2 * beta * omega /( alpha**2 * A * eta * f)
 #    t  = (SNR * SNR * d[:,SKY_BACK_IDX] * d[:,PIXEL_SIZE_IDX]) / \
 #       ( d[:,QE_IDX] *\
 #         d[:,PHOT_EFF_IDX]**2  *\
