@@ -127,6 +127,35 @@ in org format in datastrucure.org
 
 ** 2026-02
 
+*** [2026-02-15 Sun]
+Not going well: I think my thoughts and actions have been
+meandering. I need to be more specific and actionable.
+
+
+**** Todos [4/12]
+- [X] Check alldemos to be sure you're all good to start.
+- [X] Work out the rMPP the solar photon flux at a detector.
+  Order of magnitude or so in two columns, including units
+  in one column: it is all multiplicative.
+- [X] Check a GEO magnitude is close
+- [X] First try to match the whole chain to signal - massively off
+- [ ] Choose some good breakpoints to compare with actual
+  code and get those partials worked out.
+- [ ] In the actual code test those points. If necessary
+  refactor the code to expose them.
+- [  ]   Bisecting may  be a think here.
+- [ ] Compare with numbers from the Mathematica notebook
+- [ ] Get a couple of specific distances into notebook
+- [ ] Now we need to get all the scaling laws right
+   configure the new fixedtest.ipynb to test radiometry-
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+- [ ] Check the equation for required integration time w.r.t. f
+  
+  
+
 *** [2026-02-14 Sat]
 Trying to follow up on whwat gemini gave me but I'm kind
 of lost on how to do it!  Wasted 20 min and came
@@ -144,12 +173,7 @@ lambertain sphere and the outputs and see if I agree.
 
 
 
-**** Todos [1/10]
-- [ ] review the output gemini gave me yesterday.
-- [ ] Signal is totally broken. Do a line by line debug.
-- [ ] make sure the details of this case agree with what you're testing in the code
-- [ ] compare with a base case and fix
-- [ ] put in equations document
+
 - [ ] Compare with numbers from the Mathematica notebook
 - [ ] Get a couple of specific distances into notebook
 - [ ] Now we need to get all the scaling laws right

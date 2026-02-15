@@ -197,8 +197,9 @@ def demoFixed():
 
     # --- Run functions to create objects ---
     fixSun(sim_data)
+    # Place a satellite near the center of the earth
     fixedSat(sim_data, x=100, y=0, z=0)
-    # Place a target somewhere, using EARTH_RADIUS which is imported in the file
+    # Place a target 1e8 m away and another 1e9m away
     original_target_x = 100_000_000
     fixedTarget(sim_data, size=1.0, x=original_target_x, y=0, z=0)
     fixedTarget(sim_data, size=1.0, x=original_target_x * 10, y=0, z=0) # New target at 10 times the range
