@@ -133,7 +133,7 @@ Not going well: I think my thoughts and actions have been
 meandering. I need to be more specific and actionable.
 
 
-**** Todos [6/13]
+**** Todos [7/14]
 - [X] Check alldemos to be sure you're all good to start.
 - [X] Work out the rMPP the solar photon flux at a detector.
   Order of magnitude or so in two columns, including units
@@ -144,7 +144,7 @@ meandering. I need to be more specific and actionable.
   code and get those partials worked out.
 - [X] refactor so that lamberian is stand alone, check
   net photons incident on satellite
-- [ ] run the demo 'cause
+- [X] run the demo 'cause
 - [ ] In the actual code test those points. If necessary
   refactor the code to expose them.
 - [  ]   Bisecting may  be a think here.
