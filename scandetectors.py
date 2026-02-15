@@ -1,5 +1,5 @@
 import numpy as np
-import lambertian
+from lambertian import lambertiansphere, includedAngle
 import radiometry_calcs
 
 
@@ -95,12 +95,19 @@ def scandetectors(sim_data: dict):
         fov = fovs[i]
         mask = angles < fov
         visibleIndices = np.flatnonzero(mask)
-        detectorFlux = lambertian.lambertiansphere(
-             -sunVect,
-             -toTargets[mask],
-             albedo[mask],
-             radius[mask],
-             sun)
+        vec_from_sphere_to_light_expanded = np.tile(-sunVect, (len(visibleIndices), 1))
+        vec_from_sphere_to_observer_actual = -toTargets[mask]
+        
+        angle_light_observer = includedAngle(vec_from_sphere_to_light_expanded, vec_from_sphere_to_observer_actual)
+        norm_observer = np.linalg.norm(vec_from_sphere_to_observer_actual, axis=1)
+
+        emitted_brightness = lambertiansphere(
+            angle_light_observer,
+            albedo[mask],
+            radius[mask],
+            sun
+        )
+        detectorFlux = emitted_brightness / (4 * np.pi * norm_observer ** 2)
         signal = detectorFlux * integrationTime[i] * detectorArea[i]
         noise = np.sqrt(detectorFlux * integrationTime[i] * detectorArea[i] +
                         space * integrationTime[i] * detectorArea[i])

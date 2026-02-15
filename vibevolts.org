@@ -132,15 +132,18 @@ Not going well: I think my thoughts and actions have been
 meandering. I need to be more specific and actionable.
 
 
-**** Todos [4/12]
+**** Todos [6/13]
 - [X] Check alldemos to be sure you're all good to start.
 - [X] Work out the rMPP the solar photon flux at a detector.
   Order of magnitude or so in two columns, including units
   in one column: it is all multiplicative.
 - [X] Check a GEO magnitude is close
 - [X] First try to match the whole chain to signal - massively off
-- [ ] Choose some good breakpoints to compare with actual
+- [X] Choose some good breakpoints to compare with actual
   code and get those partials worked out.
+- [X] refactor so that lamberian is stand alone, check
+  net photons incident on satellite
+- [ ] run the demo 'cause
 - [ ] In the actual code test those points. If necessary
   refactor the code to expose them.
 - [  ]   Bisecting may  be a think here.

@@ -434,32 +434,46 @@ The ~sim_data~ dictionary is built incrementally. The following functions are re
          or photons / s / m^2).
      """
      #+END_SRC
-   - ~lambertiansphere(vec_from_sphere_to_light: np.ndarray, vec_from_sphere_to_observer: np.ndarray, albedo: float, radius: float)~: Calculates the effective brightness of a Lambertian sphere.
+   - ~lambertiansphere(angle_light_observer: np.ndarray, albedo: np.ndarray, radius: np.ndarray, base_brightness: np.ndarray)~: Calculates the emitted brightness from multiple lambertian spheres based on phase angle. The final apparent brightness at the observer's location must be calculated by dividing this result by 4 * pi * (distance_to_observer)^2.
      #+BEGIN_SRC python
      """
-     Calculates the effective brightness of a
-     Lambertian sphere.
-
-     This function determines the apparent brightness of
-     a diffusely reflecting sphere based on the angle
-     between the light source and the observer, the
-     sphere's albedo (reflectivity), and its size.
+     Calculates the emitted brightness from multiple lambertian spheres based on phase angle.
+     This function computes the brightness emitted *from the sphere's surface*
+     in the direction of the observer. The final apparent brightness at the
+     observer's location must be calculated by dividing this result by 4 * pi * (distance_to_observer)^2.
 
      Args:
-         vec_from_sphere_to_light: A 3-element NumPy
-             array representing the direction vector from
-             the sphere to the light source.
-         vec_from_sphere_to_observer: A 3-element NumPy
-             array representing the direction vector from
-             the sphere to the observer.
-         albedo: The fraction of incident light that is
-             reflected (0.0 to 1.0).
-         radius: The radius of the sphere in meters.
+         angle_light_observer: A 1D NumPy array of shape (N,) with the phase angle
+             in radians for each sphere. This is the angle between the light source
+             and the observer as seen from the sphere's center.
+         albedo: A 1D NumPy array of shape (N,) with the fraction of incident
+             light that is reflected for each sphere (0.0 to 1.0).
+         radius: A 1D NumPy array of shape (N,) with the radius of each sphere
+             in meters.
+         base_brightness: A 1D NumPy array of shape (N,) with the incident
+             flux or brightness of the light source at each sphere's location.
 
      Returns:
-         The effective brightness cross-section in
-         square meters. This value is proportional to
-         the total light reflected towards the observer.
+         A 1D NumPy array of shape (N,) containing the brightness emitted from
+         each sphere's surface (e.g., in Watts per steradian per square meter).
+         To get apparent brightness at the observer, divide by 4 * pi * (distance_to_observer)^2.
+     """
+     #+END_SRC
+   - ~includedAngle(vectors1: np.ndarray, vectors2: np.ndarray)~: Calculates the included angle in radians between corresponding vectors in two input NumPy arrays.
+     #+BEGIN_SRC python
+     """
+     Calculates the included angle in radians between corresponding vectors
+     in two input NumPy arrays.
+
+     Args:
+         vectors1 (np.ndarray): A NumPy array of shape (N, 3) representing the
+                                first set of vectors.
+         vectors2 (np.ndarray): A NumPy array of shape (N, 3) representing the
+                                second set of vectors.
+
+     Returns:
+         np.ndarray: A 1D NumPy array of shape (N,) containing the included
+                     angle in radians for each corresponding pair of vectors.
      """
      #+END_SRC
 

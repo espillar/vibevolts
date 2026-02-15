@@ -138,7 +138,8 @@ This file defines global constants for array indices and physical constants.
 
 ### `lambertian.py`
 
-*   `lambertiansphere(vec_from_sphere_to_light: np.ndarray, vec_from_sphere_to_observer: np.ndarray, albedo: np.ndarray, radius: np.ndarray, base_brightness: np.ndarray) -> np.ndarray`: Calculates the illuminance of multiple lambertian spheres.
+*   `lambertiansphere(angle_light_observer: np.ndarray, albedo: np.ndarray, radius: np.ndarray, base_brightness: np.ndarray) -> np.ndarray`: Calculates the emitted brightness from multiple lambertian spheres based on phase angle. The final apparent brightness at the observer's location must be calculated by dividing this result by 4 * pi * (distance_to_observer)^2.
+*   `includedAngle(vectors1: np.ndarray, vectors2: np.ndarray) -> np.ndarray`: Calculates the included angle in radians between corresponding vectors in two input NumPy arrays.
 *   `simple_lambertian(diameter: float, distance: float, albedo: float, angle: float, base_brightness: float) -> float`: Calculates the apparent brightness of a Lambertian sphere.
 
 ### `observatories.py`

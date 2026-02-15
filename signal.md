@@ -127,17 +127,16 @@ This function calculates the apparent brightness of diffusely reflecting spheres
 
 ```python
 def lambertiansphere(
-    vec_from_sphere_to_light: np.ndarray,
-    vec_from_sphere_to_observer: np.ndarray,
+    angle_light_observer: np.ndarray,
     albedo: np.ndarray,
     radius: np.ndarray,
     base_brightness: np.ndarray
 ) -> np.ndarray:
     """
-    Calculates the illuminance of multiple lambertian spheres.
-    If base brightness is given in photons/m^2, the result will be in the
-    same units at the observer defined by the specified geometry
-    ...
+    Calculates the emitted brightness from multiple lambertian spheres based on phase angle.
+    This function computes the brightness emitted *from the sphere's surface*
+    in the direction of the observer. The final apparent brightness at the
+    observer's location must be calculated by dividing this result by 4 * pi * (distance_to_observer)^2.
     """
 ```
 *(Source: `lambertian.py`)*
@@ -149,13 +148,11 @@ The `lambertiansphere` function uses:
 *   `radius`: `radius[mask]` (radius of visible targets).
 *   `base_brightness`: `sun` (solar flux).
 
-The core calculation within `lambertiansphere` is:
+The core calculation within `lambertiansphere` is now:
 ```python
-    apparent_brightness = (
-        (base_brightness * effective_cross_section) /
-        (np.pi * norm_observer ** 2)
-    )
+    emitted_brightness = (base_brightness * effective_cross_section)
 ```
+The caller is responsible for the division by `4 * np.pi * (distance_to_observer) ** 2` to get the apparent brightness at the observer.
 Where `effective_cross_section` is derived from `albedo`, `radius`, and a `phase_function_value`, and `norm_observer` is the magnitude of the `vec_from_sphere_to_observer`.
 
 ## Components of the `signal` Calculation

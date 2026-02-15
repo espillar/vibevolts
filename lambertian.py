@@ -1,28 +1,22 @@
 import numpy as np
 
 def lambertiansphere(
-    vec_from_sphere_to_light: np.ndarray,
-    vec_from_sphere_to_observer: np.ndarray,
+    angle_light_observer: np.ndarray,
     albedo: np.ndarray,
     radius: np.ndarray,
     base_brightness: np.ndarray,
     debug: int = 0
 ) -> np.ndarray:
     """
-    Calculates the illuminance of multiple lambertian spheres.
-    If base brightness is given in photons/m^2, the result will be in the
-    same units at the observer defined by the specified geometry
-
-    This function determines the apparent brightness of diffusely reflecting spheres
-    based on the angle between the light source and the observer, the spheres'
-    albedos (reflectivity), their sizes, and the distance to the observer.
+    Calculates the emitted brightness from multiple lambertian spheres based on phase angle.
+    This function computes the brightness emitted *from the sphere's surface*
+    in the direction of the observer. The final apparent brightness at the
+    observer's location must be calculated by dividing this result by 4 * pi * (distance_to_observer)^2.
 
     Args:
-        vec_from_sphere_to_light: A single (3,) NumPy array representing the
-            vector from the sphere's position to the light source. NOT normalized.
-        vec_from_sphere_to_observer: An (N, 3) NumPy array where each row is a
-            vector from a sphere to the observer. The magnitude of this vector
-            is the distance. NOT normalized.
+        angle_light_observer: A 1D NumPy array of shape (N,) with the phase angle
+            in radians for each sphere. This is the angle between the light source
+            and the observer as seen from the sphere's center.
         albedo: A 1D NumPy array of shape (N,) with the fraction of incident
             light that is reflected for each sphere (0.0 to 1.0).
         radius: A 1D NumPy array of shape (N,) with the radius of each sphere
@@ -33,32 +27,21 @@ def lambertiansphere(
             will be printed before the function returns. Defaults to 0.
 
     Returns:
-        A 1D NumPy array of shape (N,) containing the apparent brightness
-        for each sphere, e.g. in Watts per square meter.
+        A 1D NumPy array of shape (N,) containing the brightness emitted from
+        each sphere's surface (e.g., in Watts per steradian per square meter).
+        To get apparent brightness at the observer, divide by 4 * pi * (distance_to_observer)^2.
     """
-    if vec_from_sphere_to_light.shape != (3,):
-        raise ValueError(f"vec_from_sphere_to_light must be a single vector of shape (3,), but got {vec_from_sphere_to_light.shape}")
     if not np.all((albedo >= 0.0) & (albedo <= 1.0)):
         raise ValueError("All albedo values must be between 0.0 and 1.0.")
     if np.any(radius < 0):
         raise ValueError("Radius cannot be negative.")
+    if not isinstance(angle_light_observer, np.ndarray) or angle_light_observer.ndim != 1:
+        raise ValueError("angle_light_observer must be a 1D NumPy array.")
 
-    norm_light = np.linalg.norm(vec_from_sphere_to_light)
-    norm_observer = np.linalg.norm(vec_from_sphere_to_observer, axis=1)
 
-    # To avoid division by zero, we'll suppress warnings and handle NaNs later
-    with np.errstate(divide='ignore', invalid='ignore'):
-        unit_vec_light = vec_from_sphere_to_light / norm_light
-        unit_vec_observer = vec_from_sphere_to_observer / norm_observer[:, np.newaxis]
-
-    # Dot product of the single light vector with each observer vector
-    cos_alpha = np.einsum('j,ij->i', unit_vec_light, unit_vec_observer)
-
-    # Handle cases where dot product resulted in NaN from zero-length vectors
-    cos_alpha = np.nan_to_num(cos_alpha)
-
-    cos_alpha = np.clip(cos_alpha, -1.0, 1.0)
-    alpha = np.arccos(cos_alpha)
+    # The phase angle is physically constrained to be between 0 and pi.
+    # We clip the value to handle out-of-range inputs gracefully.
+    alpha = np.clip(angle_light_observer, 0, np.pi)
 
     term1 = np.sin(alpha)
     term2 = (np.pi - alpha) * np.cos(alpha)
@@ -73,25 +56,15 @@ def lambertiansphere(
     )
 
     # The apparent brightness is the incident brightness multiplied
-    # by the effective reflecting area, with the resulting light
-    # distributed according to the inverse square law.
-    with np.errstate(divide='ignore', invalid='ignore'):
-        apparent_brightness = (
-            (base_brightness * effective_cross_section) /
-            (np.pi * norm_observer ** 2)
-        )
-
-    # Ensure that entries corresponding to zero-norm vectors have zero brightness
-    invalid_mask = (norm_light == 0) | (norm_observer == 0)
-    apparent_brightness[invalid_mask] = 0.0
+    # by the effective reflecting area.
+    # The division by distance squared will be handled by the caller,
+    # as instructed by the user, to accommodate the 4*pi*r^2 factor.
+    apparent_brightness = (base_brightness * effective_cross_section)
 
     if debug == 1:
         print("\n--- Debug Info: lambertiansphere ---")
-        print(f"vec_from_sphere_to_light: {vec_from_sphere_to_light}")
-        print(f"norm_light: {norm_light:.4e}\n")
-
         num_spheres = len(albedo)
-        header = f"{'Index':<5} {'Dist to Obs (m)':<18} {'Albedo':<10} {'Radius (m)':<12} {'Base Brightness':<18} {'Apparent Brightness':<22}"
+        header = f"{'Index':<5} {'Phase Angle (rad)':<18} {'Albedo':<10} {'Radius (m)':<12} {'Base Brightness':<18} {'Emitted Brightness':<22}"
         print(header)
         print("-" * len(header))
 
@@ -102,11 +75,11 @@ def lambertiansphere(
                     print(f"{'.':<5} {'...':<18} {'...':<10} {'...':<12} {'...':<18} {'...':<22}")
                 continue
 
-            print(f"{i:<5} {norm_observer[i]:<18.4e} {albedo[i]:<10.4f} {radius[i]:<12.4e} {base_brightness[i]:<18.4e} {apparent_brightness[i]:<22.4e}")
+            print(f"{i:<5} {angle_light_observer[i]:<18.4e} {albedo[i]:<10.4f} {radius[i]:<12.4e} {base_brightness[i]:<18.4e} {apparent_brightness[i]:<22.4e}")
         print("-----------------------------------\n")
 
-
     return apparent_brightness
+
 
 
 def simple_lambertian(
@@ -185,5 +158,49 @@ def simple_lambertian(
     )
 
     return apparent_brightness
+
+
+def includedAngle(
+    vectors1: np.ndarray,
+    vectors2: np.ndarray
+) -> np.ndarray:
+    """
+    Calculates the included angle in radians between corresponding vectors
+    in two input NumPy arrays.
+
+    Args:
+        vectors1 (np.ndarray): A NumPy array of shape (N, 3) representing the
+                               first set of vectors.
+        vectors2 (np.ndarray): A NumPy array of shape (N, 3) representing the
+                               second set of vectors.
+
+    Returns:
+        np.ndarray: A 1D NumPy array of shape (N,) containing the included
+                    angle in radians for each corresponding pair of vectors.
+    """
+    if vectors1.shape != vectors2.shape:
+        raise ValueError("Input arrays must have the same shape.")
+    if vectors1.shape[1] != 3:
+        raise ValueError("Input vectors must be 3-dimensional.")
+
+    # Calculate the norms of the vectors
+    norm_vectors1 = np.linalg.norm(vectors1, axis=1)
+    norm_vectors2 = np.linalg.norm(vectors2, axis=1)
+
+    # Normalize the vectors, handling potential division by zero
+    with np.errstate(divide='ignore', invalid='ignore'):
+        unit_vectors1 = np.where(norm_vectors1[:, np.newaxis] == 0, 0, vectors1 / norm_vectors1[:, np.newaxis])
+        unit_vectors2 = np.where(norm_vectors2[:, np.newaxis] == 0, 0, vectors2 / norm_vectors2[:, np.newaxis])
+
+    # Calculate the dot product of the normalized vectors
+    dot_product = np.einsum('ij,ij->i', unit_vectors1, unit_vectors2)
+
+    # Clip values to ensure they are within the valid range for arccos (-1 to 1)
+    dot_product = np.clip(dot_product, -1.0, 1.0)
+
+    # Calculate the angle in radians
+    angles = np.arccos(dot_product)
+
+    return angles
 
 
