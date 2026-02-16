@@ -13,6 +13,7 @@ set by the sensors readouts with the satellites frozen.
 *** Jules
 Appears to hook into the system right,  including when logged in as 
 earl.s
+
 *** GCE
 Vibevolts
 
@@ -22,7 +23,7 @@ https://safe.menlosecurity.com/https://sites.google.com/afresearchlab.com/portal
 https://safe.menlosecurity.com/https://console.cloud.google.com/vertex-ai/workbench/instances?project=afrl-il2-sbx-dnkc1-nfor
 
 Instance *16047
-
+ 
 git pull is set up - so start with that. Make sure you are up to date
 gemini-cli is instaleld.  Done with a pip install gemini-cli, and then doing
 a brief authentication dance.
