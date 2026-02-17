@@ -128,6 +128,35 @@ in org format in datastrucure.org
 
 ** 2026-02
 
+*** [2026-02-16 Mon] Predsidents Day
+A little distracted by PS not answering the phone and some afib,
+staring a 0930.
+Vectors were giving the wrong value for the lambertian function,
+pi minus the angle.  I need a minus sigh.  I should look some more.
+
+**** Todos [7/14]
+- [X] expose flux in satellite in code
+- [X] expose flux on satellite by hand
+  These agree once we notice one is in per cm2 and the other per m2
+- [X] what's the value of lambertian function.
+- [X] In the actual code test those points. If necessary
+  refactor the code to expose them.
+- [X]   Bisecting may  be a think here.
+- [X] check what we're using for the integration time
+- [X] refactor demo_fixedpoints.py because it was opaque 
+- [ ] Check that we are printing out the noise value and what the
+  parameters area
+- [ ] do a pencil calculation of the noise value
+- [ ] Get a couple of specific distances into notebook
+- [ ] check that all the input paramters are what you think they are [0/1]
+  - [ ] 
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+- [ ] Check the equation for required integration time w.r.t. f
+
+
 *** [2026-02-15 Sun]
 Not going well: I think my thoughts and actions have been
 meandering. I need to be more specific and actionable.
@@ -145,6 +174,8 @@ meandering. I need to be more specific and actionable.
 - [X] refactor so that lamberian is stand alone, check
   net photons incident on satellite
 - [X] run the demo 'cause
+
+
 - [ ] In the actual code test those points. If necessary
   refactor the code to expose them.
 - [  ]   Bisecting may  be a think here.
@@ -186,9 +217,9 @@ lambertain sphere and the outputs and see if I agree.
   size,   distance,   angles
 - [ ] follow up to see how the aperture size is expressed in all the
   code. What is it?
--  [ ] Check the equation for required integration time w.r.t. f
+-  [ ] Check the equation for required integration time w.r.t. 
 
-
+  
 *** [2026-02-13 Fri]
 I need to focus on debugging this chunk of radiometry code
 so I can get on with "life."  I need to trace what's going on with the

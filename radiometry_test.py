@@ -22,10 +22,15 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
     If no satellite data exists in `sim_data`, it initializes the necessary
     data structures for a single satellite, including its position, velocity,
     acceleration, orbital elements, and associated detector properties.
+    The parameters used to create this initial detector are stored in
+    `sim_data['initial_detector_params']` for future use.
+
     If satellite data already exists, it appends the new satellite's
-    information to the existing arrays, ensuring that detector parameters
-    are consistently added for the new satellite based on the last existing
-    detector's properties. It also calculates an initial pointing vector
+    information to the existing arrays. To maintain consistent detector
+    properties, a new single detector is created using `makeDetector` with
+    the parameters stored from the first detector. The attributes of this
+    newly created detector are then appended to the existing detector object
+    (`sim_data['detector']`). It also calculates an initial pointing vector
     for the detector based on the satellite's position (pointing away from Earth).
 
     Args:
@@ -57,9 +62,16 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
             'epochs': [sim_data['time']],
         }
         # Initialize detector for the first satellite
-        detector = makeDetector(n=1, band='V', fov=90 * DEGREE, ifov=1 * ARCSEC, aper=1)
+        # Store detector creation parameters for future use
+        initial_detector_params = {
+            'n': 1, 'band': 'V', 'fov': 90 * DEGREE, 'ifov': 1 * ARCSEC, 
+            'intTime': 1.0, 'aper': 1, 'qe': 0.5, 'photfrac': 0.7,
+            'solarex': 20.0 * DEGREE, 'lunarex': 10.0 * DEGREE, 'earthex': 15.0 * DEGREE
+        }
+        detector = makeDetector(**initial_detector_params)
         detector.pointing[0, :] = new_pointing_vector[0]
         sim_data['detector'] = detector
+        sim_data['initial_detector_params'] = initial_detector_params
     else:
         # Append for subsequent satellites
         sim_data['counts']['satellites'] += 1
@@ -70,32 +82,27 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
         sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], new_orbital_elements])
         sim_data['satellites']['epochs'].append(sim_data['time']) # epochs is a list, not numpy array
 
-        # Append detector attributes for the new satellite
-        current_detector = sim_data['detector']
-
-        # Append to 1D arrays - copy last element's value (assuming uniform detector properties from makeDetector)
-        current_detector.apertureArea = np.append(current_detector.apertureArea, current_detector.apertureArea[-1])
-        current_detector.pixelArea = np.append(current_detector.pixelArea, current_detector.pixelArea[-1])
-        current_detector.qe = np.append(current_detector.qe, current_detector.qe[-1])
-        current_detector.photoEff = np.append(current_detector.photoEff, current_detector.photoEff[-1])
-        current_detector.pixCount = np.append(current_detector.pixCount, current_detector.pixCount[-1])
-        current_detector.solarEx = np.append(current_detector.solarEx, current_detector.solarEx[-1])
-        current_detector.lunarex = np.append(current_detector.lunarex, current_detector.lunarex[-1])
-        current_detector.earthEx = np.append(current_detector.earthEx, current_detector.earthEx[-1])
-        current_detector.skyBack = np.append(current_detector.skyBack, current_detector.skyBack[-1])
-        current_detector.zpCal = np.append(current_detector.zpCal, current_detector.zpCal[-1])
-        current_detector.integrationTime = np.append(current_detector.integrationTime, current_detector.integrationTime[-1])
-        current_detector.fov = np.append(current_detector.fov, current_detector.fov[-1])
-        current_detector.ifov = np.append(current_detector.ifov, current_detector.ifov[-1])
+        # Create a new single detector using the stored initial parameters
+        cd = sim_data['detector']
+        initial_params = sim_data['initial_detector_params'].copy()
+        initial_params['n'] = 1 # Always create one new detector
         
-        # Append to list attribute
-        current_detector.filt.append(current_detector.filt[-1])
+        new_single_detector = makeDetector(**initial_params)
 
-        # Append to 2D array: pointing
-        current_detector.pointing = np.vstack([current_detector.pointing, new_pointing_vector])
+        # Append attributes from the new_single_detector to the existing cd
+        for attr_name, new_attr_value in new_single_detector.__dict__.items():
+            current_attr_value = getattr(cd, attr_name)
+            
+            if isinstance(current_attr_value, np.ndarray):
+                if current_attr_value.ndim == 1:
+                    setattr(cd, attr_name, np.append(current_attr_value, new_attr_value))
+                elif current_attr_value.ndim == 2: # e.g., 'pointing' and 'pointing_state'
+                    setattr(cd, attr_name, np.vstack([current_attr_value, new_attr_value]))
+            elif isinstance(current_attr_value, list): # e.g., 'filt'
+                current_attr_value.extend(new_attr_value)
         
-        # For pointing_state, append a new zero column for the new satellite
-        current_detector.pointing_state = np.hstack([current_detector.pointing_state, np.zeros((2,1), dtype=int)])
+        # Update the pointing for the newly added satellite's detector
+        cd.pointing[-1, :] = new_pointing_vector[0]
 
 def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: float):
     """

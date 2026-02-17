@@ -88,7 +88,7 @@ def makeBlankDetector(n):
 
 ##########################################################
 
-def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
+def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, qe = 0.5, photfrac=0.7, \
      solarex= 20.0 * DEGREE,   lunarex= 10.0 * DEGREE,  earthex= 15.0 * DEGREE):
     '''
     makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.
@@ -97,6 +97,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     fov is the field of view- assumed square?- in radians
     ifov is the pixel fov - assumed square - in radians
     aper is the apertureArea diameter - assumed round - in meters
+    intTime is the integration time in seconds. Defaults to 1.0.
     qe is th quantum efficiency of the system from entrance aperture
         to detectro
     photfrac is the fraction of the light captured in the photometry aperture
@@ -122,7 +123,7 @@ def makeDetector(n, band, fov, ifov, aper, qe = 0.5, photfrac=0.7, \
     detect.earthEx[:] = earthex  # eearth exclusion angle
     detect.skyBack[:] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
     detect.zpCal[:] = FILTER_DATA[band]['zero_point'] # Filter Zero Point
-    detect.integrationTime[:] = requiredIntegrationTime(20, 4, detect)
+    detect.integrationTime[:] = intTime
     detect.fov[:] = fov
     detect.ifov[:] = ifov
     detect.filt = [band] * n

@@ -4,7 +4,7 @@ def lambertiansphere(
     angle_light_observer: np.ndarray,
     albedo: np.ndarray,
     radius: np.ndarray,
-    base_brightness: np.ndarray,
+    base_brightness,
     debug: int = 0
 ) -> np.ndarray:
     """
@@ -55,6 +55,7 @@ def lambertiansphere(
         phase_function_value
     )
 
+
     # The apparent brightness is the incident brightness multiplied
     # by the effective reflecting area.
     # The division by distance squared will be handled by the caller,
@@ -63,6 +64,7 @@ def lambertiansphere(
 
     if debug == 1:
         print("\n--- Debug Info: lambertiansphere ---")
+        print("Effective Cross Section: ", effective_cross_section)
         num_spheres = len(albedo)
         header = f"{'Index':<5} {'Phase Angle (rad)':<18} {'Albedo':<10} {'Radius (m)':<12} {'Base Brightness':<18} {'Emitted Brightness':<22}"
         print(header)
@@ -75,8 +77,31 @@ def lambertiansphere(
                     print(f"{'.':<5} {'...':<18} {'...':<10} {'...':<12} {'...':<18} {'...':<22}")
                 continue
 
-            print(f"{i:<5} {angle_light_observer[i]:<18.4e} {albedo[i]:<10.4f} {radius[i]:<12.4e} {base_brightness[i]:<18.4e} {apparent_brightness[i]:<22.4e}")
+            print(f"{i:<5} {angle_light_observer[i]:<18.4e} {albedo[i]:<10.4f} {radius[i]:<12.4e} {base_brightness:<18.4e} {apparent_brightness[i]:<22.4e}")
         print("-----------------------------------\n")
+        print("\n--- Detailed Debug Info: lambertiansphere ---")
+        num_spheres = len(albedo)
+        header = (
+            f"{'Index':<5} {'Input Angle':<15} {'Clipped Alpha':<15} {'Phase Func Val':<15} "
+            f"{'Cross Sect Area':<15} {'Effective CS':<15} {'Albedo':<10} {'Radius (m)':<12} "
+            f"{'Base Brightness':<18} {'Emitted Brightness':<22}"
+        )
+        print(header)
+        print("-" * len(header))
+
+        display_limit = 5
+        for i in range(num_spheres):
+            if num_spheres > 2 * display_limit and display_limit <= i < num_spheres - display_limit:
+                if i == display_limit:
+                    print(f"{'.':<5} {'...':<15} {'...':<15} {'...':<15} {'...':<15} {'...':<15} {'...':<10} {'...':<12} {'...':<18} {'...':<22}")
+                continue
+
+            print(
+                f"{i:<5} {angle_light_observer[i]:<15.4e} {alpha[i]:<15.4e} {phase_function_value[i]:<15.4e} "
+                f"{cross_sectional_area[i]:<15.4e} {effective_cross_section[i]:<15.4e} {albedo[i]:<10.4f} "
+                f"{radius[i]:<12.4e} {base_brightness:<18.4e} {apparent_brightness[i]:<22.4e}"
+            )
+        print("-------------------------------------------\n")
 
     return apparent_brightness
 
@@ -192,14 +217,21 @@ def includedAngle(
         unit_vectors1 = np.where(norm_vectors1[:, np.newaxis] == 0, 0, vectors1 / norm_vectors1[:, np.newaxis])
         unit_vectors2 = np.where(norm_vectors2[:, np.newaxis] == 0, 0, vectors2 / norm_vectors2[:, np.newaxis])
 
+
+   
     # Calculate the dot product of the normalized vectors
     dot_product = np.einsum('ij,ij->i', unit_vectors1, unit_vectors2)
 
+    
     # Clip values to ensure they are within the valid range for arccos (-1 to 1)
     dot_product = np.clip(dot_product, -1.0, 1.0)
 
     # Calculate the angle in radians
     angles = np.arccos(dot_product)
+
+    print( "unit_vectors1, 2 ", unit_vectors1, "   ", unit_vectors2)
+    print("dot product ", dot_product)
+    print("angles ", angles)
 
     return angles
 

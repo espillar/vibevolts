@@ -77,7 +77,7 @@ def scandetectors(sim_data: dict):
     sunVect = sim_data['celestial']['position'][0]  # sun position
 
     sun, space, sky = radiometry_calcs.fluxes(sim_data['detector'].filt[0])
-    print(f'sun, space, sky  {sun:.3e}, {space:.3e}, {sky:.3e}')
+    print(f'sun, space, sky \n    {sun:.3e}, {space:.3e}, {sky:.3e}')
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
     
@@ -95,22 +95,23 @@ def scandetectors(sim_data: dict):
         fov = fovs[i]
         mask = angles < fov
         visibleIndices = np.flatnonzero(mask)
-        vec_from_sphere_to_light_expanded = np.tile(-sunVect, (len(visibleIndices), 1))
+        vec_from_sphere_to_light_expanded = np.tile(sunVect, (len(visibleIndices), 1))
         vec_from_sphere_to_observer_actual = -toTargets[mask]
         
-        angle_light_observer = includedAngle(vec_from_sphere_to_light_expanded, vec_from_sphere_to_observer_actual)
+        angle_light_observer = includedAngle(vec_from_sphere_to_light_expanded,
+                                             vec_from_sphere_to_observer_actual)
         norm_observer = np.linalg.norm(vec_from_sphere_to_observer_actual, axis=1)
 
         emitted_brightness = lambertiansphere(
             angle_light_observer,
             albedo[mask],
             radius[mask],
-            sun
+            sun,
+            debug = 1
         )
         detectorFlux = emitted_brightness / (4 * np.pi * norm_observer ** 2)
         signal = detectorFlux * integrationTime[i] * detectorArea[i]
-        noise = np.sqrt(detectorFlux * integrationTime[i] * detectorArea[i] +
-                        space * integrationTime[i] * detectorArea[i])
+        noise = np.sqrt( space * integrationTime[i] * detectorArea[i] )
         snr = signal/noise
         print('SignAl, noise, snr, integration time \n')
         for j in range(len(signal)):
