@@ -13,8 +13,8 @@ def fluxes(band):
     usually something like an astronomical band... U, B, V, etc.
     It returns three numbers:
     sun which is the solar flux at earth in photons/s/m^2
-    sky which is the sky brightness at earth in p/s/asec^2/m^2
-    space, sky brightness in space in p/s/asec^2/m^2
+    sky which is the sky brightness at earth in p/s/steradian/m^2
+    space, sky brightness in space in p/s/steradian/m^2
     """
     x = FILTER_DATA[band]
     zp = x['zero_point']

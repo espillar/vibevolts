@@ -810,7 +810,7 @@ The ~sim_data~ dictionary is the central data structure in the VibeVolts simulat
       - *Description*: A SimpleNamespace object containing the detector's properties.
       - *Sub-keys*:
         - ~apertureArea~: ~np.ndarray~ (n) - Aperture area in square meters.
-        - ~pixelArea~: ~np.ndarray~ (n) - Pixel area in square arcseconds.
+        - ~pixelOmega~: ~np.ndarray~ (n) - Pixel area in square arcseconds.
         - ~qe~: ~np.ndarray~ (n) - Quantum efficiency (0.0 to 1.0).
         - ~photoEff~: ~np.ndarray~ (n) - Fraction of photons in photometry bucket.
         - ~pixCount~: ~np.ndarray~ (n) - Total number of pixels in the detector.
@@ -835,7 +835,7 @@ The ~sim_data~ dictionary is the central data structure in the VibeVolts simulat
       - *Description*: A SimpleNamespace object containing the detector's properties.
       - *Sub-keys*:
         - ~apertureArea~: ~np.ndarray~ (n) - Aperture area in square meters.
-        - ~pixelArea~: ~np.ndarray~ (n) - Pixel area in square arcseconds.
+        - ~pixelOmega~: ~np.ndarray~ (n) - Pixel area in square arcseconds.
         - ~qe~: ~np.ndarray~ (n) - Quantum efficiency (0.0 to 1.0).
         - ~photoEff~: ~np.ndarray~ (n) - Fraction of photons in photometry bucket.
         - ~pixCount~: ~np.ndarray~ (n) - Total number of pixels in the detector.

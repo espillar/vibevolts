@@ -1,3 +1,4 @@
+
 import numpy as np
 from lambertian import lambertiansphere, includedAngle
 import radiometry_calcs
@@ -69,7 +70,8 @@ def scandetectors(sim_data: dict):
     detectorFov = sim_data['detector'].fov  # detector fields of view
     integrationTime = sim_data['detector'].integrationTime
     fovs = sim_data['detector'].fov  # field of view of the detector
-    detectorArea = sim_data['detector'].apertureArea
+    apertureArea = sim_data['detector'].apertureArea
+    pixelOmega = sim_data['detector'].pixelOmega
 
     
     targets = sim_data['fixedpoints']['position']  # all target positions
@@ -83,7 +85,7 @@ def scandetectors(sim_data: dict):
     
 
     # for i in range(1):
-    for i in range(sim_data['counts']['satellites']):    
+    for i in range(sim_data['counts']['satellites']):  # Loop i over sat $number
         satposition = satpositions[i, :]
         ray = detectorVect[i, :]
         toTargets = targets - satposition
@@ -93,7 +95,7 @@ def scandetectors(sim_data: dict):
         angles = np.arccos(np.clip(dot_products /
                                    (norms_V * norms_W), -1.0, 1.0))
         fov = fovs[i]
-        mask = angles < fov
+        mask = angles < fov    # Mask for visible satellites
         visibleIndices = np.flatnonzero(mask)
         vec_from_sphere_to_light_expanded = np.tile(sunVect, (len(visibleIndices), 1))
         vec_from_sphere_to_observer_actual = -toTargets[mask]
@@ -102,20 +104,23 @@ def scandetectors(sim_data: dict):
                                              vec_from_sphere_to_observer_actual)
         norm_observer = np.linalg.norm(vec_from_sphere_to_observer_actual, axis=1)
 
-        emitted_brightness = lambertiansphere(
+        target_brightness = lambertiansphere( # target brightness
             angle_light_observer,
             albedo[mask],
             radius[mask],
             sun,
             debug = 1
-        )
-        detectorFlux = emitted_brightness / (4 * np.pi * norm_observer ** 2)
-        signal = detectorFlux * integrationTime[i] * detectorArea[i]
-        noise = np.sqrt( space * integrationTime[i] * detectorArea[i] )
-        snr = signal/noise
-        print('SignAl, noise, snr, integration time \n')
-        for j in range(len(signal)):
-            print(f"{signal[j]:.3e}, {noise[j]:.3e}, {snr[j]:.3e}, {integrationTime[i]:.3e}")
+        )  
+        detectorFlux = target_brightness / (4 * np.pi * norm_observer ** 2)
+        signal = detectorFlux * integrationTime[i] * apertureArea[i]     # phots
 
+        noise = np.sqrt( space * integrationTime[i] * apertureArea[i] *
+                         pixelOmega[i])  # Shot noise
+        snr = signal/noise
+        print('SignAl, noise, snr, itime, pixelOmega  \n')
+        for j in range(len(signal)):
+            print(f"{signal[j]:.3e}, {noise:.3e}, {snr[j]:.3e}, {integrationTime[i]:.3e}, {pixelOmega[i]:.3e}" )
+
+           
     return(0)
 

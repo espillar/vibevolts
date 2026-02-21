@@ -40,7 +40,7 @@ def makeBlankDetector(n):
     makeBlankDetector makes and returns a detector SipleNamespace
     with parameters
     apertureArea
-    pixelArea
+    pixelOmega
     qe
     photoEff
     pixCount
@@ -59,7 +59,7 @@ def makeBlankDetector(n):
     detector = SimpleNamespace()
     detector.apertureArea = np.zeros(n, dtype=float)
         # Aperture area in square meters
-    detector.pixelArea = np.zeros(n, dtype=float)
+    detector.pixelOmega = np.zeros(n, dtype=float)
         # pixel area in square arcsec
     detector.qe = np.zeros(n, dtype=float)
     # Quantum efficiency from apertureArea to detectoras a fraction (0.0 to 1.0)
@@ -113,7 +113,7 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, qe = 0.5, photf
     '''
     detect = makeBlankDetector(n)
     detect.apertureArea[:] = math.pi * (aper/2)**2  #aperture size square meters
-    detect.pixelArea[:] = math.pi * (ifov/2)**2  #pixel size sterradianss
+    detect.pixelOmega[:] = math.pi * (ifov/2)**2  #pixel size sterradianss
     detect.qe[:] = qe   # Total QE
     detect.photoEff[:] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels
@@ -184,7 +184,7 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
     '''
     gamma = SNR
     beta = d.skyBack[0]
-    omega = d.pixelArea
+    omega = d.pixelOmega
     alpha = amag(limitingMag) * d.zpCal[0]
     A = d.apertureArea
     eta = d.qe

@@ -51,7 +51,7 @@ def sim_check(sim_data):
             for i in range(num_sats):
                 # Check a few attributes to see if they are non-zero
                 if (hasattr(detector, 'apertureArea') and detector.apertureArea[i] != 0 or
-                    hasattr(detector, 'pixelArea') and detector.pixelArea[i] != 0 or
+                    hasattr(detector, 'pixelOmega') and detector.pixelOmega[i] != 0 or
                     hasattr(detector, 'qe') and detector.qe[i] != 0):
                     print(f"            - Satellite {i} has a detector.")
                 else:
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # Create a dummy sim_data for demonstration
     dummy_detector = SimpleNamespace()
     dummy_detector.apertureArea = np.array([0.785, 0.])
-    dummy_detector.pixelArea = np.array([1e-10, 0.])
+    dummy_detector.pixelOmega = np.array([1e-10, 0.])
     dummy_detector.qe = np.array([0.5, 0.])
     dummy_detector.photoEff = np.zeros(2)
     dummy_detector.pixCount = np.zeros(2)

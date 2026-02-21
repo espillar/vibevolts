@@ -25,7 +25,7 @@ def demo_requiredIntegrationTime():
     # Print detector specs
     print("Detector Specifications:")
     print(f"  Aperture: {detector.apertureArea[0]} m")
-    print(f"  Pixel Size: {detector.pixelArea[0]} rad")
+    print(f"  Pixel Size: {detector.pixelOmega[0]} rad")
     print(f"  QE: {detector.qe[0]}")
     print(f"  Photometric Efficiency: {detector.photoEff[0]}")
     print(f"  Pixels: {detector.pixCount[0]}")

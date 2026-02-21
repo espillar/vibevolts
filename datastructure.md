@@ -46,7 +46,7 @@ The `detector` object is a `SimpleNamespace` that contains NumPy arrays for vari
 | Key | Type | Description | Functions Modifying This Key |
 | --- | --- | --- | --- |
 | `apertureArea` | `np.ndarray(float)` | Aperture area in square meters. | `detector.makeDetector` |
-| `pixelArea` | `np.ndarray(float)` | Pixel area in square steradians. | `detector.makeDetector` |
+| `pixelOmega` | `np.ndarray(float)` | Pixel area in square steradians. | `detector.makeDetector` |
 | `qe` | `np.ndarray(float)` | Quantum efficiency from aperture to detector (0.0 to 1.0). | `detector.makeDetector` |
 | `photoEff` | `np.ndarray(float)` | Fraction of photons in the photometry bucket. | `detector.makeDetector` |
 | `pixCount` | `np.ndarray(float)` | Total number of pixels in the detector. | `detector.makeDetector` |

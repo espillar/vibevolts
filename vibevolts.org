@@ -1,3 +1,4 @@
+
 * Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
 * Notes: infrastrucure, some code ideas
@@ -127,6 +128,36 @@ in org format in datastrucure.org
 * Log
 
 ** 2026-02
+
+*** [2026-02-21 Sat]
+Rebuilding my understanding of where I'm at. OK, that's not too bad.
+Let's at it.
+Have to get eglot working again.  I moved the pylsp server when I
+killed the irritating anaconda and switched to conda.
+
+
+**** Todos [4/13]
+- [X] Found that I wasn't including pixelOmega (which was an improved
+  name I started using)
+- [X] add pixelOmege an and make sure its debuig printed
+- [X] Check that our angular units pixelOmega work with the way
+  we declare background flux - isn't
+- [X] Get the units on pixelOmega to commensurate with our space and sky variables
+- [ ] Check that we are printing out the noise value and what the
+  parameters are
+- [ ] do a pencil calculation of the noise value
+- [ ] Get a couple of specific distances into notebook
+- [ ] check that all the input paramters are what you think they are [0/1]
+  - [ ] 
+- [ ] vary the following variables and graph vs. expectations:
+  size,   distance,   angles
+- [ ] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+- [ ] Check the equation for required integration time w.r.t. flux
+- [ ] include QE in scandetectors calculation.
+- [ ] make sure your backgrounds match where you are space or ground
+
+
 
 *** [2026-02-16 Mon] Predsidents Day
 A little distracted by PS not answering the phone and some afib,
