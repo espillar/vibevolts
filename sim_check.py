@@ -68,7 +68,7 @@ if __name__ == '__main__':
     dummy_detector = SimpleNamespace()
     dummy_detector.apertureArea = np.array([0.785, 0.])
     dummy_detector.pixelOmega = np.array([1e-10, 0.])
-    dummy_detector.qe = np.array([0.5, 0.])
+    dummy_detector.qe = np.array([0.5, 0.5])
     dummy_detector.photoEff = np.zeros(2)
     dummy_detector.pixCount = np.zeros(2)
     dummy_detector.solarEx = np.zeros(2)

@@ -113,7 +113,7 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, qe = 0.5, photf
     '''
     detect = makeBlankDetector(n)
     detect.apertureArea[:] = math.pi * (aper/2)**2  #aperture size square meters
-    detect.pixelOmega[:] = math.pi * (ifov/2)**2  #pixel size sterradianss
+    detect.pixelOmega[:] = ifov**2  #pixel size sterradianss assuming square pixels
     detect.qe[:] = qe   # Total QE
     detect.photoEff[:] = photfrac  # fraction in photometry bucket
     pixels = (ifov/fov)**2 # pixels

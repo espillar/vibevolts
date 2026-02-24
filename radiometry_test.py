@@ -279,7 +279,7 @@ def demoFixed():
     )
     
     print("--- Running scandetector ---")
-    scan_output = scandetectors(sim_data)
+    scan_output = scandetectors(sim_data, print_output=1)
     print(f"Output of scandetector: {scan_output}") 
 
     return fig

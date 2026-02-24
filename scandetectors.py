@@ -21,7 +21,7 @@ def get_spherical_coords(arr):
 #######################################################
 
 
-def scandetectors(sim_data: dict):
+def scandetectors(sim_data: dict, print_output: int = 0):
     """
     Scans for and processes detector data within the simulation.
 
@@ -72,14 +72,15 @@ def scandetectors(sim_data: dict):
     fovs = sim_data['detector'].fov  # field of view of the detector
     apertureArea = sim_data['detector'].apertureArea
     pixelOmega = sim_data['detector'].pixelOmega
-
+    qe = sim_data['detector'].qe
     
     targets = sim_data['fixedpoints']['position']  # all target positions
     targetSize = sim_data['fixedpoints']['size']  # all target sizes
     sunVect = sim_data['celestial']['position'][0]  # sun position
 
     sun, space, sky = radiometry_calcs.fluxes(sim_data['detector'].filt[0])
-    print(f'sun, space, sky \n    {sun:.3e}, {space:.3e}, {sky:.3e}')
+    if print_output:
+        print(f'sun, space, sky \n    {sun:.3e}, {space:.3e}, {sky:.3e}')
     albedo = sim_data['fixedpoints']['albedo']
     radius = sim_data['fixedpoints']['size']/2
     
@@ -112,15 +113,16 @@ def scandetectors(sim_data: dict):
             debug = 1
         )  
         detectorFlux = target_brightness / (4 * np.pi * norm_observer ** 2)
-        signal = detectorFlux * integrationTime[i] * apertureArea[i]     # phots
+        signal = detectorFlux * integrationTime[i] * apertureArea[i]*qe[i]     # phots
 
         noise = np.sqrt( space * integrationTime[i] * apertureArea[i] *
-                         pixelOmega[i])  # Shot noise
+                         pixelOmega[i]* qe[i] )  # Shot noise
         snr = signal/noise
-        print('SignAl, noise, snr, itime, pixelOmega  \n')
-        for j in range(len(signal)):
-            print(f"{signal[j]:.3e}, {noise:.3e}, {snr[j]:.3e}, {integrationTime[i]:.3e}, {pixelOmega[i]:.3e}" )
-
-           
+        if print_output:
+            for j in range(len(signal)):
+                print('apertureArea |     space    | pixelOmega   |     qe       |')
+                print(f"{apertureArea[i]:12.3e} | {space:12.3e} | {pixelOmega[i]:12.3e} | {qe[i]:12.3e}")
+                print('    Signal   |     noise    |     snr      |    itime     | pixelOmega    |')
+                print(f"{signal[j]:12.3e} | {noise:12.3e} | {snr[j]:12.3e} | {integrationTime[i]:12.3e} | {pixelOmega[i]:12.3e}")         
     return(0)
 
