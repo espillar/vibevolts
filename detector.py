@@ -96,7 +96,8 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, qe = 0.5, photf
     band is the band the measurement takes place in (see radiometry_data)
     fov is the field of view- assumed square?- in radians
     ifov is the pixel fov - assumed square - in radians
-    aper is the apertureArea diameter - assumed round - in meters
+    aper is the aperture diameter - assumed to be a disk - in meters
+       The actual value being stored and used is the apertureArea.
     intTime is the integration time in seconds. Defaults to 1.0.
     qe is th quantum efficiency of the system from entrance aperture
         to detectro
@@ -164,6 +165,14 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
     '''
     Calculates the required integration time to achieve a given limiting magnitude with a specified signal-to-noise ratio (SNR).
 
+    Args:
+        limitingMag (float): The desired limiting magnitude.
+        SNR (float): The target signal-to-noise ratio.
+        d (SimpleNamespace): A detector object containing the required parameters.
+        debug (int, optional): If set to 1, prints the intermediate variables
+                               used in the calculation. Defaults to 0.
+
+    
     This function is based on the radiometric equation, solving for the integration time 't'.
     The calculation is derived from the following relationship:
     SNR = (Signal) / sqrt(Signal + Background)
@@ -172,12 +181,6 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
     For comparison with an external document ("equations paper"), the function
     extracts variables from the detector object 'd' and assigns them to conventional names.
 
-    Args:
-        limitingMag (float): The desired limiting magnitude.
-        SNR (float): The target signal-to-noise ratio.
-        d (SimpleNamespace): A detector object containing the required parameters.
-        debug (int, optional): If set to 1, prints the intermediate variables
-                               used in the calculation. Defaults to 0.
 
     Returns:
         float: The required integration time in seconds.

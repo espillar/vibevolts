@@ -14,11 +14,12 @@ from datetime import datetime, timezone
 from scandetectors import scandetectors
 
 
-def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
+def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * DEGREE):
     """
     Creates a single satellite fixed at the given x, y, z coordinates in meters.
 
-    This function is responsible for adding satellite data to the simulation.
+    This function is responsible for adding a fixed satellite  data to the simulation,
+    mostly for testing purposes: no dynamic here.
     If no satellite data exists in `sim_data`, it initializes the necessary
     data structures for a single satellite, including its position, velocity,
     acceleration, orbital elements, and associated detector properties.
@@ -33,6 +34,9 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
     (`sim_data['detector']`). It also calculates an initial pointing vector
     for the detector based on the satellite's position (pointing away from Earth).
 
+
+
+    
     Args:
         sim_data (Dict[str, Any]): The main simulation data dictionary.
         x (float): The x-coordinate of the satellite's position in meters.
@@ -64,7 +68,7 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float):
         # Initialize detector for the first satellite
         # Store detector creation parameters for future use
         initial_detector_params = {
-            'n': 1, 'band': 'V', 'fov': 90 * DEGREE, 'ifov': 1 * ARCSEC, 
+            'n': 1, 'band': 'V', 'fov': fov, 'ifov': 1 * ARCSEC, 
             'intTime': 1.0, 'aper': 1, 'qe': 0.5, 'photfrac': 0.7,
             'solarex': 20.0 * DEGREE, 'lunarex': 10.0 * DEGREE, 'earthex': 15.0 * DEGREE
         }
@@ -126,7 +130,7 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
         sim_data['counts']['fixedpoints'] = 0
         sim_data['fixedpoints'] = {
             'position': np.empty((0, 3), dtype=float),
-            'exclusion': np.empty(0, dtype=int),
+#            'exclusion': np.empty(0, dtype=int),
             'size': np.empty(0, dtype=float),
             'albedo': np.empty(0, dtype=float),
         }
@@ -136,7 +140,7 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
     # --- Add target to sim_data ---
     sim_data['counts']['fixedpoints'] += 1
     sim_data['fixedpoints']['position'] = np.vstack([sim_data['fixedpoints']['position'], pos])
-    sim_data['fixedpoints']['exclusion'] = np.append(sim_data['fixedpoints']['exclusion'], 0)
+#    sim_data['fixedpoints']['exclusion'] = np.append(sim_data['fixedpoints']['exclusion'], 0)
     sim_data['fixedpoints']['size'] = np.append(sim_data['fixedpoints']['size'], size)
     sim_data['fixedpoints']['albedo'] = np.append(sim_data['fixedpoints']['albedo'], 0.2) # Default albedo
 
@@ -165,6 +169,7 @@ def demoFixed():
     """
     Demonstrates the use of the fixedSat, fixedTarget, and fixSun functions
     to set up a basic simulation scenario with a fixed satellite and targets.
+    Prints out radiometry results.
 
     The general flow of this demonstration function is as follows:
     1.  **Simulation Setup**: Initializes an empty simulation data structure
@@ -205,12 +210,19 @@ def demoFixed():
     # --- Run functions to create objects ---
     fixSun(sim_data)
     # Place a satellite near the center of the earth
-    fixedSat(sim_data, x=100, y=0, z=0)
+    fixedSat(sim_data, x=100, y=0, z=0, fov=180 * DEGREE)
+    
     # Place a target 1e8 m away and another 1e9m away
-    original_target_x = 100_000_000
-    fixedTarget(sim_data, size=1.0, x=original_target_x, y=0, z=0)
-    fixedTarget(sim_data, size=1.0, x=original_target_x * 10, y=0, z=0) # New target at 10 times the range
-
+    targRng = 100_000_000
+    print("targets are 1e8 m diameter 1 along line of sight")
+    print("targets are 1e8 m diameter 2")
+    print("targets are 1e9 m diameter 1")
+    print("targets are 1e8 m diameter 1 perp to line of site")
+    fixedTarget(sim_data, size=1.0, x=targRng, y=0, z=0)
+    fixedTarget(sim_data, size=2.0, x=targRng, y=0, z=0)
+    fixedTarget(sim_data, size=1.0, x=targRng * 10, y=0, z=0) # New target at 10 times the range
+    fixedTarget(sim_data, size=1.0, x=0, y=targRng, z=0) # Right angles
+    
     # --- Log-scale positions helper function ---
     def log_scale_pos(pos):
         r = np.linalg.norm(pos)

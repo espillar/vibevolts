@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from demo_common import initialize_standard_simulation
 from celestialbodies import celestial_update
-from exclusion import update_exclusion_table
+# from exclusion import update_exclusion_table
 
 def demo_exclusion_table() -> go.Figure:
     """
@@ -32,7 +32,7 @@ def demo_exclusion_table() -> go.Figure:
     sim_data['fixedpoints']['position'] = original_fixed_points[:200]
 
     update_exclusion_table(sim_data)
-    exclusion_matrix = sim_data['fixedpoints']['exclusion']
+#    exclusion_matrix = sim_data['fixedpoints']['exclusion']
 
     sim_data['fixedpoints']['position'] = original_fixed_points
 

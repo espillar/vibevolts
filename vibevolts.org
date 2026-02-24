@@ -129,6 +129,26 @@ in org format in datastrucure.org
 
 ** 2026-02
 
+*** [2026-02-24 Tue]
+
+
+
+**** Todos [5/8]
+- [X] While looking at the code found ['fixedpoints']['exclusion'] which is spurious?
+  delete it. Code cleanup. Takes time though.
+- [X] Look at the code we have and see how the tests should work
+  looks like fixedTarget in radiometry_test, testdetector in detector.py
+- [X] Get a couple of specific distances into notebook
+- [X] vary the following variables and graph vs. expectations:
+  size,   distance,   angles.  Those all check out.
+- [X] follow up to see how the aperture size is expressed in all the
+  code. What is it?
+- [ ] Check the equation for required integration time w.r.t. flux
+- [ ] make sure your backgrounds match where you are space or ground - you
+  should do this at work on paper to get a check
+- [ ] Get on with planning the next phase 
+
+
 *** [2026-02-22 Sun]
 VV with potential interuptions.
 

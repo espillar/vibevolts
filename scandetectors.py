@@ -97,6 +97,7 @@ def scandetectors(sim_data: dict, print_output: int = 0):
                                    (norms_V * norms_W), -1.0, 1.0))
         fov = fovs[i]
         mask = angles < fov    # Mask for visible satellites
+        
         visibleIndices = np.flatnonzero(mask)
         vec_from_sphere_to_light_expanded = np.tile(sunVect, (len(visibleIndices), 1))
         vec_from_sphere_to_observer_actual = -toTargets[mask]
@@ -123,6 +124,6 @@ def scandetectors(sim_data: dict, print_output: int = 0):
                 print('apertureArea |     space    | pixelOmega   |     qe       |')
                 print(f"{apertureArea[i]:12.3e} | {space:12.3e} | {pixelOmega[i]:12.3e} | {qe[i]:12.3e}")
                 print('    Signal   |     noise    |     snr      |    itime     | pixelOmega    |')
-                print(f"{signal[j]:12.3e} | {noise:12.3e} | {snr[j]:12.3e} | {integrationTime[i]:12.3e} | {pixelOmega[i]:12.3e}")         
+                print(f"{signal[j]:12.3e} | {noise:12.3e} | {snr[j]:12.3e} | {integrationTime[i]:12.3e} | {pixelOmega[i]:12.3e}\n")         
     return(0)
 
