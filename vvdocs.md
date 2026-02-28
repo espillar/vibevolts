@@ -11,14 +11,14 @@ The current state of the simulation is stored in a dictionary typically called `
 ### `sim_data` dictionary structure:
 
 *   `start_time`: `datetime`
-    *   `simulation.create_empty_simulation`: Initializes.
+    *   `minimalsimulation.create_empty_simulation`: Initializes.
 *   `time`: `datetime`
-    *   `simulation.create_empty_simulation`: Initializes.
+    *   `minimalsimulation.create_empty_simulation`: Initializes.
     *   `propagation.propagate_satellites`: Updated.
 *   `delta_time`: `float`
-    *   `simulation.create_empty_simulation`: Initializes.
+    *   `minimalsimulation.create_empty_simulation`: Initializes.
 *   `counts`: `Dict[str, int]`
-    *   `simulation.create_empty_simulation`: Initializes.
+    *   `minimalsimulation.create_empty_simulation`: Initializes.
     *   `celestialbodies.add_celestial_bodies`: Adds `'celestial'`.
     *   `constellation.geos`: Adds `'satellites'`.
     *   `constellation.geosmod`: Adds `'satellites'`.
@@ -28,7 +28,7 @@ The current state of the simulation is stored in a dictionary typically called `
     *   `radiometry_test.fixedSat`: Adds/increments `'satellites'`.
     *   `radiometry_test.fixedTarget`: Adds/increments `'fixedpoints'`.
 *   `pointing_spheres`: `Dict[int, np.ndarray]`
-    *   `simulation.create_empty_simulation`: Initializes.
+    *   `minimalsimulation.create_empty_simulation`: Initializes.
     *   `pointing.generate_pointing_sphere`: Adds a new pointing sphere.
 *   `celestial`: `Dict[str, np.ndarray]`
     *   `celestialbodies.add_celestial_bodies`: Initializes `position`, `velocity`, `acceleration`.
@@ -188,7 +188,7 @@ This file contains radiometric data for standard astronomical filters.
 ### `sim_check.py`
 *   `sim_check(sim_data)`: Prints a brief summary of what's present in a sim_data structure.
 
-### `simulation.py`
+### `minimalsimulation.py`
 
 *   `create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> Dict[str, Any]`: Initializes a minimal, empty data structure for a space simulation.
 

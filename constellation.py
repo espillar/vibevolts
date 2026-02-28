@@ -7,7 +7,7 @@ import sys
 import radiometry_data
 from radiometry_data import FILTER_DATA
 from constants import *
-from simulation import *
+from minimalsimulation import *
 from pointing import generate_pointing_sphere
 from propagation import propagate_satellites # Added import
 from detector import makeBlankDetector, makeDetector

@@ -9,7 +9,7 @@ from constants import EARTH_RADIUS, ARCSEC, DEGREE
 from detector import makeBlankDetector, makeDetector
 from celestialbodies import add_celestial_bodies
 import plotly.graph_objects as go
-from simulation import create_empty_simulation
+from minimalsimulation import create_empty_simulation
 from datetime import datetime, timezone
 from scandetectors import scandetectors
 

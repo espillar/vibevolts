@@ -8,7 +8,7 @@ from constants import *
 
 # Adjusting import paths for the new project structure
 from propagation import add_satellites_from_tle, propagate_satellites
-from simulation import create_empty_simulation
+from minimalsimulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from targets import add_fixed_points
 from observatories import add_observatories

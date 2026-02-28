@@ -1,4 +1,3 @@
-
 * Vibevolts per se
 Creating a new version of volts that runs faster using jules and Gemini-cli
 * Notes: infrastrucure, some code ideas
@@ -84,53 +83,118 @@ other files.
 In addition to datastructure.md, keep that file, but make a copy
 in org format in datastrucure.org
 
+
 * Todo
 ** Details
 *** Coding [12/26]
-**** Get a simple search pattern going [3/13]
-- [X] update sensor fields of view-make sure they are OK
-- [X] Get detectors declared in initialize_standard_simulation
-- [X] iterate through the sensors, and for each create the dot product between their FOV and all the unit vectors to the satellites.
-  This in detector.py
-- [ ] If there is a hit, compute the SNR
+**** Get a simple search pattern going [0/8]
+- [ ] Get temporal evolution of the models to work
 - [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
 - [ ] create a simulation skeleton you are going to work with
-- [ ] Get temporal evolution of the models to work
-- [ ] Move the satellite creation stuff out of propagtation into a new
-  file satellite.py that is concerned with the creation of satellites.
-  Blue? Red? How does his interact with constellateion?
 - [ ] Get the timesteps commensurate with the search pattern
 - [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
   skips occulted cells
-- [ ] Fix angle of sensor from circular to square
 - [ ] mark targets that are in eclipse
 - [ ] write some code that computes what been detected and do a 3-D map
-**** Future work [0/8]
+- [ ] This should work for FOV intervals both long and short compared to the
+  propagation time, as long as things don't move TOO fast.
+
+**** Future work [0/5]
 - [ ] We are using he same filter for all the detectors: split into cohorts
 - [ ] It would be nice to consolidate all those demos a little better
   put the demo code in the same files as what they are testing
   make them all rely on a standard initial "build", chaning
   the particulars of what they need each time.  Maybe, pros and cons.
-- [ ] Think about how  to associate detectors with satellites
 - [ ] Think about how we deal with multiple constellations in the code.
 - [ ] disentangle detectors from satellites - 
 - [ ] resolve issues with having multiple constellations, potentially with
   different names etc.
-- [ ] In both Mathematica and this code clarify what your photometry aperture is!!
-- [ ] think about where you get the backgrounds
-- This should work for FOV intervals both long and short compared to the
-  propagation time, as long as things don't move TOO fast.
-*** Metric Calculations
+
+**** Metric Calculations [/]
 - [ ] Calculate the gap times- basically for each column,
   compute the interobservation distances and histogram
   them.
+**** General Improvments [/]
+- [ ] Fix angle of sensor from circular to square
+- [ ] Think about how  to associate detectors with satellites  
 
 * Log
 
 ** 2026-02
 
+*** [2026-02-28 Sat]
+
+Although I thought it through again, clock synchronization for
+detectors is discussed in the architecture section.
+
+The assumption right now is you have a 1:1 mapping between satellites
+and detectors, each is an element of a vector of the objects. That's not
+too bad; we could just duplicate satellites if we have more than
+one sensor per satellite- a kludge but not too bad for a while! YAGNI
+
+That leaves the question of how I should group sensors by integration time.
+I will need that at some point, but is it better to do it now or a little
+later?
+
+An easy way to do it would be to establish a new structure that
+includes a mask or list for the detectors that work at a particular interval,
+that interval, and the time of the next readout.
+
+cadenceGroup
+
+Names:
+- cadenceController.py
+  - initCadence set up the variable 
+  - nextGroup - find and performs the next scan
+  
+- cadenceStructure - holds the data for scanController
+  - nextTime, nextGroup 
+  - cadenceList (a numbered list)
+    - cadenceGroup (a structure)
+      - aScan 
+	- scanMask
+	- scanInterval
+	- scanNext
+
+
+Initialization:
+- make a list of the integration times for the detectors (local)
+- collapse that into a set. (local)
+- create an empty scanSets structure 
+- take the for each item in the set (local)
+  - create an empty aScan
+  - create a mask for the relevant detectors -> scanMask
+  - create a next integration time entry -> scanNext
+  - create an interval entry - scanInterval
+  - add to scanSets
+- find the next scanNext and set 
+
+An iteration:
+- set the global time to the next scanNext
+- grab the appropriate mask
+- propgate the satellites with that mask
+- call scan detectors with that mask
+- for that particular key update the scanNext
+- find the next next read time and put it in scanNext
+
+
+
+**** Todos [4/6]
+- [X] Get on with planning the next phase
+- [X] Check how detectors are bound to satellites and revise
+- [X] figure out how to group detectors
+- [X] Outline the clock schedular
+- [ ] make nice variable names for the schedular
+- [ ] start implementing the scanSchedular
+- [ ] make sure your backgrounds match where you are space or ground - you
+  should do this at work on paper to get a check
+- [ ] Check the equation for required integration time w.r.t. flux
+
+
+
 *** [2026-02-24 Tue]
 
+I essentially got photometry tucked in. I guess I want to do one more check.
 
 
 **** Todos [5/8]
@@ -201,6 +265,7 @@ killed the irritating anaconda and switched to conda.
   code. What is it?
 - [ ] Check the equation for required integration time w.r.t. flux
 - [ ] make sure your backgrounds match where you are space or ground
+
 
 
 
@@ -1020,7 +1085,8 @@ OK, let's look at and document how we build out a simulation.
 I realize I haven't really got this caged in my mind and it leads to inability
 to act, since I don't even know where to start.
 Well I was kinda lazy, but I did generate a file
->>>>  datastructure.{org, md}
+>>>
+>  datastructure.{org, md}
 that seems preety doamn useful!
 
 

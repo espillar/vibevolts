@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation
+from minimalsimulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies, celestial_update
 from propagation import add_satellites_from_tle, propagate_satellites
 from exclusion import exclusion

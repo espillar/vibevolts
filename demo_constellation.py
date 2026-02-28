@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 from astropy.coordinates import solar_system_ephemeris
 
-from simulation import create_empty_simulation
+from minimalsimulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from targets import add_fixed_points
 from observatories import add_observatories

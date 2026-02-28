@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from simulation import create_empty_simulation
+from minimalsimulation import create_empty_simulation
 from targets import add_fixed_points
 from plotting_3d import plot_3d_scatter
 

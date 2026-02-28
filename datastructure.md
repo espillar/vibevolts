@@ -6,15 +6,15 @@ This document details the structure of the main `sim_data` dictionary used throu
 
 | Key | Type | Description | Functions Modifying This Key |
 | --- | --- | --- | --- |
-| `start_time` | `datetime` | The starting time and date of the simulation (UTC). | `simulation.create_empty_simulation` |
-| `time` | `datetime` | The current time of the simulation. | `simulation.create_empty_simulation`, `celestialbodies.celestial_update`, `propagation.propagate_satellites`, `demo_constellation.demo_constellation`, `demo1.demo1`, `demo3.demo3` |
-| `delta_time`| `float` | The time step for the simulation in seconds. | `simulation.create_empty_simulation` |
-| `counts` | `dict` | A dictionary containing the counts of various objects. | `simulation.create_empty_simulation` (initializes) |
+| `start_time` | `datetime` | The starting time and date of the simulation (UTC). | `minimalsimulation.create_empty_simulation` |
+| `time` | `datetime` | The current time of the simulation. | `minimalsimulation.create_empty_simulation`, `celestialbodies.celestial_update`, `propagation.propagate_satellites`, `demo_constellation.demo_constellation`, `demo1.demo1`, `demo3.demo3` |
+| `delta_time`| `float` | The time step for the simulation in seconds. | `minimalsimulation.create_empty_simulation` |
+| `counts` | `dict` | A dictionary containing the counts of various objects. | `minimalsimulation.create_empty_simulation` (initializes) |
 | | | `counts['celestial']` (int): Number of celestial bodies. | `celestialbodies.add_celestial_bodies` |
 | | | `counts['satellites']` (int): Number of satellites. | `constellation.geos`, `constellation.geosmod`, `propagation.add_satellites_from_tle`, `radiometry_test.fixedSat` |
 | | | `counts['observatories']` (int): Number of observatories. | `observatories.add_observatories` |
 | | | `counts['fixedpoints']` (int): Number of fixed points. | `targets.add_fixed_points`, `radiometry_test.fixedTarget` |
-| `pointing_spheres` | `dict` | A dictionary of pre-calculated pointing spheres, where keys are the number of points. | `simulation.create_empty_simulation` (initializes), `pointing.generate_pointing_sphere` |
+| `pointing_spheres` | `dict` | A dictionary of pre-calculated pointing spheres, where keys are the number of points. | `minimalsimulation.create_empty_simulation` (initializes), `pointing.generate_pointing_sphere` |
 | `celestial` | `dict` | Dictionary containing data for celestial bodies (Sun, Moon). | `celestialbodies.add_celestial_bodies`, `radiometry_test.fixSun` |
 | | | `celestial['position']` (np.ndarray): `(2, 3)` array of positions. | `celestialbodies.add_celestial_bodies` (initializes), `celestialbodies.celestial_update` (modifies) |
 | | | `celestial['velocity']` (np.ndarray): `(2, 3)` array of velocities. | `celestialbodies.add_celestial_bodies` |

@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 import plotly.graph_objects as go
 
 from propagation import add_satellites_from_tle, propagate_satellites
-from simulation import create_empty_simulation
+from minimalsimulation import create_empty_simulation
 
 def demo3() -> go.Figure:
     """
