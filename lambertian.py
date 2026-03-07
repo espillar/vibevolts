@@ -229,10 +229,6 @@ def includedAngle(
     # Calculate the angle in radians
     angles = np.arccos(dot_product)
 
-    print( "unit_vectors1, 2 ", unit_vectors1, "   ", unit_vectors2)
-    print("dot product ", dot_product)
-    print("angles ", angles)
-
     return angles
 
 

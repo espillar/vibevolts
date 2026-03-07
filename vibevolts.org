@@ -120,6 +120,17 @@ in org format in datastrucure.org
 
 * Log
 
+** 2026-03
+
+*** [2026-03-07 Sat]
+
+
+**** Todo [1/2]
+- [X] I need to check why afrl is not syncing right with github.
+  OK, I switched to https and grabbed a token which will expire in june
+- [ ] I also need to figure out why magit isn't pushing
+  to the right target 
+
 ** 2026-02
 
 *** [2026-02-28 Sat]
@@ -140,40 +151,50 @@ An easy way to do it would be to establish a new structure that
 includes a mask or list for the detectors that work at a particular interval,
 that interval, and the time of the next readout.
 
-cadenceGroup
+I want to develop some code that will run scandetectors repeatedly,
+but I might have several classes of detector with different integration times.
+Therefor I want to establish some code that will create groups
+of detectors with the same integration times, and iterate through
+the groups when their integration is due to, then resetting the
+next integration time based on the integration interval for that group.
+
+
+
+I wold like the following names for the data structures:
 
 Names:
-- cadenceController.py
+- cadenceController.py has two functions
   - initCadence set up the variable 
-  - nextGroup - find and performs the next scan
-  
-- cadenceStructure - holds the data for scanController
-  - nextTime, nextGroup 
-  - cadenceList (a numbered list)
-    - cadenceGroup (a structure)
-      - aScan 
-	- scanMask
-	- scanInterval
-	- scanNext
+  - nextIntegration - find and performs the next scan
+
+The necessary data should be in a new     
+- cadenceStructure - holds the data for cadenceController
+  - nextTime, nextGroup the computed time for hte next integration, and the group it corresponds to 
+  - cadenceList (a numbered list) This contains cadence groups 
+    - cadenceGroup (a structure) containing information on a group of sensors that
+      have the same integration time 
+      - scanInterval - time interval between new scans 
+      - scanMask - a numpy mask that tells us which detectors have this interval 
+      - scanNext - when the next integration is due, rest to the current time plus scanInterval
+	everytime a scandetectors is called
 
 
 Initialization:
 - make a list of the integration times for the detectors (local)
 - collapse that into a set. (local)
-- create an empty scanSets structure 
+- create an empty cadenceList structure 
 - take the for each item in the set (local)
-  - create an empty aScan
+  - create an cadenceGroup
   - create a mask for the relevant detectors -> scanMask
   - create a next integration time entry -> scanNext
   - create an interval entry - scanInterval
-  - add to scanSets
-- find the next scanNext and set 
+  - add to cadenceList
 
 An iteration:
 - set the global time to the next scanNext
-- grab the appropriate mask
+- grab the appropriate mask for th
 - propgate the satellites with that mask
-- call scan detectors with that mask
+- call scanDetectors with that mask
 - for that particular key update the scanNext
 - find the next next read time and put it in scanNext
 
