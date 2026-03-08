@@ -60,6 +60,7 @@ def run_verification():
         
         print(f"  Executed:  Time={sim_data['time']}")
         if isinstance(results, dict):
+            print(f"  Result Timestamp: {results.get('time')}")
             num_hits = len(results['sat_indices'])
             unique_sats = np.unique(results['sat_indices'])
             print(f"  Results:   {num_hits} detections from {len(unique_sats)} unique satellites.")

@@ -63,19 +63,32 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
                                      If None, all detectors are processed.
 
     Returns:
-        dict or int: A dictionary with 'sat_indices', 'target_indices', 'signal', 'noise',
-                     and 'snr' arrays, or 0 if no targets are detected.
+        dict: A dictionary containing simulation 'time' and arrays for 'sat_indices', 
+              'target_indices', 'signal', 'noise', and 'snr'.
 
     TODO: we are using the same filter for all the detectors!
     """
     # 1. Data Extraction and Masking
     num_total_sats = sim_data['counts']['satellites']
+    sim_time = sim_data['time']
+
     if mask is None:
         mask = np.ones(num_total_sats, dtype=bool)
     
     active_indices = np.where(mask)[0]
+
+    # Initialize empty result structure
+    results = {
+        'time': sim_time,
+        'sat_indices': np.array([], dtype=int),
+        'target_indices': np.array([], dtype=int),
+        'signal': np.array([], dtype=float),
+        'noise': np.array([], dtype=float),
+        'snr': np.array([], dtype=float)
+    }
+
     if len(active_indices) == 0:
-        return 0
+        return results
 
     # Subset detector and satellite data
     satpositions = sim_data['satellites']['position'][mask]
@@ -114,6 +127,9 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     
     # Vectorized dot product for angles: (num_active_sats, num_targets)
     dot_products = np.einsum('si,sti->st', detectorVect, normalized_toTargets)
+        # This line uses NumPy's Einstein Summation (einsum) to perform a
+        # high-performance, vectorized dot   product between the satellite
+        # pointing vectors and the vectors to every target.
     angles = np.arccos(np.clip(dot_products, -1.0, 1.0))
 
     # Apply FOV mask: (num_active_sats, num_targets)
@@ -123,7 +139,7 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     if len(sat_hit_idx) == 0:
         if print_output:
             print("No targets visible to active detectors.")
-        return 0
+        return results
 
     # 4. Detector Flux Calculation (Vectorized Radiometry)
     # Subset data for specific detector-target pairs (hits)
@@ -166,12 +182,14 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
             print(f"Sat {i} (itime={hit_itime[k]:.1f}s) detects Target {j}:")
             print(f"  Signal: {signal[k]:12.3e} | Noise: {noise[k]:12.3e} | SNR: {snr[k]:12.3e}")
 
-    return {
+    results.update({
         'sat_indices': active_indices[sat_hit_idx],
         'target_indices': target_hit_idx,
         'signal': signal,
         'noise': noise,
         'snr': snr
-    }
+    })
+
+    return results
 
 

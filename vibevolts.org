@@ -83,21 +83,24 @@ other files.
 In addition to datastructure.md, keep that file, but make a copy
 in org format in datastrucure.org
 
-
 * Todo
 ** Details
 *** Coding [12/26]
 **** Get a simple search pattern going [0/8]
-- [ ] Get temporal evolution of the models to work
-- [ ] Record the time, the sensor, the satellite, and the SNR and add to a database: to start with lets just to a global pandas database.
-- [ ] create a simulation skeleton you are going to work with
-- [ ] Get the timesteps commensurate with the search pattern
-- [ ] iterateSearch(targets, search[Dict]) -> gridpointer, updates search location
-  skips occulted cells
-- [ ] mark targets that are in eclipse
 - [ ] write some code that computes what been detected and do a 3-D map
 - [ ] This should work for FOV intervals both long and short compared to the
   propagation time, as long as things don't move TOO fast.
+- [ ] Implement the plan that was proposed by Gemini 
+  My Recommendation:
+   1. Modify nextIntegration (or your calling loop) to return a
+      structured object that includes the current timestamp.
+   2. Use Option 1 (CSV/Pandas) for initial development—the ability
+      to immediately open a run in Excel to "sanity check" the SNR
+      and signal values is invaluable for simulation work.
+   3. If the files exceed 100MB, switch the export line to .to_parquet().
+
+
+  Would you like me to implement a "Logger" or "Collector" class in a new file to automate this?
 
 **** Future work [0/5]
 - [ ] We are using he same filter for all the detectors: split into cohorts
@@ -122,16 +125,38 @@ in org format in datastrucure.org
 
 ** 2026-03
 
+*** [2026-03-08 Sun]
+gemini-cli did quite a good job of vectorizing computations
+in scandetectors, it all looked good but I may be missing something.
+It understood the ins and outs of numpy and all the
+options better than I do right now.
+
+Gemini also had some informed thoughts about how to do the storage
+**** Todos [5/6]
+- [X] review lambertian.py 
+- [X] review the file cadencecontroller
+- [X] Review the file scandetectors to make sure it's vectorized
+- [X] run a test of the whole thing - alldemos.ipynb
+- [X] Think about how I want to save data for processing
+  write a short plan on changing the output of scandetectors
+- [ ] Implement data storage as recommended first a dictionary and then pandas.
+- [ ] I also need to figure out why magit isn't pushing
+  to the right target 
+
+
 *** [2026-03-07 Sat]
 
 
-**** Todo [1/2]
+**** Todo [2/3]
 - [X] I need to check why afrl is not syncing right with github.
   OK, I switched to https and grabbed a token which will expire in june
+- [X] go through and work with gemini-cli to implement the plan below.
 - [ ] I also need to figure out why magit isn't pushing
   to the right target 
 
 ** 2026-02
+
+
 
 *** [2026-02-28 Sat]
 
