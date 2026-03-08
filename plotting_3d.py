@@ -15,7 +15,8 @@ def plot_3d_scatter(
     plot_time: datetime,
     labels: Optional[List[str]] = None,
     marker_size: int = 1,
-    trace_name: str = 'Points'
+    trace_name: str = 'Points',
+    marker_color: Optional[str] = None
 ) -> go.Figure:
     """
     Creates a 3D plot of object positions.
@@ -25,15 +26,20 @@ def plot_3d_scatter(
 
     fig = go.Figure()
 
+    marker_dict = dict(
+        size=marker_size,
+        opacity=0.8
+    )
+    if marker_color:
+        marker_dict['color'] = marker_color
+    else:
+        marker_dict['color'] = np.arange(len(positions))
+        marker_dict['colorscale'] = 'Viridis'
+
     fig.add_trace(go.Scatter3d(
         x=positions[:, 0], y=positions[:, 1], z=positions[:, 2],
         mode='markers',
-        marker=dict(
-            size=marker_size,
-            color=np.arange(len(positions)),
-            colorscale='Viridis',
-            opacity=0.8
-        ),
+        marker=marker_dict,
         text=labels,
         hoverinfo='text' if labels else 'none',
         name=trace_name

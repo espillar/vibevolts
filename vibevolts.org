@@ -140,6 +140,7 @@ Gemini also had some informed thoughts about how to do the storage
 - [X] Think about how I want to save data for processing
   write a short plan on changing the output of scandetectors
 - [ ] Implement data storage as recommended first a dictionary and then pandas.
+  Do this by adding a python function dataHandling.
 - [ ] I also need to figure out why magit isn't pushing
   to the right target 
 
