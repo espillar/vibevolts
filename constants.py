@@ -7,6 +7,8 @@ from math import pi
 # -- Radii in Meters --
 EARTH_RADIUS = 6378137.0
 MOON_RADIUS = 1737400.0
+GEO_RADIUS = 42164140.0
+MOON_ORBIT_RADIUS = 384400000.0
 
 
 # -- Some UsefulConstants --

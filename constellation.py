@@ -39,7 +39,7 @@ def geos(sim_data, n,  fov) -> None:
     pointing_state_list = []
 
     # Geostationary orbit semi-major axis in meters
-    a = 42164000.0
+    a = GEO_RADIUS
 
     # Create a set of elements evenly spaced around the equator in
     # orbital_elemens_list
@@ -111,7 +111,7 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
     pointing_state_list = []
 
     # Geostationary orbit semi-major axis in meters
-    a = 42164000.0
+    a = GEO_RADIUS
 
     # Create a set of elements evenly spaced around the equator in
     # orbital_elemens_list

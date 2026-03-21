@@ -127,3 +127,22 @@ def exclusion(
                   f"Excl: {np.rad2deg(exclusion_angles[i]):.2f} deg")
 
     return 1 if np.any(is_excluded) else 0
+
+def update_exclusion_table(
+    data_struct: Dict[str, Any],
+    print_debug_for_sat: Optional[int] = None
+) -> None:
+    """
+    Updates the exclusion table for all satellites against all fixed points.
+
+    This function iterates through all fixed points, updates the pointing
+    vectors for all satellites to point at each fixed point, and then
+    calls the exclusion function to determine if the view is obstructed.
+
+    Args:
+        data_struct: The main simulation data dictionary.
+        print_debug_for_sat: If provided, the index of the satellite for which
+                             detailed debug information should be printed.
+    """
+    # This is a placeholder for the actual implementation
+    pass

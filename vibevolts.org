@@ -125,6 +125,29 @@ in org format in datastrucure.org
 
 ** 2026-03
 
+*** [2026-03-21 Sat]
+Well, I was pretty busy the last couple weeks! I haven't made
+the progress i wanted to, and now Ive forgotten where I'm at.
+
+I know I was working on candencecontroller.  I need to review where
+I am.  Also verify_cadence. Things seem to be working.
+
+Tried to run pdoc to create documentation, but it's giving me troubles.
+I don't know what's going on. Is this yack shaving? probably.  It
+really should have worked though.
+
+**** Todos [1/8]
+- [X] Get the VV docs in shape: having gemini work on that
+- [ ] Implement data storage as recommended first a dictionary and then pandas.
+  Do this by adding a python function dataHandling.
+- [ ] perhaps a plot of point coverage
+- [ ] gap time calculations and plots
+- [ ] consider testing
+- [ ] what of literate programming
+- [ ] I also need to figure out why magit isn't pushing
+  to the right target 
+
+
 *** [2026-03-08 Sun]
 gemini-cli did quite a good job of vectorizing computations
 in scandetectors, it all looked good but I may be missing something.

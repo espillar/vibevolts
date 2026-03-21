@@ -1,6 +1,7 @@
 import numpy as np
 from datetime import datetime, timezone
 from plotting_3d import plot_3d_scatter
+from constants import GEO_RADIUS
 
 
 def generate_log_spherical_points(
@@ -81,7 +82,7 @@ if __name__ == '__main__':
     NUM_POINTS = 100
     # Using the same radii as the main simulation for consistency
     INNER_RADIUS = 2000000
-    OUTER_RADIUS = 84328000
+    OUTER_RADIUS = 2 * GEO_RADIUS
     OBJECT_SIZE = 1.0
 
     print(f"Generating {NUM_POINTS} points from radius {INNER_RADIUS} to {OUTER_RADIUS}...")
@@ -89,7 +90,6 @@ if __name__ == '__main__':
         num_points=NUM_POINTS,
         inner_radius=INNER_RADIUS,
         outer_radius=OUTER_RADIUS,
-        object_size_m=OBJECT_SIZE,
         seed=42
     )
     print("Point generation complete.\n")

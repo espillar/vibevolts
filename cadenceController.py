@@ -2,13 +2,15 @@ import numpy as np
 from datetime import timedelta
 from propagation import propagate_satellites
 from scandetectors import scandetectors
+from celestialbodies import celestial_update
 
 def initCadence(sim_data: dict):
     """
-    Initializes the cadenceStructure in sim_data based on detector integration times.
+    Initializes the cadenceStructure in sim_data based on detector
+    integration times.
     
-    This function groups detectors with identical integration times into cadence groups
-    and calculates the initial schedule for the simulation.
+    This function groups detectors with identical integration times into cadence
+    groups and calculates the initial schedule for the simulation.
     """
     # 1. Access integration times
     integration_times = sim_data['detector'].integrationTime
@@ -25,7 +27,7 @@ def initCadence(sim_data: dict):
         cadence_group = {
             'scanInterval': float(interval),
             'scanMask': integration_times == interval,
-            'scanNext': sim_data['time']  # Initialize to current time for initial scan
+            'scanNext': sim_data['time']  # Init to current time for initial scan
         }
         cadence_list.append(cadence_group)
     
@@ -47,8 +49,9 @@ def nextIntegration(sim_data: dict, print_output: int = 0):
     # 1. Advance simulation time
     sim_data['time'] = cadence_struct['nextTime']
     
-    # 2. Propagate ALL satellites to the new time
+    # 2. Propagate ALL satellites and update celestial bodies to the new time
     propagate_satellites(sim_data, sim_data['time'])
+    celestial_update(sim_data, sim_data['time'])
     
     # 3. Get the active group
     group_idx = cadence_struct['nextGroup']

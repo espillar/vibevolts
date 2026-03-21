@@ -3,11 +3,21 @@ import numpy as np
 
 class DataHandler:
     """
-    A class to collect and manage simulation results from VibeVolts.
+    A class to collect, manage, and export simulation results from VibeVolts.
     
     This handler facilitates collecting results from multiple calls to 
-    nextIntegration and converting them into a structured Pandas DataFrame
-    for analysis, plotting, and export.
+    `nextIntegration` (via `scandetectors`) and converting them into a 
+    structured Pandas DataFrame for analysis, plotting, and export.
+
+    Functions:
+        - __init__(): Initializes an empty results collection.
+        - add_results(results): Appends a dictionary of scan results to the collection.
+        - get_dataframe(): Consolidates all results into a single Pandas DataFrame.
+        - save_to_csv(filename): Exports the collected data to a CSV file.
+        - save_to_parquet(filename): Exports the collected data to a Parquet file.
+            import pandas as pd
+            df = pd.read_parquet('my_data.parquet')
+        - clear(): Resets the handler by removing all collected data.
     """
 
     def __init__(self):
