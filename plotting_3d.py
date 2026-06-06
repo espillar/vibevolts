@@ -7,7 +7,7 @@ from astropy.time import Time
 from astropy.coordinates import GCRS, EarthLocation
 import astropy.units as u
 
-EARTH_RADIUS = 6378137.0
+from constants import EARTH_RADIUS
 
 def plot_3d_scatter(
     positions: np.ndarray,
