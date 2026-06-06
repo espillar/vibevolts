@@ -19,6 +19,10 @@ very good thing.
 I used mayb 60% of my daily credits, seems like that's not too much.  My eyes
 feel dry.
 
+Then, as an afterthought I asked it to optimize my inner loop with nupy. 
+It thinks it got a factor of 470, and it wrote test code to make sure it
+was doing things right.  I think I'm in love.
+
 # 2026-04
 
 ## [2026-04-19 Sun]
