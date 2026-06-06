@@ -21,13 +21,13 @@ def run_simulation_template():
     # 2. Add Components
     # Add a GEO constellation with 1 satellite using geosmod for full detector initialization
     # n=1, band='V', fov=10*DEGREE, ifov=3*ARCSEC, aper=1.0, limitingmag=20.0
-    geosmod(sim_data, n=1, band='V', fov=10*DEGREE, ifov=3*ARCSEC, aper=1.0, limitingmag=20.0)
+    geosmod(sim_data, n=10, band='V', fov=10*DEGREE, ifov=3*ARCSEC, aper=1.0, limitingmag=20.0)
 
     # Set integration time for the detector (e.g., 600 seconds)
     sim_data['detector'].integrationTime = np.full(sim_data['counts']['satellites'], 600.0)
 
     # Add fixed reference points (1m size, between 1.1 and 2.0 GEO_RADIUS)
-    add_fixed_points(sim_data, num_points=500, size=1.0, innerRadius=1.1 * GEO_RADIUS, outerRadius=2.0 * GEO_RADIUS)
+    add_fixed_points(sim_data, num_points=50, size=10.0, innerRadius=1.1 * GEO_RADIUS, outerRadius=2.0 * GEO_RADIUS)
 
     # Verify targets
     fixed_pos = sim_data['fixedpoints']['position']
@@ -58,6 +58,7 @@ def run_simulation_template():
         sat_pos = sim_data['satellites']['position'][0]
         print(f"Satellite 0 Position: {sat_pos}")
 
+        print("Results count: ", len(results))
         if results is not None:
              print(f"Scan performed for group {sim_data['cadenceStructure']['nextGroup']}")
              data_handler.add_results(results)
