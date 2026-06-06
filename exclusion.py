@@ -136,15 +136,8 @@ def update_exclusion_table(
 ) -> None:
     """
     Updates the exclusion table for all satellites against all fixed points.
-
-    This function iterates through all fixed points, updates the pointing
-    vectors for all satellites to point at each fixed point, and then
-    calls the exclusion function to determine if the view is obstructed.
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        print_debug_for_sat: If provided, the index of the satellite for which
-                             detailed debug information should be printed.
+    This uses a highly optimized NumPy vectorized approach to compute all
+    target-satellite exclusions simultaneously.
     """
     num_sats = data_struct['counts'].get('satellites', 0)
     num_fixed_points = data_struct['counts'].get('fixedpoints', 0)
@@ -152,24 +145,66 @@ def update_exclusion_table(
     if num_sats == 0 or num_fixed_points == 0:
         return
 
-    exclusion_matrix = np.zeros((num_fixed_points, num_sats), dtype=int)
+    targets = data_struct['fixedpoints']['position']
+    sat_pos = data_struct['satellites']['position']
+
+    # Compute pointing vectors from each satellite to each fixed point
+    pointing_vectors = targets[:, np.newaxis, :] - sat_pos[np.newaxis, :, :]
     
-    # Save the original pointing vectors
-    original_pointing = data_struct['detector'].pointing.copy()
+    norm_pointing = np.linalg.norm(pointing_vectors, axis=2)
+    safe_norm = np.where(norm_pointing == 0, 1.0, norm_pointing)
+    u_sat_pointing = pointing_vectors / safe_norm[:, :, np.newaxis]
+
+    # Celestial body positions and radii
+    body_positions = np.array([
+        data_struct['celestial']['position'][0],
+        data_struct['celestial']['position'][1],
+        [0.0, 0.0, 0.0]
+    ])
+    body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
+
+    # vecs_to_bodies shape: (num_sats, 3, 3)
+    vecs_to_bodies = body_positions[np.newaxis, :, :] - sat_pos[:, np.newaxis, :]
+    dists_to_bodies = np.linalg.norm(vecs_to_bodies, axis=2)
+
+    # Normalize vectors to bodies
+    safe_dists = np.where(dists_to_bodies == 0, 1.0, dists_to_bodies)
+    u_vecs_to_bodies = vecs_to_bodies / safe_dists[:, :, np.newaxis]
+
+    # Compute angles using einsum: (num_fixed_points, num_sats, 3)
+    cos_angles = np.einsum('tsd,sbd->tsb', u_sat_pointing, u_vecs_to_bodies)
+    cos_angles = np.clip(cos_angles, -1.0, 1.0)
+    angles = np.arccos(cos_angles)
+
+    # Apparent radii of Moon and Earth (Sun is 0)
+    apparent_radii = np.zeros((num_sats, 3))
+    apparent_radii[:, 1:] = np.arctan(body_radii[1:][np.newaxis, :] / safe_dists[:, 1:])
+
+    # Get satellite detector exclusion angles
+    detector_props = data_struct['detector']
+    exclusion_angles = np.vstack([
+        detector_props.solarEx,
+        detector_props.lunarex,
+        detector_props.earthEx
+    ]).T
+
+    # Check exclusion: (num_fixed_points, num_sats, 3)
+    is_excluded = (angles - apparent_radii[np.newaxis, :, :]) < exclusion_angles[np.newaxis, :, :]
     
-    for j in range(num_fixed_points):
-        target_pos = data_struct['fixedpoints']['position'][j]
-        for i in range(num_sats):
-            sat_pos = data_struct['satellites']['position'][i]
-            pointing_vector = target_pos - sat_pos
-            data_struct['detector'].pointing[i] = pointing_vector
-            
-            print_debug = (print_debug_for_sat == i)
-            
-            is_excluded = exclusion(data_struct, i, print_debug=print_debug)
-            exclusion_matrix[j, i] = is_excluded
-            
-    # Restore the original pointing vectors
-    data_struct['detector'].pointing = original_pointing
-    
+    # Check if any celestial body causes exclusion
+    exclusion_matrix = np.any(is_excluded, axis=2).astype(int)
+
+    # If pointing vector norm is zero, it's not pointing anywhere (excluded/1)
+    exclusion_matrix[norm_pointing < 1e-9] = 1
+
+    # Print debug info if requested
+    if print_debug_for_sat is not None and 0 <= print_debug_for_sat < num_sats:
+        original_pointing = data_struct['detector'].pointing.copy()
+        for j in range(num_fixed_points):
+            data_struct['detector'].pointing[print_debug_for_sat] = (
+                pointing_vectors[j, print_debug_for_sat]
+            )
+            exclusion(data_struct, print_debug_for_sat, print_debug=True)
+        data_struct['detector'].pointing = original_pointing
+
     data_struct['fixedpoints']['exclusion'] = exclusion_matrix
