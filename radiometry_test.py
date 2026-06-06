@@ -87,6 +87,7 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         sim_data['satellites']['epochs'].append(sim_data['time']) # epochs is a list, not numpy array
 
         # Create a new single detector using the stored initial parameters
+        from detector import appendDetector
         cd = sim_data['detector']
         initial_params = sim_data['initial_detector_params'].copy()
         initial_params['n'] = 1 # Always create one new detector
@@ -94,16 +95,7 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         new_single_detector = makeDetector(**initial_params)
 
         # Append attributes from the new_single_detector to the existing cd
-        for attr_name, new_attr_value in new_single_detector.__dict__.items():
-            current_attr_value = getattr(cd, attr_name)
-            
-            if isinstance(current_attr_value, np.ndarray):
-                if current_attr_value.ndim == 1:
-                    setattr(cd, attr_name, np.append(current_attr_value, new_attr_value))
-                elif current_attr_value.ndim == 2: # e.g., 'pointing' and 'pointing_state'
-                    setattr(cd, attr_name, np.vstack([current_attr_value, new_attr_value]))
-            elif isinstance(current_attr_value, list): # e.g., 'filt'
-                current_attr_value.extend(new_attr_value)
+        appendDetector(cd, new_single_detector)
         
         # Update the pointing for the newly added satellite's detector
         cd.pointing[-1, :] = new_pointing_vector[0]
@@ -294,7 +286,7 @@ def demoFixed():
     scan_output = scandetectors(sim_data, print_output=1)
     print(f"Output of scandetector: {scan_output}") 
 
-    return fig
+    return fig, sim_data
 
 if __name__ == '__main__':
     fig, simdata = demoFixed()

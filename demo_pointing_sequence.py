@@ -40,10 +40,16 @@ def demo_pointing_sequence() -> go.Figure:
     sim_data = create_empty_simulation(sim_start_time)
     add_celestial_bodies(sim_data)
     
-    # Create a dummy TLE file for 1 satellite
+    # Create a dummy TLE file for 3 satellites
     tle_data = """SAT-1
 1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
 2 90401   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+SAT-2
+1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9992
+2 90402   0.0500  45.0000 0001000  90.0000  60.0000  1.00270000    12
+SAT-3
+1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9993
+2 90403   0.0500  45.0000 0001000  90.0000 100.0000  1.00270000    13
 """
     dummy_tle_path = "dummy_tle_pointing.txt"
     with open(dummy_tle_path, "w") as f:
@@ -53,14 +59,16 @@ def demo_pointing_sequence() -> go.Figure:
 
     # Generate pointing spheres
     generate_pointing_sphere(sim_data, 100)
+    generate_pointing_sphere(sim_data, 20)
 
-    # Assign pointing counts to satellites
+    # Assign pointing counts to satellites using correct (row, col) indexing
     pointing_state = sim_data['detector'].pointing_state
-    pointing_state[0, POINTING_COUNT_IDX] = 100
+    pointing_state[POINTING_COUNT_IDX, 0] = 100
+    pointing_state[POINTING_COUNT_IDX, 1] = 20
+    pointing_state[POINTING_COUNT_IDX, 2] = 0
 
     print("Initial pointing vectors:")
     update_detector_pointing(sim_data)
-#    print(sim_data['detector'].pointing)
 
     # --- Create a figure to animate ---
     fig = go.Figure(
@@ -71,11 +79,13 @@ def demo_pointing_sequence() -> go.Figure:
     )
     
     # Store trajectory of each satellite
-    trajectories = [[]]
+    trajectories = [[], [], []]
     
     # Initial plot (T=0)
     vectors = sim_data['detector'].pointing
     trajectories[0].append(vectors[0].copy())
+    trajectories[1].append(vectors[1].copy())
+    trajectories[2].append(vectors[2].copy())
 
     # Simulation loop for 30 steps (T=0 to T=29)
     for t in range(1, 30):
@@ -85,32 +95,39 @@ def demo_pointing_sequence() -> go.Figure:
         update_detector_pointing(sim_data)
         vectors = sim_data['detector'].pointing
         trajectories[0].append(vectors[0].copy())
+        trajectories[1].append(vectors[1].copy())
+        trajectories[2].append(vectors[2].copy())
 
     # --- Plotting ---
-    colors = ['red']
-    sat_names = ['Satellite 1 (30 steps)']
+    colors = ['red', 'green', 'blue']
+    sat_names = [
+        'Satellite 1 (100 steps)',
+        'Satellite 2 (20 steps)',
+        'Satellite 3 (0 steps - Fixed)'
+    ]
     time_steps = list(range(30))
 
-    x_coords = [p[0] for p in trajectories[0]]
-    y_coords = [p[1] for p in trajectories[0]]
-    z_coords = [p[2] for p in trajectories[0]]
-    
-    fig.add_trace(go.Scatter3d(
-        x=x_coords, y=y_coords, z=z_coords,
-        mode='lines+markers',
-        marker=dict(
-            size=[(j + 2) * 2 for j in time_steps],
-            color=time_steps,
-            colorscale='Viridis',
-            showscale=False,
-            opacity=0.8
-        ),
-        line=dict(
-            color=colors[0],
-            width=2
-        ),
-        name=sat_names[0]
-    ))
+    for i in range(3):
+        x_coords = [p[0] for p in trajectories[i]]
+        y_coords = [p[1] for p in trajectories[i]]
+        z_coords = [p[2] for p in trajectories[i]]
+        
+        fig.add_trace(go.Scatter3d(
+            x=x_coords, y=y_coords, z=z_coords,
+            mode='lines+markers',
+            marker=dict(
+                size=[(j + 2) * 2 for j in time_steps],
+                color=time_steps,
+                colorscale='Viridis',
+                showscale=False,
+                opacity=0.8
+            ),
+            line=dict(
+                color=colors[i],
+                width=2
+            ),
+            name=sat_names[i]
+        ))
 
     # Add a dummy trace to create a single, shared colorbar for the time steps
     fig.add_trace(go.Scatter3d(
@@ -138,12 +155,15 @@ def demo_pointing_sequence() -> go.Figure:
     x = np.outer(np.cos(u), np.sin(v))
     y = np.outer(np.sin(u), np.sin(v))
     z = np.outer(np.ones(np.size(u)), np.cos(v))
-    fig.add_trace(go.Surface(x=x, y=y, z=z, colorscale='Blues', showscale=False, opacity=0.1, name='Unit Sphere'))
+    fig.add_trace(go.Surface(x=x, y=y, z=z, colorscale='Blues',
+                             showscale=False, opacity=0.1, name='Unit Sphere'))
 
     # Add a caption to the plot
     caption = """
     <b>Satellite Pointing Sequence:</b><br>
-    - <b>Satellite 1 (Red)</b>: 30-step pointing sequence. Changes position at each time step.
+    - <b>Satellite 1 (Red)</b>: 100-step pointing sequence. Updates frequently.<br>
+    - <b>Satellite 2 (Green)</b>: 20-step pointing sequence. Updates frequently.<br>
+    - <b>Satellite 3 (Blue)</b>: 0-step pointing sequence. Remains fixed.
     """
 
     fig.update_layout(

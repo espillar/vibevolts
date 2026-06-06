@@ -18,7 +18,7 @@ def demo_requiredIntegrationTime():
     photfrac = 1.
     
 
-    detector = makeDetector(n, band, fov,ifov, aper, qe, photfrac)
+    detector = makeDetector(n, band, fov, ifov, aper, qe=qe, photfrac=photfrac)
 
     print(detector)
     

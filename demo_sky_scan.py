@@ -59,8 +59,8 @@ def demo_sky_scan() -> go.Figure:
             sim_data['detector'].pointing[0] = pointing_vector
 
             # Call the exclusion function
-            is_clear = exclusion(sim_data, satellite_index=0)
-            sky_map[i, j] = is_clear
+            is_excluded = exclusion(sim_data, satellite_index=0)
+            sky_map[i, j] = is_excluded
 
     print("Sky scan complete.")
 
@@ -69,12 +69,12 @@ def demo_sky_scan() -> go.Figure:
         z=sky_map,
         x=np.rad2deg(right_ascensions),
         y=np.rad2deg(declinations),
-        colorscale=[[0, 'red'], [1, 'lightgreen']],
+        colorscale=[[0, 'lightgreen'], [1, 'red']],
         showscale=False,
         colorbar=dict(
             title='Exclusion',
             tickvals=[0, 1],
-            ticktext=['Excluded', 'Clear']
+            ticktext=['Clear', 'Excluded']
         )
     ))
 

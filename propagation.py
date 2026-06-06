@@ -28,12 +28,16 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
     epochs
     pointing
     """
-    from detector import makeBlankDetector
+    from detector import makeBlankDetector, appendDetector
     orbital_elements, epochs = readtle(tle_file_path)
     num_sats = len(epochs)
 
     sim_data['counts'][sat_category] = num_sats
-    sim_data['detector'] = makeBlankDetector(num_sats)
+    new_detector = makeBlankDetector(num_sats)
+    if 'detector' not in sim_data or not sim_data.get('detector'):
+        sim_data['detector'] = new_detector
+    else:
+        appendDetector(sim_data['detector'], new_detector)
     sim_data[sat_category] = {
         'position': np.zeros((num_sats, 3), dtype=float),
         'velocity': np.zeros((num_sats, 3), dtype=float),

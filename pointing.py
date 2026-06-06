@@ -47,7 +47,7 @@ def generate_pointing_sphere(sim_data: Dict[str, Any], n_points: int, debug: boo
         print("-------------------------------------------\n")
 
 
-def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> None:
+def update_detector_pointing(sim_data: Dict[str, Any], sat_category: str = 'satellites', debug: bool = False) -> None:
     """
     Updates the pointing vector for each detector, skipping excluded pointing directions.
     """
@@ -79,7 +79,7 @@ def update_detector_pointing(sim_data: Dict[str, Any], debug: bool = False) -> N
                 place = 0
             pointing_vectors_all[i] = grid[place]
             
-            excluded = exclusion(sim_data, i)
+            excluded = exclusion(sim_data, i, sat_category=sat_category)
             if debug:
                 print(f"Detector {i}: Pointing location {place}, Excluded: {excluded != 0}")
                 print(grid[place])

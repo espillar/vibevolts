@@ -21,7 +21,7 @@ def demo_show_geo_search():
 
     geos(sim_data, 12, 0.4)
 
-    propagate_satellites(sim_data, sim_start_time)
+    sim_data = propagate_satellites(sim_data, sim_start_time)
     
     update_detector_pointing(sim_data)
     fig1 = plot_pointing_vectors(sim_data, 'Initial Pointing Vectors', sim_start_time)

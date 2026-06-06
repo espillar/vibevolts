@@ -86,11 +86,17 @@ def lambertiansphere(
                     print(p1 + " " + p2)
                 continue
 
+            brightness_val = (
+                base_brightness[i]
+                if np.ndim(base_brightness) > 0
+                else base_brightness
+            )
             r1 = f"{i:<5} {angle_light_observer[i]:<18.4e} {albedo[i]:<10.4f}"
-            r2 = f"{radius[i]:<12.4e} {base_brightness:<18.4e}"
+            r2 = f"{radius[i]:<12.4e} {brightness_val:<18.4e}"
             r3 = f"{apparent_brightness[i]:<22.4e}"
             print(f"{r1} {r2} {r3}")
         print("-----------------------------------\n")
+    elif debug == 2:
         print("\n--- Detailed Debug Info: lambertiansphere ---")
         num_spheres = len(albedo)
         header = (
@@ -111,12 +117,17 @@ def lambertiansphere(
                     print(f"{'.':<5} " + " ".join([f"{d:<15}" for d in dots]))
                 continue
 
+            brightness_val = (
+                base_brightness[i]
+                if np.ndim(base_brightness) > 0
+                else base_brightness
+            )
             print(
                 f"{i:<5} {angle_light_observer[i]:<15.4e} {alpha[i]:<15.4e} "
                 f"{phase_function_value[i]:<15.4e} "
                 f"{cross_sectional_area[i]:<15.4e} "
                 f"{effective_cross_section[i]:<15.4e} {albedo[i]:<10.4f} "
-                f"{radius[i]:<12.4e} {base_brightness:<18.4e} "
+                f"{radius[i]:<12.4e} {brightness_val:<18.4e} "
                 f"{apparent_brightness[i]:<22.4e}"
             )
         print("-------------------------------------------\n")

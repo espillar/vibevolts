@@ -24,13 +24,13 @@ def setDetectorFOV(sim_data, fovSize):
 
 def setDetectorIntegrationTime(sim_data, itime):
     """
-    setDetectorFOV goes through the detectors in sim_data
-    and changes the FOVs of all of them to size (radians).
+    setDetectorIntegrationTime goes through the detectors in sim_data
+    and changes the integration times of all of them to itime (seconds).
     This is meant to be an ad-hoc function for test,
     not a regular operational thing.
     """
     count = len(sim_data['detector'].fov)
-    sim_data['detector'].itime = np.full(count, itime)
+    sim_data['detector'].integrationTime = np.full(count, itime)
 
 
 ##########################################################
@@ -209,6 +209,27 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug = 0):
 #         amag(limitingMag)**2 *\
 #         d[:,FILTER_ZP_IDX])
     return(t)
+
+
+def appendDetector(cd, new_cd):
+    """
+    Appends the attributes of new_cd to the existing detector object cd in-place.
+    """
+    for attr_name, new_attr_value in new_cd.__dict__.items():
+        if not hasattr(cd, attr_name):
+            setattr(cd, attr_name, new_attr_value)
+            continue
+        current_attr_value = getattr(cd, attr_name)
+        if isinstance(current_attr_value, np.ndarray):
+            if current_attr_value.ndim == 1:
+                setattr(cd, attr_name, np.append(current_attr_value, new_attr_value))
+            elif current_attr_value.ndim == 2:
+                if attr_name == 'pointing_state':
+                    setattr(cd, attr_name, np.hstack([current_attr_value, new_attr_value]))
+                else:
+                    setattr(cd, attr_name, np.vstack([current_attr_value, new_attr_value]))
+        elif isinstance(current_attr_value, list):
+            current_attr_value.extend(new_attr_value)
 
 
 ###########################################################

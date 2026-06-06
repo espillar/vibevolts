@@ -66,18 +66,39 @@ def geos(sim_data, n,  fov) -> None:
     orbital_elements = np.array(orbital_elements_list, dtype=float)
     pointing_state_array = np.array(pointing_state_list, dtype=int).T
     print(' pointing_state_aray.shaoe ', pointing_state_array.shape)
-    sim_data['counts']['satellites'] = n
-    # print( 'the number of satellites should be ', n) # Commented out
-    sim_data['detector'] = makeBlankDetector(n)
-    sim_data['satellites'] = {
-        'position': np.zeros((n, 3), dtype=float),
-        'velocity': np.zeros((n, 3), dtype=float),
-        'acceleration': np.zeros((n, 3), dtype=float),
-        'orbital_elements': orbital_elements,
-        'epochs': epochs_list,
-    }
-    sim_data['detector'].pointing = np.zeros((n,3), dtype = float)
-    sim_data['detector'].pointing_state = pointing_state_array
+    from detector import appendDetector
+    
+    new_detector = makeDetector(
+        n=n,
+        band="V",
+        fov=fov,
+        ifov=3.0 * ARCSEC,
+        aper=1.0
+    )
+    new_detector.pointing = np.zeros((n, 3), dtype=float)
+    new_detector.pointing_state = pointing_state_array
+
+    if 'detector' not in sim_data or not sim_data.get('detector'):
+        sim_data['detector'] = new_detector
+    else:
+        appendDetector(sim_data['detector'], new_detector)
+
+    if 'satellites' not in sim_data:
+        sim_data['counts']['satellites'] = n
+        sim_data['satellites'] = {
+            'position': np.zeros((n, 3), dtype=float),
+            'velocity': np.zeros((n, 3), dtype=float),
+            'acceleration': np.zeros((n, 3), dtype=float),
+            'orbital_elements': orbital_elements,
+            'epochs': epochs_list,
+        }
+    else:
+        sim_data['counts']['satellites'] += n
+        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
+        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
+        sim_data['satellites']['epochs'].extend(epochs_list)
     
     sim_data = propagate_satellites(sim_data, sim_data['time']) # Corrected start_time
 
@@ -139,9 +160,18 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
 
 
     
+    from detector import appendDetector
+    
+    detect.pointing = np.zeros((n, 3), dtype=float)
+    detect.pointing_state = pointing_state_array
+
+    if 'detector' not in sim_data or not sim_data.get('detector'):
+        sim_data['detector'] = detect
+    else:
+        appendDetector(sim_data['detector'], detect)
+
     if 'satellites' not in sim_data:
         sim_data['counts']['satellites'] = n
-        sim_data['detector'] = detect
         sim_data['satellites'] = {
             'position': np.zeros((n, 3), dtype=float),
             'velocity': np.zeros((n, 3), dtype=float),
@@ -149,16 +179,13 @@ def geosmod(sim_data, n, band,fov,ifov, aper, limitingmag) -> None:
             'orbital_elements': orbital_elements,
             'epochs': epochs_list,
         }
-        sim_data['detector'].pointing = np.zeros((n, 3), dtype=float)
-        sim_data['detector'].pointing_state = pointing_state_array
     else:
         # Append to existing satellites
         sim_data['counts']['satellites'] += n
-        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], np.zeros((n, 3), dtype=float)])
-        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], orbital_elements])
-        sim_data['satellites']['epochs'].extend(epochs_list)
-        sim_data['detector'].pointing = np.vstack([sim_data['detector'].pointing, np.zeros((n, 3), dtype=float)])
-        sim_data['detector'].pointing_state = np.vstack([sim_data['detector'].pointing_state, pointing_state_array])
+        sat = sim_data['satellites']
+        sat['position'] = np.vstack([sat['position'], np.zeros((n, 3), dtype=float)])
+        sat['velocity'] = np.vstack([sat['velocity'], np.zeros((n, 3), dtype=float)])
+        sat['acceleration'] = np.vstack([sat['acceleration'], np.zeros((n, 3), dtype=float)])
+        sat['orbital_elements'] = np.vstack([sat['orbital_elements'], orbital_elements])
+        sat['epochs'].extend(epochs_list)
     sim_data = propagate_satellites(sim_data, sim_data['time'])

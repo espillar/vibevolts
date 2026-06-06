@@ -55,3 +55,40 @@ def test_makeDetector_multiple_detectors():
     detector_custom = makeDetector(n_detectors, band, fov, ifov, aper, intTime=custom_int_time)
     assert np.allclose(detector_custom.integrationTime, custom_int_time)
     assert detector_custom.integrationTime.shape == (n_detectors,)
+
+
+def test_setDetectorIntegrationTime():
+    """
+    Test that setDetectorIntegrationTime correctly updates the integrationTime attribute.
+    """
+    from detector import setDetectorIntegrationTime
+    sim_data = {
+        'detector': makeDetector(2, "V", 1 * DEGREE, 2 * ARCSEC, 1.0)
+    }
+
+    assert np.allclose(sim_data['detector'].integrationTime, 1.0)
+
+    setDetectorIntegrationTime(sim_data, 5.0)
+
+    assert np.allclose(sim_data['detector'].integrationTime, 5.0)
+    # Check that it didn't create a spurious 'itime' attribute
+    assert not hasattr(sim_data['detector'], 'itime')
+
+
+def test_appendDetector():
+    """
+    Test that appendDetector correctly appends attributes from one detector to another.
+    """
+    from detector import appendDetector
+
+    d1 = makeDetector(1, "V", 1 * DEGREE, 2 * ARCSEC, 1.0)
+    d2 = makeDetector(2, "R", 2 * DEGREE, 4 * ARCSEC, 2.0)
+
+    assert len(d1.filt) == 1
+    assert len(d2.filt) == 2
+
+    appendDetector(d1, d2)
+
+    assert len(d1.filt) == 3
+    assert d1.filt == ["V", "R", "R"]
+    assert np.allclose(d1.apertureArea, [np.pi * 0.5**2, np.pi, np.pi])

@@ -55,6 +55,7 @@ from constants import (
 def exclusion(
     data_struct: Dict[str, Any],
     satellite_index: int,
+    sat_category: str = 'satellites',
     print_debug: bool = False
 ) -> int:
     """
@@ -66,12 +67,13 @@ def exclusion(
     Args:
         data_struct: The main simulation data dictionary.
         satellite_index: The index of the satellite to check.
+        sat_category: The satellite category (e.g. 'satellites', 'red_satellites').
         print_debug: If True, prints detailed debug information for the calculation.
 
     Returns:
         1 if the satellite's view is excluded by any of the bodies, 0 otherwise.
     """
-    sat_pos = data_struct['satellites']['position'][satellite_index]
+    sat_pos = data_struct[sat_category]['position'][satellite_index]
     sat_pointing = data_struct['detector'].pointing[satellite_index]
     
     norm_pointing = np.linalg.norm(sat_pointing)
@@ -144,5 +146,30 @@ def update_exclusion_table(
         print_debug_for_sat: If provided, the index of the satellite for which
                              detailed debug information should be printed.
     """
-    # This is a placeholder for the actual implementation
-    pass
+    num_sats = data_struct['counts'].get('satellites', 0)
+    num_fixed_points = data_struct['counts'].get('fixedpoints', 0)
+    
+    if num_sats == 0 or num_fixed_points == 0:
+        return
+
+    exclusion_matrix = np.zeros((num_fixed_points, num_sats), dtype=int)
+    
+    # Save the original pointing vectors
+    original_pointing = data_struct['detector'].pointing.copy()
+    
+    for j in range(num_fixed_points):
+        target_pos = data_struct['fixedpoints']['position'][j]
+        for i in range(num_sats):
+            sat_pos = data_struct['satellites']['position'][i]
+            pointing_vector = target_pos - sat_pos
+            data_struct['detector'].pointing[i] = pointing_vector
+            
+            print_debug = (print_debug_for_sat == i)
+            
+            is_excluded = exclusion(data_struct, i, print_debug=print_debug)
+            exclusion_matrix[j, i] = is_excluded
+            
+    # Restore the original pointing vectors
+    data_struct['detector'].pointing = original_pointing
+    
+    data_struct['fixedpoints']['exclusion'] = exclusion_matrix

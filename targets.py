@@ -22,8 +22,7 @@ def add_fixed_points(sim_data: Dict[str, Any], num_points: int = 100, size: floa
         )
     sim_data['counts']['fixedpoints'] = num_points
     sim_data['fixedpoints'] = {
-        'position': positions,        
-        'exclusion': np.zeros(num_points, dtype=int), # Exclusion will be resized later,
-        'size' : np.full(num_points, size, dtype=float ), 
-        'albedo' : np.full(num_points, 0.2, dtype=float)
+        'position': positions,
+        'size': np.full(num_points, size, dtype=float),
+        'albedo': np.full(num_points, 0.2, dtype=float)
     }

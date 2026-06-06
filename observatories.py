@@ -14,6 +14,7 @@ def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
         raise ValueError("num_observatories must be a non-negative integer.")
 
     sim_data['counts']['observatories'] = num_observatories
+    from detector import makeBlankDetector, appendDetector
     detector = makeBlankDetector(num_observatories)
     sim_data['observatories'] = {
         'position': np.zeros((num_observatories, 3), dtype=float),
@@ -21,4 +22,7 @@ def add_observatories(sim_data: Dict[str, Any], num_observatories: int) -> None:
         'acceleration': np.zeros((num_observatories, 3), dtype=float),
         'pointing': np.zeros((num_observatories, 3), dtype=float),
     }
-    sim_data['detector'] = detector
+    if 'detector' not in sim_data or not sim_data.get('detector'):
+        sim_data['detector'] = detector
+    else:
+        appendDetector(sim_data['detector'], detector)
