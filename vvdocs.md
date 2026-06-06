@@ -2,11 +2,16 @@
 
 ## Project Overview
 
-VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of tools to initialize, propagate, and analyze the state of various space-based and ground-based assets. These are intended be evolved in a discrete event simulation.
+VibeVolts is a Python-based simulation toolkit for space environment modeling. It provides a set of
+tools to initialize, propagate, and analyze the state of various space-based and ground-based
+assets. These are intended be evolved in a discrete event simulation.
 
 ## Data Structure
 
-The current state of the simulation is stored in a dictionary typically called `sim_data` which is passed between the routines that initialize and operate on the components to initialize, evolve, and interrogate the overall system. The different components of the system are typically dealt with by different modules.
+The current state of the simulation is stored in a dictionary typically called `sim_data` which is
+passed between the routines that initialize and operate on the components to initialize, evolve,
+and interrogate the overall system. The different components of the system are typically dealt
+with by different modules.
 
 ### `sim_data` dictionary structure:
 
@@ -14,7 +19,8 @@ The current state of the simulation is stored in a dictionary typically called `
     *   `minimalsimulation.create_empty_simulation`: Initializes.
 *   `time`: `datetime`
     *   `minimalsimulation.create_empty_simulation`: Initializes.
-    *   `propagation.propagate_satellites`: Updated.
+    *   `celestialbodies.celestial_update`: Updates.
+    *   `propagation.propagate_satellites`: Updates.
     *   `cadenceController.nextIntegration`: Advanced to the next scheduled event time.
 *   `delta_time`: `float`
     *   `minimalsimulation.create_empty_simulation`: Initializes.
@@ -36,31 +42,31 @@ The current state of the simulation is stored in a dictionary typically called `
     *   `celestialbodies.celestial_update`: Updates `position`.
     *   `radiometry_test.fixSun`: Updates `position` of the sun.
 *   `satellites`: `Dict[str, any]`
-    *   `constellation.geos`: Initializes `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
-    *   `constellation.geosmod`: Initializes or appends to `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
-    *   `propagation.add_satellites_from_tle`: Initializes `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`, `pointing`, `pointing_state`.
+    *   `constellation.geos`: Initializes `position`, `velocity`, `acceleration`, etc.
+    *   `constellation.geosmod`: Initializes `position`, `velocity`, `acceleration`, etc.
+    *   `propagation.add_satellites_from_tle`: Initializes `position`, `velocity`, etc.
     *   `propagation.propagate_satellites`: Updates `position`.
-    *   `radiometry_test.fixedSat`: Initializes or appends to `position`, `velocity`, `acceleration`, `orbital_elements`, `epochs`.
+    *   `radiometry_test.fixedSat`: Initializes or appends.
 *   `detector`: `SimpleNamespace`
     *   `constellation.geos`: Initializes with `makeBlankDetector`.
     *   `constellation.geosmod`: Initializes with `makeDetector`.
     *   `propagation.add_satellites_from_tle`: Initializes with `makeBlankDetector`.
     *   `observatories.add_observatories`: Initializes with `makeBlankDetector`.
     *   `detector.makeBlankDetector`: Creates a blank detector object.
-    *   `detector.makeDetector`: Creates and initializes a detector object. Includes `integrationTime` (NumPy array).
+    *   `detector.makeDetector`: Creates and initializes a detector object.
     *   `detector.setDetectorFOV`: Updates `fov`.
     *   `detector.setDetectorIntegrationTime`: Updates `integrationTime`.
-    *   `detector.detectorPointingInitialize`: Initializes `pointing_state` and updates `pointing`.
+    *   `detector.detectorPointingInitialize`: Initializes `pointing_state` and `pointing`.
     *   `pointing.update_detector_pointing`: Updates `pointing` and `pointing_state`.
     *   `pointing.jerk`: Updates `pointing`.
-    *   `radiometry_test.fixedSat`: Initializes or appends to the detector object.
+    *   `radiometry_test.fixedSat`: Initializes or appends.
 *   `fixedpoints`: `Dict[str, np.ndarray]`
     *   `targets.add_fixed_points`: Initializes `position`, `size`, `albedo`.
     *   `radiometry_test.fixedTarget`: Initializes or appends to `position`, `size`, `albedo`.
 *   `observatories`: `Dict[str, np.ndarray]`
-    *   `observatories.add_observatories`: Initializes `position`, `velocity`, `acceleration`, `pointing`.
+    *   `observatories.add_observatories`: Initializes `position`, `velocity`, `acceleration`, etc.
 *   `cadenceStructure`: `Dict[str, any]`
-    *   `cadenceController.initCadence`: Initializes the simulation schedule based on detector integration times. Contains `cadenceList` (groups with `scanInterval`, `scanMask`, `scanNext`), `nextTime`, and `nextGroup`.
+    *   `cadenceController.initCadence`: Initializes the schedule based on detector integration.
 *   `initial_detector_params`: `Dict[str, any]`
     *   `radiometry_test.fixedSat`: Stores baseline parameters for creating consistent detectors.
 
@@ -69,8 +75,8 @@ The current state of the simulation is stored in a dictionary typically called `
 This section describes the demo scripts and testing utilities available in the toolkit.
 
 ### Core Demos
-*   `all_demos.py`: Central script to run major demos and optionally save results to `all_demo_plots.html`.
-*   `generate_report.py`: Runs a subset of plotting demos and generates a structured HTML report `demo_plots.html`.
+*   `all_demos.py`: Central script to run major demos and optionally save to HTML.
+*   `generate_report.py`: Runs plotting demos and generates `demo_plots.html`.
 *   `demo_constellation.py`: Visualizes the creation of satellite constellations.
 *   `demo_fixedpoints.py`: Plots the fixed target data structure in 3D.
 *   `demo_lambertian.py`: Demonstrates the Lambertian sphere brightness model.
@@ -79,16 +85,16 @@ This section describes the demo scripts and testing utilities available in the t
 *   `demo_pointing_sequence.py`: Shows a sequence of pointing updates over time.
 *   `demo_pointing_plot.py`: Comprehensive visualization of pointing history.
 *   `demo_exclusion_table.py`: Generates a table showing visibility exclusions (Sun/Moon/Earth).
-*   `demo_show_geo_search.py`: Demonstrates searching for GEO satellites from ground observatories.
-*   `demo1.py`, `demo2.py`, `demo3.py`: Basic demonstration scripts for satellite positioning and trajectories.
+*   `demo_show_geo_search.py`: Demonstrates searching for GEO satellites from ground.
+*   `demo1.py`, `demo2.py`, `demo3.py`: Basic demonstration scripts for satellite trajectories.
 *   `demogeo.py`: Specific demo for Geostationary orbit visualization.
 *   `plot_satellite_brighness.py`: Plots apparent magnitude of satellites over time.
 
 ### Verification and Tests
-*   `verify_cadence.py`: A specialized script that verifies the `cadenceController` logic by running multiple integration steps and collecting results via `DataHandler`.
+*   `verify_cadence.py`: Verifies `cadenceController` logic and collects results via `DataHandler`.
 *   `tests/test_detector.py`: Unit tests for detector initialization and property setting.
 *   `tests/test_lambertian.py`: Unit tests for the Lambertian radiance model.
-*   `tests/test_minimalsimulation.py`: Unit tests for the core simulation data structure initialization.
+*   `tests/test_minimalsimulation.py`: Unit tests for core simulation data structure.
 
 ## Python Files and Functions
 
@@ -96,100 +102,137 @@ This section describes the demo scripts and testing utilities available in the t
 Marks the directory as a Python package.
 
 ### `all_demos.py`
+*   `demo_vector_resorting_plot() -> go.Figure`: Runs resorting test and returns the figure.
 *   `run_all_demos(save_html=False)`: Orchestrates execution of all registered demo functions.
 
 ### `cadenceController.py`
-*   `initCadence(sim_data: dict)`: Groups detectors by integration time and initializes the simulation schedule.
-*   `nextIntegration(sim_data: dict, print_output: int = 0)`: Advances time to the next event, propagates satellites, and performs a targeted scan.
-*   `_update_next_schedule(sim_data: dict)`: Internal helper to identify the next chronological event.
+*   `initCadence(sim_data: dict)`: Groups detectors by integration time and schedules events.
+*   `nextIntegration(sim_data: dict, print_output: int = 0)`: Advances time, propagates
+    satellites, and performs a targeted scan for the group.
+*   `_update_next_schedule(sim_data: dict)`: Internal helper to identify the next event.
 
 ### `celestialbodies.py`
-*   `add_celestial_bodies(sim_data: dict)`: Adds Sun anad Moon structures.
-*   `celestial_update(data_struct: dict, time_date: datetime = None)`: Updates celestial body positions (GCRS).
+*   `add_celestial_bodies(sim_data: Dict[str, Any]) -> None`: Adds Sun and Moon structures.
+*   `celestial_update(data_struct: Dict[str, Any], time_date: Optional[datetime] = None) -> ...`:
+    Calculates and updates the GCRS positions of the Sun and Moon.
 
 ### `constants.py`
-Defines physical constants (e.g., `EARTH_RADIUS`, `DEGREE`, `ARCSEC`) and array indices for orbital elements and pointing states.
+Defines physical constants (e.g., `EARTH_RADIUS`, `DEGREE`) and array indices.
 
 ### `constellation.py`
-*   `geos(sim_data, n, fov)`: Creates $n$ equally spaced GEO satellites.
-*   `geosmod(sim_data, n, band, fov, ifov, aper, limitingmag)`: Advanced GEO constellation creation with detector parameters.
+*   `geos(sim_data, n, fov) -> None`: Creates $n$ equally spaced GEO satellites.
+*   `geosmod(sim_data, n, band, fov, ifov, aper, limitingmag) -> None`: Advanced GEO creation.
 
 ### `dataHandling.py`
-*   `class DataHandler`: Manages collection of simulation results and export to Pandas DataFrames, CSV, or Parquet.
+*   `class DataHandler`: Manages collection of simulation results and export.
+    *   `__init__(self)`: Initializes empty collection.
+    *   `add_results(self, results: dict)`: Appends dict of scan results to collection.
+    *   `get_dataframe(self) -> pd.DataFrame`: Combines results into a single Pandas DataFrame.
+    *   `save_to_csv(self, filename: str)`: Saves results to a CSV file.
+    *   `save_to_parquet(self, filename: str)`: Saves results to a Parquet file.
+    *   `clear(self)`: Clears results to start a new simulation run.
 
 ### `detector.py`
-*   `makeDetector(n, band, fov, ifov, aper, ...)`: Creates a detailed detector object with radiometric properties.
-*   `makeBlankDetector(n)`: Creates a minimal detector placeholder.
 *   `setDetectorFOV(sim_data, fovSize)`: Global update of all detector fields-of-view.
-*   `setDetectorIntegrationTime(sim_data, itime)`: Global update of all detector integration times.
+*   `setDetectorIntegrationTime(sim_data, itime)`: Global update of all integration times.
+*   `makeBlankDetector(n)`: Creates a minimal detector SimpleNamespace placeholder.
+*   `makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, ...)`: Creates a detailed
+    detector object with filter zero-points, quantum efficiency, and exclusion angles.
 *   `detectorPointingInitialize(sim_data, grid_points)`: Initializes pointing grids and state.
-*   `requiredIntegrationTime(limitingMag, SNR, d, debug=0)`: Analytical calculation of necessary exposure time.
+*   `requiredIntegrationTime(limitingMag, SNR, d, debug = 0)`: Exposure time calculation.
+*   `testdetector()`: Diagnostic example comparing values against theoretical curves.
 
 ### `exclusion.py`
-*   `exclusion(data_struct: dict, satellite_index: int, ...)`: Core logic for Sun/Moon/Earth exclusion checks.
+*   `exclusion(data_struct: Dict[str, Any], satellite_index: int, ...)`: Core logic for
+    Sun/Moon/Earth exclusion checks.
+*   `update_exclusion_table(data_struct: Dict[str, Any], ...)`: Updates exclusion table for all
+    satellites against all fixed points.
 
 ### `fibonacciSearch.py`
-*   `pointing_vectors(n: int)`: Generates $n$ uniform points on a sphere using Fibonacci lattice.
-*   `resort_vectors_by_proximity(unit_vectors)`: Optimizes pointing sequences to minimize "slew" distance.
+*   `pointing_vectors(n: int) -> np.ndarray`: Generates uniform points on a unit sphere.
+*   `resort_vectors_by_proximity(unit_vectors: np.ndarray) -> np.ndarray`: Reorders vectors
+    to minimize slew distance during scans.
+*   `plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure`: 3D plotly visualization.
+*   `test_vector_resorting()`: Tests vector reordering and plots resulting distances.
 
 ### `fluxes.py`
 *   `fluxes(band)`: Returns solar, space, and sky background fluxes for a given filter band.
 
 ### `generate_log_spherical_points.py`
-*   `generate_log_spherical_points(num_points, inner_radius, outer_radius, ...)`: Generates 3D points with logarithmic radial distribution.
+*   `generate_log_spherical_points(num_points, inner_radius, outer_radius, seed=None)`:
+    Generates 3D points with logarithmic radial and uniform angular distribution.
 
 ### `generate_report.py`
-*   `generate_demo_html_report()`: Aggregates multiple demo plots into a single HTML file.
+*   `generate_demo_html_report()`: Aggregates multiple demo plots into `demo_plots.html`.
 
 ### `lambertian.py`
-*   `lambertiansphere(angle_light_observer, albedo, radius, base_brightness, ...)`: Vectorized calculation of sphere surface radiance.
-*   `simple_lambertian(diameter, distance, albedo, angle, base_brightness)`: Scalar version for single-object calculations.
-*   `includedAngle(vectors1, vectors2)`: Vectorized calculation of angles between vector pairs.
+*   `lambertiansphere(angle_light_observer, albedo, radius, base_brightness, debug=0) -> ...`:
+    Vectorized calculation of sphere surface radiance.
+*   `simple_lambertian(diameter, distance, albedo, angle, base_brightness) -> float`: Apparent
+    brightness of a single Lambertian sphere.
+*   `includedAngle(vectors1, vectors2) -> np.ndarray`: Vectorized included angle in radians.
 
 ### `minimalsimulation.py`
-*   `create_empty_simulation(start_time, delta_time=60.0)`: Bootstraps the `sim_data` dictionary.
+*   `create_empty_simulation(start_time, delta_time=60.0) -> Dict[str, Any]`: Bootstraps empty
+    `sim_data` dictionary.
 
 ### `observatories.py`
-*   `add_observatories(sim_data, num_observatories)`: Adds ground-based assets.
+*   `add_observatories(sim_data, num_observatories) -> None`: Adds ground-based assets.
 
 ### `plotting_3d.py`
 *   `plot_3d_scatter(positions, title, plot_time, ...)`: General-purpose 3D plotting utility.
 
 ### `plotting_vectors.py`
-*   `plot_pointing_vectors(data_struct, title, plot_time)`: Specialized 3D plot for pointing vectors.
+*   `plot_pointing_vectors(data_struct, title, plot_time) -> go.Figure`: Pointing vector plot.
 
 ### `pointing.py`
-*   `generate_pointing_sphere(sim_data, n_points, ...)`: Populates the pointing sphere cache.
-*   `update_detector_pointing(sim_data, debug=False)`: Progresses detectors to their next valid pointing direction.
-*   `jerk(sim_data, satellite_indices)`: Perturbs satellite pointing for testing.
+*   `generate_pointing_sphere(sim_data, n_points, debug=False) -> None`: Populates sphere cache.
+*   `update_detector_pointing(sim_data, debug=False) -> None`: Progresses pointing direction.
+*   `demo_exclusion_pointing()`: Demonstrates satellite pointing with solar exclusion.
+*   `jerk(sim_data, satellite_indices) -> Dict[str, Any]`: Randomly perturbs pointing.
 
 ### `propagation.py`
-*   `add_satellites_from_tle(sim_data, tle_file_path, sat_category)`: Loads satellites from TLE files.
-*   `propagate_satellites(data_struct, time_date, sat_category=None)`: Updates positions using SGP4/analytical models.
+*   `add_satellites_from_tle(sim_data, tle_file_path, sat_category) -> None`: Loads from TLE.
+*   `readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]`: Extracts elements from TLE.
+*   `propagate_satellites(data_struct, time_date, sat_category=None) -> Dict[str, Any]`: Updates
+    satellite positions using SGP4 or analytical models.
 
 ### `radiometry_calcs.py`
-*   `mag(x)`, `amag(x)`: Linear to magnitude (and vice versa) conversions.
-*   `blackbody_flux(temperature, lambda_short, lambda_long)`: Integrated Planck radiance.
+*   `fluxes(band)`: Looks up astronomical band filter parameters and returns flux values.
+*   `mag(x: float) -> float`: Calculates linear ratio to magnitude.
+*   `amag(x: float) -> float`: Calculates magnitude to linear ratio.
+*   `_planck_law(wav_m, temp_k) -> float`: Planck's law helper.
+*   `blackbody_flux(temperature, lambda_short, lambda_long) -> float`: Integrated Planck radiance.
+*   `stefan_boltzmann_law(temperature: float) -> float`: Stefan-Boltzmann power.
+*   `plot_blackbody_spectrum(temperature: float)`: Plots spectrum from 0.5 to 30 microns.
+*   `plot_blackbody_spectrum_visible_nir(temperature: float)`: Plots visible/NIR spectrum.
 
 ### `radiometry_data.py`
 Contains astronomical filter definitions and zero-point data.
 
 ### `radiometry_test.py`
-*   `fixedSat(sim_data, x, y, z, fov=...)`: Places a static satellite with a detector.
+*   `fixedSat(sim_data, x, y, z, fov=...)`: Places a static satellite and detector.
 *   `fixedTarget(sim_data, size, x, y, z)`: Places a static Lambertian target.
-*   `fixSun(sim_data)`: Fixes the Sun at 1 AU on the -X axis.
+*   `fixSun(sim_data) -> None`: Fixes the Sun at 1 AU on the negative X-axis.
+*   `demoFixed()`: End-to-end setup demonstration for radiometry validation.
 
 ### `scandetectors.py`
-*   `scandetectors(sim_data, print_output=0, mask=None)`: High-performance vectorized scan to find target/detector intersections and calculate SNR.
+*   `get_spherical_coords(arr)`: Converts Cartesian coordinates to spherical angles.
+*   `scandetectors(sim_data, print_output=0, mask=None)`: High-performance vectorized scan
+    calculating visibility, fluxes, and signal-to-noise ratios.
 
 ### `sim_check.py`
-*   `sim_check(sim_data)`: Diagnostic utility to print `sim_data` contents.
+*   `sim_check(sim_data)`: Prints diagnostic summary of simulation data structures.
+
+### `simulationTemplate.py`
+*   `run_simulation_template()`: Demonstrates template lifecycle using Controller & Handler.
 
 ### `targets.py`
-*   `add_fixed_points(sim_data, num_points=100, size=1.0)`: Populates the simulation with static GCRS targets.
+*   `add_fixed_points(sim_data, num_points=100, size=1.0, innerRadius=..., outerRadius=...)`:
+    Populates static reference points.
 
 ### `verify_cadence.py`
-*   `run_verification()`: End-to-end simulation run to verify cadence and data collection.
+*   `run_verification()`: End-to-end verification script for event cadence.
 
 ## Dependencies
 
