@@ -67,6 +67,7 @@ The following demos are available in the repository:
 - `demo_constellation.py`: Creation and visualization of constellations.
 - `radiometry_test.py`: Setup with fixed satellites and targets.
 - `pointing.py`: Solar exclusion and FOV demonstration.
+- `demo_gap_time_histogram.py`: Target interobservation gap time calculations and histogram.
 - `all_demos.py`: Main entry point to run all demos.
 
 ## Module Reference
@@ -110,7 +111,30 @@ Adds `n` equally spaced satellites in GEO.
 Adds `n` GEO satellites with detailed detector parameters.
 
 ### dataHandling.py
-Provides tools for handling simulation data output and conversion to Pandas DataFrames.
+
+#### `class DataHandler`
+Manages collection, Pandas conversion, export, and gap time analysis of scan results.
+
+##### `add_results(results: dict)`
+Appends a results dictionary to the collected list if detections were found.
+
+##### `get_dataframe() -> pd.DataFrame`
+Concatenates all results into a single Pandas DataFrame.
+
+##### `save_to_csv(filename: str)`
+Saves the collected results to a CSV file.
+
+##### `save_to_parquet(filename: str)`
+Saves the collected results to a Parquet file.
+
+##### `clear()`
+Resets the handler, removing all collected results.
+
+##### `calculate_gap_times(target_id=None, pooled=False) -> dict | np.ndarray`
+Calculates chronological time gaps (in seconds) between observations of targets.
+
+##### `plot_gap_times_histogram(target_id=None, bins="auto", show_plot=True) -> go.Figure`
+Generates and optionally displays a Plotly histogram of the interobservation gap times.
 
 ### detector.py
 
@@ -296,6 +320,11 @@ Generates and adds fixed reference targets to the simulation.
 
 #### `run_verification()`
 Verification script for the cadence controller.
+
+### demo_gap_time_histogram.py
+
+#### `demo_gap_time_histogram() -> go.Figure`
+Runs a cadence simulation, calculates interobservation gaps, and returns a histogram plot.
 
 ### demo*.py (Demo Files)
 Individual demonstration scripts (e.g., `demo1.py`, `demo_sky_scan.py`). Most contain a main

@@ -2,6 +2,16 @@
 
 
 # 2026-06
+
+## [2026-06-13 Sat]
+Asking gemini to thinkg about making things more compactet, etc. 
+It did have some good suggestions that I let it follow throiugh on,
+although I'm again worried I'm not thinking about these things enough!
+
+Go ahead and convert the dynamic dictionary structure to a dataclass strucure.  
+I need to larn abou these.{erf}
+
+
 ## [2026-06-06 Sat]
 Well that was a bit of time off. I wasn't sure what I wanted to do,
 what with some frustrations with getting the coding going, 
