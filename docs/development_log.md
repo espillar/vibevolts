@@ -9,8 +9,14 @@ It did have some good suggestions that I let it follow throiugh on,
 although I'm again worried I'm not thinking about these things enough!
 
 Go ahead and convert the dynamic dictionary structure to a dataclass strucure.  
-I need to larn abou these.{erf}
+I need to larn abou these.
 
+Work VV with antigravity for about an hour and a half.  That does get a little 
+tiring, I am lazy.  I did run through my token count for the day:  but I get 
+more at 1830 or so tonight.   Reasonable progress,  cleaned up code, starting 
+moving over to dataclasses instead of dictionaries (that’s where i ran out 
+of time) and created some code to create gap time histograms.  That works, 
+but the times seem really short.  Clearly somthing to check “by hand”.
 
 ## [2026-06-06 Sat]
 Well that was a bit of time off. I wasn't sure what I wanted to do,
