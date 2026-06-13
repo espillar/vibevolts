@@ -21,6 +21,7 @@ from demo_show_geo_search import demo_show_geo_search
 from demo_requiredIntegrationTime import demo_requiredIntegrationTime
 from fibonacciSearch import test_vector_resorting
 from pointing import demo_exclusion_pointing
+from demo_gap_time_histogram import demo_gap_time_histogram
 
 
 def demo_vector_resorting_plot() -> go.Figure:
@@ -55,6 +56,7 @@ def run_all_demos(save_html=False):
         demo_vector_resorting_plot,
         demo_exclusion_pointing,
         demoFixed,
+        demo_gap_time_histogram,
     ]
 
     figs = [] # This is a list

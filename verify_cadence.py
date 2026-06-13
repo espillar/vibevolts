@@ -6,7 +6,7 @@ from propagation import add_satellites_from_tle
 from targets import add_fixed_points
 from celestialbodies import add_celestial_bodies, celestial_update
 from cadenceController import initCadence, nextIntegration
-from detector import detectorPointingInitialize
+from pointing import detectorPointingInitialize
 from dataHandling import DataHandler
 from constants import *
 

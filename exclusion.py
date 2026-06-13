@@ -4,54 +4,6 @@ from typing import Dict, Any, Tuple, Optional
 from constants import (
     EARTH_RADIUS, MOON_RADIUS
 )
-
-#def solarexclusion(data_struct: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
-#    """
-#    Calculates solar exclusion for all satellites based on their pointing vectors.
-#
-#    This function operates in a vectorized manner on all satellites in the
-#    'satellites' category. It computes the angle between each satellite's
-#    pointing vector and the vector from the satellite to the Sun.#
-#
-#    Args:
-#        data_struct: The main simulation data dictionary.
-#
-#    Returns:
-#        A tuple containing:
-#        - exclusion_vector (np.ndarray): An array of the same length as the
-#          number of satellites. An element is 1 if the satellite is within
-#          the solar exclusion angle, 0 otherwise.
-#        - angle_vector (np.ndarray): An array containing the calculated angle
-#          in radians for each satellite.
-#    """
-#    num_sats = data_struct['counts']['satellites']
-#    if num_sats == 0:
-#        return np.array([]), np.array([])
-#
-#    sun_pos = data_struct['celestial']['position'][0]
-#    sat_pos = data_struct['satellites']['position']
-#    sat_pointing = data_struct['satellites']['pointing']
-#    solar_exclusion_angles = data_struct['satellites']['detector'].solarEx
-#
-#    vec_sat_to_sun = sun_pos - sat_pos
-#
-#    norm_sat_to_sun = np.linalg.norm(vec_sat_to_sun, axis=1)
-#    norm_sat_pointing = np.linalg.norm(sat_pointing, axis=1)
-#
-#    valid_norms = (norm_sat_to_sun > 1e-9) & (norm_sat_pointing > 1e-9)
-#
-#    angle_vector = np.full(num_sats, np.pi)
-#
-#    if np.any(valid_norms):
-#        dot_product = np.einsum('ij,ij->i', vec_sat_to_sun[valid_norms], sat_pointing[valid_norms])
-#        cos_angle = dot_product / (norm_sat_to_sun[valid_norms] * norm_sat_pointing[valid_norms])
-#        cos_angle = np.clip(cos_angle, -1.0, 1.0)
-#        angle_vector[valid_norms] = np.arccos(cos_angle)
-#
-#    exclusion_vector = (angle_vector < solar_exclusion_angles).astype(int)
-#
-#    return exclusion_vector, angle_vector
-
 def exclusion(
     data_struct: Dict[str, Any],
     satellite_index: int,

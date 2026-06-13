@@ -236,22 +236,9 @@ def includedAngle(
     if vectors1.shape[1] != 3:
         raise ValueError("Input vectors must be 3-dimensional.")
 
-    # Calculate the norms of the vectors
-    norm_vectors1 = np.linalg.norm(vectors1, axis=1)
-    norm_vectors2 = np.linalg.norm(vectors2, axis=1)
-
-    # Normalize the vectors, handling potential division by zero
-    with np.errstate(divide='ignore', invalid='ignore'):
-        unit_vectors1 = np.where(
-            norm_vectors1[:, np.newaxis] == 0,
-            0,
-            vectors1 / norm_vectors1[:, np.newaxis]
-        )
-        unit_vectors2 = np.where(
-            norm_vectors2[:, np.newaxis] == 0,
-            0,
-            vectors2 / norm_vectors2[:, np.newaxis]
-        )
+    from minimalsimulation import safe_normalize
+    unit_vectors1 = safe_normalize(vectors1, axis=1)
+    unit_vectors2 = safe_normalize(vectors2, axis=1)
 
     # Calculate the dot product of the normalized vectors
     dot_product = np.einsum('ij,ij->i', unit_vectors1, unit_vectors2)

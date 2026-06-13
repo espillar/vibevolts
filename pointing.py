@@ -94,6 +94,22 @@ def update_detector_pointing(sim_data: Dict[str, Any], sat_category: str = 'sate
                 break
 
 
+def detectorPointingInitialize(sim_data, grid_points):
+    """
+    Assumes that sim_data['detector'] is loaded, but the
+    pointing part of detectors is currently empty.
+    Initializes pointing and pointing_state inside detector, and
+    adds a pointing sphere to sim_data.
+    """
+    sensorCount = len(sim_data['detector'].filt)
+    generate_pointing_sphere(sim_data, grid_points)
+    detect = sim_data['detector']
+    detect.pointing_state = np.zeros((2, sensorCount), dtype=int)
+    detect.pointing_state[POINTING_COUNT_IDX, :] = grid_points
+    detect.pointing_state[POINTING_PLACE_IDX, :] = np.random.randint(0, grid_points - 1, size=sensorCount)
+    update_detector_pointing(sim_data)
+
+
 def demo_exclusion_pointing():
     """
     Demonstrates satellite pointing with a solar exclusion angle and a detector

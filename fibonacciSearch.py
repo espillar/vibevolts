@@ -74,20 +74,16 @@ def resort_vectors_by_proximity(unit_vectors: np.ndarray) -> np.ndarray:
     for i in range(1, n_vectors):
         last_vector = sorted_vectors[i-1]
         
-        # Find the closest vector in the remaining set
-        min_dist = float('inf')
-        best_index = -1
+        # Vectorized distance computation to all remaining candidates
+        rem_coords = unit_vectors[remaining_indices]
+        dists = np.linalg.norm(rem_coords - last_vector, axis=1)
         
-        for j, index in enumerate(remaining_indices):
-            dist = np.linalg.norm(last_vector - unit_vectors[index])
-            if dist < min_dist:
-                min_dist = dist
-                best_index_in_list = j
-                best_index = index
+        # Find index of minimum distance
+        best_idx_in_rem = np.argmin(dists)
+        best_index = remaining_indices[best_idx_in_rem]
 
-        # Move the found vector to the sorted list
         sorted_vectors[i] = unit_vectors[best_index]
-        remaining_indices.pop(best_index_in_list)
+        remaining_indices.pop(best_idx_in_rem)
 
     return sorted_vectors
 

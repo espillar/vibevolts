@@ -4,11 +4,33 @@ import math
 from radiometry_data import FILTER_DATA
 from types import SimpleNamespace
 from radiometry_calcs import *
-from pointing import update_detector_pointing, generate_pointing_sphere
 import random
+from typing import List
 
 
-#########################################################
+class DetectorArray(SimpleNamespace):
+    """
+    DetectorArray models detector parameters for all satellites.
+    It inherits from SimpleNamespace to maintain 100% backward compatibility
+    with SimpleNamespace isinstance checks.
+    """
+    apertureArea: np.ndarray
+    pixelOmega: np.ndarray
+    qe: np.ndarray
+    photoEff: np.ndarray
+    pixCount: np.ndarray
+    solarEx: np.ndarray
+    lunarEx: np.ndarray
+    earthEx: np.ndarray
+    skyBack: np.ndarray
+    zpCal: np.ndarray
+    integrationTime: np.ndarray
+    fov: np.ndarray
+    ifov: np.ndarray
+    filt: List[str]
+    pointing: np.ndarray
+    pointing_state: np.ndarray
+
 
 def setDetectorFOV(sim_data, fovSize):
     """
@@ -20,7 +42,6 @@ def setDetectorFOV(sim_data, fovSize):
     count = len(sim_data['detector'].fov)
     sim_data['detector'].fov = np.full(count, fovSize)
 
-    #########################################################
 
 def setDetectorIntegrationTime(sim_data, itime):
     """
@@ -35,56 +56,29 @@ def setDetectorIntegrationTime(sim_data, itime):
 
 ##########################################################
 
-def makeBlankDetector(n):
+def makeBlankDetector(n: int) -> DetectorArray:
     """
-    makeBlankDetector makes and returns a detector SipleNamespace
-    with parameters
-    apertureArea
-    pixelOmega
-    qe
-    photoEff
-    pixCount
-    solarEx
-    lunarEx
-    earlEx
-    skyBack
-    zpCal
-    integrationTime
-    fov
-    ifov
-    filt
-    pointing = (n,3) vectors where you are pointing
-    pointing_state (n,2) length of chain and current index
+    makeBlankDetector makes and returns a DetectorArray
+    with parameters initialized to zero arrays of length n.
     """
-    detector = SimpleNamespace()
-    detector.apertureArea = np.zeros(n, dtype=float)
-        # Aperture area in square meters
-    detector.pixelOmega = np.zeros(n, dtype=float)
-        # pixel area in square arcsec
-    detector.qe = np.zeros(n, dtype=float)
-    # Quantum efficiency from apertureArea to detectoras a fraction (0.0 to 1.0)
-    detector.photoEff = np.zeros(n, dtype=float)
-    # Fraction of photons in photometry bucket
-    detector.pixCount = np.zeros(n, dtype=float)
-    # Total number of pixels in the detector (count)
-    detector.solarEx = np.zeros(n, dtype=float)
-    # Solar exclusion angle in radians
-    detector.lunarEx = np.zeros(n, dtype=float)
-    # Lunar exclusion angle in radians
-    detector.earthEx = np.zeros(n, dtype=float)
-    # Earth exclusion angle (above the limb) in radians
-    detector.skyBack = np.zeros(n, dtype=float)
-    # Sky Background in photons per square steradian
-    detector.zpCal = np.zeros(n, dtype=float)
-    # Filter calibration zeropoint" photons per square meter per second second
-    detector.integrationTime = np.zeros(n, dtype=float)
-    # Integration Time required to reach a desired limiting magniude
-    detector.fov = np.zeros(n, dtype=float)
-    detector.ifov = np.zeros(n, dtype=float)
-    detector.filt = [""] * n                       # filter
-    detector.pointing = np.zeros((n,3), dtype = float)
-    detector.pointing_state = np.zeros((2,n),dtype=int)
-    return detector
+    return DetectorArray(
+        apertureArea=np.zeros(n, dtype=float),
+        pixelOmega=np.zeros(n, dtype=float),
+        qe=np.zeros(n, dtype=float),
+        photoEff=np.zeros(n, dtype=float),
+        pixCount=np.zeros(n, dtype=float),
+        solarEx=np.zeros(n, dtype=float),
+        lunarEx=np.zeros(n, dtype=float),
+        earthEx=np.zeros(n, dtype=float),
+        skyBack=np.zeros(n, dtype=float),
+        zpCal=np.zeros(n, dtype=float),
+        integrationTime=np.zeros(n, dtype=float),
+        fov=np.zeros(n, dtype=float),
+        ifov=np.zeros(n, dtype=float),
+        filt=[""] * n,
+        pointing=np.zeros((n, 3), dtype=float),
+        pointing_state=np.zeros((2, n), dtype=int)
+    )
 
 ##########################################################
 
@@ -134,30 +128,7 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, qe = 0.5, photf
 
 
 
-###########################################################
 
-def detectorPointingInitialize(sim_data, grid_points):
-    """
-    We assume that sim_data['detectors'] loaded, but the
-    pointing part of detectors is currently empty.
-    pointing and pointing_state inside detect are initialized, and
-    also adding a pointing sphere to sim_data.
-    """
-
-
-    # BROKEN the number of points should be the number of sensors
-    sensorCount = len(sim_data['detector'].filt)
-    generate_pointing_sphere(sim_data, grid_points)
-    detect = sim_data['detector']
-    detect.pointing_state = np.zeros((2,sensorCount), dtype = int)
-#    print( 'detect.pointing_state.shape ', detect.pointing_state.shape)
-    detect.pointing_state[POINTING_COUNT_IDX,:] = grid_points
-    detect.pointing_state[POINTING_PLACE_IDX,:] = np.random.randint(0, grid_points-1, size=sensorCount)
-    update_detector_pointing(sim_data)
-
-    
-    
-###########################################################
 
 
 
