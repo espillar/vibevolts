@@ -14,26 +14,26 @@ from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity
 from exclusion import exclusion
 
 
-def generate_pointing_sphere(sim_data: Dict[str, Any], n_points: int, debug: bool = False) -> None:
+def generate_pointing_sphere(sim_data: Any, n_points: int, debug: bool = False) -> None:
     """
-    Generates a pointing sphere with n_points and stores it in the sim_data['pointing_sphers'][n_points]
+    Generates a pointing sphere with n_points and stores it in the sim_data.pointing_spheres[n_points]
     A pointing sphere is a 3 by n_points numpy array with the 3 representing unit vectors to be
     pointed to
-    These positions will be used by the update_satellte_pointing to
+    These positions will be used by the update_detector_pointing to
     point sensors incrementaly.
-    The index is ['pointing_spheres'][n] 
+    The index is sim_data.pointing_spheres[n] 
     If a sphere with the same number of points already exists, this function does nothing.
     The current version of the code resorts the vector by proximity to make the sky search
     more efficient, although this is not deeply optimized yet.
     """
-    if n_points not in sim_data['pointing_spheres']:
+    if n_points not in sim_data.pointing_spheres:
         print(f"Generating pointing sphere with {n_points} points...")
-        sim_data['pointing_spheres'][n_points] = \
+        sim_data.pointing_spheres[n_points] = \
            resort_vectors_by_proximity(pointing_vectors(n_points))
 
     if debug:
         print(f"\n--- Debugging Pointing Sphere (n_points={n_points}) ---")
-        generated_vectors = sim_data['pointing_spheres'][n_points]
+        generated_vectors = sim_data.pointing_spheres[n_points]
         print(f"Total number of pointing vectors generated: {len(generated_vectors)}")
 
         num_to_show = min(5, len(generated_vectors))
@@ -47,18 +47,18 @@ def generate_pointing_sphere(sim_data: Dict[str, Any], n_points: int, debug: boo
         print("-------------------------------------------\n")
 
 
-def update_detector_pointing(sim_data: Dict[str, Any], sat_category: str = 'satellites', debug: bool = False) -> None:
+def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', debug: bool = False) -> None:
     """
     Updates the pointing vector for each detector, skipping excluded pointing directions.
     """
-    num_detectors = len(sim_data['detector'].filt)  
+    num_detectors = len(sim_data.detector.filt)  
     if num_detectors == 0:
         return
 
 # Bring in the approprieate pieces of the data structure for easier reference
-    pointing_state = sim_data['detector'].pointing_state 
+    pointing_state = sim_data.detector.pointing_state 
 #    print('pointing_state in pointing.py ', pointing_state)
-    pointing_vectors_all = sim_data['detector'].pointing
+    pointing_vectors_all = sim_data.detector.pointing
 
 # Iterate over satellites
     for i in range(num_detectors):
@@ -66,7 +66,7 @@ def update_detector_pointing(sim_data: Dict[str, Any], sat_category: str = 'sate
         count = int(pointing_state[POINTING_COUNT_IDX, i])
         if count == 0:
             continue
-        grid = sim_data['pointing_spheres'][count]
+        grid = sim_data.pointing_spheres[count]
         
         place = int(pointing_state[POINTING_PLACE_IDX, i])
         start_place = place
@@ -94,16 +94,16 @@ def update_detector_pointing(sim_data: Dict[str, Any], sat_category: str = 'sate
                 break
 
 
-def detectorPointingInitialize(sim_data, grid_points):
+def detectorPointingInitialize(sim_data: Any, grid_points: int) -> None:
     """
-    Assumes that sim_data['detector'] is loaded, but the
+    Assumes that sim_data.detector is loaded, but the
     pointing part of detectors is currently empty.
     Initializes pointing and pointing_state inside detector, and
     adds a pointing sphere to sim_data.
     """
-    sensorCount = len(sim_data['detector'].filt)
+    sensorCount = len(sim_data.detector.filt)
     generate_pointing_sphere(sim_data, grid_points)
-    detect = sim_data['detector']
+    detect = sim_data.detector
     detect.pointing_state = np.zeros((2, sensorCount), dtype=int)
     detect.pointing_state[POINTING_COUNT_IDX, :] = grid_points
     detect.pointing_state[POINTING_PLACE_IDX, :] = np.random.randint(0, grid_points - 1, size=sensorCount)
@@ -134,8 +134,8 @@ def demo_exclusion_pointing():
     os.remove(temp_tle_path)
 
     # Set solar exclusion angle and detector FOV for the single satellite
-    sim_data['detector'].solarEx[0] = math.pi/2
-    sim_data['detector'].fov[0] = math.pi/5
+    sim_data.detector.solarEx[0] = math.pi/2
+    sim_data.detector.fov[0] = math.pi/5
 
     # Generate 400 pointing points using the module's generate_pointing_sphere
     n_points_sphere = 400
@@ -143,8 +143,8 @@ def demo_exclusion_pointing():
 
     # Initialize pointing_state for the single detector
     # Assuming the first detector (index 0)
-    sim_data['detector'].pointing_state[POINTING_COUNT_IDX, 0] = n_points_sphere
-    sim_data['detector'].pointing_state[POINTING_PLACE_IDX, 0] = 0 # Start at the first point
+    sim_data.detector.pointing_state[POINTING_COUNT_IDX, 0] = n_points_sphere
+    sim_data.detector.pointing_state[POINTING_PLACE_IDX, 0] = 0 # Start at the first point
 
     pointed_directions_history = []
     
@@ -152,7 +152,7 @@ def demo_exclusion_pointing():
     sim_data = celestial_update(sim_data, start_time)
     sim_data = propagate_satellites(sim_data, start_time, 'satellites')
     
-    initial_sat_pos = sim_data['satellites']['position'][0]
+    initial_sat_pos = sim_data.satellites.position[0]
     
     # --- Plot initialization with unit sphere ---
     fig = go.Figure()
@@ -182,7 +182,7 @@ def demo_exclusion_pointing():
 
     for i in range(400):
         update_detector_pointing(sim_data, debug=False) # Turn off debug
-        current_pointed_direction = sim_data['detector'].pointing[0]
+        current_pointed_direction = sim_data.detector.pointing[0]
         snapshot = current_pointed_direction.copy()
 #        print(f"Current pointed direction: {snapshot}") # Print current direction
         pointed_directions_history.append(snapshot)
@@ -229,7 +229,7 @@ def demo_exclusion_pointing():
     fig.show() 
     return fig
 
-def jerk(sim_data: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, Any]:
+def jerk(sim_data: Any, satellite_indices: np.ndarray) -> Any:
     """
     Moves the pointing vector of specific satellites by 0.3 radians in a
     random direction.
@@ -237,7 +237,7 @@ def jerk(sim_data: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, A
     This function applies a random rotation to the satellites' pointing vectors.
 
     Args:
-        sim_data: The main simulation data dictionary.
+        sim_data: The main simulation data structure.
         satellite_indices: The indices of the satellites to modify.
 
     Returns:
@@ -246,7 +246,7 @@ def jerk(sim_data: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, A
     if satellite_indices.size == 0:
         return sim_data
 
-    p = sim_data['detector'].pointing[satellite_indices]
+    p = sim_data.detector.pointing[satellite_indices]
     p_norm = p / np.linalg.norm(p, axis=1)[:, np.newaxis]
 
     # Generate a random vector not parallel to p_norm
@@ -261,6 +261,6 @@ def jerk(sim_data: Dict[str, Any], satellite_indices: np.ndarray) -> Dict[str, A
     # Rodrigues' rotation formula
     p_new = p_norm * cos_theta + np.cross(k_hat, p_norm) * sin_theta
 
-    sim_data['detector'].pointing[satellite_indices] = p_new
+    sim_data.detector.pointing[satellite_indices] = p_new
 
     return sim_data

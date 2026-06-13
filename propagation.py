@@ -10,13 +10,13 @@ from constants import *
 
 
 
-def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_category: str) -> None:
+def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str) -> None:
     """
     Adds and initializes a category of satellites from a TLE file.
     Mote although the TLEs are loaded, positions etc. are not.
 
     Args:
-        sim_data: The main simulation data dictionary.
+        sim_data: The main simulation data structure.
         tle_file_path: Path to the TLE file.
         sat_category: The key for this satellite category (e.g., 'satellites').
 
@@ -32,12 +32,12 @@ def add_satellites_from_tle(sim_data: Dict[str, Any], tle_file_path: str, sat_ca
     orbital_elements, epochs = readtle(tle_file_path)
     num_sats = len(epochs)
 
-    sim_data['counts'][sat_category] = num_sats
+    sim_data.counts[sat_category] = num_sats
     new_detector = makeBlankDetector(num_sats)
-    if 'detector' not in sim_data or not sim_data.get('detector'):
-        sim_data['detector'] = new_detector
+    if 'detector' not in sim_data or not sim_data.detector:
+        sim_data.detector = new_detector
     else:
-        appendDetector(sim_data['detector'], new_detector)
+        appendDetector(sim_data.detector, new_detector)
     sim_data[sat_category] = {
         'position': np.zeros((num_sats, 3), dtype=float),
         'velocity': np.zeros((num_sats, 3), dtype=float),
@@ -87,7 +87,7 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
 
     return np.array(orbital_elements_list, dtype=float), epochs_list
 
-def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime, sat_category: str = None) -> Dict[str, Any]:
+def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: str = None) -> Any:
     """
     data_struct is the "standard" structure for the simulation
     time_date - a datetime - is the time that the satellites are propagated to.
@@ -105,11 +105,11 @@ def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime, sat_c
         categories = ['satellites', 'red_satellites']
 
     for category in categories:
-        if category not in data_struct['counts'] or data_struct['counts'][category] == 0:
+        if category not in data_struct.counts or data_struct.counts[category] == 0:
             continue
 
-        elements = data_struct[category]['orbital_elements']
-        epochs = data_struct[category]['epochs']
+        elements = data_struct[category].orbital_elements
+        epochs = data_struct[category].epochs
 
         epoch_timestamps = np.array([e.timestamp() for e in epochs])
         delta_t_array = time_date_timestamp - epoch_timestamps
@@ -159,10 +159,10 @@ def propagate_satellites(data_struct: Dict[str, Any], time_date: datetime, sat_c
         z_gcrs = x_pqw * P_z + y_pqw * Q_z
 
         positions = np.vstack((x_gcrs, y_gcrs, z_gcrs)).T
-        data_struct[category]['position'] = positions
+        data_struct[category].position = positions
 
         norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
         norms[norms == 0] = 1.0
-#        data_struct[category]['pointing'] = positions / norms
+#        data_struct[category].pointing = positions / norms
 
     return data_struct
