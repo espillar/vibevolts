@@ -31,7 +31,7 @@ def demo_sky_scan() -> go.Figure:
 
     # Set some reasonable exclusion angles
     sim_data['detector'].solarEx[:] = np.deg2rad(30)
-    sim_data['detector'].lunarex[:] = np.deg2rad(15)
+    sim_data['detector'].lunarEx[:] = np.deg2rad(15)
     sim_data['detector'].earthEx[:] = np.deg2rad(10)
 
     # b. Update celestial body positions

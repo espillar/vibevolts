@@ -94,7 +94,7 @@ def exclusion(
     detector_props = data_struct['detector']
     exclusion_angles = np.array([
         detector_props.solarEx[satellite_index],
-        detector_props.lunarex[satellite_index],
+        detector_props.lunarEx[satellite_index],
         detector_props.earthEx[satellite_index]
     ])
 
@@ -184,7 +184,7 @@ def update_exclusion_table(
     detector_props = data_struct['detector']
     exclusion_angles = np.vstack([
         detector_props.solarEx,
-        detector_props.lunarex,
+        detector_props.lunarEx,
         detector_props.earthEx
     ]).T
 

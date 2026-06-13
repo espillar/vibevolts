@@ -21,7 +21,7 @@ def demo_exclusion_table() -> go.Figure:
     sim_data = initialize_standard_simulation(sim_start_time)
 
     sim_data['detector'].solarEx[:] = np.deg2rad(30)
-    sim_data['detector'].lunarex[:] = np.deg2rad(30)
+    sim_data['detector'].lunarEx[:] = np.deg2rad(30)
     sim_data['detector'].earthEx[:] = np.deg2rad(10)
 
     print("Calculating celestial body positions...")

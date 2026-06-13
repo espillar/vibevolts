@@ -69,7 +69,7 @@ def makeBlankDetector(n):
     # Total number of pixels in the detector (count)
     detector.solarEx = np.zeros(n, dtype=float)
     # Solar exclusion angle in radians
-    detector.lunarex = np.zeros(n, dtype=float)
+    detector.lunarEx = np.zeros(n, dtype=float)
     # Lunar exclusion angle in radians
     detector.earthEx = np.zeros(n, dtype=float)
     # Earth exclusion angle (above the limb) in radians
@@ -120,7 +120,7 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, qe = 0.5, photf
     pixels = (ifov/fov)**2 # pixels
     detect.pixCount[:] = pixels   # total pixels in the array
     detect.solarEx[:] = solarex  # solar exclusion angle
-    detect.lunarex[:] = lunarex  # lunar exclusion angle
+    detect.lunarEx[:] = lunarex  # lunar exclusion angle
     detect.earthEx[:] = earthex  # eearth exclusion angle
     detect.skyBack[:] =  amag(FILTER_DATA[band]['sky']) * FILTER_DATA[band]['zero_point'] / (ARCSEC**2) # photon backgroud
     detect.zpCal[:] = FILTER_DATA[band]['zero_point'] # Filter Zero Point

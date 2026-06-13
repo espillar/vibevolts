@@ -72,7 +72,7 @@ if __name__ == '__main__':
     dummy_detector.photoEff = np.zeros(2)
     dummy_detector.pixCount = np.zeros(2)
     dummy_detector.solarEx = np.zeros(2)
-    dummy_detector.lunarex = np.zeros(2)
+    dummy_detector.lunarEx = np.zeros(2)
     dummy_detector.earthEx = np.zeros(2)
     dummy_detector.skyBack = np.zeros(2)
     dummy_detector.zpCal = np.zeros(2)

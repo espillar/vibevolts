@@ -30,7 +30,7 @@ def demo_requiredIntegrationTime():
     print(f"  Photometric Efficiency: {detector.photoEff[0]}")
     print(f"  Pixels: {detector.pixCount[0]}")
     print(f"  Solar Exclusion: {detector.solarEx[0]} rad")
-    print(f"  Lunar Exclusion: {detector.lunarex[0]} rad")
+    print(f"  Lunar Exclusion: {detector.lunarEx[0]} rad")
     print(f"  Earth Exclusion: {detector.earthEx[0]} rad")
     print(f"  Sky Background: {detector.skyBack[0]}")
     print(f"  Filter Band Cal: {detector.filt[0]}")
