@@ -69,8 +69,8 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     TODO: we are using the same filter for all the detectors!
     """
     # 1. Data Extraction and Masking
-    num_total_sats = sim_data['counts']['satellites']
-    sim_time = sim_data['time']
+    num_total_sats = sim_data.counts.satellites
+    sim_time = sim_data.time
 
     if mask is None:
         mask = np.ones(num_total_sats, dtype=bool)
@@ -91,23 +91,23 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
         return results
 
     # Subset detector and satellite data
-    satpositions = sim_data['satellites']['position'][mask]
-    detectorVect = sim_data['detector'].pointing[mask]
-    fovs = sim_data['detector'].fov[mask]
-    integrationTime = sim_data['detector'].integrationTime[mask]
-    apertureArea = sim_data['detector'].apertureArea[mask]
-    pixelOmega = sim_data['detector'].pixelOmega[mask]
-    qe = sim_data['detector'].qe[mask]
+    satpositions = sim_data.satellites.position[mask]
+    detectorVect = sim_data.detector.pointing[mask]
+    fovs = sim_data.detector.fov[mask]
+    integrationTime = sim_data.detector.integrationTime[mask]
+    apertureArea = sim_data.detector.apertureArea[mask]
+    pixelOmega = sim_data.detector.pixelOmega[mask]
+    qe = sim_data.detector.qe[mask]
     
     # Target and celestial data
-    targets = sim_data['fixedpoints']['position']
-    sunVect = sim_data['celestial']['position'][0]
-    albedo = sim_data['fixedpoints']['albedo']
-    radius = sim_data['fixedpoints']['size'] / 2
+    targets = sim_data.fixedpoints.position
+    sunVect = sim_data.celestial.position[0]
+    albedo = sim_data.fixedpoints.albedo
+    radius = sim_data.fixedpoints.size / 2
 
     # 2. Background Flux Calculation
     # Assuming same filter for active group (as per existing TODO)
-    filter_name = sim_data['detector'].filt[active_indices[0]]
+    filter_name = sim_data.detector.filt[active_indices[0]]
     sun, space, sky = radiometry_calcs.fluxes(filter_name)
 
     if print_output:

@@ -50,6 +50,11 @@ def get_state_class(key: str, field_type: Any) -> Optional[type]:
         return CelestialState
     elif key_lower == 'counts':
         return CountsState
+    elif key_lower == 'cadencestructure':
+        return CadenceState
+    elif key_lower == 'detector':
+        from detector import DetectorArray  # lazy import avoids circular dependency
+        return DetectorArray
     return None
 
 
@@ -183,6 +188,44 @@ class ObservatoriesState(DictDataclass):
     pointing: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
 
 
+
+@dataclass
+class CadenceGroup:
+    """
+    Holds scheduling information for one group of detectors that share
+    an identical integration time.
+
+    Attributes:
+        scanInterval: Integration period in seconds for this group.
+        scanMask:     Boolean array (length = total detectors) selecting
+                      the detectors that belong to this group.
+        scanNext:     The datetime at which the next scan for this group
+                      is due.  Initialised to sim_data.time so that every
+                      group fires on the first call to nextIntegration.
+    """
+    scanInterval: float
+    scanMask: np.ndarray
+    scanNext: datetime
+
+
+@dataclass
+class CadenceState(DictDataclass):
+    """
+    Top-level cadence schedule stored in sim_data.cadenceStructure.
+
+    Attributes:
+        cadenceList: Ordered list of CadenceGroup objects, one per unique
+                     integration time found in sim_data.detector.
+        nextTime:    The datetime of the earliest upcoming scan across all
+                     groups.
+        nextGroup:   Index into cadenceList identifying which group fires
+                     next.
+    """
+    cadenceList: List['CadenceGroup'] = field(default_factory=list)
+    nextTime: Optional[datetime] = None
+    nextGroup: int = 0
+
+
 @dataclass
 class SimulationState(DictDataclass):
     """
@@ -196,12 +239,13 @@ class SimulationState(DictDataclass):
     delta_time: float = 60.0
     counts: CountsState = field(default_factory=CountsState)
     pointing_spheres: Dict[int, np.ndarray] = field(default_factory=dict)
-    detector: Any = None
+    detector: Optional[Any] = None  # DetectorArray; typed Any to avoid circular import
     satellites: Optional[SatellitesState] = None
     observatories: Optional[ObservatoriesState] = None
     fixedpoints: Optional[FixedPointsState] = None
     celestial: Optional[CelestialState] = None
-    cadenceStructure: Optional[Dict[str, Any]] = None
+    cadenceStructure: Optional[CadenceState] = None
+
 
 
 def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> SimulationState:

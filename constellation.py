@@ -61,30 +61,33 @@ def _add_geo_constellation_core(sim_data, n, fov, detect) -> None:
     detect.pointing = np.zeros((n, 3), dtype=float)
     detect.pointing_state = pointing_state_array
 
-    if 'detector' not in sim_data or not sim_data.get('detector'):
-        sim_data['detector'] = detect
+    if not sim_data.detector:
+        sim_data.detector = detect
     else:
-        appendDetector(sim_data['detector'], detect)
+        appendDetector(sim_data.detector, detect)
 
-    if 'satellites' not in sim_data:
-        sim_data['counts']['satellites'] = n
-        sim_data['satellites'] = {
-            'position': np.zeros((n, 3), dtype=float),
-            'velocity': np.zeros((n, 3), dtype=float),
-            'acceleration': np.zeros((n, 3), dtype=float),
-            'orbital_elements': orbital_elements,
-            'epochs': epochs_list,
-        }
+    if not sim_data.satellites:
+        sim_data.counts.satellites = n
+        sim_data.satellites = SatellitesState(
+            position=np.zeros((n, 3), dtype=float),
+            velocity=np.zeros((n, 3), dtype=float),
+            acceleration=np.zeros((n, 3), dtype=float),
+            orbital_elements=orbital_elements,
+            epochs=epochs_list,
+        )
     else:
-        sim_data['counts']['satellites'] += n
-        sat = sim_data['satellites']
-        sat['position'] = np.vstack([sat['position'], np.zeros((n, 3), dtype=float)])
-        sat['velocity'] = np.vstack([sat['velocity'], np.zeros((n, 3), dtype=float)])
-        sat['acceleration'] = np.vstack([sat['acceleration'], np.zeros((n, 3), dtype=float)])
-        sat['orbital_elements'] = np.vstack([sat['orbital_elements'], orbital_elements])
-        sat['epochs'].extend(epochs_list)
+        sim_data.counts.satellites += n
+        sat = sim_data.satellites
+        sat.position = np.vstack([sat.position, np.zeros((n, 3), dtype=float)])
+        sat.velocity = np.vstack([sat.velocity, np.zeros((n, 3), dtype=float)])
+        sat.acceleration = np.vstack([sat.acceleration, np.zeros((n, 3), dtype=float)])
+        sat.orbital_elements = np.vstack([sat.orbital_elements, orbital_elements])
+        sat.epochs.extend(epochs_list)
     
-    sim_data = propagate_satellites(sim_data, sim_data.get('time', sim_data.get('start_time')))
+    sim_data = propagate_satellites(
+        sim_data,
+        sim_data.time if sim_data.time is not None else sim_data.start_time
+    )
 
 
 def geos(sim_data, n, fov) -> None:

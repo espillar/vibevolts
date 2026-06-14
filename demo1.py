@@ -23,16 +23,16 @@ def demo1() -> go.Figure:
     sim_data = celestial_update(sim_data, sim_start_time)
     print("\n--- Celestial Positions at Start Time ---")
     print(f"Time: {sim_start_time.isoformat()}")
-    print(sim_data['celestial']['position'])
+    print(sim_data.celestial.position)
 
     # --- Satellite Propagation and Plotting ---
     time_t1 = sim_start_time + timedelta(hours=1, minutes=30)
     print(f"\n--- Propagating satellites to T1: {time_t1.isoformat()} ---")
     sim_data = propagate_satellites(sim_data, time_t1)
-    sim_data["time"] = time_t1
+    sim_data.time = time_t1
 
     fig = plot_3d_scatter(
-        positions=sim_data['satellites']['position'],
+        positions=sim_data.satellites.position,
         title=f"Satellite Positions at {time_t1.isoformat()}",
         plot_time=time_t1,
         marker_size=2,

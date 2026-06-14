@@ -3,8 +3,15 @@ import numpy as np
 from typing import Dict, Any
 from generate_log_spherical_points import generate_log_spherical_points
 from constants import *
+from minimalsimulation import FixedPointsState
 
-def add_fixed_points(sim_data: Any, num_points: int = 100, size: float = 1.0, innerRadius: float = 2000000, outerRadius: float = 2 * GEO_RADIUS) -> None:
+def add_fixed_points(
+    sim_data: Any,
+    num_points: int = 100,
+    size: float = 1.0,
+    innerRadius: float = 2000000,
+    outerRadius: float = 2 * GEO_RADIUS
+) -> None:
     """
     Adds a structure for fixed reference points in the GCRS frame.
 
@@ -21,8 +28,8 @@ def add_fixed_points(sim_data: Any, num_points: int = 100, size: float = 1.0, in
             outer_radius=outerRadius
         )
     sim_data.counts.fixedpoints = num_points
-    sim_data.fixedpoints = {
-        'position': positions,
-        'size': np.full(num_points, size, dtype=float),
-        'albedo': np.full(num_points, 0.2, dtype=float)
-    }
+    sim_data.fixedpoints = FixedPointsState(
+        position=positions,
+        size=np.full(num_points, size, dtype=float),
+        albedo=np.full(num_points, 0.2, dtype=float)
+    )

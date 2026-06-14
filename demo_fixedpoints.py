@@ -21,7 +21,7 @@ def demo_fixedpoints() -> go.Figure:
     sim_data = create_empty_simulation(sim_start_time)
     add_fixed_points(sim_data, 100)
 
-    fixed_positions = sim_data['fixedpoints']['position']
+    fixed_positions = sim_data.fixedpoints.position
 
     print(f"Plotting {len(fixed_positions)} fixed points.")
 

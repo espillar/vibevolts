@@ -20,15 +20,15 @@ def demo2() -> go.Figure:
     sim_data = initialize_standard_simulation(sim_start_time)
 
     # --- Satellite and Celestial Propagation ---
-    positions_t0 = sim_data['satellites']['position'].copy()
+    positions_t0 = sim_data.satellites.position.copy()
     sim_data = celestial_update(sim_data, sim_start_time)
-    celestial_pos_t0 = sim_data['celestial']['position'].copy()
+    celestial_pos_t0 = sim_data.celestial.position.copy()
 
     time_t1 = sim_start_time + timedelta(seconds=300)
     sim_data = propagate_satellites(sim_data, time_t1)
-    positions_t1 = sim_data['satellites']['position'].copy()
+    positions_t1 = sim_data.satellites.position.copy()
     sim_data = celestial_update(sim_data, time_t1)
-    celestial_pos_t1 = sim_data['celestial']['position'].copy()
+    celestial_pos_t1 = sim_data.celestial.position.copy()
 
     # --- 3D Plotting of All Time Steps ---
     print("\n--- Generating 3D plot for Demo 2 ---")

@@ -24,21 +24,21 @@ def run_verification():
     # Let's assume dummy_tle.txt has at least 4 satellites.
     add_satellites_from_tle(sim_data, 'dummy_tle.txt', 'satellites')
     from propagation import propagate_satellites
-    propagate_satellites(sim_data, sim_data['time'], 'satellites')
-    num_sats = sim_data['counts']['satellites']
+    propagate_satellites(sim_data, sim_data.time, 'satellites')
+    num_sats = sim_data.counts.satellites
     print(f"Added {num_sats} satellites.")
     
     # 3. Manually set detector properties
     # First half: 10s, Second half: 30s
-    sim_data['detector'].integrationTime[:num_sats//2] = 10.0
-    sim_data['detector'].integrationTime[num_sats//2:] = 30.0
+    sim_data.detector.integrationTime[:num_sats//2] = 10.0
+    sim_data.detector.integrationTime[num_sats//2:] = 30.0
     
     # Set other required properties for all detectors
-    sim_data['detector'].filt = ["V"] * num_sats
-    sim_data['detector'].apertureArea[:] = 1.0  # 10cm x 10cm roughly
-    sim_data['detector'].qe[:] = 0.8
-    sim_data['detector'].fov[:] = np.radians(180) # 10 degree FOV
-    sim_data['detector'].pixelOmega[:] = (3 * ARCSEC)**2 # some small value
+    sim_data.detector.filt = ["V"] * num_sats
+    sim_data.detector.apertureArea[:] = 1.0  # 10cm x 10cm roughly
+    sim_data.detector.qe[:] = 0.8
+    sim_data.detector.fov[:] = np.radians(180) # 10 degree FOV
+    sim_data.detector.pixelOmega[:] = (3 * ARCSEC)**2 # some small value
 
     
     
@@ -53,9 +53,9 @@ def run_verification():
     # 5. Initialize Cadence
     initCadence(sim_data)
     print("Cadence initialized.")
-    for i, group in enumerate(sim_data['cadenceStructure']['cadenceList']):
-        count = np.sum(group['scanMask'])
-        print(f"Group {i}: Interval={group['scanInterval']}s, Count={count}")
+    for i, group in enumerate(sim_data.cadenceStructure.cadenceList):
+        count = np.sum(group.scanMask)
+        print(f"Group {i}: Interval={group.scanInterval}s, Count={count}")
 
     # Plot positions if in a notebook
     try:
@@ -65,14 +65,14 @@ def run_verification():
             from plotting_3d import plot_3d_scatter
             import plotly.graph_objects as go
             
-            sat_pos = sim_data['satellites']['position']
-            target_pos = sim_data['fixedpoints']['position']
-            sat_pointing = sim_data['detector'].pointing
+            sat_pos = sim_data.satellites.position
+            target_pos = sim_data.fixedpoints.position
+            sat_pointing = sim_data.detector.pointing
             
             fig = plot_3d_scatter(
                 positions=sat_pos,
                 title="Initial Satellite and Target Positions",
-                plot_time=sim_data['time'],
+                plot_time=sim_data.time,
                 trace_name="Satellites",
                 marker_size=6,
                 marker_color="blue"
@@ -111,14 +111,14 @@ def run_verification():
     print("\n--- Running Iterations ---")
     for step in range(6):
         print(f"\nStep {step+1}:")
-        next_time = sim_data['cadenceStructure']['nextTime']
-        next_group = sim_data['cadenceStructure']['nextGroup']
+        next_time = sim_data.cadenceStructure.nextTime
+        next_group = sim_data.cadenceStructure.nextGroup
         print(f"  Scheduled: Time={next_time}, Group={next_group}")
         
         results = nextIntegration(sim_data, print_output=1)
         handler.add_results(results)
         
-        print(f"  Executed:  Time={sim_data['time']}")
+        print(f"  Executed:  Time={sim_data.time}")
         if isinstance(results, dict):
             print(f"  Result Timestamp: {results.get('time')}")
             num_hits = len(results['sat_indices'])

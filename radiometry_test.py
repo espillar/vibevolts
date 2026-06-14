@@ -9,7 +9,12 @@ from constants import EARTH_RADIUS, ARCSEC, DEGREE
 from detector import makeBlankDetector, makeDetector
 from celestialbodies import add_celestial_bodies
 import plotly.graph_objects as go
-from minimalsimulation import create_empty_simulation
+from minimalsimulation import (
+    create_empty_simulation,
+    SatellitesState,
+    FixedPointsState,
+    CelestialState,
+)
 from datetime import datetime, timezone
 from scandetectors import scandetectors
 
@@ -55,16 +60,16 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
     else:
         new_pointing_vector = np.array([1, 0, 0]).reshape(1, 3) # Default if at origin
 
-    if 'satellites' not in sim_data or not sim_data.get('satellites'):
+    if not sim_data.satellites:
         # Initialize for the first satellite
-        sim_data['counts']['satellites'] = 1
-        sim_data['satellites'] = {
-            'position': new_pos,
-            'velocity': new_vel,
-            'acceleration': new_accel,
-            'orbital_elements': new_orbital_elements,
-            'epochs': [sim_data['time']],
-        }
+        sim_data.counts.satellites = 1
+        sim_data.satellites = SatellitesState(
+            position=new_pos,
+            velocity=new_vel,
+            acceleration=new_accel,
+            orbital_elements=new_orbital_elements,
+            epochs=[sim_data.time],
+        )
         # Initialize detector for the first satellite
         # Store detector creation parameters for future use
         initial_detector_params = {
@@ -74,22 +79,23 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         }
         detector = makeDetector(**initial_detector_params)
         detector.pointing[0, :] = new_pointing_vector[0]
-        sim_data['detector'] = detector
-        sim_data['initial_detector_params'] = initial_detector_params
+        sim_data.detector = detector
+        sim_data.initial_detector_params = initial_detector_params
     else:
         # Append for subsequent satellites
-        sim_data['counts']['satellites'] += 1
+        sim_data.counts.satellites += 1
 
-        sim_data['satellites']['position'] = np.vstack([sim_data['satellites']['position'], new_pos])
-        sim_data['satellites']['velocity'] = np.vstack([sim_data['satellites']['velocity'], new_vel])
-        sim_data['satellites']['acceleration'] = np.vstack([sim_data['satellites']['acceleration'], new_accel])
-        sim_data['satellites']['orbital_elements'] = np.vstack([sim_data['satellites']['orbital_elements'], new_orbital_elements])
-        sim_data['satellites']['epochs'].append(sim_data['time']) # epochs is a list, not numpy array
+        sat = sim_data.satellites
+        sat.position = np.vstack([sat.position, new_pos])
+        sat.velocity = np.vstack([sat.velocity, new_vel])
+        sat.acceleration = np.vstack([sat.acceleration, new_accel])
+        sat.orbital_elements = np.vstack([sat.orbital_elements, new_orbital_elements])
+        sat.epochs.append(sim_data.time) # epochs is a list, not numpy array
 
         # Create a new single detector using the stored initial parameters
         from detector import appendDetector
-        cd = sim_data['detector']
-        initial_params = sim_data['initial_detector_params'].copy()
+        cd = sim_data.detector
+        initial_params = sim_data.initial_detector_params.copy()
         initial_params['n'] = 1 # Always create one new detector
         
         new_single_detector = makeDetector(**initial_params)
@@ -118,23 +124,22 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
         y (float): The y-coordinate of the target's position in meters.
         z (float): The z-coordinate of the target's position in meters.
     """
-    if 'fixedpoints' not in sim_data or not sim_data.get('fixedpoints'):
-        sim_data['counts']['fixedpoints'] = 0
-        sim_data['fixedpoints'] = {
-            'position': np.empty((0, 3), dtype=float),
-#            'exclusion': np.empty(0, dtype=int),
-            'size': np.empty(0, dtype=float),
-            'albedo': np.empty(0, dtype=float),
-        }
+    if not sim_data.fixedpoints:
+        sim_data.counts.fixedpoints = 0
+        sim_data.fixedpoints = FixedPointsState(
+            position=np.empty((0, 3), dtype=float),
+            size=np.empty(0, dtype=float),
+            albedo=np.empty(0, dtype=float),
+        )
 
     pos = np.array([x, y, z]).reshape(1, 3)
 
     # --- Add target to sim_data ---
-    sim_data['counts']['fixedpoints'] += 1
-    sim_data['fixedpoints']['position'] = np.vstack([sim_data['fixedpoints']['position'], pos])
-#    sim_data['fixedpoints']['exclusion'] = np.append(sim_data['fixedpoints']['exclusion'], 0)
-    sim_data['fixedpoints']['size'] = np.append(sim_data['fixedpoints']['size'], size)
-    sim_data['fixedpoints']['albedo'] = np.append(sim_data['fixedpoints']['albedo'], 0.2) # Default albedo
+    sim_data.counts.fixedpoints += 1
+    fp = sim_data.fixedpoints
+    fp.position = np.vstack([fp.position, pos])
+    fp.size = np.append(fp.size, size)
+    fp.albedo = np.append(fp.albedo, 0.2) # Default albedo
 
 def fixSun(sim_data: Dict[str, Any]) -> None:
     """
@@ -149,13 +154,13 @@ def fixSun(sim_data: Dict[str, Any]) -> None:
     Args:
         sim_data (Dict[str, Any]): The main simulation data dictionary.
     """
-    if 'celestial' not in sim_data:
+    if not sim_data.celestial:
         add_celestial_bodies(sim_data)
 
     sun_pos_m = -1 * u.au.to(u.m)
     
     # Update the celestial position for the sun in meters
-    sim_data['celestial']['position'][0] = np.array([sun_pos_m, 0, 0])
+    sim_data.celestial.position[0] = np.array([sun_pos_m, 0, 0])
 
 def demoFixed():
     """
@@ -224,14 +229,14 @@ def demoFixed():
         return pos * (log_r / r)
 
     # --- Extract data for plotting ---
-    sun_pos = sim_data['celestial']['position'][0]
-    sat_pos = sim_data['satellites']['position'][0]
+    sun_pos = sim_data.celestial.position[0]
+    sat_pos = sim_data.satellites.position[0]
     
     # Get all target positions and log-scale them
-    all_target_positions = sim_data['fixedpoints']['position']
+    all_target_positions = sim_data.fixedpoints.position
     all_target_positions_log = np.array([log_scale_pos(pos) for pos in all_target_positions])
 
-    viewing_vector = sim_data['detector'].pointing[0] # Assuming first satellite's detector
+    viewing_vector = sim_data.detector.pointing[0] # Assuming first satellite's detector
 
     sun_pos_log = log_scale_pos(sun_pos)
     sat_pos_log = log_scale_pos(sat_pos)

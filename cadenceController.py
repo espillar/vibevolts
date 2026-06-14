@@ -3,78 +3,91 @@ from datetime import timedelta
 from propagation import propagate_satellites
 from scandetectors import scandetectors
 from celestialbodies import celestial_update
+from minimalsimulation import CadenceGroup, CadenceState
 
-def initCadence(sim_data: dict):
+
+def initCadence(sim_data) -> None:
     """
-    Initializes the cadenceStructure in sim_data based on detector
-    integration times.
-    
-    This function groups detectors with identical integration times into cadence
-    groups and calculates the initial schedule for the simulation.
+    Initialises sim_data.cadenceStructure from detector integration times.
+
+    Groups detectors that share the same integration time into CadenceGroup
+    objects and stores them in a CadenceState on sim_data.cadenceStructure.
+    All groups are initialised with scanNext equal to the current simulation
+    time so that every group performs a scan on the first call to
+    nextIntegration.
+
+    Args:
+        sim_data: The main SimulationState object.
     """
-    # 1. Access integration times
-    integration_times = sim_data['detector'].integrationTime
-    
-    # 2. Find unique integration times
+    integration_times = sim_data.detector.integrationTime
     unique_intervals = np.unique(integration_times)
-    
-    # 3. Initialize cadenceStructure
-    sim_data['cadenceStructure'] = {}
-    cadence_list = []
-    
-    # 4 & 5. Create groups for each unique interval
-    for interval in unique_intervals:
-        cadence_group = {
-            'scanInterval': float(interval),
-            'scanMask': integration_times == interval,
-            'scanNext': sim_data['time']  # Init to current time for initial scan
-        }
-        cadence_list.append(cadence_group)
-    
-    # 6. Store the list
-    sim_data['cadenceStructure']['cadenceList'] = cadence_list
-    
-    # 7. Find initial nextTime and nextGroup
+
+    cadence_list = [
+        CadenceGroup(
+            scanInterval=float(interval),
+            scanMask=(integration_times == interval),
+            scanNext=sim_data.time,
+        )
+        for interval in unique_intervals
+    ]
+
+    sim_data.cadenceStructure = CadenceState(cadenceList=cadence_list)
     _update_next_schedule(sim_data)
 
-def nextIntegration(sim_data: dict, print_output: int = 0):
+
+def nextIntegration(sim_data, print_output: int = 0) -> dict:
     """
-    Finds and performs the next scheduled integration scan.
-    
-    Advances sim_data['time'] to the next scheduled event, propagates all satellites,
-    and performs a vectorized scan for the specific detector group.
+    Advances the simulation to the next scheduled scan and executes it.
+
+    Steps:
+    1. Advances sim_data.time to the earliest scheduled group event.
+    2. Propagates all satellites and updates celestial body positions.
+    3. Runs scandetectors for only the active group's masked detectors.
+    4. Updates that group's scanNext by one scanInterval.
+    5. Recomputes which group fires next.
+
+    Args:
+        sim_data:      The main SimulationState object.
+        print_output:  If > 0, scandetectors prints per-detection details.
+
+    Returns:
+        dict: The detection results returned by scandetectors, containing
+              'time', 'sat_indices', 'target_indices', 'signal', 'noise',
+              and 'snr'.
     """
-    cadence_struct = sim_data['cadenceStructure']
-    
-    # 1. Advance simulation time
-    sim_data['time'] = cadence_struct['nextTime']
-    
-    # 2. Propagate ALL satellites and update celestial bodies to the new time
-    propagate_satellites(sim_data, sim_data['time'])
-    celestial_update(sim_data, sim_data['time'])
-    
-    # 3. Get the active group
-    group_idx = cadence_struct['nextGroup']
-    group = cadence_struct['cadenceList'][group_idx]
-    
-    # 4. Perform the scan for the group's mask
-    results = scandetectors(sim_data, print_output=print_output, mask=group['scanMask'])
-    
-    # 5. Update the group's next scheduled time
-    group['scanNext'] = sim_data['time'] + timedelta(seconds=group['scanInterval'])
-    
-    # 6. Find the next overall event
+    cadence = sim_data.cadenceStructure
+
+    # 1. Advance simulation time to the next scheduled event.
+    sim_data.time = cadence.nextTime
+
+    # 2. Propagate all satellites and celestial bodies to the new time.
+    propagate_satellites(sim_data, sim_data.time)
+    celestial_update(sim_data, sim_data.time)
+
+    # 3. Run the scan for the active group's detector subset.
+    group = cadence.cadenceList[cadence.nextGroup]
+    results = scandetectors(sim_data, print_output=print_output,
+                            mask=group.scanMask)
+
+    # 4. Schedule this group's next scan.
+    group.scanNext = sim_data.time + timedelta(seconds=group.scanInterval)
+
+    # 5. Find the next overall event across all groups.
     _update_next_schedule(sim_data)
-    
+
     return results
 
-def _update_next_schedule(sim_data: dict):
-    """Helper to find the earliest scanNext among all groups."""
-    cadence_list = sim_data['cadenceStructure']['cadenceList']
-    
-    # Find index of the group with the minimum scanNext
-    next_times = [g['scanNext'] for g in cadence_list]
-    min_idx = np.argmin(next_times)
-    
-    sim_data['cadenceStructure']['nextTime'] = cadence_list[min_idx]['scanNext']
-    sim_data['cadenceStructure']['nextGroup'] = min_idx
+
+def _update_next_schedule(sim_data) -> None:
+    """
+    Scans all CadenceGroups and updates sim_data.cadenceStructure with
+    the index and datetime of the earliest upcoming scan.
+
+    Args:
+        sim_data: The main SimulationState object.
+    """
+    cadence = sim_data.cadenceStructure
+    next_times = [g.scanNext for g in cadence.cadenceList]
+    min_idx = int(np.argmin(next_times))
+    cadence.nextGroup = min_idx
+    cadence.nextTime = cadence.cadenceList[min_idx].scanNext

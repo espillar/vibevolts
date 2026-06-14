@@ -30,7 +30,7 @@ def demo3() -> go.Figure:
     sim_data = create_empty_simulation(sim_start_time)
     add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
 
-    print(f"Initializing structures for {sim_data['counts']['satellites']} LEO satellite.")
+    print(f"Initializing structures for {sim_data.counts.satellites} LEO satellite.")
 
     positions_over_time = []
     time_steps = np.arange(0, 91, 10)
@@ -38,8 +38,8 @@ def demo3() -> go.Figure:
     for minutes in time_steps:
         prop_time = sim_start_time + timedelta(minutes=int(minutes))
         sim_data = propagate_satellites(sim_data, prop_time)
-        sim_data['time'] = prop_time
-        positions_over_time.append(sim_data['satellites']['position'][0])
+        sim_data.time = prop_time
+        positions_over_time.append(sim_data.satellites.position[0])
 
     positions_array = np.array(positions_over_time)
 

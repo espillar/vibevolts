@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
-from types import SimpleNamespace
-from detector import makeDetector
+from detector import makeDetector, DetectorArray
 from constants import DEGREE, ARCSEC
 
 def test_makeDetector_intTime_default():
@@ -16,7 +15,7 @@ def test_makeDetector_intTime_default():
 
     detector = makeDetector(n_detectors, band, fov, ifov, aper)
 
-    assert isinstance(detector, SimpleNamespace)
+    assert isinstance(detector, DetectorArray)
     assert np.allclose(detector.integrationTime, 1.0)
     assert detector.integrationTime.shape == (n_detectors,)
 
@@ -33,7 +32,7 @@ def test_makeDetector_intTime_custom_value():
 
     detector = makeDetector(n_detectors, band, fov, ifov, aper, intTime=custom_int_time)
 
-    assert isinstance(detector, SimpleNamespace)
+    assert isinstance(detector, DetectorArray)
     assert np.allclose(detector.integrationTime, custom_int_time)
     assert detector.integrationTime.shape == (n_detectors,)
 

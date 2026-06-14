@@ -1,6 +1,5 @@
 import numpy as np
 from datetime import datetime, timezone
-from types import SimpleNamespace
 
 def sim_check(sim_data):
     """
@@ -65,20 +64,11 @@ def sim_check(sim_data):
 
 if __name__ == '__main__':
     # Create a dummy sim_data for demonstration
-    dummy_detector = SimpleNamespace()
+    from detector import makeBlankDetector
+    dummy_detector = makeBlankDetector(2)
     dummy_detector.apertureArea = np.array([0.785, 0.])
     dummy_detector.pixelOmega = np.array([1e-10, 0.])
     dummy_detector.qe = np.array([0.5, 0.5])
-    dummy_detector.photoEff = np.zeros(2)
-    dummy_detector.pixCount = np.zeros(2)
-    dummy_detector.solarEx = np.zeros(2)
-    dummy_detector.lunarEx = np.zeros(2)
-    dummy_detector.earthEx = np.zeros(2)
-    dummy_detector.skyBack = np.zeros(2)
-    dummy_detector.zpCal = np.zeros(2)
-    dummy_detector.integrationTime = np.zeros(2)
-    dummy_detector.fov = np.zeros(2)
-    dummy_detector.ifov = np.zeros(2)
 
     dummy_sim_data = {
         'start_time': datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),

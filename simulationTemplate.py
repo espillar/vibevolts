@@ -28,8 +28,8 @@ def run_simulation_template():
     )
 
     # Set integration time for the detector (e.g., 600 seconds)
-    sim_data['detector'].integrationTime = np.full(
-        sim_data['counts']['satellites'], 600.0
+    sim_data.detector.integrationTime = np.full(
+        sim_data.counts.satellites, 600.0
     )
 
     # Add fixed reference points (1m size, between 1.1 and 2.0 GEO_RADIUS)
@@ -39,14 +39,14 @@ def run_simulation_template():
     )
 
     # Verify targets
-    fixed_pos = sim_data['fixedpoints']['position']
+    fixed_pos = sim_data.fixedpoints.position
     fixed_radii = np.linalg.norm(fixed_pos, axis=1)
     print(f"Created {len(fixed_pos)} fixed points.")
     print(
         f"Radius range: {np.min(fixed_radii)/GEO_RADIUS:.2f} to "
         f"{np.max(fixed_radii)/GEO_RADIUS:.2f} GEO_RADIUS"
     )
-    print(f"Target size: {sim_data['fixedpoints']['size'][0]} m")
+    print(f"Target size: {sim_data.fixedpoints.size[0]} m")
 
     # Add Sun and Moon
     add_celestial_bodies(sim_data)
@@ -55,7 +55,7 @@ def run_simulation_template():
     initCadence(sim_data)
     data_handler = DataHandler()
 
-    num_sats = sim_data['counts']['satellites']
+    num_sats = sim_data.counts.satellites
     print(f"Simulation initialized with {num_sats} satellites.")
 
     # 3. Simulation Loop
@@ -66,14 +66,14 @@ def run_simulation_template():
         # positions.
         results = nextIntegration(sim_data)
 
-        print(f"\n--- Step {step}: {sim_data['time'].isoformat()} ---")
+        print(f"\n--- Step {step}: {sim_data.time.isoformat()} ---")
 
         # Access data (example: first satellite position)
-        sat_pos = sim_data['satellites']['position'][0]
+        sat_pos = sim_data.satellites.position[0]
         print(f"Satellite 0 Position: {sat_pos}")
 
         if results is not None:
-             next_grp = sim_data['cadenceStructure']['nextGroup']
+             next_grp = sim_data.cadenceStructure.nextGroup
              print(f"Scan performed for group {next_grp}")
              data_handler.add_results(results)
 
