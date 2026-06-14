@@ -15,17 +15,17 @@ modules to maintain and update the overall system state.
 
 | Item | Function(s) | Description |
 | :--- | :--- | :--- |
-| `start_time` | `create_empty_simulation` | Timezone-aware UTC start time (datetime). |
-| `time` | `create_empty_simulation`, `nextIntegration` | Current simulation time (datetime). |
-| `delta_time` | `create_empty_simulation` | Time step in seconds (float). |
-| `counts` | `create_empty_simulation` | Dictionary of object counts. |
-| `pointing_spheres` | `create_empty_simulation`, `generate_pointing_sphere` | Cache of pre-generated pointing vectors. |
-| `observatories` | `add_observatories` | Dictionary of ground-based observatory data. |
-| `detector` | `add_observatories`, `propagation.add_satellites_from_tle`, `constellation.geosmod` | `SimpleNamespace` containing detector parameters and state. |
-| `satellites` | `propagation.add_satellites_from_tle`, `constellation.geosmod`, `radiometry_test.fixedSat` | Dictionary of satellite state (position, velocity, etc.). |
-| `fixedpoints` | `targets.add_fixed_points`, `radiometry_test.fixedTarget` | Dictionary of fixed target/reference points. |
-| `celestial` | `celestialbodies.add_celestial_bodies` | Positions of Sun and Moon. |
-| `cadenceStructure` | `cadenceController.initCadence` | Schedule and grouping for detector scans. |
+| `start_time` | `create_empty_simulation` | Start time (datetime) |
+| `time` | `create_empty_simulation`, `nextIntegration` | Current time (datetime) |
+| `delta_time` | `create_empty_simulation` | Time step in seconds |
+| `counts` | `create_empty_simulation` | `CountsState` counts |
+| `pointing_spheres` | `create_empty_simulation`, `generate_pointing_sphere` | Cache of pointing vectors |
+| `observatories` | `add_observatories` | `ObservatoriesState` data |
+| `detector` | `add_observatories`, `propagation.add_satellites_from_tle`, `constellation.geosmod` | `DetectorArray` params/state |
+| `satellites` | `propagation.add_satellites_from_tle`, `constellation.geosmod`, `radiometry_test.fixedSat` | `SatellitesState` sat state |
+| `fixedpoints` | `targets.add_fixed_points`, `radiometry_test.fixedTarget` | `FixedPointsState` target points |
+| `celestial` | `celestialbodies.add_celestial_bodies` | `CelestialState` Sun/Moon pos |
+| `cadenceStructure` | `cadenceController.initCadence` | `CadenceState` scan schedule |
 
 ### Data Structure Modification Functions
 
@@ -145,7 +145,7 @@ Ad-hoc function to change FOVs of all detectors to `fovSize` (radians).
 Ad-hoc function to change integration times of all detectors to `itime` (seconds).
 
 #### `makeBlankDetector(n: int)`
-Returns a `SimpleNamespace` with empty arrays for `n` detectors.
+Returns a `DetectorArray` with empty arrays for `n` detectors.
 
 #### `makeDetector(n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7, solarex=20*DEG, ...)`
 Creates a detector with specified radiometric and geometric parameters.

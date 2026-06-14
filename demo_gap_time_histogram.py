@@ -46,15 +46,15 @@ SAT-4
         f.write(tle_data)
 
     add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
-    num_sats = sim_data['counts']['satellites']
+    num_sats = sim_data.counts.satellites
 
     # Set detector properties
-    sim_data['detector'].integrationTime[:] = 10.0
-    sim_data['detector'].filt = ["V"] * num_sats
-    sim_data['detector'].apertureArea[:] = 1.0
-    sim_data['detector'].qe[:] = 0.8
-    sim_data['detector'].fov[:] = np.radians(45)  # Large FOV to ensure detections
-    sim_data['detector'].pixelOmega[:] = (3 * ARCSEC)**2
+    sim_data.detector.integrationTime[:] = 10.0
+    sim_data.detector.filt = ["V"] * num_sats
+    sim_data.detector.apertureArea[:] = 1.0
+    sim_data.detector.qe[:] = 0.8
+    sim_data.detector.fov[:] = np.radians(45)  # Large FOV to ensure detections
+    sim_data.detector.pixelOmega[:] = (3 * ARCSEC)**2
 
     add_fixed_points(sim_data, num_points=20)
     add_celestial_bodies(sim_data)

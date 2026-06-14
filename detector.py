@@ -81,8 +81,9 @@ def setDetectorFOV(sim_data, fovSize):
     This is meant to be an ad-hoc function for test,
     not a regular operational thing.
     """
-    count = len(sim_data['detector'].fov)
-    sim_data['detector'].fov = np.full(count, fovSize)
+    det = sim_data.detector if hasattr(sim_data, 'detector') else sim_data['detector']
+    count = len(det.fov)
+    det.fov = np.full(count, fovSize)
 
 
 def setDetectorIntegrationTime(sim_data, itime):
@@ -92,8 +93,9 @@ def setDetectorIntegrationTime(sim_data, itime):
     This is meant to be an ad-hoc function for test,
     not a regular operational thing.
     """
-    count = len(sim_data['detector'].fov)
-    sim_data['detector'].integrationTime = np.full(count, itime)
+    det = sim_data.detector if hasattr(sim_data, 'detector') else sim_data['detector']
+    count = len(det.fov)
+    det.integrationTime = np.full(count, itime)
 
 
 ##########################################################

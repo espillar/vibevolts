@@ -30,7 +30,7 @@ def demo_show_geo_search():
     dec_history = []
 
     def record_ra_dec():
-        p = sim_data['detector'].pointing[0]
+        p = sim_data.detector.pointing[0]
         p_norm = p / np.linalg.norm(p)
         ra = np.arctan2(p_norm[1], p_norm[0])
         dec = np.arcsin(p_norm[2])

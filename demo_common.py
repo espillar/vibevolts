@@ -113,11 +113,11 @@ LEO-05
     add_observatories(sim_data, 0)
     add_celestial_bodies(sim_data)
     add_fixed_points(sim_data, 100)
-    num_sats = sim_data['counts']['satellites']
-    sim_data['detector'] = detector.makeDetector(num_sats, "V", 10 * DEGREE, 3 * ARCSEC, 1)
+    num_sats = sim_data.counts.satellites
+    sim_data.detector = detector.makeDetector(num_sats, "V", 10 * DEGREE, 3 * ARCSEC, 1)
     
     
-    print(f"Initializing standard simulation with {sim_data['counts']['satellites']} satellites.")
+    print(f"Initializing standard simulation with {sim_data.counts.satellites} satellites.")
 
     solar_system_ephemeris.set('jpl')
 

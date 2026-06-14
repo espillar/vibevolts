@@ -30,9 +30,9 @@ def demo_sky_scan() -> go.Figure:
     
 
     # Set some reasonable exclusion angles
-    sim_data['detector'].solarEx[:] = np.deg2rad(30)
-    sim_data['detector'].lunarEx[:] = np.deg2rad(15)
-    sim_data['detector'].earthEx[:] = np.deg2rad(10)
+    sim_data.detector.solarEx[:] = np.deg2rad(30)
+    sim_data.detector.lunarEx[:] = np.deg2rad(15)
+    sim_data.detector.earthEx[:] = np.deg2rad(10)
 
     # b. Update celestial body positions
     sim_data = propagate_satellites(sim_data, sim_start_time)
@@ -56,7 +56,7 @@ def demo_sky_scan() -> go.Figure:
             pointing_vector = np.array([x, y, z])
 
             # Update the satellite's pointing vector
-            sim_data['detector'].pointing[0] = pointing_vector
+            sim_data.detector.pointing[0] = pointing_vector
 
             # Call the exclusion function
             is_excluded = exclusion(sim_data, satellite_index=0)

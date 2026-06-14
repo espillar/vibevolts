@@ -32,18 +32,18 @@ def demo_constellation() -> go.Figure:
 
     sim_data = propagate_satellites(sim_data, sim_time)
 
-    num_sats_before = sim_data['counts'].get('satellites', 0)
+    num_sats_before = sim_data.counts.satellites
     geos(sim_data, 10, 0.1)
     
     # Propagate the satellites for 1 hour
     time_t1 = sim_time + timedelta(hours=1)
     # MIGHT HAVE MESSED THIS UP- MAYBE FEED TIME_T1 directly
-    sim_data['time'] = time_t1
+    sim_data.time = time_t1
     sim_data = propagate_satellites(sim_data, time_t1)
 
     sim_check(sim_data)
     fig = plot_3d_scatter(
-        positions=sim_data['satellites']['position'][num_sats_before:],
+        positions=sim_data.satellites.position[num_sats_before:],
         title=f"GEO Constellation at {time_t1.isoformat()} from demo_constellation",
         plot_time=time_t1,
         marker_size=5,
