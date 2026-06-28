@@ -91,3 +91,28 @@ def test_appendDetector():
     assert len(d1.filt) == 3
     assert d1.filt == ["V", "R", "R"]
     assert np.allclose(d1.apertureArea, [np.pi * 0.5**2, np.pi, np.pi])
+
+
+def test_requiredIntegrationTime():
+    """
+    Test that requiredIntegrationTime calculates integration time correctly
+    and handles the squared photoEff (photfrac) term.
+    """
+    from detector import requiredIntegrationTime
+    # Make a detector with photfrac = 0.5
+    d = makeDetector(1, "V", 1 * DEGREE, 2 * ARCSEC, 1.0, qe=0.8, photfrac=0.5)
+    
+    t = requiredIntegrationTime(20.0, 10.0, d)
+    
+    gamma = 10.0
+    beta = d.skyBack[0]
+    omega = d.pixelOmega[0]
+    from radiometry_calcs import amag
+    alpha = amag(20.0) * d.zpCal[0]
+    A = d.apertureArea[0]
+    eta = d.qe[0]
+    f = d.photoEff[0]
+    
+    expected_t = (gamma**2 * beta * omega) / (alpha**2 * A * eta * (f**2))
+    assert np.allclose(t, expected_t)
+

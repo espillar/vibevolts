@@ -193,7 +193,7 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug=0):
     This function is based on the radiometric equation, solving for
     the integration time t:
         SNR = (Signal) / sqrt(Signal + Background)
-        t = SNR^2 * (beta * omega) / (alpha^2 * A * eta * f)
+        t = SNR^2 * (beta * omega) / (alpha^2 * A * eta * f^2)
 
     Returns:
         float: The required integration time in seconds.
@@ -213,7 +213,7 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug=0):
         print('A', A)
         print('eta', eta)
         print('f', f)
-    t = gamma ** 2 * beta * omega / (alpha ** 2 * A * eta * f)
+    t = gamma ** 2 * beta * omega / (alpha ** 2 * A * eta * (f ** 2))
     return t
 
 

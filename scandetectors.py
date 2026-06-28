@@ -162,15 +162,16 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
         debug=0 
     )
 
-    detectorFlux = target_brightness / (4 * np.pi * hit_norms ** 2)
+    detectorFlux = target_brightness / (np.pi * hit_norms ** 2)
 
     # 5. SNR Calculation
     hit_itime = integrationTime[sat_hit_idx]
     hit_aper = apertureArea[sat_hit_idx]
     hit_qe = qe[sat_hit_idx]
     hit_omega = pixelOmega[sat_hit_idx]
+    hit_photoEff = sim_data.detector.photoEff[mask][sat_hit_idx]
 
-    signal = detectorFlux * hit_itime * hit_aper * hit_qe
+    signal = detectorFlux * hit_itime * hit_aper * hit_qe * hit_photoEff
     noise = np.sqrt(space * hit_itime * hit_aper * hit_omega * hit_qe)
     snr = signal / noise
 

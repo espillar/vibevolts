@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 # Import necessary data and functions from other files, including 'mag' for magnitude conversion
 from radiometry_data import FILTER_DATA
 from radiometry_calcs import amag, mag
-from lambertian import simple_lambertian
+from lambertian import lambertiansphere
 
 
 def plot_satellite_brightness():
@@ -41,15 +41,13 @@ def plot_satellite_brightness():
     # Calculate and plot a curve for each specified diameter
     for diameter in DIAMETER_VALUES:
         # 1. Calculate Apparent Brightness (Photon Flux)
-        brightness_values = [
-            simple_lambertian(
-                diameter=diameter,
-                distance=d,
-                albedo=SATELLITE_ALBEDO,
-                angle=PHASE_ANGLE,
-                base_brightness=INCIDENT_PHOTON_FLUX
-            ) for d in distances_m
-        ]
+        emitted_brightness = lambertiansphere(
+            angle_light_observer=np.array([PHASE_ANGLE]),
+            albedo=np.array([SATELLITE_ALBEDO]),
+            radius=np.array([diameter / 2.0]),
+            base_brightness=np.array([INCIDENT_PHOTON_FLUX])
+        )[0]
+        brightness_values = emitted_brightness / (np.pi * distances_m ** 2)
 
         # 2. Convert Photon Flux to Apparent Magnitude (V-band)
         # Magnitude = -2.5 * log10(Flux / ZeroPointFlux)

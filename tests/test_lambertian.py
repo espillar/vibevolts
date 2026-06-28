@@ -48,3 +48,35 @@ def test_lambertiansphere_debug_level_2(capsys):
     assert "Emitted Brightness" in output_debug1
     assert "Input Angle" not in output_debug1 # Ensure debug 2 specific output is not in debug 1
 
+
+def test_lambertian_consistency():
+    """
+    Verify that simple_lambertian and lambertiansphere are mathematically consistent
+    when the division factor of pi * distance^2 is applied.
+    """
+    diameter = 3.0
+    radius = diameter / 2.0
+    distance = 1000e3
+    albedo = 0.3
+    angle = np.pi / 2.0
+    base_brightness = 1361.0
+
+    val_simple = simple_lambertian(
+        diameter=diameter,
+        distance=distance,
+        albedo=albedo,
+        angle=angle,
+        base_brightness=base_brightness
+    )
+
+    emitted = lambertiansphere(
+        angle_light_observer=np.array([angle]),
+        albedo=np.array([albedo]),
+        radius=np.array([radius]),
+        base_brightness=np.array([base_brightness])
+    )[0]
+    val_sphere = emitted / (np.pi * distance**2)
+
+    assert np.allclose(val_simple, val_sphere)
+
+

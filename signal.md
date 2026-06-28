@@ -152,7 +152,7 @@ The core calculation within `lambertiansphere` is now:
 ```python
     emitted_brightness = (base_brightness * effective_cross_section)
 ```
-The caller is responsible for the division by `4 * np.pi * (distance_to_observer) ** 2` to get the apparent brightness at the observer.
+The caller is responsible for the division by `np.pi * (distance_to_observer) ** 2` to get the apparent brightness at the observer.
 Where `effective_cross_section` is derived from `albedo`, `radius`, and a `phase_function_value`, and `norm_observer` is the magnitude of the `vec_from_sphere_to_observer`.
 
 ## Components of the `signal` Calculation

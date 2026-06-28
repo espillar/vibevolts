@@ -37,7 +37,7 @@ def demo_lambertian():
         angle_light_observer_1, np.array([SATELLITE_ALBEDO]),
         np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
     )
-    brightness_1 = emitted_brightness_1 / (4 * np.pi * norm_observer_1 ** 2)
+    brightness_1 = emitted_brightness_1 / (np.pi * norm_observer_1 ** 2)
     angle_1 = np.rad2deg(np.arccos(np.dot(vec_sun_1, vec_obs_1 / 
                                           np.linalg.norm(vec_obs_1))))
     print(f"Phase Angle: {angle_1:.2f} degrees")
@@ -58,7 +58,7 @@ def demo_lambertian():
         angle_light_observer_2, np.array([SATELLITE_ALBEDO]),
         np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
     )
-    brightness_2 = emitted_brightness_2 / (4 * np.pi * norm_observer_2 ** 2)
+    brightness_2 = emitted_brightness_2 / (np.pi * norm_observer_2 ** 2)
     angle_2 = np.rad2deg(np.arccos(np.dot(vec_sun_2, vec_obs_2 / 
                                           np.linalg.norm(vec_obs_2))))
     print(f"Phase Angle: {angle_2:.2f} degrees")
@@ -79,7 +79,7 @@ def demo_lambertian():
         angle_light_observer_3, np.array([SATELLITE_ALBEDO]),
         np.array([SATELLITE_RADIUS]), np.array([BASE_BRIGHTNESS])
     )
-    brightness_3 = emitted_brightness_3 / (4 * np.pi * norm_observer_3 ** 2)
+    brightness_3 = emitted_brightness_3 / (np.pi * norm_observer_3 ** 2)
     angle_3 = np.rad2deg(np.arccos(np.dot(vec_sun_3, vec_obs_3 / 
                                           np.linalg.norm(vec_obs_3))))
     print(f"Phase Angle: {angle_3:.2f} degrees")
@@ -117,7 +117,7 @@ def demo_lambertian():
     emitted_brightness_values = lambertiansphere(
         angle_light_observer_plot, albedos, radii, base_brightnesses
     )
-    brightness_values = emitted_brightness_values / (4 * np.pi * 
+    brightness_values = emitted_brightness_values / (np.pi * 
                                                      norm_observer_plot ** 2)
 
     # --- Create Plot ---

@@ -2,6 +2,10 @@
 
 
 # 2026-06
+## [2026-06-28]
+Lots of travel in there, two 4 day trips.  Coming back and firing things up 
+see if gemini finds anything to change.  Several errors sem to have ben found.  
+This is 
 
 ## [2026-06-13 Sat]
 Asking gemini to thinkg about making things more compactet, etc. 
