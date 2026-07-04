@@ -10,7 +10,7 @@ VibeVolts is a Python-based simulation toolkit for space environment modeling. I
 
 ## Documentation
 
-Gemini should maintain a document file vibevolts.md as follows. 
+Gemini should maintain a document file docs/system/vibevolts.md as follows. 
 
 The first section should list the main data structure dictionary, and all the python files should be reviewed for functions which add data to the dictionary if called.  The dictionary items added should be listed, the functions that add or modify each of them should be listed next to them, and any inline documentation should be listed along with a function signature.
 
