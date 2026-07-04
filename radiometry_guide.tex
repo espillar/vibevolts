@@ -1,0 +1,113 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Radiometry and Detection Signal Flow in VibeVolts}
+\author{Simulation Reference Documentation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This document outlines the step-by-step mathematical transformations used in the VibeVolts codebase to calculate the target signal, background noise, and resulting Signal-to-Noise Ratio (SNR) on a satellite or observatory detector.
+
+\section{Step 1: Solar Flux Calculation}
+The source of illumination is the Sun. The function \texttt{fluxes(band)} in \texttt{radiometry\_calcs.py} retrieves the solar apparent magnitude $m_{\text{sun}}$ and the zero-point calibration flux $\text{ZP}$ (flux of a 0-magnitude object in photons/s/m$^2$) for a given band. 
+
+The solar flux at Earth/target $F_{\text{sun}}$ is calculated as:
+\begin{equation}
+    F_{\text{sun}} = 10^{-0.4 \cdot m_{\text{sun}}} \cdot \text{ZP} \quad \left[\frac{\text{photons}}{\text{s} \cdot \text{m}^2}\right]
+\end{equation}
+
+\section{Step 2: Target Reflection (Lambertian Sphere)}
+The target is modeled as a diffuse Lambertian sphere of radius $R$ and albedo $a$. The phase angle $\alpha$ is the physical angle between the Sun (light source) and the observer (satellite detector) as seen from the target's center.
+
+The phase function $\Phi(\alpha)$ for a Lambertian sphere is:
+\begin{equation}
+    \Phi(\alpha) = \frac{2}{3\pi^2} \left[ \sin\alpha + (\pi - \alpha)\cos\alpha \right]
+\end{equation}
+
+The intensity $I(\alpha)$ of the scattered light in the direction of the observer is:
+\begin{equation}
+    I(\alpha) = F_{\text{sun}} \cdot a \cdot (\pi R^2) \cdot \pi \Phi(\alpha) \quad \left[\frac{\text{photons}}{\text{s} \cdot \text{sr}}\right]
+\end{equation}
+
+Inside \texttt{lambertian.py}'s \texttt{lambertiansphere} function, the returned value (often called \texttt{target\_brightness} or $J(\alpha)$) is:
+\begin{equation}
+    J(\alpha) = F_{\text{sun}} \cdot \underbrace{\left( a \cdot (\pi R^2) \cdot \frac{2}{3\pi} \left[ \sin\alpha + (\pi - \alpha)\cos\alpha \right] \right)}_{\text{effective\_cross\_section}} = \pi \cdot I(\alpha)
+\end{equation}
+
+\section{Step 3: Apparent Flux at the Detector}
+As the reflected light propagates over distance $d$ to the observer, the flux spreads over a sphere's surface. The apparent photon flux (irradiance) at the entrance aperture of the detector, $F_{\text{det}}$, is computed in \texttt{scandetectors.py} as:
+\begin{equation}
+    F_{\text{det}} = \frac{J(\alpha)}{\pi d^2} = \frac{I(\alpha)}{d^2} = \frac{2 a F_{\text{sun}} R^2}{3 \pi d^2} \left[ \sin\alpha + (\pi - \alpha)\cos\alpha \right] \quad \left[\frac{\text{photons}}{\text{s} \cdot \text{m}^2}\right]
+\end{equation}
+
+\section{Step 4: Target Signal Collection}
+The total number of target signal photons $S$ collected by the sensor during the integration time $t$ is calculated in \texttt{scandetectors.py} as:
+\begin{equation}
+    S = F_{\text{det}} \cdot t \cdot A \cdot \eta \cdot f \quad [\text{photons}]
+\end{equation}
+Where:
+\begin{itemize}
+    \item $t$: Integration (exposure) time in seconds (\texttt{integrationTime}).
+    \item $A$: Detector aperture entrance area in m$^2$ (\texttt{apertureArea}).
+    \item $\eta$: Overall system quantum efficiency (\texttt{qe}).
+    \item $f$: Photometric efficiency fraction inside the photometry bucket (\texttt{photoEff}).
+\end{itemize}
+
+\section{Step 5: Background Noise Collection}
+The background sky/space brightness $F_{\text{bg}}$ is given in photons/s/sr/m$^2$ (derived from the filter band's zero point and magnitudes per square arcsecond). 
+
+Assuming background-dominated noise (shot noise), the background photons $B$ collected by a pixel of solid angle $\Omega$ (in steradians) is:
+\begin{equation}
+    B = F_{\text{bg}} \cdot t \cdot A \cdot \Omega \cdot \eta \quad [\text{photons}]
+\end{equation}
+The background shot noise $N$ is the standard deviation of this Poisson process:
+\begin{equation}
+    N = \sqrt{B} = \sqrt{F_{\text{bg}} \cdot t \cdot A \cdot \Omega \cdot \eta} \quad [\text{photons}]
+\end{equation}
+
+\section{Step 6: Signal-to-Noise Ratio (SNR) and Integration Time}
+The SNR $\gamma$ is:
+\begin{equation}
+    \gamma = \frac{S}{N} = \frac{F_{\text{det}} \cdot t \cdot A \cdot \eta \cdot f}{\sqrt{F_{\text{bg}} \cdot t \cdot A \cdot \Omega \cdot \eta}} = F_{\text{det}} \cdot f \cdot \sqrt{\frac{t \cdot A \cdot \eta}{F_{\text{bg}} \cdot \Omega}}
+\end{equation}
+
+Solving this expression for the required integration time $t$ to achieve a target SNR $\gamma$ yields:
+\begin{equation}
+    t = \gamma^2 \cdot \frac{F_{\text{bg}} \cdot \Omega}{F_{\text{det}}^2 \cdot A \cdot \eta \cdot f^2} \quad [\text{seconds}]
+\end{equation}
+This is the corrected equation implemented in \texttt{detector.py}'s \texttt{requiredIntegrationTime}.
+
+\section{Summary of Variable Definitions}
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Variable & Code Representation & Description \\
+\midrule
+$F_{\text{sun}}$ & \texttt{sun} & Incident solar flux ($\text{photons}/\text{s}/\text{m}^2$) \\
+$R$ & \texttt{radius} & Radius of the sphere target ($\text{m}$) \\
+$a$ & \texttt{albedo} & Reflected fraction of target surface ($0.0 \dots 1.0$) \\
+$\alpha$ & \texttt{angle\_light\_observer} & Phase angle ($\text{radians}$) \\
+$d$ & \texttt{hit\_norms} & Target-to-detector distance ($\text{m}$) \\
+$F_{\text{det}}$ & \texttt{detectorFlux} & Incident target flux on detector ($\text{photons}/\text{s}/\text{m}^2$) \\
+$A$ & \texttt{apertureArea} & Entrance aperture area ($\text{m}^2$) \\
+$t$ & \texttt{integrationTime} & Exposure time ($\text{seconds}$) \\
+$\eta$ & \texttt{qe} & System quantum efficiency ($0.0 \dots 1.0$) \\
+$f$ & \texttt{photoEff} / \texttt{photfrac} & Photometric bucket fraction ($0.0 \dots 1.0$) \\
+$F_{\text{bg}}$ & \texttt{space} / \texttt{sky} & Background sky radiance ($\text{photons}/\text{s}/\text{sr}/\text{m}^2$) \\
+$\Omega$ & \texttt{pixelOmega} & Pixel solid angle ($\text{steradians}$) \\
+\bottomrule
+\end{tabular}
+\caption{Variable mappings between the mathematical equations and the python code.}
+\end{table}
+
+\end{document}
