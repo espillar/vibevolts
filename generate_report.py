@@ -1,13 +1,11 @@
 import plotly.graph_objects as go
 
-from vibevolts_demo import (
-    demo1,
-    demo2,
-    demo3,
-    demo_fixedpoints,
-    demo_exclusion_table,
-    demo_pointing_plot,
-)
+from demo1 import demo1
+from demo2 import demo2
+from demo3 import demo3
+from demo_fixedpoints import demo_fixedpoints
+from demo_exclusion_table import demo_exclusion_table
+from demo_pointing_plot import demo_pointing_plot
 
 def generate_demo_html_report():
     """
@@ -29,11 +27,17 @@ def generate_demo_html_report():
     figures = []
     for name, demo_func in plotting_demos:
         print(f"Running: {name}")
-        fig = demo_func(show_plot=False)
-        # Add a title to the figure layout if it doesn't have one
-        if fig.layout.title.text is None or fig.layout.title.text == '':
-            fig.update_layout(title_text=name)
-        figures.append(fig)
+        res = demo_func()
+        if isinstance(res, tuple):
+            fig = next((item for item in res if isinstance(item, go.Figure)), None)
+        else:
+            fig = res
+            
+        if fig is not None:
+            # Add a title to the figure layout if it doesn't have one
+            if fig.layout.title.text is None or fig.layout.title.text == '':
+                fig.update_layout(title_text=name)
+            figures.append(fig)
 
     # Write all figures to a single HTML file
     report_filename = "demo_plots.html"

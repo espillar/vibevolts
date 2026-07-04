@@ -1,0 +1,4 @@
+name: dev
+channels:
+  - defaults
+prefix: /Users/espillar0/.conda/envs/dev
