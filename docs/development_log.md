@@ -2,13 +2,13 @@
 
 
 # 2026-07
+
+## [206-07-05]
+At the airport.  
 ## [2026-07-04]
 Working on Jupter in antigravity.  I was frustrated with using anaconda, so I zapped it from the machine and switched to miniconda. This took a good 40 minutes what with deleting and reinstalling.  Put everthing on conda base environment.   
 
 Ask gemini to go throught the codebase and look for errors.  It found some "little things" in what looks like test and demo code, but we seem to be in good shape. 
-
-
-
 
 
 
