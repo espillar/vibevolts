@@ -9,7 +9,7 @@ def generate_log_spherical_points(
     inner_radius: float,
     outer_radius: float,
     seed: int = None
-) -> tuple[np.ndarray, np.ndarray]:
+) -> np.ndarray:
     """
     Generates 3D points with logarithmic radial and uniform angular distribution.
 
@@ -26,8 +26,8 @@ def generate_log_spherical_points(
               reproducible shuffling.
 
     Returns:
-        A tuple containing:
-        - A NumPy array of shape (num_points, 3) for the Cartesian coordinates.
+        A NumPy array of shape (num_points, 3) for the Cartesian
+        coordinates.
     """
     # Input validation
     if not isinstance(num_points, int) or num_points <= 0:

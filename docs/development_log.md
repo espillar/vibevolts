@@ -3,6 +3,15 @@
 
 # 2026-07
 
+## [2026-07-20]
+OK,  trying to get a little work in here.  I need to get some continuity in my daily efforts!
+Maybe I should just make time to do this daily. 
+I need to figure out what to do at work though, since I'm not using
+antigravity as  a crutch.
+
+There was bug where I wasn't setting the integration time.  There are evidently lots of 
+little bugs (and big ones) I need to work through.
+
 ## [206-07-05]
 At the airport.  
 ## [2026-07-04]

@@ -109,18 +109,30 @@ def geos(sim_data, n, fov) -> None:
     _add_geo_constellation_core(sim_data, n, fov, new_detector)
 
 
-def geosmod(sim_data, n, band, fov, ifov, aper, limitingmag) -> None:
+def geosmod(sim_data, n, band, fov, ifov, aper,
+            limitingmag, snr=7.0) -> None:
     """
-    Creates n equally spaced satellites in GEO and adds them to the 'satellites' group in the simulation.
+    Creates n equally spaced satellites in GEO and adds
+    them to the 'satellites' group in the simulation.
+
+    The integration time for each detector is computed from
+    limitingmag and snr using requiredIntegrationTime().
 
     Args:
         sim_data: The main simulation data dictionary.
         n: The number of satellites to create.
         band: The band the measurement takes place in.
-        fov: The diameter of the field of view of the satellite in radians.
+        fov: The field of view diameter in radians.
         ifov: The pixel fov in radians.
         aper: The aperture diameter in meters.
-        limitingmag: The limiting magnitude.
+        limitingmag: The limiting magnitude. Used with snr
+            to compute the required integration time.
+        snr: The target signal-to-noise ratio at the
+            limiting magnitude. Defaults to 7.0.
     """
+    from detector import requiredIntegrationTime
     detect = makeDetector(n, band, fov, ifov, aper)
+    itime = requiredIntegrationTime(limitingmag, snr, detect)
+    detect.integrationTime[:] = itime
     _add_geo_constellation_core(sim_data, n, fov, detect)
+
