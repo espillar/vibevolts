@@ -76,11 +76,13 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     TODO: we are using the same filter for all the detectors!
     """
     # 1. Data Extraction and Masking
-    num_total_sats = sim_data.counts.satellites
+    num_sats = sim_data.counts.get('satellites', 0)
+    num_obs = sim_data.counts.get('observatories', 0)
+    num_total_detectors = len(sim_data.detector.filt)
     sim_time = sim_data.time
 
     if mask is None:
-        mask = np.ones(num_total_sats, dtype=bool)
+        mask = np.ones(num_total_detectors, dtype=bool)
     
     active_indices = np.where(mask)[0]
 
@@ -97,8 +99,13 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     if len(active_indices) == 0:
         return results
 
-    # Subset detector and satellite data
-    satpositions = sim_data.satellites.position[mask]
+    # Construct combined position array for all observer detectors
+    sat_pos = sim_data.satellites.position if num_sats > 0 else np.empty((0, 3))
+    obs_pos = sim_data.observatories.position if num_obs > 0 else np.empty((0, 3))
+    all_positions = np.vstack([sat_pos, obs_pos])
+
+    # Subset detector and observer positions
+    satpositions = all_positions[mask]
     detectorVect = sim_data.detector.pointing[mask]
     fovs = sim_data.detector.fov[mask]
     integrationTime = sim_data.detector.integrationTime[mask]

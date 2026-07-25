@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Exclusion and Visibility Geometry in VibeVolts}
+\author{Simulation Reference Documentation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This document details the geometric, vector, and angular calculations used in VibeVolts to determine whether a target point in space is visible to a satellite or ground-based observatory detector. 
+
+Visibility is subject to two conditions:
+\begin{enumerate}
+    \item \textbf{Field-of-View (FOV) Check}: The target must lie within the sensor's conical field-of-view.
+    \item \textbf{Exclusion Checks}: The detector's view must not be obstructed by, or lie too close to, key celestial bodies (Sun, Moon, Earth).
+\end{enumerate}
+
+---
+
+\section{Step 1: Coordinate Frame and Vectors}
+Let $\mathbf{x}_{\text{sat}}$ be the position of the observer (satellite or observatory) and $\mathbf{x}_{\text{targ}}$ be the position of the target, both represented in the Geocentric Celestial Reference System (GCRS).
+
+The pointing vector from the observer to the target is:
+\begin{equation}
+    \mathbf{v}_{\text{targ}} = \mathbf{x}_{\text{targ}} - \mathbf{x}_{\text{sat}} \quad [\text{meters}]
+\end{equation}
+
+The unit pointing vector is:
+\begin{equation}
+    \hat{\mathbf{v}}_{\text{targ}} = \frac{\mathbf{v}_{\text{targ}}}{\|\mathbf{v}_{\text{targ}}\|}
+\end{equation}
+If the distance $\|\mathbf{v}_{\text{targ}}\| < 10^{-9}$ meters, the target is considered co-located with the satellite and is automatically marked as excluded.
+
+---
+
+\section{Step 2: Field-of-View (FOV) Cone Check}
+Let $\hat{\mathbf{p}}$ be the unit vector representing the pointing direction of the detector, and let $\text{FOV}$ be the full-width angular diameter of the field-of-view in radians.
+
+The angle $\theta_{\text{targ}}$ between the detector pointing vector and the target direction is:
+\begin{equation}
+    \theta_{\text{targ}} = \arccos(\hat{\mathbf{p}} \cdot \hat{\mathbf{v}}_{\text{targ}}) \quad [\text{radians}]
+\end{equation}
+
+The target is within the detector's field of view if and only if:
+\begin{equation}
+    \theta_{\text{targ}} < \frac{\text{FOV}}{2}
+\end{equation}
+
+---
+
+\section{Step 3: Apparent Angular Radii of Celestial Bodies}
+As viewed from the observer's position $\mathbf{x}_{\text{sat}}$, celestial bodies appear as disks with angular sizes that depend on their physical radii and their distance from the observer.
+
+Let $\mathbf{x}_{\text{body}}$ be the GCRS position of a celestial body (Sun, Moon, or Earth) and $R_{\text{body}}$ be its physical radius. The vector from the observer to the body is:
+\begin{equation}
+    \mathbf{v}_{\text{body}} = \mathbf{x}_{\text{body}} - \mathbf{x}_{\text{sat}}
+\end{equation}
+And the unit vector is $\hat{\mathbf{v}}_{\text{body}} = \mathbf{v}_{\text{body}} / \|\mathbf{v}_{\text{body}}\|$.
+
+The apparent angular radius $\theta_{\text{body}}$ of the body as seen by the observer is:
+\begin{equation}
+    \theta_{\text{body}} = \arctan\left(\frac{R_{\text{body}}}{\|\mathbf{v}_{\text{body}}\|}\right) \quad [\text{radians}]
+\end{equation}
+
+In VibeVolts, the physical parameters and apparent radii calculations are:
+\begin{itemize}
+    \item \textbf{Sun:} Modeled as a point source for simplicity:
+    \begin{equation}
+        \theta_{\text{Sun}} = 0.0 \quad [\text{radians}]
+    \end{equation}
+    \item \textbf{Moon:} Using physical Moon radius $R_{\text{Moon}} \approx 1,737,400\text{ m}$:
+    \begin{equation}
+        \theta_{\text{Moon}} = \arctan\left(\frac{R_{\text{Moon}}}{\|\mathbf{v}_{\text{Moon}}\|}\right)
+    \end{equation}
+    \item \textbf{Earth:} Center is at GCRS origin $[0,0,0]$, so $\mathbf{v}_{\text{Earth}} = -\mathbf{x}_{\text{sat}}$. Using equatorial radius $R_{\text{Earth}} \approx 6,378,137\text{ m}$:
+    \begin{equation}
+        \theta_{\text{Earth}} = \arctan\left(\frac{R_{\text{Earth}}}{\|\mathbf{x}_{\text{sat}}\|}\right)
+    \end{equation}
+\end{itemize}
+
+---
+
+\section{Step 4: Exclusion Angle Check}
+To protect sensitive optics from bright sources, a target observation is excluded if the line of sight passes too close to the limb (edge) of a celestial body.
+
+Let $\psi_{\text{body}}$ be the angular separation between the target direction and the celestial body center:
+\begin{equation}
+    \psi_{\text{body}} = \arccos(\hat{\mathbf{v}}_{\text{targ}} \cdot \hat{\mathbf{v}}_{\text{body}}) \quad [\text{radians}]
+\end{equation}
+
+Let $\theta_{\text{limit}}$ be the exclusion safety angle specified for the detector (e.g. \texttt{solarEx}, \texttt{lunarEx}, \texttt{earthEx} in radians). The angle between the target line-of-sight and the limb of the body is $\psi_{\text{body}} - \theta_{\text{body}}$.
+
+The view is **excluded** (obstructed or blinded) if:
+\begin{equation}
+    \psi_{\text{body}} - \theta_{\text{body}} < \theta_{\text{limit}}
+\end{equation}
+
+If this inequality holds for the Sun, Moon, or Earth, the target is excluded from observation.
+
+---
+
+\section{Summary of Variable Definitions}
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Variable & Code Representation & Description \\
+\midrule
+$\mathbf{x}_{\text{sat}}$ & \texttt{sat\_pos} / \texttt{satposition} & Observer GCRS position vector (m) \\
+$\mathbf{x}_{\text{targ}}$ & \texttt{targets} & Target GCRS position vector (m) \\
+$\hat{\mathbf{p}}$ & \texttt{pointing} & Sensor pointing direction unit vector \\
+$\text{FOV}$ & \texttt{fov} & Sensor full field-of-view (rad) \\
+$\mathbf{v}_{\text{body}}$ & \texttt{vecs\_to\_bodies} & Vector from observer to celestial body center (m) \\
+$\theta_{\text{body}}$ & \texttt{apparent\_radii} & Apparent angular radius of celestial body (rad) \\
+$\theta_{\text{limit}}$ & \texttt{solarEx}, \texttt{lunarEx}, \texttt{earthEx} & Detector exclusion safety angles (rad) \\
+$\psi_{\text{body}}$ & \texttt{angles} & Separation angle between target and body center (rad) \\
+\bottomrule
+\end{tabular}
+\caption{Exclusion parameter and code variable mappings.}
+\end{table}
+
+\end{document}

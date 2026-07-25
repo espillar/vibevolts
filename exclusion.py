@@ -25,7 +25,15 @@ def exclusion(
     Returns:
         1 if the satellite's view is excluded by any of the bodies, 0 otherwise.
     """
-    sat_pos = getattr(data_struct, sat_category).position[satellite_index]
+    num_sats = data_struct.counts.get('satellites', 0)
+    if satellite_index < num_sats:
+        asset_category = 'satellites'
+        asset_idx = satellite_index
+    else:
+        asset_category = 'observatories'
+        asset_idx = satellite_index - num_sats
+
+    sat_pos = getattr(data_struct, asset_category).position[asset_idx]
     sat_pointing = data_struct.detector.pointing[satellite_index]
     
     norm_pointing = np.linalg.norm(sat_pointing)
@@ -33,6 +41,25 @@ def exclusion(
         return 1  # Not pointing anywhere, so not excluded
 
     u_sat_pointing = sat_pointing / norm_pointing
+
+    detector_props = data_struct.detector
+
+    # Local horizon exclusion check for ground-based observatories
+    if asset_category == 'observatories':
+        norm_pos = np.linalg.norm(sat_pos)
+        if norm_pos > 1e-9:
+            zenith_normal = sat_pos / norm_pos
+            cos_zenith = np.clip(np.dot(zenith_normal, u_sat_pointing), -1.0, 1.0)
+            zenith_angle = np.arccos(cos_zenith)
+            # Minimum elevation angle is stored in earthEx
+            min_elevation = detector_props.earthEx[satellite_index]
+            max_zenith = np.pi / 2.0 - min_elevation
+            if zenith_angle > max_zenith:
+                if print_debug:
+                    print(f"--- Horizon Exclusion for Observatory {asset_idx} ---")
+                    print(f"  Zenith Angle: {np.rad2deg(zenith_angle):.2f} deg, "
+                          f"Max Zenith: {np.rad2deg(max_zenith):.2f} deg (elev < {np.rad2deg(min_elevation):.2f} deg)")
+                return 1
 
     # Celestial body positions and radii
     body_positions = np.array([
@@ -43,7 +70,6 @@ def exclusion(
     body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
 
     # Satellite-specific exclusion angles
-    detector_props = data_struct.detector
     exclusion_angles = np.array([
         detector_props.solarEx[satellite_index],
         detector_props.lunarEx[satellite_index],
@@ -72,9 +98,14 @@ def exclusion(
     # Check for exclusion
     is_excluded = (angles - apparent_radii) < exclusion_angles
 
+    if asset_category == 'observatories':
+        # For ground stations, Earth limb checks are replaced by the horizon check above.
+        is_excluded[2] = False
+
     if print_debug:
         body_names = ["Sun", "Moon", "Earth"]
-        print(f"--- Exclusion Debug for Satellite {satellite_index} ---")
+        asset_name = "Observatory" if asset_category == "observatories" else "Satellite"
+        print(f"--- Exclusion Debug for {asset_name} {asset_idx} ---")
         for i in range(3):
             print(f"  - {body_names[i]:<5} Flag: {is_excluded[i]}, "
                   f"Angle: {np.rad2deg(angles[i]):.2f} deg, "

@@ -33,8 +33,8 @@ modules to maintain and update the overall system state.
 Initializes the basic structure with `start_time`, `time`, `delta_time`, `counts`, and
 `pointing_spheres`.
 
-#### `add_observatories(sim_data: Dict[str, Any], num_observatories: int)`
-Adds `observatories` and `detector` structures to `sim_data`.
+#### `add_observatories(sim_data: Any, num_observatories: int, latitudes: np.ndarray = None, longitudes: np.ndarray = None, altitudes: np.ndarray = None)`
+Adds `observatories` and `detector` structures to `sim_data`, with optional geodetic coordinates.
 
 #### `add_satellites_from_tle(sim_data, tle_file_path, sat_category)`
 Adds satellite state arrays and a blank detector to `sim_data`.
@@ -213,8 +213,11 @@ Initializes the core `sim_data` dictionary.
 
 ### observatories.py
 
-#### `add_observatories(sim_data: Dict[str, Any], num_observatories: int)`
+#### `add_observatories(sim_data: Any, num_observatories: int, latitudes: np.ndarray = None, longitudes: np.ndarray = None, altitudes: np.ndarray = None)`
 Adds ground station data and detectors to the simulation.
+
+#### `propagate_observatories(sim_data: Any, time_date: Any)`
+Updates observatory positions in the GCRS inertial frame based on Earth's sidereal rotation.
 
 ### plot_satellite_brighness.py
 

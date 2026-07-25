@@ -1,0 +1,99 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+
+\title{Code Architecture and Execution Flow in VibeVolts}
+\author{Simulation Reference Documentation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This document describes the high-level architecture, module-to-module execution flow, and state mutations within the VibeVolts space environment simulation toolkit. The simulation is structured as a discrete event model centered around a unified state dictionary called \texttt{sim\_data} (instantiated as a \texttt{SimulationState} object).
+
+\section{System Architecture \& Module Roles}
+VibeVolts is designed around modular components that initialize, propagate, schedule, scan, and process data. The key modules and their roles are:
+
+\begin{itemize}
+    \item \textbf{\texttt{minimalsimulation.py}}: Defines the core data container class (\texttt{SimulationState}) inheriting from a custom \texttt{DotDict} to support both attribute-style and dict subscript access.
+    \item \textbf{\texttt{propagation.py}}: Reads orbital elements (TLEs) and propagates satellite coordinates.
+    \item \textbf{\texttt{celestialbodies.py}}: Resolves positions of key planetary bodies (Sun, Moon) using ephemerides.
+    \item \textbf{\texttt{targets.py}}: Generates target coordinates (fixed reference points) on a logarithmic-radial Fibonacci sphere.
+    \item \textbf{\texttt{cadenceController.py}}: Acts as the master orchestrator, advancing the time step and scheduling scans according to detector integration groups.
+    \item \textbf{\texttt{pointing.py}}: Manages pointing grids and updates sensor orientations, skipping angles in exclusion zones.
+    \item \textbf{\texttt{exclusion.py}}: Determines line-of-sight obstruction from the Earth, Moon, and Sun.
+    \item \textbf{\texttt{scandetectors.py}}: Performs geometrical line-of-sight matching and calls radiometric models to calculate detection metrics.
+    \item \textbf{\texttt{dataHandling.py}}: Accumulates detection logs into structured DataFrames for export and analysis.
+\end{itemize}
+
+\section{Execution Flow}
+The simulation execution is divided into three main phases: Initialization, Configuration, and the Update/Scan Loop.
+
+\subsection{Phase 1: Initialization}
+\begin{enumerate}
+    \item \texttt{create\_empty\_simulation(start\_time, delta\_time)} initializes the \texttt{SimulationState}.
+    \item Variables initialized:
+    \begin{itemize}
+        \item \texttt{sim\_data.start\_time}, \texttt{sim\_data.time} $\rightarrow$ \texttt{datetime} (UTC).
+        \item \texttt{sim\_data.counts} $\rightarrow$ empty \texttt{CountsState} (all asset counts initialized to 0).
+        \item \texttt{sim\_data.pointing\_spheres} $\rightarrow$ empty \texttt{dict}.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Phase 2: Configuration}
+In this phase, assets, detectors, and targets are added to \texttt{sim\_data}:
+\begin{enumerate}
+    \item \textbf{Satellites:} \texttt{add\_satellites\_from\_tle()} loads a TLE file. It increments \texttt{sim\_data.counts.satellites} and creates a \texttt{SatellitesState} with fields like \texttt{position}, \texttt{velocity}, \texttt{orbital\_elements}, and \texttt{epochs}.
+    \item \textbf{Detectors:} A blank \texttt{DetectorArray} is initialized and appended to \texttt{sim\_data.detector}. Specific sensor parameters (FOV, aperture, zero points, integration times) are populated via \texttt{makeDetector()}.
+    \item \textbf{Targets:} \texttt{add\_fixed\_points()} calls \texttt{generate\_log\_spherical\_points()} to populate \texttt{sim\_data.fixedpoints} with reference coordinates, albedos, and sizes.
+    \item \textbf{Celestial Bodies:} \texttt{add\_celestial\_bodies()} allocates the \texttt{CelestialState} container for the Sun and Moon coordinates.
+\end{enumerate}
+
+\subsection{Phase 3: Update and Scan Loop}
+Once configured, the simulation loop is driven by the cadence controller:
+\begin{enumerate}
+    \item \texttt{initCadence()} groups detectors by unique integration times into a sorted list of \texttt{CadenceGroup} records, setting the initial next scan times (\texttt{scanNext}) to \texttt{sim\_data.time}.
+    \item The simulation update loop calls \texttt{nextIntegration()} repeatedly:
+    \begin{itemize}
+        \item \textbf{Time Update:} Time is advanced directly to the next scheduled event: \texttt{sim\_data.time = cadence.nextTime}.
+        \item \textbf{Orbit Propagation:} \texttt{propagate\_satellites()} computes the new coordinates of all satellites at the updated time, writing to \texttt{sim\_data.satellites.position}.
+        \item \textbf{Celestial Ephemeris:} \texttt{celestial\_update()} queries Astropy ephemerides and writes coordinates to \texttt{sim\_data.celestial.position}.
+        \item \textbf{Sensor Pointing:} \texttt{update\_detector\_pointing()} steps active detectors through their pointing sequence spheres, querying \texttt{exclusion()} to skip obscured angles, writing to \texttt{sim\_data.detector.pointing}.
+        \item \textbf{Observation Scan:} \texttt{scandetectors()} is executed with the active group's mask. Visible targets are filtered via FOV geometry, and detection metrics (\texttt{signal}, \texttt{noise}, \texttt{snr}) are calculated.
+        \item \textbf{Rescheduling:} The active group's next scan is pushed forward by its interval: \texttt{group.scanNext += group.scanInterval}. The next global minimum event is recalculated.
+        \item \textbf{Data Collection:} Scan outputs are collected in the \texttt{DataHandler} instance for final DataFrame assembly.
+    \end{itemize}
+\end{enumerate}
+
+\section{Variable Mutation Lifecycle}
+The table below traces where the main parameters within the global \texttt{sim\_data} are defined, mutated, and read.
+
+\begin{table}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+Variable Field & Initialized By & Updated By & Primary Reader(s) \\
+\midrule
+\texttt{sim\_data.time} & \texttt{create\_empty\_sim} & \texttt{nextIntegration()} & Propagation, Ephemeris \\
+\texttt{satellites.position} & \texttt{add\_satellites\_from\_tle} & \texttt{propagate\_satellites()} & \texttt{scandetectors()}, \texttt{exclusion} \\
+\texttt{celestial.position} & \texttt{add\_celestial\_bodies} & \texttt{celestial\_update()} & \texttt{scandetectors()}, \texttt{exclusion} \\
+\texttt{detector.pointing} & \texttt{makeDetector()} & \texttt{update\_detector\_pointing()} & \texttt{scandetectors()}, \texttt{exclusion} \\
+\texttt{detector.pointing\_state} & \texttt{detectorPointingInitialize} & \texttt{update\_detector\_pointing()} & Pointing scheduler \\
+\texttt{fixedpoints.position} & \texttt{add\_fixed\_points()} & \textit{Static during run} & \texttt{scandetectors()} \\
+\texttt{cadenceStructure} & \texttt{initCadence()} & \texttt{nextIntegration()} & Time advancement scheduler \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Lifecycle of primary state fields inside \texttt{sim\_data}.}
+\end{table}
+
+\end{document}

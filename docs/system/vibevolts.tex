@@ -278,13 +278,16 @@ This document outlines the structure of the \texttt{sim\_data} dictionary used i
 \item[{\textbf{observatories}}] \texttt{dict}
 \begin{itemize}
 \item \textbf{Description}: Holds data for ground-based observatories.
-\item \textbf{Modified by}: \texttt{add\_observatories} (initialization)
+\item \textbf{Modified by}: \texttt{add\_observatories} (initialization), \texttt{propagate\_observatories} (position and velocity updates)
 \item \textbf{Sub-keys}:
 \begin{description}
 \item[{\textbf{position}}] \texttt{np.ndarray} (n, 3) - Position vectors in meters.
 \item[{\textbf{velocity}}] \texttt{np.ndarray} (n, 3) - Velocity vectors in m/s.
 \item[{\textbf{acceleration}}] \texttt{np.ndarray} (n, 3) - Acceleration vectors in m/s\textsuperscript{2}.
 \item[{\textbf{pointing}}] \texttt{np.ndarray} (n, 3) - Pointing direction vector.
+\item[{\textbf{latitude}}] \texttt{np.ndarray} (n,) - Geodetic latitude in degrees.
+\item[{\textbf{longitude}}] \texttt{np.ndarray} (n,) - Geodetic longitude in degrees.
+\item[{\textbf{altitude}}] \texttt{np.ndarray} (n,) - Geodetic altitude in meters.
 \item[{\textbf{detector}}] \texttt{np.ndarray} (n, 9) - Detector properties for each observatory.
 \end{description}
 \end{itemize}

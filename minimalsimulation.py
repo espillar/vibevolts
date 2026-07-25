@@ -95,6 +95,9 @@ class ObservatoriesState(SchemaDict):
             'velocity': np.zeros((0, 3)),
             'acceleration': np.zeros((0, 3)),
             'pointing': np.zeros((0, 3)),
+            'latitude': np.zeros(0),
+            'longitude': np.zeros(0),
+            'altitude': np.zeros(0),
         }
         super().__init__(**{**defaults, **kwargs})
 
