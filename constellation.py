@@ -15,9 +15,19 @@ from detector import makeBlankDetector, makeDetector
 
 #########################################################
 
-def _add_geo_constellation_core(sim_data, n, fov, detect) -> None:
+def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) -> None:
     """
     Shared core logic for creating GEO constellations.
+
+    Initializes pointing spheres, creates Keplerian orbital elements for N equally
+    spaced equatorial satellites, sets up their detector pointing arrays, and
+    propagates the constellation to the current simulation time.
+
+    Args:
+        sim_data: The main simulation data structure (SimulationState).
+        n: The number of satellites to create in the constellation.
+        fov: The field of view diameter in radians.
+        detect: The DetectorArray object configured for these satellites.
     """
     # Calculate solid angle 
     theta = fov / 2

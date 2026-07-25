@@ -96,4 +96,5 @@ def plot_satellite_brightness():
     # Display both figures
     fig_flux.show()
     fig_mag.show()
-plot_satellite_brightness()
+if __name__ == '__main__':
+    plot_satellite_brightness()

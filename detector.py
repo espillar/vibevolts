@@ -1,21 +1,18 @@
-from dataclasses import dataclass, field
-from typing import List
+from typing import List, Any
 from constants import *
 import numpy as np
 import math
-from minimalsimulation import DictDataclass
+from minimalsimulation import SchemaDict
 from radiometry_data import FILTER_DATA
 from radiometry_calcs import *
 
 
-@dataclass
-class DetectorArray(DictDataclass):
+class DetectorArray(SchemaDict):
     """
     DetectorArray models detector parameters for all satellites.
 
-    It inherits from DictDataclass so it supports both attribute-style
-    (dot notation) and dictionary subscript access, and participates in
-    the SimulationState dataclass hierarchy.  All array-valued fields
+    It inherits from SchemaDict so it supports both attribute-style
+    (dot notation) and dictionary subscript access. All array-valued fields
     have a length equal to the number of detectors (satellites).
 
     Fields:
@@ -41,57 +38,52 @@ class DetectorArray(DictDataclass):
         pointing_state:  Pointing scheduler state, shape (2, n).
                          Row 0 = total grid points, row 1 = current index.
     """
-    apertureArea: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    pixelOmega: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    qe: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    photoEff: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    pixCount: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    solarEx: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    lunarEx: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    earthEx: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    skyBack: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    zpCal: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    integrationTime: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    fov: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    ifov: np.ndarray = field(
-        default_factory=lambda: np.zeros(0, dtype=float))
-    filt: List[str] = field(default_factory=list)
-    pointing: np.ndarray = field(
-        default_factory=lambda: np.zeros((0, 3), dtype=float))
-    pointing_state: np.ndarray = field(
-        default_factory=lambda: np.zeros((2, 0), dtype=int))
+    def __init__(self, **kwargs):
+        defaults = {
+            'apertureArea': np.zeros(0, dtype=float),
+            'pixelOmega': np.zeros(0, dtype=float),
+            'qe': np.zeros(0, dtype=float),
+            'photoEff': np.zeros(0, dtype=float),
+            'pixCount': np.zeros(0, dtype=float),
+            'solarEx': np.zeros(0, dtype=float),
+            'lunarEx': np.zeros(0, dtype=float),
+            'earthEx': np.zeros(0, dtype=float),
+            'skyBack': np.zeros(0, dtype=float),
+            'zpCal': np.zeros(0, dtype=float),
+            'integrationTime': np.zeros(0, dtype=float),
+            'fov': np.zeros(0, dtype=float),
+            'ifov': np.zeros(0, dtype=float),
+            'filt': [],
+            'pointing': np.zeros((0, 3), dtype=float),
+            'pointing_state': np.zeros((2, 0), dtype=int),
+        }
+        super().__init__(**{**defaults, **kwargs})
 
 
-def setDetectorFOV(sim_data, fovSize):
+def setDetectorFOV(sim_data: Any, fovSize: float) -> None:
     """
-    setDetectorFOV goes through the detectors in sim_data
-    and changes the FOVs of all of them to size (radians).
-    This is meant to be an ad-hoc function for test,
-    not a regular operational thing.
+    Sets the field-of-view of all detectors in the simulation to a single size.
+
+    This is an ad-hoc helper function mainly used for testing, not regular operation.
+
+    Args:
+        sim_data: The main simulation data structure.
+        fovSize: The new field-of-view diameter in radians.
     """
     det = sim_data.detector if hasattr(sim_data, 'detector') else sim_data['detector']
     count = len(det.fov)
     det.fov = np.full(count, fovSize)
 
 
-def setDetectorIntegrationTime(sim_data, itime):
+def setDetectorIntegrationTime(sim_data: Any, itime: float) -> None:
     """
-    setDetectorIntegrationTime goes through the detectors in sim_data
-    and changes the integration times of all of them to itime (seconds).
-    This is meant to be an ad-hoc function for test,
-    not a regular operational thing.
+    Sets the integration time of all detectors in the simulation to a single value.
+
+    This is an ad-hoc helper function mainly used for testing, not regular operation.
+
+    Args:
+        sim_data: The main simulation data structure.
+        itime: The new integration time in seconds.
     """
     det = sim_data.detector if hasattr(sim_data, 'detector') else sim_data['detector']
     count = len(det.fov)
@@ -149,7 +141,7 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
         lunarex:  Lunar exclusion angle in radians.
         earthex:  Earth limb exclusion angle in radians.
 
-    THIS VERSION IS FOR A GROUND OBSERVATORY.
+    Creates a detector for any platform (space or ground).
     '''
     detect = makeBlankDetector(n)
     detect.apertureArea[:] = math.pi * (aper / 2) ** 2
@@ -227,7 +219,7 @@ def appendDetector(cd: DetectorArray, new_cd: DetectorArray) -> None:
     with np.vstack (or np.hstack for pointing_state which is (2, n));
     list fields are extended.
     """
-    for attr_name in DetectorArray.__dataclass_fields__:
+    for attr_name in cd.keys():
         new_val = getattr(new_cd, attr_name)
         cur_val = getattr(cd, attr_name)
         if isinstance(cur_val, np.ndarray):

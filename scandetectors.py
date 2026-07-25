@@ -4,10 +4,17 @@ from lambertian import lambertiansphere, includedAngle
 import radiometry_calcs
 
 
-def get_spherical_coords(arr):
+def get_spherical_coords(arr: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
-    given a n by 3 d array, return two 1D arrays
-    with the theta and phi angles in radians
+    Converts 3D Cartesian coordinates to spherical angles (theta, phi).
+
+    Args:
+        arr: An (N, 3) NumPy array of Cartesian coordinates.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]:
+            - theta: The inclination angle from the z-axis in radians [0, pi].
+            - phi: The azimuthal angle in the x-y plane in radians [-pi, pi].
     """
     x, y, z = arr[:, 0], arr[:, 1], arr[:, 2]
     r = np.linalg.norm(arr, axis=1)

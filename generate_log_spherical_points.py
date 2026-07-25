@@ -38,25 +38,8 @@ def generate_log_spherical_points(
         raise ValueError("outer_radius must be a positive number and >= inner_radius.")
 
     # --- 1. Generate uniformly distributed unit vectors (Fibonacci Lattice) ---
-    # Create an array of indices for each point
-    indices = np.arange(0, num_points, dtype=float) + 0.5
-
-    # Uniformly distribute points along the z-axis (cos(phi))
-    z = 1 - 2 * indices / num_points
-
-    # Calculate the radius in the xy-plane for each point
-    radius_xy = np.sqrt(1 - z**2)
-
-    # Calculate the azimuthal angle using the golden angle
-    golden_angle = np.pi * (3. - np.sqrt(5.))
-    theta = golden_angle * indices
-
-    # Convert to Cartesian coordinates for the unit sphere
-    x = radius_xy * np.cos(theta)
-    y = radius_xy * np.sin(theta)
-    
-    # Stack into an (N, 3) array of unit vectors
-    unit_vectors = np.stack([x, y, z], axis=1)
+    from fibonacciSearch import pointing_vectors
+    unit_vectors = pointing_vectors(num_points)
 
     # --- 2. Generate logarithmically spaced radii ---
     # The start and stop parameters for logspace are exponents

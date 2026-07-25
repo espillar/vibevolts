@@ -1,9 +1,17 @@
 import numpy as np
 from datetime import datetime, timezone
+from typing import Any
 
-def sim_check(sim_data):
+def sim_check(sim_data: Any) -> None:
     """
-    Prints a brief summary of what's present in a sim_data structure.
+    Validates and prints a diagnostic summary of the simulation data structure.
+
+    Checks key properties of the simulation state (such as start time, step time,
+    pointing spheres, celestial bodies, satellites, and detector configurations)
+    and reports warnings if crucial simulation elements are missing or uninitialized.
+
+    Args:
+        sim_data: The main simulation data structure (SimulationState).
     """
     print("========================================")
     print("--- Simulation Data Check ---")

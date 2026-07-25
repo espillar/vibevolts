@@ -14,179 +14,89 @@ def safe_normalize(v: np.ndarray, axis: int = -1) -> np.ndarray:
     return np.where(norms == 0, 0.0, v / norms)
 
 
-def instantiate_dataclass(cls, data_dict):
-    field_names = set(cls.__dataclass_fields__.keys()) if hasattr(cls, '__dataclass_fields__') else set()
-    init_args = {}
-    extra_args = {}
-    for k, v in data_dict.items():
-        if k in field_names:
-            init_args[k] = v
-        else:
-            extra_args[k] = v
-    obj = cls(**init_args)
-    for k, v in extra_args.items():
-        obj[k] = v
-    return obj
-
-
-def get_state_class(key: str, field_type: Any) -> Optional[type]:
-    if isinstance(field_type, type) and issubclass(field_type, DictDataclass):
-        return field_type
-    if hasattr(field_type, '__origin__'):
-        from typing import Union
-        import types
-        if field_type.__origin__ is Union or (hasattr(types, 'UnionType') and field_type.__origin__ is types.UnionType):
-            for arg in field_type.__args__:
-                if isinstance(arg, type) and issubclass(arg, DictDataclass):
-                    return arg
-    key_lower = key.lower()
-    if key_lower == 'satellites' or key_lower.endswith('satellites'):
-        return SatellitesState
-    elif key_lower == 'observatories' or key_lower.endswith('observatories'):
-        return ObservatoriesState
-    elif key_lower == 'fixedpoints' or key_lower.endswith('fixedpoints'):
-        return FixedPointsState
-    elif key_lower == 'celestial':
-        return CelestialState
-    elif key_lower == 'counts':
-        return CountsState
-    elif key_lower == 'cadencestructure':
-        return CadenceState
-    elif key_lower == 'detector':
-        from detector import DetectorArray  # lazy import avoids circular dependency
-        return DetectorArray
-    return None
-
-
-class DictDataclass(dict):
+class DotDict(dict):
     """
-    A base class that allows standard dictionary-based classes decorated
-    with @dataclass to support both attribute-style (dot notation) access 
-    and dictionary subscript lookup/assignment.
+    A clean dictionary subclass that supports dot-notation attribute access.
+    Unifies attribute access and dictionary keys into a single storage mechanism.
     """
-    def __getitem__(self, key):
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            val = getattr(self, key)
-            if val is None:
-                raise KeyError(key)
-            return val
-        return super().__getitem__(key)
-
-    def __setitem__(self, key, value):
-        field_type = None
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            field_type = self.__dataclass_fields__[key].type
-        cls = get_state_class(key, field_type)
-        if cls is not None and isinstance(value, dict) and not isinstance(value, cls):
-            value = instantiate_dataclass(cls, value)
-
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            super().__setattr__(key, value)
-        else:
-            super().__setitem__(key, value)
-
-    def __contains__(self, key):
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            return getattr(self, key) is not None
-        return super().__contains__(key)
-
-    def get(self, key, default=None):
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            val = getattr(self, key)
-            if val is None:
-                return default
-            return val
-        return super().get(key, default)
-
-    def __getattr__(self, key):
+    def __getattr__(self, name):
         try:
-            return self[key]
+            return self[name]
         except KeyError:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{key}'")
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
-    def __setattr__(self, key, value):
-        field_type = None
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            field_type = self.__dataclass_fields__[key].type
-        cls = get_state_class(key, field_type)
-        if cls is not None and isinstance(value, dict) and not isinstance(value, cls):
-            value = instantiate_dataclass(cls, value)
+    def __setattr__(self, name, value):
+        self[name] = value
 
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            super().__setattr__(key, value)
-        else:
-            self[key] = value
-
-    def __delitem__(self, key):
-        if hasattr(self, '__dataclass_fields__') and key in self.__dataclass_fields__:
-            raise KeyError(f"Cannot delete dataclass field '{key}'")
-        super().__delitem__(key)
-
-    def __iter__(self):
-        fields = [f for f in self.__dataclass_fields__.keys() if getattr(self, f) is not None] if hasattr(self, '__dataclass_fields__') else []
-        seen = set()
-        for f in fields:
-            seen.add(f)
-            yield f
-        for k in super().__iter__():
-            if k not in seen:
-                yield k
-
-    def __len__(self):
-        fields = {f for f in self.__dataclass_fields__.keys() if getattr(self, f) is not None} if hasattr(self, '__dataclass_fields__') else set()
-        return len(fields | set(super().keys()))
-
-    def keys(self):
-        return list(self)
-
-    def values(self):
-        return [self[k] for k in self]
-
-    def items(self):
-        return [(k, self[k]) for k in self]
+    def __delattr__(self, name):
+        try:
+            del self[name]
+        except KeyError:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
 
-@dataclass
-class CountsState(DictDataclass):
-    celestial: int = 0
-    satellites: int = 0
-    observatories: int = 0
-    fixedpoints: int = 0
+class SchemaDict(DotDict):
+    """
+    A DotDict that ensures default attributes are always initialized
+    while seamlessly accepting any extra user-defined keys.
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
-@dataclass
-class CelestialState(DictDataclass):
-    position: np.ndarray = field(default_factory=lambda: np.zeros((2, 3)))
-    velocity: np.ndarray = field(default_factory=lambda: np.zeros((2, 3)))
-    acceleration: np.ndarray = field(default_factory=lambda: np.zeros((2, 3)))
+class CountsState(SchemaDict):
+    def __init__(self, **kwargs):
+        defaults = {
+            'celestial': 0,
+            'satellites': 0,
+            'observatories': 0,
+            'fixedpoints': 0,
+        }
+        super().__init__(**{**defaults, **kwargs})
 
 
-@dataclass
-class SatellitesState(DictDataclass):
-    position: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    velocity: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    acceleration: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    orbital_elements: np.ndarray = field(default_factory=lambda: np.zeros((0, 6)))
-    epochs: List[datetime] = field(default_factory=list)
-    pointing: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    pointing_state: np.ndarray = field(default_factory=lambda: np.zeros((0, 2)))
+class CelestialState(SchemaDict):
+    def __init__(self, **kwargs):
+        defaults = {
+            'position': np.zeros((2, 3)),
+            'velocity': np.zeros((2, 3)),
+            'acceleration': np.zeros((2, 3)),
+        }
+        super().__init__(**{**defaults, **kwargs})
 
 
-@dataclass
-class FixedPointsState(DictDataclass):
-    position: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    exclusion: np.ndarray = field(default_factory=lambda: np.zeros((0,)))
-    size: np.ndarray = field(default_factory=lambda: np.zeros((0,)))
-    albedo: np.ndarray = field(default_factory=lambda: np.zeros((0,)))
+class SatellitesState(SchemaDict):
+    def __init__(self, **kwargs):
+        defaults = {
+            'position': np.zeros((0, 3)),
+            'velocity': np.zeros((0, 3)),
+            'acceleration': np.zeros((0, 3)),
+            'orbital_elements': np.zeros((0, 6)),
+            'epochs': [],
+        }
+        super().__init__(**{**defaults, **kwargs})
 
 
-@dataclass
-class ObservatoriesState(DictDataclass):
-    position: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    velocity: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    acceleration: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
-    pointing: np.ndarray = field(default_factory=lambda: np.zeros((0, 3)))
+class FixedPointsState(SchemaDict):
+    def __init__(self, **kwargs):
+        defaults = {
+            'position': np.zeros((0, 3)),
+            'exclusion': np.zeros((0,)),
+            'size': np.zeros((0,)),
+            'albedo': np.zeros((0,)),
+        }
+        super().__init__(**{**defaults, **kwargs})
 
+
+class ObservatoriesState(SchemaDict):
+    def __init__(self, **kwargs):
+        defaults = {
+            'position': np.zeros((0, 3)),
+            'velocity': np.zeros((0, 3)),
+            'acceleration': np.zeros((0, 3)),
+            'pointing': np.zeros((0, 3)),
+        }
+        super().__init__(**{**defaults, **kwargs})
 
 
 @dataclass
@@ -208,8 +118,7 @@ class CadenceGroup:
     scanNext: datetime
 
 
-@dataclass
-class CadenceState(DictDataclass):
+class CadenceState(SchemaDict):
     """
     Top-level cadence schedule stored in sim_data.cadenceStructure.
 
@@ -221,31 +130,60 @@ class CadenceState(DictDataclass):
         nextGroup:   Index into cadenceList identifying which group fires
                      next.
     """
-    cadenceList: List['CadenceGroup'] = field(default_factory=list)
-    nextTime: Optional[datetime] = None
-    nextGroup: int = 0
+    def __init__(self, **kwargs):
+        defaults = {
+            'cadenceList': [],
+            'nextTime': None,
+            'nextGroup': 0,
+        }
+        super().__init__(**{**defaults, **kwargs})
 
 
-@dataclass
-class SimulationState(DictDataclass):
+class SimulationState(SchemaDict):
     """
     SimulationState models the main simulation data structure.
-    It inherits from DictDataclass to maintain 100% backward compatibility
+    It inherits from SchemaDict to maintain 100% backward compatibility
     with dict-style lookup/subscription and isinstance(..., dict) checks,
     but supports attribute-style access for better structure.
     """
-    start_time: datetime
-    time: datetime
-    delta_time: float = 60.0
-    counts: CountsState = field(default_factory=CountsState)
-    pointing_spheres: Dict[int, np.ndarray] = field(default_factory=dict)
-    detector: Optional[Any] = None  # DetectorArray; typed Any to avoid circular import
-    satellites: Optional[SatellitesState] = None
-    observatories: Optional[ObservatoriesState] = None
-    fixedpoints: Optional[FixedPointsState] = None
-    celestial: Optional[CelestialState] = None
-    cadenceStructure: Optional[CadenceState] = None
+    _FIELD_SCHEMAS = {
+        'counts': CountsState,
+        'celestial': CelestialState,
+        'satellites': SatellitesState,
+        'fixedpoints': FixedPointsState,
+        'observatories': ObservatoriesState,
+        'cadenceStructure': CadenceState,
+    }
 
+    def __init__(self, **kwargs):
+        if 'start_time' not in kwargs:
+            raise TypeError("SimulationState requires a 'start_time' parameter.")
+        start = kwargs['start_time']
+        
+        defaults = {
+            'time': start,
+            'delta_time': 60.0,
+            'counts': CountsState(),
+            'pointing_spheres': {},
+            'detector': None,
+            'satellites': None,
+            'observatories': None,
+            'fixedpoints': None,
+            'celestial': None,
+            'cadenceStructure': None,
+        }
+        super().__init__(**{**defaults, **kwargs})
+
+    def __setitem__(self, key, value):
+        if key == 'detector':
+            from detector import DetectorArray
+            cls = DetectorArray
+        else:
+            cls = self._FIELD_SCHEMAS.get(key)
+
+        if cls is not None and isinstance(value, dict) and not isinstance(value, cls):
+            value = cls(**value)
+        super().__setitem__(key, value)
 
 
 def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> SimulationState:
@@ -271,4 +209,3 @@ def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> S
         time=start_time,
         delta_time=delta_time
     )
-

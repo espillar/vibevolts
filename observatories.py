@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Dict, Any
-from detector import makeBlankDetector
+# detector imports are done locally in add_observatories()
 
 def add_observatories(sim_data: Any, num_observatories: int) -> None:
     """

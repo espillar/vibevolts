@@ -26,7 +26,6 @@ def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str
     acceleration
     orbital_elements
     epochs
-    pointing
     """
     from detector import makeBlankDetector, appendDetector
     orbital_elements, epochs = readtle(tle_file_path)
@@ -44,8 +43,6 @@ def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str
         'acceleration': np.zeros((num_sats, 3), dtype=float),
         'orbital_elements': orbital_elements,
         'epochs': epochs,
-        'pointing': np.zeros((num_sats, 3), dtype=float),
-        'pointing_state': np.zeros((num_sats, 2), dtype=int),
     }
 
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:

@@ -12,7 +12,8 @@ def lambertiansphere(
     based on phase angle. This function computes the brightness emitted
     *from the sphere's surface* in the direction of the observer.
     The final apparent brightness at the observer's location must be
-    calculated by dividing this result by 4 * pi * (distance_to_observer)^2.
+    calculated by dividing this result by pi * (distance_to_observer)^2
+    to satisfy conservation of energy for a diffuse sphere.
 
     Args:
         angle_light_observer: A 1D NumPy array of shape (N,) with the
@@ -34,7 +35,7 @@ def lambertiansphere(
         A 1D NumPy array of shape (N,) containing the brightness emitted
         from each sphere's surface (e.g., in Watts per steradian per
         square meter). To get apparent brightness at the observer,
-        divide by 4 * pi * (distance_to_observer)^2.
+        divide by pi * (distance_to_observer)^2.
     """
     if not np.all((albedo >= 0.0) & (albedo <= 1.0)):
         raise ValueError("All albedo values must be between 0.0 and 1.0.")
