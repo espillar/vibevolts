@@ -35,7 +35,7 @@ The phase function $\Phi(\alpha)$ for a Lambertian sphere is:
 
 The intensity $I(\alpha)$ of the scattered light in the direction of the observer is:
 \begin{equation}
-    I(\alpha) = F_{\text{sun}} \cdot a \cdot (\pi R^2) \cdot \pi \Phi(\alpha) \quad \left[\frac{\text{photons}}{\text{s} \cdot \text{sr}}\right]
+    I(\alpha) = F_{\text{sun}} \cdot a \cdot (\pi R^2) \cdot \Phi(\alpha) \quad \left[\frac{\text{photons}}{\text{s} \cdot \text{sr}}\right]
 \end{equation}
 
 Inside \texttt{lambertian.py}'s \texttt{lambertiansphere} function, the returned value (often called \texttt{target\_brightness} or $J(\alpha)$) is:

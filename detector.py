@@ -191,17 +191,17 @@ def requiredIntegrationTime(limitingMag, SNR, d, debug=0):
         float: The required integration time in seconds.
     '''
     gamma = SNR
-    beta = d.skyBack[0]
+    beta = d.skyBack
     omega = d.pixelOmega
-    alpha = amag(limitingMag) * d.zpCal[0]
+    alpha = amag(limitingMag) * d.zpCal
     A = d.apertureArea
     eta = d.qe
     f = d.photoEff
     if debug == 1:
         print(f"gamma {gamma:.2e}")
-        print(f"beta is, {beta:.2e}")
+        print("beta is,", beta)
         print("omega", omega)
-        print(f"alpha is {alpha:.2e}")
+        print("alpha is", alpha)
         print('A', A)
         print('eta', eta)
         print('f', f)
