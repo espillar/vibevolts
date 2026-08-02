@@ -117,7 +117,9 @@ LEO-05
     # Replace the blank detector created by add_satellites_from_tle
     # with a fully configured one for the standard demo.
     sim_data.detector = detector.makeDetector(
-        num_sats, "V", 10 * DEGREE, 3 * ARCSEC, 1
+        num_sats, "V", 10 * DEGREE, 3 * ARCSEC, 1,
+        category=['satellites'] * num_sats,
+        asset_index=np.arange(num_sats, dtype=int)
     )
     
     

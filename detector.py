@@ -33,6 +33,8 @@ class DetectorArray(SchemaDict):
         fov:             Full field-of-view diameter in radians (1-D).
         ifov:            Pixel field-of-view in radians (1-D array).
         filt:            Filter band name for each detector (list of str).
+        category:        The asset category this detector belongs to (e.g. 'satellites' or 'observatories') (list of str).
+        asset_index:     The index of the asset within its category (1-D array of int).
         pointing:        Pointing unit vector for each detector,
                          shape (n, 3).
         pointing_state:  Pointing scheduler state, shape (2, n).
@@ -54,6 +56,8 @@ class DetectorArray(SchemaDict):
             'fov': np.zeros(0, dtype=float),
             'ifov': np.zeros(0, dtype=float),
             'filt': [],
+            'category': [],
+            'asset_index': np.zeros(0, dtype=int),
             'pointing': np.zeros((0, 3), dtype=float),
             'pointing_state': np.zeros((2, 0), dtype=int),
         }
@@ -112,6 +116,8 @@ def makeBlankDetector(n: int) -> DetectorArray:
         fov=np.zeros(n, dtype=float),
         ifov=np.zeros(n, dtype=float),
         filt=[""] * n,
+        category=[""] * n,
+        asset_index=np.zeros(n, dtype=int),
         pointing=np.zeros((n, 3), dtype=float),
         pointing_state=np.zeros((2, n), dtype=int)
     )
@@ -121,7 +127,7 @@ def makeBlankDetector(n: int) -> DetectorArray:
 def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
                  qe=0.5, photfrac=0.7,
                  solarex=20.0 * DEGREE, lunarex=10.0 * DEGREE,
-                 earthex=15.0 * DEGREE):
+                 earthex=15.0 * DEGREE, category=None, asset_index=None):
     '''
     makeDetector takes parameters of a sensor and stuffs a filter array
     and a detector array, which it returns.
@@ -163,6 +169,8 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
     detect.fov[:] = fov
     detect.ifov[:] = ifov
     detect.filt = [band] * n
+    detect.category = category if category is not None else [""] * n
+    detect.asset_index = asset_index if asset_index is not None else np.zeros(n, dtype=int)
     detect.pointing = np.zeros((n, 3), dtype=float)
     detect.pointing_state = np.zeros((2, n), dtype=int)
     return detect

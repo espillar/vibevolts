@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{VibeVolts Guide: Ground-Based Observatory Flow}
+\author{VibeVolts Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This document traces the workflow for initializing, pointing, and recording observations using ground-based observatories in the VibeVolts simulation environment. It outlines how observatories are built, how they track targets, how imaging and radiometry are calculated, and how the data is recorded.
+
+\section{Building Observatories (Initialization)}
+Ground-based observatories are integrated directly into the global simulation state alongside space-based assets.
+\begin{itemize}
+    \item \textbf{Allocation:} The function \texttt{add\_observatories()} in \texttt{observatories.py} takes lists of latitudes, longitudes, and altitudes and updates \texttt{sim\_data.observatories} with these locations.
+    \item \textbf{Detector Integration:} Observatories share the same global detector array (\texttt{sim\_data.detector}) as satellites. \texttt{add\_observatories()} allocates blank detectors and appends them to this array.
+    \item \textbf{Configuration:} The user configures these detectors (e.g., using \texttt{makeDetector()}), setting crucial parameters like Field of View (FOV), integration time, and the Earth exclusion angle (\texttt{earthEx}), which serves as the local horizon limit.
+\end{itemize}
+
+\section{Pointing and Propagation}
+\begin{itemize}
+    \item \textbf{Propagation:} The \texttt{propagate\_observatories()} function uses \texttt{astropy.coordinates.EarthLocation} to dynamically compute the Geocentric Celestial Reference System (GCRS) coordinates of the observatories as the Earth rotates.
+    \item \textbf{Pointing:} Observatories are aimed by updating their respective vectors in \texttt{sim\_data.detector.pointing}. In scenarios like \texttt{demo\_observatory\_scan.py}, this vector is computed directly as the difference between the target's position and the observatory's position.
+\end{itemize}
+
+\section{Imaging and Radiometry}
+When the simulation advances (e.g., via \texttt{nextIntegration()}), the \texttt{scandetectors()} function in \texttt{scandetectors.py} performs the core imaging calculations:
+\begin{itemize}
+    \item \textbf{Visibility \& Exclusion:} The system calculates the angular separation between the detector pointing vector and the target vectors. The \texttt{exclusion()} function in \texttt{exclusion.py} ensures the target is not obscured by the Sun, Moon, or the Earth. For observatories, the Earth exclusion check enforces the local horizon limit defined by \texttt{earthEx}.
+    \item \textbf{Flux Calculation:} For visible targets, \texttt{lambertiansphere()} computes the apparent brightness of the target (e.g., a satellite).
+    \item \textbf{SNR Computation:} The signal is derived from the incident flux, integration time, aperture area, and quantum efficiency. The background noise (from space, sky, and sun) is factored in to yield the final Signal-to-Noise Ratio (SNR).
+\end{itemize}
+
+\section{Recording Observations}
+The results from \texttt{scandetectors()} are returned as a dictionary containing simulation time, observer indices, target indices, signal, noise, and SNR.
+\begin{itemize}
+    \item \textbf{DataHandler:} The \texttt{DataHandler} class in \texttt{dataHandling.py} is used to record this data across time steps.
+    \item \textbf{Storage:} The \texttt{add\_results()} method appends the step dictionary into a collection, which is subsequently consolidated into a Pandas DataFrame via \texttt{get\_dataframe()}.
+    \item \textbf{Export:} Finally, methods like \texttt{save\_to\_csv()} or \texttt{save\_to\_parquet()} can be used to export the complete observational dataset for analysis.
+\end{itemize}
+
+\end{document}

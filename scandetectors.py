@@ -2,6 +2,7 @@
 import numpy as np
 from lambertian import lambertiansphere, includedAngle
 import radiometry_calcs
+from constants import EARTH_RADIUS
 
 
 def get_spherical_coords(arr: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -153,6 +154,54 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     if len(sat_hit_idx) == 0:
         if print_output:
             print("No targets visible to active detectors.")
+        return results
+
+    # 3.5 Occlusion Filter (Earth Limb & Horizon)
+    hit_obs_pos = satpositions[sat_hit_idx]
+    hit_toTargets_pre = toTargets[sat_hit_idx, target_hit_idx]
+    hit_norms_pre = norms_toTargets[sat_hit_idx, target_hit_idx]
+    
+    u_hit_toTargets = hit_toTargets_pre / hit_norms_pre[:, np.newaxis]
+    obs_norms = np.linalg.norm(hit_obs_pos, axis=1)
+    valid_obs = obs_norms > 1e-9
+    
+    u_nadir = np.zeros_like(hit_obs_pos)
+    u_nadir[valid_obs] = -hit_obs_pos[valid_obs] / obs_norms[valid_obs, np.newaxis]
+    
+    cos_angle_to_nadir = np.sum(u_hit_toTargets * u_nadir, axis=1)
+    angle_to_nadir = np.arccos(np.clip(cos_angle_to_nadir, -1.0, 1.0))
+    
+    hit_earthEx = sim_data.detector.earthEx[mask][sat_hit_idx]
+    hit_categories = np.array(sim_data.detector.category)[mask][sat_hit_idx]
+    
+    is_occluded = np.zeros(len(sat_hit_idx), dtype=bool)
+    
+    for k in range(len(sat_hit_idx)):
+        if not valid_obs[k]:
+            continue
+        if hit_categories[k] == 'observatories':
+            # Local horizon check: angle from zenith must be < (90 - earthEx)
+            angle_to_zenith = np.pi - angle_to_nadir[k]
+            max_zenith = np.pi / 2.0 - hit_earthEx[k]
+            if angle_to_zenith > max_zenith:
+                is_occluded[k] = True
+        else:
+            # Satellite earth limb check
+            if obs_norms[k] > EARTH_RADIUS:
+                apparent_radius = np.arcsin(EARTH_RADIUS / obs_norms[k])
+            else:
+                apparent_radius = np.pi / 2.0
+            if angle_to_nadir[k] < (apparent_radius + hit_earthEx[k]):
+                is_occluded[k] = True
+
+    # Filter out occluded hits
+    clear_hits = ~is_occluded
+    sat_hit_idx = sat_hit_idx[clear_hits]
+    target_hit_idx = target_hit_idx[clear_hits]
+    
+    if len(sat_hit_idx) == 0:
+        if print_output:
+            print("No targets visible (all occluded) to active detectors.")
         return results
 
     # 4. Detector Flux Calculation (Vectorized Radiometry)

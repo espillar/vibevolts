@@ -25,13 +25,10 @@ def exclusion(
     Returns:
         1 if the satellite's view is excluded by any of the bodies, 0 otherwise.
     """
-    num_sats = data_struct.counts.get('satellites', 0)
-    if satellite_index < num_sats:
-        asset_category = 'satellites'
-        asset_idx = satellite_index
-    else:
-        asset_category = 'observatories'
-        asset_idx = satellite_index - num_sats
+    # Determine asset category and index using the detector's internal tracking
+    detector_props = data_struct.detector
+    asset_category = detector_props.category[satellite_index]
+    asset_idx = detector_props.asset_index[satellite_index]
 
     sat_pos = getattr(data_struct, asset_category).position[asset_idx]
     sat_pointing = data_struct.detector.pointing[satellite_index]

@@ -79,6 +79,8 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         }
         detector = makeDetector(**initial_detector_params)
         detector.pointing[0, :] = new_pointing_vector[0]
+        detector.category = ['satellites']
+        detector.asset_index = np.array([0], dtype=int)
         sim_data.detector = detector
         sim_data.initial_detector_params = initial_detector_params
     else:
@@ -99,6 +101,8 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         initial_params['n'] = 1 # Always create one new detector
         
         new_single_detector = makeDetector(**initial_params)
+        new_single_detector.category = ['satellites']
+        new_single_detector.asset_index = np.array([sim_data.counts.satellites - 1], dtype=int)
 
         # Append attributes from the new_single_detector to the existing cd
         appendDetector(cd, new_single_detector)

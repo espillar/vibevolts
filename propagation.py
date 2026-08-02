@@ -33,6 +33,8 @@ def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str
 
     sim_data.counts[sat_category] = num_sats
     new_detector = makeBlankDetector(num_sats)
+    new_detector.category = [sat_category] * num_sats
+    new_detector.asset_index = np.arange(num_sats, dtype=int)
     if 'detector' not in sim_data or not sim_data.detector:
         sim_data.detector = new_detector
     else:

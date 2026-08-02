@@ -28,20 +28,36 @@ def add_observatories(
     if altitudes is None:
         altitudes = np.zeros(num_observatories)
 
-    sim_data.counts.observatories = num_observatories
     from detector import makeBlankDetector, appendDetector
     detector = makeBlankDetector(num_observatories)
+    detector.category = ['observatories'] * num_observatories
     
     from minimalsimulation import ObservatoriesState
-    sim_data.observatories = ObservatoriesState(
-        latitude=np.array(latitudes, dtype=float),
-        longitude=np.array(longitudes, dtype=float),
-        altitude=np.array(altitudes, dtype=float),
-        position=np.zeros((num_observatories, 3), dtype=float),
-        velocity=np.zeros((num_observatories, 3), dtype=float),
-        acceleration=np.zeros((num_observatories, 3), dtype=float),
-        pointing=np.zeros((num_observatories, 3), dtype=float),
-    )
+    if sim_data.counts.get('observatories', 0) > 0:
+        # Append to existing
+        existing = sim_data.observatories
+        detector.asset_index = np.arange(sim_data.counts.observatories, sim_data.counts.observatories + num_observatories, dtype=int)
+        sim_data.counts.observatories += num_observatories
+        
+        existing.latitude = np.append(existing.latitude, np.array(latitudes, dtype=float))
+        existing.longitude = np.append(existing.longitude, np.array(longitudes, dtype=float))
+        existing.altitude = np.append(existing.altitude, np.array(altitudes, dtype=float))
+        existing.position = np.vstack([existing.position, np.zeros((num_observatories, 3), dtype=float)])
+        existing.velocity = np.vstack([existing.velocity, np.zeros((num_observatories, 3), dtype=float)])
+        existing.acceleration = np.vstack([existing.acceleration, np.zeros((num_observatories, 3), dtype=float)])
+        existing.pointing = np.vstack([existing.pointing, np.zeros((num_observatories, 3), dtype=float)])
+    else:
+        sim_data.counts.observatories = num_observatories
+        detector.asset_index = np.arange(num_observatories, dtype=int)
+        sim_data.observatories = ObservatoriesState(
+            latitude=np.array(latitudes, dtype=float),
+            longitude=np.array(longitudes, dtype=float),
+            altitude=np.array(altitudes, dtype=float),
+            position=np.zeros((num_observatories, 3), dtype=float),
+            velocity=np.zeros((num_observatories, 3), dtype=float),
+            acceleration=np.zeros((num_observatories, 3), dtype=float),
+            pointing=np.zeros((num_observatories, 3), dtype=float),
+        )
     
     if 'detector' not in sim_data or not sim_data.detector:
         sim_data.detector = detector

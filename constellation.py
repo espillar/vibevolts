@@ -70,6 +70,10 @@ def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) 
     
     detect.pointing = np.zeros((n, 3), dtype=float)
     detect.pointing_state = pointing_state_array
+    
+    current_count = sim_data.counts.get('satellites', 0)
+    detect.category = ['satellites'] * n
+    detect.asset_index = np.arange(current_count, current_count + n, dtype=int)
 
     if not sim_data.detector:
         sim_data.detector = detect

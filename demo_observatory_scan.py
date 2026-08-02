@@ -26,7 +26,8 @@ def run_observatory_animation():
     add_celestial_bodies(sim_data)
     
     # Configure detector with 10 deg horizon limit (earthEx)
-    d = makeDetector(1, band='V', fov=np.radians(15), ifov=np.radians(0.15), aper=1.0)
+    d = makeDetector(1, band='V', fov=np.radians(15), ifov=np.radians(0.15), aper=1.0,
+                     category=['observatories'], asset_index=np.array([0], dtype=int))
     d.earthEx = np.array([np.radians(10.0)])
     sim_data.detector = d
     
