@@ -120,6 +120,10 @@ where each index corresponds to a specific active sensor:
     *   *Modified by*: `detector.makeDetector`
 *   **`filt`** (`list[str]`): List of active filters (e.g., `'V'`).
     *   *Modified by*: `detector.makeDetector`
+*   **`category`** (`list[str]`): Asset category to which the detector belongs (e.g., `'satellites'`, `'observatories'`).
+    *   *Modified by*: `detector.makeDetector`
+*   **`asset_index`** (`np.ndarray(int)`): The specific index of the asset within its category.
+    *   *Modified by*: `detector.makeDetector`
 *   **`pointing`** (`np.ndarray(float)` of shape `(n, 3)`): Unit vector pointing directions.
     *   *Modified by*:
         `constellation.geos`, `pointing.update_detector_pointing`, `pointing.jerk`,

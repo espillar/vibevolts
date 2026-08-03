@@ -52,7 +52,7 @@ The simulation execution is divided into three main phases: Initialization, Conf
 In this phase, assets, detectors, and targets are added to \texttt{sim\_data}:
 \begin{enumerate}
     \item \textbf{Satellites:} \texttt{add\_satellites\_from\_tle()} loads a TLE file. It increments \texttt{sim\_data.counts.satellites} and creates a \texttt{SatellitesState} with fields like \texttt{position}, \texttt{velocity}, \texttt{orbital\_elements}, and \texttt{epochs}.
-    \item \textbf{Detectors:} A blank \texttt{DetectorArray} is initialized and appended to \texttt{sim\_data.detector}. Specific sensor parameters (FOV, aperture, zero points, integration times) are populated via \texttt{makeDetector()}.
+    \item \textbf{Detectors:} A blank \texttt{DetectorArray} is initialized and appended to \texttt{sim\_data.detector}. Specific sensor parameters (FOV, aperture, zero points, integration times) and tracking tags (category, asset index) are populated via \texttt{makeDetector()}.
     \item \textbf{Targets:} \texttt{add\_fixed\_points()} calls \texttt{generate\_log\_spherical\_points()} to populate \texttt{sim\_data.fixedpoints} with reference coordinates, albedos, and sizes.
     \item \textbf{Celestial Bodies:} \texttt{add\_celestial\_bodies()} allocates the \texttt{CelestialState} container for the Sun and Moon coordinates.
 \end{enumerate}

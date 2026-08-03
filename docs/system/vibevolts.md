@@ -147,8 +147,8 @@ Ad-hoc function to change integration times of all detectors to `itime` (seconds
 #### `makeBlankDetector(n: int)`
 Returns a `DetectorArray` with empty arrays for `n` detectors.
 
-#### `makeDetector(n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7, solarex=20*DEG, ...)`
-Creates a detector with specified radiometric and geometric parameters.
+#### `makeDetector(n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7, solarex=20*DEG, category=[''], asset_index=[0], ...)`
+Creates a detector with specified radiometric and geometric parameters, tagged with an asset category and index.
 
 #### `appendDetector(cd, new_cd)`
 Appends the attributes of `new_cd` to the existing detector object `cd` in-place.

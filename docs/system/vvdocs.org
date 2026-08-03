@@ -280,7 +280,7 @@ The ~sim_data~ dictionary is built incrementally. The following functions are re
 
 ** ~detector.py~
    - ~makeBlankDetector(n)~: Creates a blank detector array.
-   - ~makeDetector(n, band, fov, ifov, aper, qe=0.5, photfrac=0.7, solarex=20 * DEGREE, lunarex=10 * DEGREE, earthex=15 * DEGREE)~: Creates a detector array with the given parameters.
+   - ~makeDetector(n, band, fov, ifov, aper, qe=0.5, photfrac=0.7, solarex=20 * DEGREE, lunarex=10 * DEGREE, earthex=15 * DEGREE, category=[''], asset_index=[0])~: Creates a detector array with the given parameters.
      #+BEGIN_SRC python
      '''
      makeDetector takes parameters of a sensor and stuffs a filter array and a detector array, which it returns.

@@ -109,6 +109,8 @@ The ~detector~ object is a ~SimpleNamespace~ that holds detector properties. It 
 - *~fov~*: ~np.ndarray~ (n,) - Field of view.
 - *~ifov~*: ~np.ndarray~ (n,) - Instantaneous field of view.
 - *~filt~*: ~list[str]~ (n) - Filter name.
+- *~category~*: ~list[str]~ (n) - Category of the asset (e.g. 'satellites').
+- *~asset_index~*: ~np.ndarray~ (n,) - Index of the asset within its category.
 - *~pointing~*: ~np.ndarray~ (n, 3) - Pointing direction vector.
 - *~pointing_state~*: ~np.ndarray~ (2, n) - State of the pointing sequence.
 

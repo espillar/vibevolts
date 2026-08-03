@@ -136,7 +136,7 @@ Defines physical constants (e.g., `EARTH_RADIUS`, `DEGREE`) and array indices.
 *   `setDetectorFOV(sim_data, fovSize)`: Global update of all detector fields-of-view.
 *   `setDetectorIntegrationTime(sim_data, itime)`: Global update of all integration times.
 *   `makeBlankDetector(n)`: Creates a minimal detector SimpleNamespace placeholder.
-*   `makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, ...)`: Creates a detailed
+*   `makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0, category=[''], asset_index=[0], ...)`: Creates a detailed
     detector object with filter zero-points, quantum efficiency, and exclusion angles.
 *   `detectorPointingInitialize(sim_data, grid_points)`: Initializes pointing grids and state.
 *   `requiredIntegrationTime(limitingMag, SNR, d, debug = 0)`: Exposure time calculation.

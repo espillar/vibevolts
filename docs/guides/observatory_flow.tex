@@ -19,7 +19,7 @@ Ground-based observatories are integrated directly into the global simulation st
 \begin{itemize}
     \item \textbf{Allocation:} The function \texttt{add\_observatories()} in \texttt{observatories.py} takes lists of latitudes, longitudes, and altitudes and updates \texttt{sim\_data.observatories} with these locations.
     \item \textbf{Detector Integration:} Observatories share the same global detector array (\texttt{sim\_data.detector}) as satellites. \texttt{add\_observatories()} allocates blank detectors and appends them to this array.
-    \item \textbf{Configuration:} The user configures these detectors (e.g., using \texttt{makeDetector()}), setting crucial parameters like Field of View (FOV), integration time, and the Earth exclusion angle (\texttt{earthEx}), which serves as the local horizon limit.
+    \item \textbf{Configuration:} The user configures these detectors (e.g., using \texttt{makeDetector()}), setting crucial parameters like Field of View (FOV), integration time, and the Earth exclusion angle (\texttt{earthEx}), which serves as the local horizon limit. The detector must also be correctly tagged with the \texttt{category='observatories'} and corresponding \texttt{asset\_index} arrays.
 \end{itemize}
 
 \section{Pointing and Propagation}
