@@ -100,10 +100,26 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     if len(active_indices) == 0:
         return results
 
-    # Construct combined position array for all observer detectors
-    sat_pos = sim_data.satellites.position if num_sats > 0 else np.empty((0, 3))
-    obs_pos = sim_data.observatories.position if num_obs > 0 else np.empty((0, 3))
-    all_positions = np.vstack([sat_pos, obs_pos])
+    # Build a position array aligned to the detector array order.
+    # Each detector entry carries its category and asset_index so we look up
+    # the correct row from the right position sub-array, regardless of the
+    # order in which satellites / observatories were added.
+    category_array = np.array(sim_data.detector.category)   # shape (num_total_detectors,)
+    asset_index_array = sim_data.detector.asset_index        # shape (num_total_detectors,)
+
+    # Pre-fetch position arrays once (avoids repeated attribute access)
+    _pos_map = {}
+    if num_sats > 0:
+        _pos_map['satellites'] = sim_data.satellites.position
+    if num_obs > 0:
+        _pos_map['observatories'] = sim_data.observatories.position
+
+    all_positions = np.zeros((num_total_detectors, 3), dtype=float)
+    for det_i in range(num_total_detectors):
+        cat = category_array[det_i]
+        pos_array = _pos_map.get(cat)
+        if pos_array is not None:
+            all_positions[det_i] = pos_array[asset_index_array[det_i]]
 
     # Subset detector and observer positions
     satpositions = all_positions[mask]
