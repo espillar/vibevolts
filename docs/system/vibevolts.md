@@ -52,11 +52,13 @@ Adds the `fixedpoints` structure with generated points.
 
 The following demos are available in the repository:
 
-- `demo1.py`: Full demonstration of simulation tools.
+- `demo1.py`: Full demonstration of simulation tools (imported in `all_demos.py` but
+  not executed by `run_all_demos`).
 - `demo2.py`: Plotting satellite and celestial positions.
 - `demo3.py`: Single LEO satellite trajectory.
 - `demogeo.py`: Single GEO satellite trajectory.
 - `demo_fixedpoints.py`: Visualization of the fixedpoints data structure.
+- `demo_exclusion_table.py`: Demonstration of the exclusion table computation.
 - `demo_pointing_plot.py`: Demonstration of pointing vector plotting.
 - `demo_pointing_sequence.py`: Progression of pointing vectors over time.
 - `demo_pointing_vectors.py`: Fibonacci sphere pointing vector generation.
@@ -65,8 +67,9 @@ The following demos are available in the repository:
 - `demo_sky_scan.py`: Mapping celestial exclusion zones.
 - `demo_lambertian.py`: Lambertian sphere brightness calculations.
 - `demo_constellation.py`: Creation and visualization of constellations.
-- `radiometry_test.py`: Setup with fixed satellites and targets.
-- `pointing.py`: Solar exclusion and FOV demonstration.
+- `demo_observatories_only.py`: Demonstration using only ground-based observatories.
+- `radiometry_test.py`: Setup with fixed satellites and targets (`demoFixed`).
+- `pointing.py`: Solar exclusion and FOV demonstration (`demo_exclusion_pointing`).
 - `demo_gap_time_histogram.py`: Target interobservation gap time calculations and histogram.
 - `all_demos.py`: Main entry point to run all demos.
 
@@ -78,7 +81,9 @@ The following demos are available in the repository:
 Runs the `test_vector_resorting` function and returns its figure.
 
 #### `run_all_demos(save_html: bool = False)`
-Runs all demo functions, and either shows them inline or saves them to an HTML file.
+Runs all demo functions and either shows them inline or saves them to
+`all_demo_plots.html`. Note: `demo1` is imported but **not** in the executed list;
+`demo_observatories_only` is included in the executed list.
 
 ### cadenceController.py
 
@@ -100,15 +105,21 @@ Adds celestial body structures (Sun and Moon) to the simulation data.
 Calculates and updates the positions of the Sun and Moon at the specified time.
 
 ### constants.py
-Contains physical constants used across the simulation (e.g., `GEO_RADIUS`, `AU`, `DEGREE`).
+Contains physical constants and array-index constants used across the simulation:
+- Radii: `EARTH_RADIUS`, `MOON_RADIUS`, `GEO_RADIUS`, `MOON_ORBIT_RADIUS` (meters)
+- Angular: `ARCSEC`, `DEGREE` (radians)
+- Orbital element indices: `ORBITAL_A_IDX`, `ORBITAL_E_IDX`, `ORBITAL_I_IDX`,
+  `ORBITAL_RAAN_IDX`, `ORBITAL_ARGP_IDX`, `ORBITAL_M_IDX`
+- Pointing state indices: `POINTING_COUNT_IDX`, `POINTING_PLACE_IDX`
 
 ### constellation.py
 
 #### `geos(sim_data: dict, n: int, fov: float)`
 Adds `n` equally spaced satellites in GEO.
 
-#### `geosmod(sim_data, n, band, fov, ifov, aper, limitingmag)`
-Adds `n` GEO satellites with detailed detector parameters.
+#### `geosmod(sim_data, n, band, fov, ifov, aper, limitingmag, snr=7.0)`
+Adds `n` GEO satellites with detailed detector parameters. Integration time is computed
+from `limitingmag` and `snr` using `requiredIntegrationTime`.
 
 ### dataHandling.py
 
@@ -147,20 +158,20 @@ Ad-hoc function to change integration times of all detectors to `itime` (seconds
 #### `makeBlankDetector(n: int)`
 Returns a `DetectorArray` with empty arrays for `n` detectors.
 
-#### `makeDetector(n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7, solarex=20*DEG, category=[''], asset_index=[0], ...)`
-Creates a detector with specified radiometric and geometric parameters, tagged with an asset category and index.
+#### `makeDetector(n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7, solarex=20*DEGREE, lunarex=10*DEGREE, earthex=15*DEGREE, category=None, asset_index=None)`
+Creates a detector with specified radiometric and geometric parameters. `category` and
+`asset_index` default to `None` (filled with empty strings / zeros internally).
 
 #### `appendDetector(cd, new_cd)`
 Appends the attributes of `new_cd` to the existing detector object `cd` in-place.
 
-#### `detectorPointingInitialize(sim_data, grid_points)`
-Initializes detector pointing state and adds a pointing sphere to `sim_data`.
+#### `testdetector()`
+Example usage comparing results with external benchmarks.
 
 #### `requiredIntegrationTime(limitingMag, SNR, d, debug=0)`
 Calculates integration time required for a target SNR and limiting magnitude.
 
-#### `testdetector()`
-Example usage comparing results with external benchmarks.
+
 
 ### exclusion.py
 
@@ -193,7 +204,9 @@ Generates 3D points with logarithmic radial and uniform angular distribution.
 ### generate_report.py
 
 #### `generate_demo_html_report()`
-Runs all plotting demos and saves the output to a single HTML file.
+Runs a **subset** of plotting demos (`demo1`, `demo2`, `demo3`, `demo_fixedpoints`,
+`demo_exclusion_table`, `demo_pointing_plot`) and saves the output to `demo_plots.html`.
+Not a full replacement for `all_demos.py`.
 
 ### lambertian.py
 
@@ -236,11 +249,15 @@ Creates a 3D plot of satellites with their current pointing vectors.
 
 ### pointing.py
 
-#### `generate_pointing_sphere(sim_data, n_points, debug=0)`
-Generates and caches a set of pointing vectors on a sphere.
+#### `generate_pointing_sphere(sim_data, n_points, debug=False)`
+Generates and caches a set of pointing vectors on a sphere in `sim_data.pointing_spheres`.
 
 #### `update_detector_pointing(sim_data, sat_category='satellites', debug=False)`
 Updates detector pointing vectors, skipping directions in exclusion zones.
+
+#### `detectorPointingInitialize(sim_data, grid_points)`
+Initializes `pointing_state` and `pointing` arrays for all detectors and adds a pointing
+sphere to `sim_data`. Calls `update_detector_pointing` to set an initial valid direction.
 
 #### `demo_exclusion_pointing()`
 Demonstrates pointing with solar exclusion and FOV constraints.
@@ -285,10 +302,12 @@ Contains spectral data and filter characteristics (e.g., `FILTER_DATA`).
 ### radiometry_test.py
 
 #### `fixedSat(sim_data, x, y, z, fov=10*DEGREE)`
-Creates a single satellite fixed at the given coordinates.
+Creates a single satellite fixed at `(x, y, z)` in meters. `fov` sets the detector
+field of view in radians. Appends to existing satellite data if any is present.
 
 #### `fixedTarget(sim_data, size, x, y, z)`
-Places a fixed target at the given coordinates.
+Places a fixed Lambertian sphere target at `(x, y, z)` with the given `size` (radius,
+meters) and a default albedo of 0.2.
 
 #### `fixSun(sim_data)`
 Fixes the Sun's position at 1 AU on the negative x-axis.
@@ -299,10 +318,13 @@ Demonstrates setup with fixed satellites, targets, and Sun.
 ### scandetectors.py
 
 #### `get_spherical_coords(arr)`
-Converts Cartesian coordinates to theta and phi.
+Converts an `(N, 3)` Cartesian array to spherical angles `(theta, phi)`.
 
 #### `scandetectors(sim_data, print_output=0, mask=None)`
 Orchestrates target detection, calculating signal, noise, and SNR for visible targets.
+Observer positions are resolved per-detector via `detector.category` and
+`detector.asset_index`, ensuring correct positions regardless of the order assets were
+added to `sim_data`.
 
 ### sim_check.py
 
