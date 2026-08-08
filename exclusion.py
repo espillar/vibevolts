@@ -115,27 +115,64 @@ def update_exclusion_table(
     print_debug_for_sat: Optional[int] = None
 ) -> None:
     """
-    Updates the exclusion table for all satellites against all fixed points.
-    This uses a highly optimized NumPy vectorized approach to compute all
-    target-satellite exclusions simultaneously.
+    Updates the exclusion table for all detectors against all
+    fixed points.  Uses the detector category / asset_index
+    mapping so that satellites and observatories are handled
+    uniformly.
+
+    For space-based detectors the standard Sun / Moon / Earth-limb
+    exclusion checks are applied.  For ground-based observatories
+    the Earth-limb check is replaced by a local-horizon elevation
+    check (the minimum elevation is stored in detector.earthEx).
+
+    The resulting matrix is stored in
+    data_struct.fixedpoints.exclusion with shape
+    (num_fixed_points, num_detectors).
     """
-    num_sats = data_struct.counts.satellites
-    num_fixed_points = data_struct.counts.fixedpoints
-    
-    if num_sats == 0 or num_fixed_points == 0:
+    num_fixed_points = data_struct.counts.get('fixedpoints', 0)
+    num_detectors = len(data_struct.detector.filt)
+
+    if num_detectors == 0 or num_fixed_points == 0:
         return
 
     targets = data_struct.fixedpoints.position
-    sat_pos = data_struct.satellites.position
+    detector_props = data_struct.detector
 
-    # Compute pointing vectors from each satellite to each fixed point
-    pointing_vectors = targets[:, np.newaxis, :] - sat_pos[np.newaxis, :, :]
-    
+    # --- Build observer positions using category / asset_index ---
+    category_array = np.array(detector_props.category)
+    asset_index_array = detector_props.asset_index
+
+    num_sats = data_struct.counts.get('satellites', 0)
+    num_obs = data_struct.counts.get('observatories', 0)
+
+    _pos_map = {}
+    if num_sats > 0:
+        _pos_map['satellites'] = data_struct.satellites.position
+    if num_obs > 0:
+        _pos_map['observatories'] = (
+            data_struct.observatories.position
+        )
+
+    observer_pos = np.zeros((num_detectors, 3), dtype=float)
+    for det_i in range(num_detectors):
+        cat = category_array[det_i]
+        pos_array = _pos_map.get(cat)
+        if pos_array is not None:
+            observer_pos[det_i] = (
+                pos_array[asset_index_array[det_i]]
+            )
+
+    # --- Pointing vectors: (num_targets, num_detectors, 3) ---
+    pointing_vectors = (
+        targets[:, np.newaxis, :]
+        - observer_pos[np.newaxis, :, :]
+    )
+
     norm_pointing = np.linalg.norm(pointing_vectors, axis=2)
     safe_norm = np.where(norm_pointing == 0, 1.0, norm_pointing)
-    u_sat_pointing = pointing_vectors / safe_norm[:, :, np.newaxis]
+    u_pointing = pointing_vectors / safe_norm[:, :, np.newaxis]
 
-    # Celestial body positions and radii
+    # --- Celestial body geometry ---
     body_positions = np.array([
         data_struct.celestial.position[0],
         data_struct.celestial.position[1],
@@ -143,48 +180,96 @@ def update_exclusion_table(
     ])
     body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
 
-    # vecs_to_bodies shape: (num_sats, 3, 3)
-    vecs_to_bodies = body_positions[np.newaxis, :, :] - sat_pos[:, np.newaxis, :]
+    # vecs_to_bodies: (num_detectors, 3_bodies, 3_xyz)
+    vecs_to_bodies = (
+        body_positions[np.newaxis, :, :]
+        - observer_pos[:, np.newaxis, :]
+    )
     dists_to_bodies = np.linalg.norm(vecs_to_bodies, axis=2)
+    safe_dists = np.where(
+        dists_to_bodies == 0, 1.0, dists_to_bodies
+    )
+    u_vecs_to_bodies = (
+        vecs_to_bodies / safe_dists[:, :, np.newaxis]
+    )
 
-    # Normalize vectors to bodies
-    safe_dists = np.where(dists_to_bodies == 0, 1.0, dists_to_bodies)
-    u_vecs_to_bodies = vecs_to_bodies / safe_dists[:, :, np.newaxis]
-
-    # Compute angles using einsum: (num_fixed_points, num_sats, 3)
-    cos_angles = np.einsum('tsd,sbd->tsb', u_sat_pointing, u_vecs_to_bodies)
+    # Angles: (num_targets, num_detectors, 3_bodies)
+    #   t = target, d = detector, b = body, i = xyz
+    cos_angles = np.einsum(
+        'tdi,dbi->tdb', u_pointing, u_vecs_to_bodies
+    )
     cos_angles = np.clip(cos_angles, -1.0, 1.0)
     angles = np.arccos(cos_angles)
 
-    # Apparent radii of Moon and Earth (Sun is 0)
-    apparent_radii = np.zeros((num_sats, 3))
-    apparent_radii[:, 1:] = np.arctan(body_radii[1:][np.newaxis, :] / safe_dists[:, 1:])
+    # Apparent angular radii: (num_detectors, 3_bodies)
+    apparent_radii = np.zeros((num_detectors, 3))
+    apparent_radii[:, 1:] = np.arctan(
+        body_radii[1:][np.newaxis, :] / safe_dists[:, 1:]
+    )
 
-    # Get satellite detector exclusion angles
-    detector_props = data_struct.detector
+    # Exclusion angles: (num_detectors, 3_bodies)
     exclusion_angles = np.vstack([
         detector_props.solarEx,
         detector_props.lunarEx,
         detector_props.earthEx
     ]).T
 
-    # Check exclusion: (num_fixed_points, num_sats, 3)
-    is_excluded = (angles - apparent_radii[np.newaxis, :, :]) < exclusion_angles[np.newaxis, :, :]
-    
-    # Check if any celestial body causes exclusion
+    # Exclusion test: (num_targets, num_detectors, 3_bodies)
+    is_excluded = (
+        (angles - apparent_radii[np.newaxis, :, :])
+        < exclusion_angles[np.newaxis, :, :]
+    )
+
+    # --- Observatory horizon check (replaces Earth-limb) ---
+    obs_mask = (category_array == 'observatories')
+    if np.any(obs_mask):
+        obs_indices = np.where(obs_mask)[0]
+        obs_positions = observer_pos[obs_indices]
+        obs_norms = np.linalg.norm(obs_positions, axis=1)
+        safe_obs_norms = np.where(
+            obs_norms == 0, 1.0, obs_norms
+        )
+        zenith_vecs = (
+            obs_positions / safe_obs_norms[:, np.newaxis]
+        )
+
+        # cos(zenith angle) for every (target, obs) pair
+        cos_zenith = np.einsum(
+            'toi,oi->to',
+            u_pointing[:, obs_indices, :],
+            zenith_vecs
+        )
+        cos_zenith = np.clip(cos_zenith, -1.0, 1.0)
+        zenith_angles = np.arccos(cos_zenith)
+
+        min_elev = exclusion_angles[obs_indices, 2]
+        max_zenith = np.pi / 2.0 - min_elev
+
+        # Replace Earth-body exclusion with horizon check
+        is_excluded[:, obs_indices, 2] = (
+            zenith_angles > max_zenith[np.newaxis, :]
+        )
+
+    # Collapse body axis → scalar excluded flag
     exclusion_matrix = np.any(is_excluded, axis=2).astype(int)
 
-    # If pointing vector norm is zero, it's not pointing anywhere (excluded/1)
+    # Zero-norm pointing → treat as excluded
     exclusion_matrix[norm_pointing < 1e-9] = 1
 
-    # Print debug info if requested
-    if print_debug_for_sat is not None and 0 <= print_debug_for_sat < num_sats:
+    # --- Debug output ---
+    if (print_debug_for_sat is not None
+            and 0 <= print_debug_for_sat < num_detectors):
         original_pointing = data_struct.detector.pointing.copy()
         for j in range(num_fixed_points):
             data_struct.detector.pointing[print_debug_for_sat] = (
                 pointing_vectors[j, print_debug_for_sat]
             )
-            exclusion(data_struct, print_debug_for_sat, print_debug=True)
+            exclusion(
+                data_struct,
+                print_debug_for_sat,
+                print_debug=True,
+            )
         data_struct.detector.pointing = original_pointing
 
     data_struct.fixedpoints.exclusion = exclusion_matrix
+

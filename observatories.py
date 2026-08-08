@@ -102,7 +102,23 @@ def propagate_observatories(sim_data: Any, time_date: Any) -> None:
     else:
         obs.position = np.vstack([x, y, z]).T
 
-    # Compute velocity using Earth rotation angular velocity: v = omega x r
-    # Earth rotation rate is ~7.292115e-5 rad/s
-    omega = np.array([0.0, 0.0, 7.292115e-5])
-    obs.velocity = np.cross(omega, obs.position)
+    # Compute velocity via finite-difference of GCRS positions.
+    # The naive ω×r formula is only valid in the ECEF/ITRS
+    # (body-fixed) frame, but obs.position is in GCRS (inertial).
+    # A small Δt finite-difference gives the correct GCRS velocity
+    # including precession and nutation effects.
+    from datetime import timedelta
+    dt_seconds = 1.0
+    t2 = Time(time_date + timedelta(seconds=dt_seconds))
+    gcrs_coords2 = locations.get_gcrs(t2)
+
+    x2 = gcrs_coords2.cartesian.x.to(u.m).value
+    y2 = gcrs_coords2.cartesian.y.to(u.m).value
+    z2 = gcrs_coords2.cartesian.z.to(u.m).value
+
+    if np.isscalar(x2):
+        pos2 = np.array([[x2, y2, z2]], dtype=float)
+    else:
+        pos2 = np.vstack([x2, y2, z2]).T
+
+    obs.velocity = (pos2 - obs.position) / dt_seconds
