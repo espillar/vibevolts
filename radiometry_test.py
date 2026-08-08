@@ -129,21 +129,9 @@ def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: fl
         z (float): The z-coordinate of the target's position in meters.
     """
     if not sim_data.fixedpoints:
-        sim_data.counts.fixedpoints = 0
-        sim_data.fixedpoints = FixedPointsState(
-            position=np.empty((0, 3), dtype=float),
-            size=np.empty(0, dtype=float),
-            albedo=np.empty(0, dtype=float),
-        )
+        sim_data.fixedpoints = FixedPointsState()
 
-    pos = np.array([x, y, z]).reshape(1, 3)
-
-    # --- Add target to sim_data ---
-    sim_data.counts.fixedpoints += 1
-    fp = sim_data.fixedpoints
-    fp.position = np.vstack([fp.position, pos])
-    fp.size = np.append(fp.size, size)
-    fp.albedo = np.append(fp.albedo, 0.2) # Default albedo
+    sim_data.fixedpoints.add_target(position=np.array([x, y, z]), size=size, albedo=0.2)
 
 def fixSun(sim_data: Dict[str, Any]) -> None:
     """

@@ -100,35 +100,16 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     if len(active_indices) == 0:
         return results
 
-    # Build a position array aligned to the detector array order.
-    # Each detector entry carries its category and asset_index so we look up
-    # the correct row from the right position sub-array, regardless of the
-    # order in which satellites / observatories were added.
-    category_array = np.array(sim_data.detector.category)   # shape (num_total_detectors,)
-    asset_index_array = sim_data.detector.asset_index        # shape (num_total_detectors,)
+    # Subset observer positions and detector properties cleanly
+    satpositions = sim_data.get_detector_positions(mask)
+    det_subset = sim_data.detector.subset(mask)
 
-    # Pre-fetch position arrays once (avoids repeated attribute access)
-    _pos_map = {}
-    if num_sats > 0:
-        _pos_map['satellites'] = sim_data.satellites.position
-    if num_obs > 0:
-        _pos_map['observatories'] = sim_data.observatories.position
-
-    all_positions = np.zeros((num_total_detectors, 3), dtype=float)
-    for det_i in range(num_total_detectors):
-        cat = category_array[det_i]
-        pos_array = _pos_map.get(cat)
-        if pos_array is not None:
-            all_positions[det_i] = pos_array[asset_index_array[det_i]]
-
-    # Subset detector and observer positions
-    satpositions = all_positions[mask]
-    detectorVect = sim_data.detector.pointing[mask]
-    fovs = sim_data.detector.fov[mask]
-    integrationTime = sim_data.detector.integrationTime[mask]
-    apertureArea = sim_data.detector.apertureArea[mask]
-    pixelOmega = sim_data.detector.pixelOmega[mask]
-    qe = sim_data.detector.qe[mask]
+    detectorVect = det_subset.pointing
+    fovs = det_subset.fov
+    integrationTime = det_subset.integrationTime
+    apertureArea = det_subset.apertureArea
+    pixelOmega = det_subset.pixelOmega
+    qe = det_subset.qe
     
     # Target and celestial data
     targets = sim_data.fixedpoints.position
@@ -189,8 +170,8 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     cos_angle_to_nadir = np.sum(u_hit_toTargets * u_nadir, axis=1)
     angle_to_nadir = np.arccos(np.clip(cos_angle_to_nadir, -1.0, 1.0))
     
-    hit_earthEx = sim_data.detector.earthEx[mask][sat_hit_idx]
-    hit_categories = np.array(sim_data.detector.category)[mask][sat_hit_idx]
+    hit_earthEx = det_subset.earthEx[sat_hit_idx]
+    hit_categories = np.array(det_subset.category)[sat_hit_idx]
     
     obs_is_ground = (hit_categories == 'observatories')
 

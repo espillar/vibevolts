@@ -2,12 +2,12 @@ from typing import List, Any
 from constants import *
 import numpy as np
 import math
-from minimalsimulation import SchemaDict
+from minimalsimulation import SchemaDict, ComponentState
 from radiometry_data import FILTER_DATA
 from radiometry_calcs import *
 
 
-class DetectorArray(SchemaDict):
+class DetectorArray(ComponentState):
     """
     DetectorArray models detector parameters for all satellites.
 

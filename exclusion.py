@@ -138,29 +138,9 @@ def update_exclusion_table(
     targets = data_struct.fixedpoints.position
     detector_props = data_struct.detector
 
-    # --- Build observer positions using category / asset_index ---
+    # --- Build observer positions using get_detector_positions ---
     category_array = np.array(detector_props.category)
-    asset_index_array = detector_props.asset_index
-
-    num_sats = data_struct.counts.get('satellites', 0)
-    num_obs = data_struct.counts.get('observatories', 0)
-
-    _pos_map = {}
-    if num_sats > 0:
-        _pos_map['satellites'] = data_struct.satellites.position
-    if num_obs > 0:
-        _pos_map['observatories'] = (
-            data_struct.observatories.position
-        )
-
-    observer_pos = np.zeros((num_detectors, 3), dtype=float)
-    for det_i in range(num_detectors):
-        cat = category_array[det_i]
-        pos_array = _pos_map.get(cat)
-        if pos_array is not None:
-            observer_pos[det_i] = (
-                pos_array[asset_index_array[det_i]]
-            )
+    observer_pos = data_struct.get_detector_positions()
 
     # --- Pointing vectors: (num_targets, num_detectors, 3) ---
     pointing_vectors = (

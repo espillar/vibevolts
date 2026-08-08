@@ -23,13 +23,10 @@ def add_fixed_points(
         outerRadius: The maximum radius at which test points will be created.
     """
     positions = generate_log_spherical_points(
-            num_points=num_points,
-            inner_radius=innerRadius,
-            outer_radius=outerRadius
-        )
-    sim_data.counts.fixedpoints = num_points
-    sim_data.fixedpoints = FixedPointsState(
-        position=positions,
-        size=np.full(num_points, size, dtype=float),
-        albedo=np.full(num_points, 0.2, dtype=float)
+        num_points=num_points,
+        inner_radius=innerRadius,
+        outer_radius=outerRadius
     )
+    if not sim_data.fixedpoints:
+        sim_data.fixedpoints = FixedPointsState()
+    sim_data.fixedpoints.add_target(positions, size=size, albedo=0.2)

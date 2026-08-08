@@ -28,11 +28,11 @@ class DotDict(dict):
     def __setattr__(self, name, value):
         self[name] = value
 
-    def __delattr__(self, name):
+    def get(self, key, default=None):
         try:
-            del self[name]
-        except KeyError:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+            return self[key]
+        except (KeyError, AttributeError):
+            return default
 
 
 class SchemaDict(DotDict):
@@ -44,18 +44,121 @@ class SchemaDict(DotDict):
         super().__init__(**kwargs)
 
 
+class ComponentState(SchemaDict):
+    """
+    Base class for sub-states that represent collections of assets/components
+    stored as parallel NumPy arrays and lists.
+
+    Provides standard utility methods:
+    - len(state): returns length based on NumPy array or list dimensions.
+    - state.subset(mask): returns a sliced copy of the component state.
+    - state.append(other_state): appends another component state in-place.
+    """
+
+    def __len__(self) -> int:
+        for val in self.values():
+            if isinstance(val, np.ndarray):
+                return val.shape[0] if val.ndim >= 1 else 0
+            elif isinstance(val, list):
+                return len(val)
+        return 0
+
+    def subset(self, mask: Any) -> "ComponentState":
+        """
+        Slices all 1D/2D NumPy array fields and list fields by the given mask
+        and returns a new instance of the same class.
+        """
+        cls = self.__class__
+        new_kwargs = {}
+        n_total = len(self)
+
+        for key, val in self.items():
+            if isinstance(val, np.ndarray):
+                if val.ndim == 1:
+                    new_kwargs[key] = val[mask]
+                elif val.ndim == 2:
+                    if val.shape[0] == n_total:
+                        new_kwargs[key] = val[mask, :]
+                    elif val.shape[1] == n_total:
+                        new_kwargs[key] = val[:, mask]
+                    else:
+                        new_kwargs[key] = val[mask]
+                else:
+                    new_kwargs[key] = val[mask]
+            elif isinstance(val, list):
+                if isinstance(mask, np.ndarray) and mask.dtype == bool:
+                    indices = np.where(mask)[0]
+                elif isinstance(mask, slice):
+                    indices = range(*mask.indices(len(val)))
+                else:
+                    indices = mask
+                new_kwargs[key] = [val[i] for i in indices]
+            else:
+                new_kwargs[key] = val
+
+        return cls(**new_kwargs)
+
+    def append(self, other: "ComponentState") -> None:
+        """
+        Appends all matching NumPy arrays and list attributes from `other` in-place.
+        """
+        for key, val in other.items():
+            if key in self:
+                target = self[key]
+                if isinstance(target, np.ndarray) and isinstance(val, np.ndarray):
+                    if target.ndim == 1:
+                        self[key] = np.append(target, val)
+                    elif target.ndim == 2:
+                        if target.shape[1] == val.shape[1]:
+                            self[key] = np.vstack([target, val])
+                        elif target.shape[0] == val.shape[0]:
+                            self[key] = np.hstack([target, val])
+                        else:
+                            self[key] = np.vstack([target, val])
+                elif isinstance(target, list) and isinstance(val, list):
+                    target.extend(val)
+
+
 class CountsState(SchemaDict):
-    def __init__(self, **kwargs):
+    """
+    CountsState provides access to asset counts.
+    If sim_data reference is available, it dynamically returns
+    the actual length of component arrays.
+    """
+    def __init__(self, parent_sim=None, **kwargs):
         defaults = {
             'celestial': 0,
             'satellites': 0,
             'observatories': 0,
             'fixedpoints': 0,
         }
+        dict.__setattr__(self, '_parent_sim', parent_sim)
         super().__init__(**{**defaults, **kwargs})
 
+    def __getitem__(self, item):
+        if hasattr(self, '_parent_sim') and self._parent_sim is not None:
+            comp = self._parent_sim.get(item)
+            if comp is not None and hasattr(comp, '__len__'):
+                return len(comp)
+        return super().__getitem__(item)
 
-class CelestialState(SchemaDict):
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            return super().__getattr__(name)
+        if hasattr(self, '_parent_sim') and self._parent_sim is not None:
+            comp = self._parent_sim.get(name)
+            if comp is not None and hasattr(comp, '__len__'):
+                return len(comp)
+        return super().__getattr__(name)
+
+    def items(self):
+        return [(k, self[k]) for k in self.keys() if not k.startswith('_')]
+
+    def values(self):
+        return [self[k] for k in self.keys() if not k.startswith('_')]
+
+
+class CelestialState(ComponentState):
     def __init__(self, **kwargs):
         defaults = {
             'position': np.zeros((2, 3)),
@@ -65,7 +168,7 @@ class CelestialState(SchemaDict):
         super().__init__(**{**defaults, **kwargs})
 
 
-class SatellitesState(SchemaDict):
+class SatellitesState(ComponentState):
     def __init__(self, **kwargs):
         defaults = {
             'position': np.zeros((0, 3)),
@@ -77,7 +180,7 @@ class SatellitesState(SchemaDict):
         super().__init__(**{**defaults, **kwargs})
 
 
-class FixedPointsState(SchemaDict):
+class FixedPointsState(ComponentState):
     def __init__(self, **kwargs):
         defaults = {
             'position': np.zeros((0, 3)),
@@ -87,8 +190,16 @@ class FixedPointsState(SchemaDict):
         }
         super().__init__(**{**defaults, **kwargs})
 
+    def add_target(self, position: np.ndarray, size: float, albedo: float = 0.2) -> None:
+        pos = np.asarray(position, dtype=float).reshape(-1, 3)
+        n_new = pos.shape[0]
+        self.position = np.vstack([self.position, pos]) if self.position.size else pos
+        self.exclusion = np.append(self.exclusion, np.zeros(n_new, dtype=int))
+        self.size = np.append(self.size, np.full(n_new, size, dtype=float))
+        self.albedo = np.append(self.albedo, np.full(n_new, albedo, dtype=float))
 
-class ObservatoriesState(SchemaDict):
+
+class ObservatoriesState(ComponentState):
     def __init__(self, **kwargs):
         defaults = {
             'position': np.zeros((0, 3)),
@@ -162,11 +273,11 @@ class SimulationState(SchemaDict):
         if 'start_time' not in kwargs:
             raise TypeError("SimulationState requires a 'start_time' parameter.")
         start = kwargs['start_time']
-        
+
         defaults = {
             'time': start,
             'delta_time': 60.0,
-            'counts': CountsState(),
+            'counts': None,
             'pointing_spheres': {},
             'detector': None,
             'satellites': None,
@@ -176,6 +287,7 @@ class SimulationState(SchemaDict):
             'cadenceStructure': None,
         }
         super().__init__(**{**defaults, **kwargs})
+        self.counts = CountsState(parent_sim=self)
 
     def __setitem__(self, key, value):
         if key == 'detector':
@@ -187,6 +299,42 @@ class SimulationState(SchemaDict):
         if cls is not None and isinstance(value, dict) and not isinstance(value, cls):
             value = cls(**value)
         super().__setitem__(key, value)
+
+    def get_detector_positions(self, mask=None) -> np.ndarray:
+        """
+        Builds and returns an (N, 3) NumPy array of observer/detector positions
+        resolved by detector.category and detector.asset_index.
+
+        Args:
+            mask: Optional boolean or index array to subset the output.
+
+        Returns:
+            (N, 3) array of GCRS positions for detectors.
+        """
+        if self.detector is None or len(self.detector) == 0:
+            return np.zeros((0, 3), dtype=float)
+
+        det = self.detector
+        num_detectors = len(det)
+        category_array = np.array(det.category)
+        asset_index_array = det.asset_index
+
+        _pos_map = {}
+        if self.satellites and len(self.satellites) > 0:
+            _pos_map['satellites'] = self.satellites.position
+        if self.observatories and len(self.observatories) > 0:
+            _pos_map['observatories'] = self.observatories.position
+
+        all_positions = np.zeros((num_detectors, 3), dtype=float)
+        for i in range(num_detectors):
+            cat = category_array[i]
+            pos_array = _pos_map.get(cat)
+            if pos_array is not None:
+                all_positions[i] = pos_array[asset_index_array[i]]
+
+        if mask is not None:
+            return all_positions[mask]
+        return all_positions
 
 
 def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> SimulationState:
