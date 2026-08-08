@@ -1,0 +1,62 @@
+\begin{theindex}
+
+  \item all\_demos.py, \hyperpage{69}
+
+  \indexspace
+
+  \item cadenceController.py, \hyperpage{52}
+  \item celestialbodies.py, \hyperpage{21}
+  \item constants.py, \hyperpage{9}
+
+  \indexspace
+
+  \item dataHandling.py, \hyperpage{48}
+  \item detector.py, \hyperpage{10}
+
+  \indexspace
+
+  \item exclusion.py, \hyperpage{24}
+
+  \indexspace
+
+  \item fibonacciSearch.py, \hyperpage{54}
+
+  \indexspace
+
+  \item generate\_log\_spherical\_points.py, \hyperpage{57}
+
+  \indexspace
+
+  \item lambertian.py, \hyperpage{44}
+
+  \indexspace
+
+  \item minimalsimulation.py, \hyperpage{3}
+
+  \indexspace
+
+  \item observatories.py, \hyperpage{18}
+
+  \indexspace
+
+  \item plotting\_3d.py, \hyperpage{59}
+  \item plotting\_vectors.py, \hyperpage{61}
+  \item pointing.py, \hyperpage{28}
+  \item propagation.py, \hyperpage{15}
+
+  \indexspace
+
+  \item radiometry\_calcs.py, \hyperpage{41}
+  \item radiometry\_data.py, \hyperpage{38}
+
+  \indexspace
+
+  \item scandetectors.py, \hyperpage{33}
+  \item sim\_check.py, \hyperpage{66}
+  \item sim\_report.py, \hyperpage{63}
+
+  \indexspace
+
+  \item targets.py, \hyperpage{23}
+
+\end{theindex}
