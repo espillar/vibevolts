@@ -192,25 +192,23 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     hit_earthEx = sim_data.detector.earthEx[mask][sat_hit_idx]
     hit_categories = np.array(sim_data.detector.category)[mask][sat_hit_idx]
     
-    is_occluded = np.zeros(len(sat_hit_idx), dtype=bool)
-    
-    for k in range(len(sat_hit_idx)):
-        if not valid_obs[k]:
-            continue
-        if hit_categories[k] == 'observatories':
-            # Local horizon check: angle from zenith must be < (90 - earthEx)
-            angle_to_zenith = np.pi - angle_to_nadir[k]
-            max_zenith = np.pi / 2.0 - hit_earthEx[k]
-            if angle_to_zenith > max_zenith:
-                is_occluded[k] = True
-        else:
-            # Satellite earth limb check
-            if obs_norms[k] > EARTH_RADIUS:
-                apparent_radius = np.arcsin(EARTH_RADIUS / obs_norms[k])
-            else:
-                apparent_radius = np.pi / 2.0
-            if angle_to_nadir[k] < (apparent_radius + hit_earthEx[k]):
-                is_occluded[k] = True
+    obs_is_ground = (hit_categories == 'observatories')
+
+    # Ground observatory horizon check: angle from zenith must be <= (90deg - min_elevation)
+    angle_to_zenith = np.pi - angle_to_nadir
+    max_zenith = np.pi / 2.0 - hit_earthEx
+    horizon_occluded = obs_is_ground & valid_obs & (angle_to_zenith > max_zenith)
+
+    # Spacecraft Earth limb check: angle to Earth center must be >= (apparent_radius + earthEx)
+    safe_obs_norms = np.where(obs_norms > EARTH_RADIUS, obs_norms, EARTH_RADIUS)
+    apparent_radius = np.where(
+        obs_norms > EARTH_RADIUS,
+        np.arcsin(EARTH_RADIUS / safe_obs_norms),
+        np.pi / 2.0
+    )
+    limb_occluded = (~obs_is_ground) & valid_obs & (angle_to_nadir < (apparent_radius + hit_earthEx))
+
+    is_occluded = horizon_occluded | limb_occluded
 
     # Filter out occluded hits
     clear_hits = ~is_occluded

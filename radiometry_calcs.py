@@ -18,10 +18,16 @@ def fluxes(band):
     """
     x = FILTER_DATA[band]
     zp = x['zero_point']
-    sun = amag(x['sun']) * zp
-    space = amag(x['space']) * zp / (ARCSEC**2) # convert to per sterad
-    sky = amag(x['sky']) * zp / (ARCSEC**2)
-    return(sun, space, sky)
+    sun_mag = x.get('sun')
+    sun = amag(sun_mag) * zp if sun_mag is not None else 0.0
+
+    space_mag = x.get('space', x.get('sky'))
+    space = amag(space_mag) * zp / (ARCSEC**2) if space_mag is not None else 0.0
+
+    sky_mag = x.get('sky')
+    sky = amag(sky_mag) * zp / (ARCSEC**2) if sky_mag is not None else 0.0
+
+    return (sun, space, sky)
     
 
 def mag(x: float) -> float:

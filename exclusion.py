@@ -35,7 +35,7 @@ def exclusion(
     
     norm_pointing = np.linalg.norm(sat_pointing)
     if norm_pointing < 1e-9:
-        return 1  # Not pointing anywhere, so not excluded
+        return 1  # Not pointing anywhere, treat as excluded
 
     u_sat_pointing = sat_pointing / norm_pointing
 

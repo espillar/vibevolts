@@ -128,20 +128,24 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
         argp = elements[:, ORBITAL_ARGP_IDX]
         M0 = elements[:, ORBITAL_M_IDX]
 
-        n = np.sqrt(MU_EARTH / a**3)
+        # Guard against uninitialized/invalid orbits (a <= 0 or e >= 1.0)
+        safe_a = np.where(a <= 0, EARTH_RADIUS + 400000.0, a)
+        safe_e = np.clip(e, 0.0, 0.999999)
+
+        n = np.sqrt(MU_EARTH / safe_a**3)
         M = (M0 + n * delta_t_array) % (2 * np.pi)
 
         E = M.copy()
         for _ in range(10):
-            f_E = E - e * np.sin(E) - M
-            f_prime_E = 1 - e * np.cos(E)
+            f_E = E - safe_e * np.sin(E) - M
+            f_prime_E = 1 - safe_e * np.cos(E)
             f_prime_E[f_prime_E == 0] = 1e-10
             E = E - f_E / f_prime_E
 
-        tan_nu_half = np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2)
+        tan_nu_half = np.sqrt((1 + safe_e) / (1 - safe_e)) * np.tan(E / 2)
         nu = 2 * np.arctan(tan_nu_half)
 
-        r = a * (1 - e * np.cos(E))
+        r = safe_a * (1 - safe_e * np.cos(E))
 
         x_pqw = r * np.cos(nu)
         y_pqw = r * np.sin(nu)
