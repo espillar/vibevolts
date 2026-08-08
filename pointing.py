@@ -55,7 +55,7 @@ def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', de
     if num_detectors == 0:
         return
 
-# Bring in the approprieate pieces of the data structure for easier reference
+# Bring in the appropriate pieces of the data structure for easier reference
     pointing_state = sim_data.detector.pointing_state 
 #    print('pointing_state in pointing.py ', pointing_state)
     pointing_vectors_all = sim_data.detector.pointing
@@ -73,7 +73,7 @@ def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', de
 
         
         while True:
-# MOve to the next place, wrap around if at end
+# Move to the next place, wrap around if at end
             place += 1
             if place >= count:
                 place = 0

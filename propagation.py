@@ -13,7 +13,7 @@ from constants import *
 def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str) -> None:
     """
     Adds and initializes a category of satellites from a TLE file.
-    Mote although the TLEs are loaded, positions etc. are not.
+    Note although the TLEs are loaded, positions etc. are not.
 
     Args:
         sim_data: The main simulation data structure.
@@ -51,7 +51,7 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
     """
     Reads a TLE file and extracts orbital elements and epochs for each satellite.
 
-    The array returned ahd the orbital elements in "canonical" order.
+    The array returned has the orbital elements in "canonical" order.
     """
     orbital_elements_list = []
     epochs_list = []
@@ -100,8 +100,16 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
 
     if sat_category:
         categories = [sat_category]
+    elif hasattr(data_struct, 'counts') and data_struct.counts:
+        non_sat_keys = {'celestial', 'observatories', 'fixedpoints'}
+        categories = [
+            k for k, v in data_struct.counts.items()
+            if k not in non_sat_keys and v > 0
+        ]
+        if not categories:
+            categories = ['satellites']
     else:
-        categories = ['satellites', 'red_satellites']
+        categories = ['satellites']
 
     for category in categories:
         if category not in data_struct.counts or data_struct.counts[category] == 0:
@@ -162,6 +170,6 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
 
         norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
         norms[norms == 0] = 1.0
-#        data_struct[category].pointing = positions / norms
+
 
     return data_struct

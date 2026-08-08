@@ -77,13 +77,14 @@ The following demos are available in the repository:
 
 ### all_demos.py
 
+#### `list_demo_groups()`
+Lists available demo suite groups (`'orbits'`, `'pointing'`, `'radiometry'`) and their included demo functions.
+
 #### `demo_vector_resorting_plot()`
 Runs the `test_vector_resorting` function and returns its figure.
 
-#### `run_all_demos(save_html: bool = False)`
-Runs all demo functions and either shows them inline or saves them to
-`all_demo_plots.html`. Note: `demo1` is imported but **not** in the executed list;
-`demo_observatories_only` is included in the executed list.
+#### `run_all_demos(group: str = 'all', demos: list = None, save_html: bool = False)`
+Runs demo functions by thematic group (`'orbits'`, `'pointing'`, `'radiometry'`), specific list of demos, or all demos. To prevent browser WebGL context limits (~16 max per page) from being exceeded during notebook execution, `group='all'` automatically defaults to `save_html=True` unless a specific smaller group is specified for inline display.
 
 ### cadenceController.py
 

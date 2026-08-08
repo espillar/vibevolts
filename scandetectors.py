@@ -164,7 +164,9 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     angles = np.arccos(np.clip(dot_products, -1.0, 1.0))
 
     # Apply FOV mask: (num_active_sats, num_targets)
-    visible_mask = angles < fovs[:, np.newaxis]
+    # fov is the full field-of-view diameter; a target is visible
+    # when its angular offset from boresight is less than fov / 2.
+    visible_mask = angles < (fovs[:, np.newaxis] / 2)
     sat_hit_idx, target_hit_idx = np.where(visible_mask)
     
     if len(sat_hit_idx) == 0:

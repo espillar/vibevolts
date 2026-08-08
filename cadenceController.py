@@ -90,6 +90,6 @@ def _update_next_schedule(sim_data) -> None:
     """
     cadence = sim_data.cadenceStructure
     next_times = [g.scanNext for g in cadence.cadenceList]
-    min_idx = int(np.argmin(next_times))
+    min_idx = min(range(len(next_times)), key=lambda i: next_times[i])
     cadence.nextGroup = min_idx
     cadence.nextTime = cadence.cadenceList[min_idx].scanNext

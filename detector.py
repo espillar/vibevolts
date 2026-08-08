@@ -135,8 +135,8 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
     Args:
         n:        Number of sensors to produce.
         band:     Band the measurement takes place in (see radiometry_data).
-        fov:      Field of view - assumed square - in radians.
-        ifov:     Pixel fov - assumed square - in radians.
+        fov:      Full field-of-view diameter in radians.
+        ifov:     Pixel field-of-view diameter in radians.
         aper:     Aperture diameter - assumed to be a disk - in meters.
                   The actual value stored and used is the apertureArea.
         intTime:  Integration time in seconds.  Defaults to 1.0.
