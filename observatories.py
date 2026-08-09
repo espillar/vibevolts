@@ -30,15 +30,11 @@ def add_observatories(
 
     from detector import makeBlankDetector, appendDetector
     detector = makeBlankDetector(num_observatories)
-    detector.category = ['observatories'] * num_observatories
-    
+
     from minimalsimulation import ObservatoriesState
-    if sim_data.counts.get('observatories', 0) > 0:
+    if sim_data.observatories is not None and len(sim_data.observatories) > 0:
         # Append to existing
         existing = sim_data.observatories
-        existing_count = len(existing)
-        detector.asset_index = np.arange(existing_count, existing_count + num_observatories, dtype=int)
-        
         existing.latitude = np.append(existing.latitude, np.array(latitudes, dtype=float))
         existing.longitude = np.append(existing.longitude, np.array(longitudes, dtype=float))
         existing.altitude = np.append(existing.altitude, np.array(altitudes, dtype=float))
@@ -46,8 +42,11 @@ def add_observatories(
         existing.velocity = np.vstack([existing.velocity, np.zeros((num_observatories, 3), dtype=float)])
         existing.acceleration = np.vstack([existing.acceleration, np.zeros((num_observatories, 3), dtype=float)])
         existing.pointing = np.vstack([existing.pointing, np.zeros((num_observatories, 3), dtype=float)])
+        if existing.detector is None:
+            existing.detector = detector
+        else:
+            appendDetector(existing.detector, detector)
     else:
-        detector.asset_index = np.arange(num_observatories, dtype=int)
         sim_data.observatories = ObservatoriesState(
             latitude=np.array(latitudes, dtype=float),
             longitude=np.array(longitudes, dtype=float),
@@ -56,12 +55,8 @@ def add_observatories(
             velocity=np.zeros((num_observatories, 3), dtype=float),
             acceleration=np.zeros((num_observatories, 3), dtype=float),
             pointing=np.zeros((num_observatories, 3), dtype=float),
+            detector=detector,
         )
-    
-    if 'detector' not in sim_data or not sim_data.detector:
-        sim_data.detector = detector
-    else:
-        appendDetector(sim_data.detector, detector)
 
     # Initial propagation of observatory positions to the current simulation time
     propagate_observatories(sim_data, sim_data.time)

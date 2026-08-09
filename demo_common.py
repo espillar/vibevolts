@@ -115,30 +115,10 @@ LEO-05
     add_fixed_points(sim_data, 100)
     num_sats = sim_data.counts.satellites
     sat_det = detector.makeDetector(
-        num_sats, "V", 10 * DEGREE, 3 * ARCSEC, 1,
-        category=['satellites'] * num_sats,
-        asset_index=np.arange(num_sats, dtype=int)
+        num_sats, "V", 10 * DEGREE, 3 * ARCSEC, 1
     )
-    if hasattr(sim_data, 'detector') and sim_data.detector is not None:
-        det_cat = np.array(sim_data.detector.category)
-        non_sat_indices = np.where((det_cat != 'satellites') & (det_cat != ''))[0]
-        if len(non_sat_indices) > 0:
-            old_det = sim_data.detector
-            for idx in non_sat_indices:
-                single_det = detector.makeBlankDetector(1)
-                for k in old_det.keys():
-                    val = getattr(old_det, k)
-                    if isinstance(val, list):
-                        setattr(single_det, k, [val[idx]])
-                    elif isinstance(val, np.ndarray):
-                        if val.ndim == 1:
-                            setattr(single_det, k, val[idx:idx+1])
-                        elif val.ndim == 2 and val.shape[0] == len(det_cat):
-                            setattr(single_det, k, val[idx:idx+1, :])
-                        elif val.ndim == 2 and val.shape[1] == len(det_cat):
-                            setattr(single_det, k, val[:, idx:idx+1])
-                detector.appendDetector(sat_det, single_det)
-    sim_data.detector = sat_det
+    if sim_data.satellites is not None:
+        sim_data.satellites.detector = sat_det
     
     
     print(f"Initializing standard simulation with {sim_data.counts.satellites} satellites.")

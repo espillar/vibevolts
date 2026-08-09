@@ -27,8 +27,8 @@ def run_simulation_template():
         ifov=3*ARCSEC, aper=1.0, limitingmag=20.0
     )
 
-    # Set integration time for the detector (e.g., 600 seconds)
-    sim_data.detector.integrationTime = np.full(
+    # Set integration time for the satellite detector (e.g., 600 seconds)
+    sim_data.satellites.detector.integrationTime = np.full(
         sim_data.counts.satellites, 600.0
     )
 

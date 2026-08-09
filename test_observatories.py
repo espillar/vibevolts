@@ -26,13 +26,12 @@ def test_observatories_all():
     
     # Configure detector for observatory
     # Set earthEx (horizon limit) to 10 degrees = 10 * np.pi / 180
-    d = makeDetector(1, band='V', fov=np.radians(10), ifov=np.radians(0.1), aper=1.0,
-                     category=['observatories'], asset_index=np.array([0], dtype=int))
+    d = makeDetector(1, band='V', fov=np.radians(10), ifov=np.radians(0.1), aper=1.0)
     d.earthEx = np.array([np.radians(10.0)]) # 10 deg minimum elevation
-    sim_data.detector = d
+    sim_data.observatories.detector = d
     
     print(f"Observatory Count: {sim_data.counts.observatories}")
-    print(f"Detector Count: {len(sim_data.detector.filt)}")
+    print(f"Detector Count: {len(sim_data.observatories.detector.filt)}")
     
     # 3. Check Initial ECI Position
     pos_init = sim_data.observatories.position[0].copy()

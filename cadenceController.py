@@ -20,7 +20,10 @@ def initCadence(sim_data) -> None:
     Args:
         sim_data: The main SimulationState object.
     """
-    integration_times = sim_data.detector.integrationTime
+    all_detectors = sim_data.get_all_detectors()
+    if all_detectors is None or len(all_detectors.integrationTime) == 0:
+        return
+    integration_times = all_detectors.integrationTime
     unique_intervals = np.unique(integration_times)
 
     cadence_list = [

@@ -47,64 +47,79 @@ def generate_pointing_sphere(sim_data: Any, n_points: int, debug: bool = False) 
         print("-------------------------------------------\n")
 
 
-def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', debug: bool = False) -> None:
+def _get_asset_detectors(sim_data: Any):
     """
-    Updates the pointing vector for each detector, skipping excluded pointing directions.
+    Helper function to yield (component_detector, global_offset_index) pairs
+    for active asset categories (satellites, observatories).
     """
-    num_detectors = len(sim_data.detector.filt)  
-    if num_detectors == 0:
-        return
+    offset = 0
+    if sim_data.satellites and getattr(sim_data.satellites, 'detector', None) is not None:
+        det = sim_data.satellites.detector
+        if len(det.filt) > 0:
+            yield det, offset
+            offset += len(det.filt)
 
-    # Bring in the appropriate pieces of the data structure for easier reference
-    pointing_state = sim_data.detector.pointing_state 
-    pointing_vectors_all = sim_data.detector.pointing
+    if sim_data.observatories and getattr(sim_data.observatories, 'detector', None) is not None:
+        det = sim_data.observatories.detector
+        if len(det.filt) > 0:
+            yield det, offset
+            offset += len(det.filt)
 
-    # Iterate over satellites
-    for i in range(num_detectors):
-        # Place a grid of vectors to use in grid
-        count = int(pointing_state[POINTING_COUNT_IDX, i])
-        if count == 0:
-            continue
-        grid = sim_data.pointing_spheres[count]
-        
-        place = int(pointing_state[POINTING_PLACE_IDX, i])
-        start_place = place
 
-        while True:
-            # Move to the next place, wrap around if at end
-            place += 1
-            if place >= count:
-                place = 0
-            pointing_vectors_all[i] = grid[place]
-            
-            excluded = exclusion(sim_data, i)
-            if debug:
-                print(f"Detector {i}: Pointing location {place}, Excluded: {excluded != 0}")
-                print(grid[place])
+def update_detector_pointing(sim_data: Any, debug: bool = False) -> None:
+    """
+    Updates the pointing vector for each detector across satellites and observatories,
+    skipping excluded pointing directions.
+    """
+    for det, global_offset in _get_asset_detectors(sim_data):
+        num_detectors = len(det.filt)
+        pointing_state = det.pointing_state
+        pointing_vectors_all = det.pointing
 
-            if excluded == 0:
-                pointing_state[POINTING_PLACE_IDX, i] = place
-                break
-            
-            if place == start_place:
-                print(f"Warning: Satellite {i} has all pointing vectors excluded.")
-                pointing_state[POINTING_PLACE_IDX, i] = place
-                break
+        for i_local in range(num_detectors):
+            i_global = global_offset + i_local
+            count = int(pointing_state[POINTING_COUNT_IDX, i_local])
+            if count == 0:
+                continue
+            grid = sim_data.pointing_spheres[count]
+
+            place = int(pointing_state[POINTING_PLACE_IDX, i_local])
+            start_place = place
+
+            while True:
+                place += 1
+                if place >= count:
+                    place = 0
+                pointing_vectors_all[i_local] = grid[place]
+
+                excluded = exclusion(sim_data, i_global)
+                if debug:
+                    print(f"Detector {i_global} (local {i_local}): Pointing location {place}, Excluded: {excluded != 0}")
+                    print(grid[place])
+
+                if excluded == 0:
+                    pointing_state[POINTING_PLACE_IDX, i_local] = place
+                    break
+
+                if place == start_place:
+                    print(f"Warning: Detector {i_global} has all pointing vectors excluded.")
+                    pointing_state[POINTING_PLACE_IDX, i_local] = place
+                    break
 
 
 def detectorPointingInitialize(sim_data: Any, grid_points: int) -> None:
     """
-    Assumes that sim_data.detector is loaded, but the
-    pointing part of detectors is currently empty.
-    Initializes pointing and pointing_state inside detector, and
-    adds a pointing sphere to sim_data.
+    Initializes pointing and pointing_state inside component detectors
+    (satellites and observatories), and adds a pointing sphere to sim_data.
     """
-    sensorCount = len(sim_data.detector.filt)
     generate_pointing_sphere(sim_data, grid_points)
-    detect = sim_data.detector
-    detect.pointing_state = np.zeros((2, sensorCount), dtype=int)
-    detect.pointing_state[POINTING_COUNT_IDX, :] = grid_points
-    detect.pointing_state[POINTING_PLACE_IDX, :] = np.random.randint(0, grid_points - 1, size=sensorCount)
+
+    for det, _ in _get_asset_detectors(sim_data):
+        sensor_count = len(det.filt)
+        det.pointing_state = np.zeros((2, sensor_count), dtype=int)
+        det.pointing_state[POINTING_COUNT_IDX, :] = grid_points
+        det.pointing_state[POINTING_PLACE_IDX, :] = np.random.randint(0, grid_points - 1, size=sensor_count)
+
     update_detector_pointing(sim_data)
 
 
@@ -132,8 +147,8 @@ def demo_exclusion_pointing():
     os.remove(temp_tle_path)
 
     # Set solar exclusion angle and detector FOV for the single satellite
-    sim_data.detector.solarEx[0] = math.pi/2
-    sim_data.detector.fov[0] = math.pi/5
+    sim_data.satellites.detector.solarEx[0] = math.pi/2
+    sim_data.satellites.detector.fov[0] = math.pi/5
 
     # Generate 400 pointing points using the module's generate_pointing_sphere
     n_points_sphere = 400
@@ -141,8 +156,8 @@ def demo_exclusion_pointing():
 
     # Initialize pointing_state for the single detector
     # Assuming the first detector (index 0)
-    sim_data.detector.pointing_state[POINTING_COUNT_IDX, 0] = n_points_sphere
-    sim_data.detector.pointing_state[POINTING_PLACE_IDX, 0] = 0 # Start at the first point
+    sim_data.satellites.detector.pointing_state[POINTING_COUNT_IDX, 0] = n_points_sphere
+    sim_data.satellites.detector.pointing_state[POINTING_PLACE_IDX, 0] = 0 # Start at the first point
 
     pointed_directions_history = []
     

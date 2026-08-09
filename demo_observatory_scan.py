@@ -26,10 +26,9 @@ def run_observatory_animation():
     add_celestial_bodies(sim_data)
     
     # Configure detector with 10 deg horizon limit (earthEx)
-    d = makeDetector(1, band='V', fov=np.radians(15), ifov=np.radians(0.15), aper=1.0,
-                     category=['observatories'], asset_index=np.array([0], dtype=int))
+    d = makeDetector(1, band='V', fov=np.radians(15), ifov=np.radians(0.15), aper=1.0)
     d.earthEx = np.array([np.radians(10.0)])
-    sim_data.detector = d
+    sim_data.observatories.detector = d
     
     # 2. Define 3 Space Targets in GCRS (ECI)
     # Target 1: In GEO directly above the observatory at start time
@@ -71,9 +70,9 @@ def run_observatory_animation():
         line_colors = []
         
         for idx, targ in enumerate(targets):
-            # Point detector at this target
+            # Point observatory detector at this target
             pointing_vec = targ - obs_pos
-            sim_data.detector.pointing[0] = pointing_vec / np.linalg.norm(pointing_vec)
+            sim_data.observatories.detector.pointing[0] = pointing_vec / np.linalg.norm(pointing_vec)
             
             # Check exclusions (below horizon / Sun / Moon)
             is_excluded = exclusion(sim_data, 0)

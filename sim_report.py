@@ -38,6 +38,8 @@ def print_simulation_state(sim_data):
         print(f"{'Idx':<4} | {'Semi-Major (m)':<15} | {'Eccentricity':<12} | {'Inc (deg)':<9} | {'RAAN (deg)':<10} | {'Sensor Band':<11} | {'Pointing RA (deg)':<17} | {'Pointing Dec (deg)':<18}")
         print("-" * 115)
         
+        sat_det = getattr(sim_data.satellites, 'detector', None)
+
         for i in range(num_sats):
             oe = sim_data.satellites.orbital_elements[i]
             a = oe[ORBITAL_A_IDX]
@@ -45,15 +47,12 @@ def print_simulation_state(sim_data):
             inc = np.rad2deg(oe[ORBITAL_I_IDX])
             raan = np.rad2deg(oe[ORBITAL_RAAN_IDX])
             
-            match = np.where((det_cat == 'satellites') & (det_idx == i))[0]
-            if len(match) > 0:
-                d_i = match[0]
-                band = sim_data.detector.filt[d_i]
-                pt = sim_data.detector.pointing[d_i]
-                # Pointing vector is in GCRS
+            if sat_det is not None and i < len(sat_det.filt):
+                band = sat_det.filt[i]
+                pt = sat_det.pointing[i]
                 ra = np.rad2deg(np.arctan2(pt[1], pt[0])) % 360
                 dec = np.rad2deg(np.arcsin(pt[2]))
-                band_str = band
+                band_str = band if band else "None"
                 ra_str = f"{ra:.2f}"
                 dec_str = f"{dec:.2f}"
             else:
@@ -73,19 +72,17 @@ def print_simulation_state(sim_data):
         print("-" * 95)
         
         obs_time = Time(sim_data.time)
+        obs_det = getattr(sim_data.observatories, 'detector', None)
 
         for i in range(num_obs):
             lat = sim_data.observatories.latitude[i]
             lon = sim_data.observatories.longitude[i]
             alt = sim_data.observatories.altitude[i]
             
-            match = np.where((det_cat == 'observatories') & (det_idx == i))[0]
-            if len(match) > 0:
-                d_i = match[0]
-                band = sim_data.detector.filt[d_i]
-                pt = sim_data.detector.pointing[d_i]
+            if obs_det is not None and i < len(obs_det.filt):
+                band = obs_det.filt[i]
+                pt = obs_det.pointing[i]
                 
-                # Pointing vector is in GCRS. Convert to AltAz frame.
                 loc = EarthLocation(lat=lat*u.deg, lon=lon*u.deg, height=alt*u.m)
                 coord = SkyCoord(x=pt[0], y=pt[1], z=pt[2], representation_type='cartesian', frame=GCRS(obstime=obs_time))
                 altaz = coord.transform_to(AltAz(obstime=obs_time, location=loc))
@@ -93,7 +90,7 @@ def print_simulation_state(sim_data):
                 az = altaz.az.deg
                 el = altaz.alt.deg
                 
-                band_str = band
+                band_str = band if band else "None"
                 az_str = f"{az:.2f}"
                 el_str = f"{el:.2f}"
             else:
@@ -107,16 +104,19 @@ def print_simulation_state(sim_data):
 
     # 3. Exclusion Parameters
     print("\n--- EXCLUSION PARAMETERS ---")
+    det = sim_data.get_all_detectors()
+    has_detectors = (det is not None and len(det.filt) > 0)
     if has_detectors:
         print(f"{'Category':<15} | {'Asset Idx':<9} | {'Solar Excl (deg)':<16} | {'Lunar Excl (deg)':<16} | {'Earth Excl (deg)':<16}")
         print("-" * 80)
         
-        for d_i in range(len(sim_data.detector.filt)):
-            cat = sim_data.detector.category[d_i]
-            a_idx = sim_data.detector.asset_index[d_i]
-            solar_ex = np.rad2deg(sim_data.detector.solarEx[d_i])
-            lunar_ex = np.rad2deg(sim_data.detector.lunarEx[d_i])
-            earth_ex = np.rad2deg(sim_data.detector.earthEx[d_i])
+        num_sats = len(sim_data.satellites.detector.filt) if (sim_data.satellites and getattr(sim_data.satellites, 'detector', None)) else 0
+        for d_i in range(len(det.filt)):
+            cat = "satellites" if d_i < num_sats else "observatories"
+            a_idx = d_i if d_i < num_sats else (d_i - num_sats)
+            solar_ex = np.rad2deg(det.solarEx[d_i])
+            lunar_ex = np.rad2deg(det.lunarEx[d_i])
+            earth_ex = np.rad2deg(det.earthEx[d_i])
             
             print(f"{cat:<15} | {a_idx:<9} | {solar_ex:<16.2f} | {lunar_ex:<16.2f} | {earth_ex:<16.2f}")
     else:

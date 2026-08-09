@@ -77,9 +77,8 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     TODO: we are using the same filter for all the detectors!
     """
     # 1. Data Extraction and Masking
-    num_sats = sim_data.counts.get('satellites', 0)
-    num_obs = sim_data.counts.get('observatories', 0)
-    num_total_detectors = len(sim_data.detector.filt)
+    all_detectors = sim_data.get_all_detectors()
+    num_total_detectors = len(all_detectors.filt) if (all_detectors and hasattr(all_detectors, 'filt')) else 0
     sim_time = sim_data.time
 
     if mask is None:
@@ -97,12 +96,12 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
         'snr': np.array([], dtype=float)
     }
 
-    if len(active_indices) == 0:
+    if len(active_indices) == 0 or all_detectors is None:
         return results
 
     # Subset observer positions and detector properties cleanly
     satpositions = sim_data.get_detector_positions(mask)
-    det_subset = sim_data.detector.subset(mask)
+    det_subset = all_detectors.subset(mask)
 
     detectorVect = det_subset.pointing
     fovs = det_subset.fov
@@ -169,7 +168,8 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     angle_to_nadir = np.arccos(np.clip(cos_angle_to_nadir, -1.0, 1.0))
     
     hit_earthEx = det_subset.earthEx[sat_hit_idx]
-    hit_categories = np.array(det_subset.category)[sat_hit_idx]
+    active_categories = sim_data.get_detector_categories(mask)
+    hit_categories = active_categories[sat_hit_idx]
     
     obs_is_ground = (hit_categories == 'observatories')
 

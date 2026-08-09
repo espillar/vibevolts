@@ -62,7 +62,7 @@ SAT-3
     generate_pointing_sphere(sim_data, 20)
 
     # Assign pointing counts to satellites using correct (row, col) indexing
-    pointing_state = sim_data.detector.pointing_state
+    pointing_state = sim_data.satellites.detector.pointing_state
     pointing_state[POINTING_COUNT_IDX, 0] = 100
     pointing_state[POINTING_COUNT_IDX, 1] = 20
     pointing_state[POINTING_COUNT_IDX, 2] = 0
@@ -82,7 +82,7 @@ SAT-3
     trajectories = [[], [], []]
     
     # Initial plot (T=0)
-    vectors = sim_data.detector.pointing
+    vectors = sim_data.satellites.detector.pointing
     trajectories[0].append(vectors[0].copy())
     trajectories[1].append(vectors[1].copy())
     trajectories[2].append(vectors[2].copy())
@@ -93,7 +93,7 @@ SAT-3
         current_time = sim_start_time + timedelta(seconds=t * sim_data.delta_time)
         sim_data = celestial_update(sim_data, current_time)
         update_detector_pointing(sim_data)
-        vectors = sim_data.detector.pointing
+        vectors = sim_data.satellites.detector.pointing
         trajectories[0].append(vectors[0].copy())
         trajectories[1].append(vectors[1].copy())
         trajectories[2].append(vectors[2].copy())

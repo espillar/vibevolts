@@ -20,9 +20,9 @@ modules to maintain and update the overall system state.
 | `delta_time` | `create_empty_simulation` | Time step in seconds |
 | `counts` | `create_empty_simulation` | `CountsState` counts |
 | `pointing_spheres` | `create_empty_simulation`, `generate_pointing_sphere` | Cache of pointing vectors |
-| `observatories` | `add_observatories` | `ObservatoriesState` data |
-| `detector` | `add_observatories`, `propagation.add_satellites_from_tle`, `constellation.geosmod` | `DetectorArray` params/state |
-| `satellites` | `propagation.add_satellites_from_tle`, `constellation.geosmod`, `radiometry_test.fixedSat` | `SatellitesState` sat state |
+| `observatories` | `add_observatories` | `ObservatoriesState` data (includes embedded `detector`) |
+| `satellites` | `propagation.add_satellites_from_tle`, `constellation.geosmod`, `radiometry_test.fixedSat` | `SatellitesState` sat state (includes embedded `detector`) |
+| `detector` | `@property` on `SimulationState` | Backwards-compatible aggregated accessor for component `DetectorArray`s |
 | `fixedpoints` | `targets.add_fixed_points`, `radiometry_test.fixedTarget` | `FixedPointsState` target points |
 | `celestial` | `celestialbodies.add_celestial_bodies` | `CelestialState` Sun/Moon pos |
 | `cadenceStructure` | `cadenceController.initCadence` | `CadenceState` scan schedule |
@@ -34,10 +34,10 @@ Initializes the basic structure with `start_time`, `time`, `delta_time`, `counts
 `pointing_spheres`.
 
 #### `add_observatories(sim_data: Any, num_observatories: int, latitudes: np.ndarray = None, longitudes: np.ndarray = None, altitudes: np.ndarray = None)`
-Adds `observatories` and `detector` structures to `sim_data`, with optional geodetic coordinates.
+Adds `observatories` structure to `sim_data`, with embedded `detector` and optional geodetic coordinates.
 
 #### `add_satellites_from_tle(sim_data, tle_file_path, sat_category)`
-Adds satellite state arrays and a blank detector to `sim_data`.
+Adds satellite state arrays and embedded `detector` to `sim_data[sat_category]`.
 
 #### `add_celestial_bodies(sim_data)`
 Adds the `celestial` dictionary for Sun and Moon positions.

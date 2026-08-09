@@ -56,8 +56,6 @@ class DetectorArray(ComponentState):
             'fov': np.zeros(0, dtype=float),
             'ifov': np.zeros(0, dtype=float),
             'filt': [],
-            'category': [],
-            'asset_index': np.zeros(0, dtype=int),
             'pointing': np.zeros((0, 3), dtype=float),
             'pointing_state': np.zeros((2, 0), dtype=int),
         }
@@ -116,8 +114,6 @@ def makeBlankDetector(n: int) -> DetectorArray:
         fov=np.zeros(n, dtype=float),
         ifov=np.zeros(n, dtype=float),
         filt=[""] * n,
-        category=[""] * n,
-        asset_index=np.zeros(n, dtype=int),
         pointing=np.zeros((n, 3), dtype=float),
         pointing_state=np.zeros((2, n), dtype=int)
     )
@@ -127,7 +123,7 @@ def makeBlankDetector(n: int) -> DetectorArray:
 def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
                  qe=0.5, photfrac=0.7,
                  solarex=20.0 * DEGREE, lunarex=10.0 * DEGREE,
-                 earthex=15.0 * DEGREE, category=None, asset_index=None):
+                 earthex=15.0 * DEGREE):
     '''
     makeDetector takes parameters of a sensor and stuffs a filter array
     and a detector array, which it returns.
@@ -146,8 +142,6 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
         solarex:     Solar exclusion angle in radians.
         lunarex:     Lunar exclusion angle in radians.
         earthex:     Earth limb (or horizon elevation limit) exclusion angle in radians.
-        category:    Optional category string or list of category strings (e.g. 'satellites', 'observatories').
-        asset_index: Optional 1-D array of asset indices within the specified category.
 
     Creates a detector for any platform (space or ground).
     '''
@@ -171,8 +165,6 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
     detect.fov[:] = fov
     detect.ifov[:] = ifov
     detect.filt = [band] * n
-    detect.category = category if category is not None else [""] * n
-    detect.asset_index = asset_index if asset_index is not None else np.zeros(n, dtype=int)
     detect.pointing = np.zeros((n, 3), dtype=float)
     detect.pointing_state = np.zeros((2, n), dtype=int)
     return detect

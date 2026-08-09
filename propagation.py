@@ -28,18 +28,13 @@ def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str
     num_sats = len(epochs)
 
     new_detector = makeBlankDetector(num_sats)
-    new_detector.category = [sat_category] * num_sats
-    new_detector.asset_index = np.arange(num_sats, dtype=int)
-    if 'detector' not in sim_data or not sim_data.detector:
-        sim_data.detector = new_detector
-    else:
-        appendDetector(sim_data.detector, new_detector)
     sim_data[sat_category] = {
         'position': np.zeros((num_sats, 3), dtype=float),
         'velocity': np.zeros((num_sats, 3), dtype=float),
         'acceleration': np.zeros((num_sats, 3), dtype=float),
         'orbital_elements': orbital_elements,
         'epochs': epochs,
+        'detector': new_detector,
     }
 
 def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:

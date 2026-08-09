@@ -21,13 +21,7 @@ def plot_pointing_vectors(
         return go.Figure()
 
     sat_positions = data_struct.satellites.position.copy()
-
-    has_detectors = (hasattr(data_struct, 'detector') and data_struct.detector is not None and len(data_struct.detector.filt) > 0)
-    if has_detectors:
-        det_cat = np.array(data_struct.detector.category)
-        det_idx = data_struct.detector.asset_index
-    else:
-        det_cat, det_idx = np.array([]), np.array([])
+    sat_det = getattr(data_struct.satellites, 'detector', None)
 
     fig = go.Figure()
 
@@ -42,12 +36,8 @@ def plot_pointing_vectors(
     for i in range(num_sats):
         start_point = sat_positions[i]
         pointing_vec = np.zeros(3)
-        if has_detectors:
-            match = np.where((det_cat == 'satellites') & (det_idx == i))[0]
-            if len(match) > 0:
-                pointing_vec = data_struct.detector.pointing[match[0]]
-            elif i < len(data_struct.detector.pointing):
-                pointing_vec = data_struct.detector.pointing[i]
+        if sat_det is not None and i < len(sat_det.pointing):
+            pointing_vec = sat_det.pointing[i]
         norm = np.linalg.norm(pointing_vec)
         unit_vec = pointing_vec / norm if norm > 0 else np.array([0, 0, 0])
         end_point = start_point + unit_vec * vector_scale

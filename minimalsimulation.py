@@ -185,6 +185,7 @@ class SatellitesState(ComponentState):
             'acceleration': np.zeros((0, 3)),
             'orbital_elements': np.zeros((0, 6)),
             'epochs': [],
+            'detector': None,
         }
         super().__init__(**{**defaults, **kwargs})
 
@@ -218,6 +219,7 @@ class ObservatoriesState(ComponentState):
             'latitude': np.zeros(0),
             'longitude': np.zeros(0),
             'altitude': np.zeros(0),
+            'detector': None,
         }
         super().__init__(**{**defaults, **kwargs})
 
@@ -288,7 +290,6 @@ class SimulationState(SchemaDict):
             'delta_time': 60.0,
             'counts': None,
             'pointing_spheres': {},
-            'detector': None,
             'satellites': None,
             'observatories': None,
             'fixedpoints': None,
@@ -298,21 +299,81 @@ class SimulationState(SchemaDict):
         super().__init__(**{**defaults, **kwargs})
         self.counts = CountsState(parent_sim=self)
 
+    @property
+    def detector(self):
+        """
+        Backwards-compatible accessor for detector array.
+        Returns satellite detector if only satellites exist, observatory detector if only
+        observatories exist, or an aggregated detector if both exist.
+        """
+        detectors = []
+        if self.satellites and getattr(self.satellites, 'detector', None) is not None:
+            detectors.append(self.satellites.detector)
+        if self.observatories and getattr(self.observatories, 'detector', None) is not None:
+            detectors.append(self.observatories.detector)
+        if not detectors and dict.__contains__(self, '_temp_detector'):
+            return self['_temp_detector']
+
+        if not detectors:
+            return None
+        if len(detectors) == 1:
+            return detectors[0]
+
+        from detector import DetectorArray, appendDetector
+        combined = DetectorArray(n=0)
+        for d in detectors:
+            appendDetector(combined, d)
+        return combined
+
+    @detector.setter
+    def detector(self, value):
+        """
+        Backwards-compatible setter for detector.
+        If satellites exist in sim_data, sets satellites.detector.
+        Otherwise if observatories exist, sets observatories.detector.
+        """
+        if self.satellites is not None and len(self.satellites) > 0:
+            self.satellites.detector = value
+        elif self.observatories is not None and len(self.observatories) > 0:
+            self.observatories.detector = value
+        else:
+            dict.__setitem__(self, '_temp_detector', value)
+
     def __setitem__(self, key, value):
         if key == 'detector':
-            from detector import DetectorArray
-            cls = DetectorArray
-        else:
-            cls = self._FIELD_SCHEMAS.get(key)
-
+            if self.satellites is not None and len(self.satellites) > 0:
+                self.satellites.detector = value
+            elif self.observatories is not None and len(self.observatories) > 0:
+                self.observatories.detector = value
+            else:
+                dict.__setitem__(self, '_temp_detector', value)
+            return
+        cls = self._FIELD_SCHEMAS.get(key)
         if cls is not None and isinstance(value, dict) and not isinstance(value, cls):
             value = cls(**value)
         super().__setitem__(key, value)
 
+    def __getitem__(self, key):
+        if key == 'detector':
+            return self.detector
+        return super().__getitem__(key)
+
+    def __contains__(self, key):
+        if key == 'detector':
+            return self.detector is not None
+        return super().__contains__(key)
+
+    def get_all_detectors(self):
+        """
+        Returns a single unified DetectorArray aggregated from all active asset components
+        (satellites, observatories).
+        """
+        return self.detector
+
     def get_detector_positions(self, mask=None) -> np.ndarray:
         """
-        Builds and returns an (N, 3) NumPy array of observer/detector positions
-        resolved by detector.category and detector.asset_index.
+        Builds and returns an (N, 3) NumPy array of detector positions
+        directly aggregated from active asset component positions.
 
         Args:
             mask: Optional boolean or index array to subset the output.
@@ -320,30 +381,30 @@ class SimulationState(SchemaDict):
         Returns:
             (N, 3) array of GCRS positions for detectors.
         """
-        if self.detector is None or len(self.detector) == 0:
+        pos_list = []
+        if self.satellites and getattr(self.satellites, 'detector', None) is not None and len(self.satellites.detector) > 0:
+            pos_list.append(self.satellites.position)
+        if self.observatories and getattr(self.observatories, 'detector', None) is not None and len(self.observatories.detector) > 0:
+            pos_list.append(self.observatories.position)
+
+        if not pos_list:
             return np.zeros((0, 3), dtype=float)
 
-        det = self.detector
-        num_detectors = len(det)
-        category_array = np.array(det.category)
-        asset_index_array = det.asset_index
-
-        _pos_map = {}
-        if self.satellites and len(self.satellites) > 0:
-            _pos_map['satellites'] = self.satellites.position
-        if self.observatories and len(self.observatories) > 0:
-            _pos_map['observatories'] = self.observatories.position
-
-        all_positions = np.zeros((num_detectors, 3), dtype=float)
-        for i in range(num_detectors):
-            cat = category_array[i]
-            pos_array = _pos_map.get(cat)
-            if pos_array is not None:
-                all_positions[i] = pos_array[asset_index_array[i]]
-
+        all_positions = np.vstack(pos_list) if len(pos_list) > 1 else pos_list[0]
         if mask is not None:
             return all_positions[mask]
         return all_positions
+
+    def get_detector_categories(self, mask=None) -> np.ndarray:
+        """
+        Returns an array of category strings ('satellites', 'observatories') for all active detectors.
+        """
+        num_sats = len(self.satellites.detector) if (self.satellites and getattr(self.satellites, 'detector', None)) else 0
+        num_obs = len(self.observatories.detector) if (self.observatories and getattr(self.observatories, 'detector', None)) else 0
+        cats = np.array(['satellites'] * num_sats + ['observatories'] * num_obs)
+        if mask is not None:
+            return cats[mask]
+        return cats
 
 
 def create_empty_simulation(start_time: datetime, delta_time: float = 60.0) -> SimulationState:
