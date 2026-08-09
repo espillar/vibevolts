@@ -28,17 +28,17 @@ def run_verification():
     num_sats = sim_data.counts.satellites
     print(f"Added {num_sats} satellites.")
     
-    # 3. Manually set detector properties
+    # 3. Manually set satellite detector properties
     # First half: 10s, Second half: 30s
-    sim_data.detector.integrationTime[:num_sats//2] = 10.0
-    sim_data.detector.integrationTime[num_sats//2:] = 30.0
+    sim_data.satellites.detector.integrationTime[:num_sats//2] = 10.0
+    sim_data.satellites.detector.integrationTime[num_sats//2:] = 30.0
     
-    # Set other required properties for all detectors
-    sim_data.detector.filt = ["V"] * num_sats
-    sim_data.detector.apertureArea[:] = 1.0  # 10cm x 10cm roughly
-    sim_data.detector.qe[:] = 0.8
-    sim_data.detector.fov[:] = np.radians(180) # 10 degree FOV
-    sim_data.detector.pixelOmega[:] = (3 * ARCSEC)**2 # some small value
+    # Set other required properties for satellite detectors
+    sim_data.satellites.detector.filt = ["V"] * num_sats
+    sim_data.satellites.detector.apertureArea[:] = 1.0  # 10cm x 10cm roughly
+    sim_data.satellites.detector.qe[:] = 0.8
+    sim_data.satellites.detector.fov[:] = np.radians(180) # 10 degree FOV
+    sim_data.satellites.detector.pixelOmega[:] = (3 * ARCSEC)**2 # some small value
 
     
     
@@ -67,7 +67,7 @@ def run_verification():
             
             sat_pos = sim_data.satellites.position
             target_pos = sim_data.fixedpoints.position
-            sat_pointing = sim_data.detector.pointing
+            sat_pointing = sim_data.satellites.detector.pointing
             
             fig = plot_3d_scatter(
                 positions=sat_pos,
