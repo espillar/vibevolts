@@ -125,7 +125,6 @@ def run_observatory_animation():
     fig.add_trace(go.Scatter3d(
         x=[frames[0]['obs_pos'][0]], 
         y=[frames[0]['obs_pos'][1]], 
-        ysrc=None,
         z=[frames[0]['obs_pos'][2]],
         mode='markers+text',
         marker=dict(size=10, color='darkblue', symbol='circle'),

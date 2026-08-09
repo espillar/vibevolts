@@ -58,7 +58,6 @@ with by different modules.
     *   `detector.setDetectorIntegrationTime`: Updates `integrationTime`.
     *   `detector.detectorPointingInitialize`: Initializes `pointing_state` and `pointing`.
     *   `pointing.update_detector_pointing`: Updates `pointing` and `pointing_state`.
-    *   `pointing.jerk`: Updates `pointing`.
     *   `radiometry_test.fixedSat`: Initializes or appends.
 *   `fixedpoints`: `Dict[str, np.ndarray]`
     *   `targets.add_fixed_points`: Initializes `position`, `size`, `albedo`.
@@ -88,7 +87,7 @@ This section describes the demo scripts and testing utilities available in the t
 *   `demo_show_geo_search.py`: Demonstrates searching for GEO satellites from ground.
 *   `demo1.py`, `demo2.py`, `demo3.py`: Basic demonstration scripts for satellite trajectories.
 *   `demogeo.py`: Specific demo for Geostationary orbit visualization.
-*   `plot_satellite_brighness.py`: Plots apparent magnitude of satellites over time.
+*   `plot_satellite_brightness.py`: Plots apparent magnitude of satellites over time.
 
 ### Verification and Tests
 *   `verify_cadence.py`: Verifies `cadenceController` logic and collects results via `DataHandler`.

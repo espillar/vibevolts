@@ -1,6 +1,6 @@
-# --- Global Constants for Array Indices ---
-# These constants define column indices for numpy arrays, making the
-# code more readable and preventing errors from using "magic numbers".
+# --- Global Constants for VibeVolts ---
+# Physical constants (radii, angles) and column indices for NumPy arrays,
+# making the code more readable and avoiding magic numbers.
 from math import pi
 
 

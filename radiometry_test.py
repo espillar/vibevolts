@@ -29,14 +29,14 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
     data structures for a single satellite, including its position, velocity,
     acceleration, orbital elements, and associated detector properties.
     The parameters used to create this initial detector are stored in
-    `sim_data['initial_detector_params']` for future use.
+    `sim_data.initial_detector_params` for future use.
 
     If satellite data already exists, it appends the new satellite's
     information to the existing arrays. To maintain consistent detector
     properties, a new single detector is created using `makeDetector` with
     the parameters stored from the first detector. The attributes of this
     newly created detector are then appended to the existing detector object
-    (`sim_data['detector']`). It also calculates an initial pointing vector
+    (`sim_data.detector`). It also calculates an initial pointing vector
     for the detector based on the satellite's position (pointing away from Earth).
 
 

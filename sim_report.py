@@ -23,20 +23,20 @@ def print_simulation_state(sim_data):
     print(f"Time: {sim_data.time}")
     print("="*80)
 
+    # Build lookup array for detectors safely if detector is present
+    has_detectors = (hasattr(sim_data, 'detector') and sim_data.detector is not None and len(sim_data.detector.filt) > 0)
+    if has_detectors:
+        det_cat = np.array(sim_data.detector.category)
+        det_idx = sim_data.detector.asset_index
+    else:
+        det_cat, det_idx = np.array([]), np.array([])
+
     # 1. Satellites
     print("\n--- SATELLITES ---")
     if 'satellites' in sim_data.counts and sim_data.counts.satellites > 0:
         num_sats = sim_data.counts.satellites
         print(f"{'Idx':<4} | {'Semi-Major (m)':<15} | {'Eccentricity':<12} | {'Inc (deg)':<9} | {'RAAN (deg)':<10} | {'Sensor Band':<11} | {'Pointing RA (deg)':<17} | {'Pointing Dec (deg)':<18}")
         print("-" * 115)
-        
-        # Build lookup array for detectors safely if detector is present
-        has_detectors = (sim_data.detector is not None and len(sim_data.detector.filt) > 0)
-        if has_detectors:
-            det_cat = np.array(sim_data.detector.category)
-            det_idx = sim_data.detector.asset_index
-        else:
-            det_cat, det_idx = np.array([]), np.array([])
         
         for i in range(num_sats):
             oe = sim_data.satellites.orbital_elements[i]
@@ -72,12 +72,6 @@ def print_simulation_state(sim_data):
         print(f"{'Idx':<4} | {'Lat (deg)':<9} | {'Lon (deg)':<10} | {'Alt (m)':<9} | {'Sensor Band':<11} | {'Pointing Az (deg)':<17} | {'Pointing El (deg)':<18}")
         print("-" * 95)
         
-        if has_detectors:
-            det_cat = np.array(sim_data.detector.category)
-            det_idx = sim_data.detector.asset_index
-        else:
-            det_cat, det_idx = np.array([]), np.array([])
-            
         obs_time = Time(sim_data.time)
 
         for i in range(num_obs):

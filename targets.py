@@ -16,11 +16,11 @@ def add_fixed_points(
     Adds a structure for fixed reference points in the GCRS frame.
 
     Args:
-        sim_data: The simulation data structure.
+        sim_data: The main simulation data structure (SimulationState).
         num_points: The number of fixed points to generate.
-        size: the size of the objects, 
-        innerRadius: The minimum radius at which test points will be created.
-        outerRadius: The maximum radius at which test points will be created.
+        size: The diameter of each object in meters.
+        innerRadius: The minimum radius in meters at which test points will be created.
+        outerRadius: The maximum radius in meters at which test points will be created.
     """
     positions = generate_log_spherical_points(
         num_points=num_points,

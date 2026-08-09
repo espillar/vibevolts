@@ -176,11 +176,11 @@ Calculates integration time required for a target SNR and limiting magnitude.
 
 ### exclusion.py
 
-#### `exclusion(data_struct, satellite_index, sat_category='satellites', print_debug=False)`
-Checks if a satellite's view is obstructed by the Sun, Moon, or Earth.
+#### `exclusion(data_struct, satellite_index, print_debug=False)`
+Checks if a satellite or observatory detector's view is obstructed by the Sun, Moon, or Earth (or below local horizon for observatories).
 
 #### `update_exclusion_table(data_struct, print_debug_for_sat=None)`
-Updates the exclusion table for all satellites against all fixed points.
+Updates the exclusion table for all detectors against all fixed points.
 
 ### fibonacciSearch.py
 
@@ -233,7 +233,7 @@ Adds ground station data and detectors to the simulation.
 #### `propagate_observatories(sim_data: Any, time_date: Any)`
 Updates observatory positions in the GCRS inertial frame based on Earth's sidereal rotation.
 
-### plot_satellite_brighness.py
+### plot_satellite_brightness.py
 
 #### `plot_satellite_brightness()`
 Plots V-band photon flux and magnitude of satellites over a range of distances.
@@ -262,9 +262,6 @@ sphere to `sim_data`. Calls `update_detector_pointing` to set an initial valid d
 
 #### `demo_exclusion_pointing()`
 Demonstrates pointing with solar exclusion and FOV constraints.
-
-#### `jerk(sim_data, satellite_indices)`
-Randomly moves the pointing vector of specific satellites by 0.3 radians.
 
 ### propagation.py
 

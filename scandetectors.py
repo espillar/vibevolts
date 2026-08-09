@@ -64,7 +64,7 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
         also printed to the console.
 
     Args:
-        sim_data (dict): The main simulation data dictionary.
+        sim_data (SimulationState): The main simulation data structure.
         print_output (int): If > 0, prints detailed results for each detection.
         mask (np.ndarray, optional): A boolean mask of length equal to the total number 
                                      of satellites, indicating which detectors to process.

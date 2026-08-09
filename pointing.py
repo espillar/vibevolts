@@ -55,14 +55,13 @@ def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', de
     if num_detectors == 0:
         return
 
-# Bring in the appropriate pieces of the data structure for easier reference
+    # Bring in the appropriate pieces of the data structure for easier reference
     pointing_state = sim_data.detector.pointing_state 
-#    print('pointing_state in pointing.py ', pointing_state)
     pointing_vectors_all = sim_data.detector.pointing
 
-# Iterate over satellites
+    # Iterate over satellites
     for i in range(num_detectors):
-# Place a grid of vectors to use in grid
+        # Place a grid of vectors to use in grid
         count = int(pointing_state[POINTING_COUNT_IDX, i])
         if count == 0:
             continue
@@ -71,9 +70,8 @@ def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', de
         place = int(pointing_state[POINTING_PLACE_IDX, i])
         start_place = place
 
-        
         while True:
-# Move to the next place, wrap around if at end
+            # Move to the next place, wrap around if at end
             place += 1
             if place >= count:
                 place = 0
@@ -181,14 +179,12 @@ def demo_exclusion_pointing():
     ))
 
     for i in range(400):
-        update_detector_pointing(sim_data, debug=False) # Turn off debug
+        update_detector_pointing(sim_data, debug=False)
         current_pointed_direction = sim_data.detector.pointing[0]
         snapshot = current_pointed_direction.copy()
-#        print(f"Current pointed direction: {snapshot}") # Print current direction
         pointed_directions_history.append(snapshot)
 
     pointed_directions_history = np.array(pointed_directions_history)
-#   print("Array pointedDirectionsHistory", pointed_directions_history)
 
     # Add the pointing history as markers
     colors = np.arange(len(pointed_directions_history))

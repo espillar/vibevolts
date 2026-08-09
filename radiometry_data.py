@@ -39,7 +39,7 @@ FILTER_DATA = {
     },
     'V': {
         'sun': -26.78,
-        'sky': 21.9,  # Mathematia was assuming 21.61, pretty close actually!
+        'sky': 21.9,  # Mathematica was assuming 21.61, pretty close actually!
         'space': 23,
         'central_wavelength': 551.0,
         'bandwidth': 88.0,

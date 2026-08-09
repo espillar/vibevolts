@@ -8,13 +8,17 @@ from constants import ARCSEC
 
 def fluxes(band):
     """
-    uses the FILTER_DATA table from radiometry_data.py for data
-    Looks up in formation based on the argument band, which is 
-    usually something like an astronomical band... U, B, V, etc.
-    It returns three numbers:
-    sun which is the solar flux at earth in photons/s/m^2
-    sky which is the sky brightness at earth in p/s/steradian/m^2
-    space, sky brightness in space in p/s/steradian/m^2
+    Uses the FILTER_DATA table from radiometry_data.py to look up
+    flux parameters for a given astronomical filter band (e.g. 'U', 'B', 'V').
+
+    Args:
+        band (str): The filter band name.
+
+    Returns:
+        tuple[float, float, float]:
+            - sun: Solar flux at Earth in photons / s / m²
+            - space: Background flux in space in photons / s / sr / m²
+            - sky: Sky background flux at Earth in photons / s / sr / m²
     """
     x = FILTER_DATA[band]
     zp = x['zero_point']

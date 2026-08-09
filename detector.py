@@ -143,9 +143,11 @@ def makeDetector(n, band, fov, ifov, aper, intTime: float = 1.0,
         qe:       Quantum efficiency of the system from entrance aperture
                   to detector.
         photfrac: Fraction of light captured in the photometry aperture.
-        solarex:  Solar exclusion angle in radians.
-        lunarex:  Lunar exclusion angle in radians.
-        earthex:  Earth limb exclusion angle in radians.
+        solarex:     Solar exclusion angle in radians.
+        lunarex:     Lunar exclusion angle in radians.
+        earthex:     Earth limb (or horizon elevation limit) exclusion angle in radians.
+        category:    Optional category string or list of category strings (e.g. 'satellites', 'observatories').
+        asset_index: Optional 1-D array of asset indices within the specified category.
 
     Creates a detector for any platform (space or ground).
     '''

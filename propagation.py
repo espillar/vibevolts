@@ -20,12 +20,8 @@ def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str
         tle_file_path: Path to the TLE file.
         sat_category: The key for this satellite category (e.g., 'satellites').
 
-    Data added to the set_category element of sim_data
-    position
-    velocity
-    acceleration
-    orbital_elements
-    epochs
+    Data added to the sat_category element of sim_data:
+        position, velocity, acceleration, orbital_elements, epochs
     """
     from detector import makeBlankDetector, appendDetector
     orbital_elements, epochs = readtle(tle_file_path)

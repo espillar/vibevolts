@@ -14,13 +14,20 @@ def plot_pointing_vectors(
     """
     Creates a 3D plot of satellites with pointing vectors.
     """
-    sat_positions = data_struct.satellites.position.copy()
-    sat_pointing = data_struct.detector.pointing.copy()
-    num_sats = data_struct.counts.satellites
+    num_sats = data_struct.counts.get('satellites', 0) if hasattr(data_struct, 'counts') and data_struct.counts else 0
 
-    if num_sats == 0:
+    if num_sats == 0 or not hasattr(data_struct, 'satellites') or data_struct.satellites is None:
         print("No satellites to plot.")
         return go.Figure()
+
+    sat_positions = data_struct.satellites.position.copy()
+
+    has_detectors = (hasattr(data_struct, 'detector') and data_struct.detector is not None and len(data_struct.detector.filt) > 0)
+    if has_detectors:
+        det_cat = np.array(data_struct.detector.category)
+        det_idx = data_struct.detector.asset_index
+    else:
+        det_cat, det_idx = np.array([]), np.array([])
 
     fig = go.Figure()
 
@@ -34,7 +41,13 @@ def plot_pointing_vectors(
     vector_scale = 0.5 * EARTH_RADIUS
     for i in range(num_sats):
         start_point = sat_positions[i]
-        pointing_vec = sat_pointing[i]
+        pointing_vec = np.zeros(3)
+        if has_detectors:
+            match = np.where((det_cat == 'satellites') & (det_idx == i))[0]
+            if len(match) > 0:
+                pointing_vec = data_struct.detector.pointing[match[0]]
+            elif i < len(data_struct.detector.pointing):
+                pointing_vec = data_struct.detector.pointing[i]
         norm = np.linalg.norm(pointing_vec)
         unit_vec = pointing_vec / norm if norm > 0 else np.array([0, 0, 0])
         end_point = start_point + unit_vec * vector_scale
