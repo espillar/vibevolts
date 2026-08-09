@@ -99,7 +99,7 @@ def propagate_observatories(sim_data: Any, time_date: Any) -> None:
     if np.isscalar(x):
         obs.position = np.array([[x, y, z]], dtype=float)
     else:
-        obs.position = np.vstack([x, y, z]).T
+        obs.position = np.column_stack((x, y, z))
 
     # Compute velocity via finite-difference of GCRS positions.
     # The naive ω×r formula is only valid in the ECEF/ITRS
@@ -118,6 +118,6 @@ def propagate_observatories(sim_data: Any, time_date: Any) -> None:
     if np.isscalar(x2):
         pos2 = np.array([[x2, y2, z2]], dtype=float)
     else:
-        pos2 = np.vstack([x2, y2, z2]).T
+        pos2 = np.column_stack((x2, y2, z2))
 
     obs.velocity = (pos2 - obs.position) / dt_seconds

@@ -172,8 +172,14 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
         y_gcrs = x_pqw * P_y + y_pqw * Q_y
         z_gcrs = x_pqw * P_z + y_pqw * Q_z
 
-        positions = np.vstack((x_gcrs, y_gcrs, z_gcrs)).T
-        data_struct[category].position = positions
+        # In-place assignment into existing position array buffer (zero allocations)
+        pos = data_struct[category].position
+        if pos.shape != (len(x_gcrs), 3):
+            pos = np.empty((len(x_gcrs), 3), dtype=float)
+            data_struct[category].position = pos
+        pos[:, 0] = x_gcrs
+        pos[:, 1] = y_gcrs
+        pos[:, 2] = z_gcrs
 
         # Velocity in PQW (perifocal) frame
         p = safe_a * (1 - safe_e**2)
@@ -186,7 +192,13 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
         vy_gcrs = vx_pqw * P_y + vy_pqw * Q_y
         vz_gcrs = vx_pqw * P_z + vy_pqw * Q_z
 
-        velocities = np.vstack((vx_gcrs, vy_gcrs, vz_gcrs)).T
-        data_struct[category].velocity = velocities
+        # In-place assignment into existing velocity array buffer (zero allocations)
+        vel = data_struct[category].velocity
+        if vel.shape != (len(vx_gcrs), 3):
+            vel = np.empty((len(vx_gcrs), 3), dtype=float)
+            data_struct[category].velocity = vel
+        vel[:, 0] = vx_gcrs
+        vel[:, 1] = vy_gcrs
+        vel[:, 2] = vz_gcrs
 
     return data_struct
