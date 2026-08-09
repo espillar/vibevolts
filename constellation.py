@@ -81,7 +81,6 @@ def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) 
         appendDetector(sim_data.detector, detect)
 
     if not sim_data.satellites:
-        sim_data.counts.satellites = n
         sim_data.satellites = SatellitesState(
             position=np.zeros((n, 3), dtype=float),
             velocity=np.zeros((n, 3), dtype=float),
@@ -90,7 +89,6 @@ def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) 
             epochs=epochs_list,
         )
     else:
-        sim_data.counts.satellites += n
         sat = sim_data.satellites
         sat.position = np.vstack([sat.position, np.zeros((n, 3), dtype=float)])
         sat.velocity = np.vstack([sat.velocity, np.zeros((n, 3), dtype=float)])

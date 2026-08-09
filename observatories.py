@@ -36,8 +36,8 @@ def add_observatories(
     if sim_data.counts.get('observatories', 0) > 0:
         # Append to existing
         existing = sim_data.observatories
-        detector.asset_index = np.arange(sim_data.counts.observatories, sim_data.counts.observatories + num_observatories, dtype=int)
-        sim_data.counts.observatories += num_observatories
+        existing_count = len(existing)
+        detector.asset_index = np.arange(existing_count, existing_count + num_observatories, dtype=int)
         
         existing.latitude = np.append(existing.latitude, np.array(latitudes, dtype=float))
         existing.longitude = np.append(existing.longitude, np.array(longitudes, dtype=float))
@@ -47,7 +47,6 @@ def add_observatories(
         existing.acceleration = np.vstack([existing.acceleration, np.zeros((num_observatories, 3), dtype=float)])
         existing.pointing = np.vstack([existing.pointing, np.zeros((num_observatories, 3), dtype=float)])
     else:
-        sim_data.counts.observatories = num_observatories
         detector.asset_index = np.arange(num_observatories, dtype=int)
         sim_data.observatories = ObservatoriesState(
             latitude=np.array(latitudes, dtype=float),

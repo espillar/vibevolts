@@ -79,7 +79,7 @@ def update_detector_pointing(sim_data: Any, sat_category: str = 'satellites', de
                 place = 0
             pointing_vectors_all[i] = grid[place]
             
-            excluded = exclusion(sim_data, i, sat_category=sat_category)
+            excluded = exclusion(sim_data, i)
             if debug:
                 print(f"Detector {i}: Pointing location {place}, Excluded: {excluded != 0}")
                 print(grid[place])
@@ -236,38 +236,3 @@ def demo_exclusion_pointing():
     )
     return fig
 
-def jerk(sim_data: Any, satellite_indices: np.ndarray) -> Any:
-    """
-    Moves the pointing vector of specific satellites by 0.3 radians in a
-    random direction.
-
-    This function applies a random rotation to the satellites' pointing vectors.
-
-    Args:
-        sim_data: The main simulation data structure.
-        satellite_indices: The indices of the satellites to modify.
-
-    Returns:
-        The modified sim_data with the updated pointing vectors.
-    """
-    if satellite_indices.size == 0:
-        return sim_data
-
-    p = sim_data.detector.pointing[satellite_indices]
-    p_norm = p / np.linalg.norm(p, axis=1)[:, np.newaxis]
-
-    # Generate a random vector not parallel to p_norm
-    r = np.random.randn(*p.shape)
-    r -= np.sum(r * p_norm, axis=1)[:, np.newaxis] * p_norm
-    k_hat = r / np.linalg.norm(r, axis=1)[:, np.newaxis]
-
-    theta = 0.3
-    cos_theta = np.cos(theta)
-    sin_theta = np.sin(theta)
-
-    # Rodrigues' rotation formula
-    p_new = p_norm * cos_theta + np.cross(k_hat, p_norm) * sin_theta
-
-    sim_data.detector.pointing[satellite_indices] = p_new
-
-    return sim_data

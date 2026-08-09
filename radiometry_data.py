@@ -16,7 +16,7 @@ RSUN_M = 6.957e8 # Radius of the Sun in meters
 # Wavelengths and bandwidths are in nanometers (nm).
 # Zero point is the photon flux for a 0-magnitude object in photons per second per square meter.
 
-
+# TODO:   The space values of the MID/FAR-IR values need to be checked.
 
 FILTER_DATA = {
     # Johnson-Cousins UBVRI Filters
@@ -120,9 +120,12 @@ FILTER_DATA = {
         'zero_point': 8.455e9,
     },
     # Ground-Based Mid-IR Filters
+    # 'sky' is ground-based thermal emission (very bright).
+    # 'space' is the zodiacal + telescope background in orbit.
     'L': {
         'sun': None,
         'sky': 3.5,
+        'space': 20.0,
         'central_wavelength': 3500.0,
         'bandwidth': 600.0,
         'zero_point': 9.4e9,
@@ -130,6 +133,7 @@ FILTER_DATA = {
     'M': {
         'sun': None,
         'sky': 0.0,
+        'space': 19.0,
         'central_wavelength': 4800.0,
         'bandwidth': 600.0,
         'zero_point': 6.8e9,
@@ -137,6 +141,7 @@ FILTER_DATA = {
     'N': {
         'sun': None,
         'sky': -6.0,
+        'space': 17.0,
         'central_wavelength': 10200.0,
         'bandwidth': 5000.0,
         'zero_point': 2.7e10,

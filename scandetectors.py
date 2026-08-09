@@ -138,10 +138,8 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     normalized_toTargets = toTargets / norms_toTargets_safe[:, :, np.newaxis]
     
     # Vectorized dot product for angles: (num_active_sats, num_targets)
+    # Subscripts: s=detector, t=target, i=xyz.  Contracts over i.
     dot_products = np.einsum('si,sti->st', detectorVect, normalized_toTargets)
-        # This line uses NumPy's Einstein Summation (einsum) to perform a
-        # high-performance, vectorized dot   product between the satellite
-        # pointing vectors and the vectors to every target.
     angles = np.arccos(np.clip(dot_products, -1.0, 1.0))
 
     # Apply FOV mask: (num_active_sats, num_targets)

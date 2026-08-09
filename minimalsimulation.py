@@ -151,6 +151,15 @@ class CountsState(SchemaDict):
                 return len(comp)
         return super().__getattr__(name)
 
+    def __contains__(self, item):
+        if super().__contains__(item):
+            return True
+        if (dict.__getattribute__(self, '_parent_sim') is not None):
+            comp = self._parent_sim.get(item)
+            if comp is not None and hasattr(comp, '__len__'):
+                return True
+        return False
+
     def items(self):
         return [(k, self[k]) for k in self.keys() if not k.startswith('_')]
 

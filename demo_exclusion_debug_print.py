@@ -23,11 +23,14 @@ def demo_exclusion_debug_print():
 
     sim_data = celestial_update(sim_data, sim_start_time)
 
-    print("\n--- Generating exclusion table for Satellite 0 vs First 100 Fixed Points (with debug print) ---")
-    original_fixed_points = sim_data.fixedpoints.position
-    sim_data.fixedpoints.position = original_fixed_points[:100]
+    print("\n--- Generating exclusion table for Satellite 0"
+          " vs First 100 Fixed Points (with debug print) ---")
+    original_fixedpoints = sim_data.fixedpoints
+    sim_data.fixedpoints = original_fixedpoints.subset(
+        slice(0, 100)
+    )
 
     update_exclusion_table(sim_data, print_debug_for_sat=0)
 
-    sim_data.fixedpoints.position = original_fixed_points
+    sim_data.fixedpoints = original_fixedpoints
     print("\n--- Debug Print Demo Complete ---")

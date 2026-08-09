@@ -62,7 +62,6 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
 
     if not sim_data.satellites:
         # Initialize for the first satellite
-        sim_data.counts.satellites = 1
         sim_data.satellites = SatellitesState(
             position=new_pos,
             velocity=new_vel,
@@ -85,7 +84,6 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         sim_data.initial_detector_params = initial_detector_params
     else:
         # Append for subsequent satellites
-        sim_data.counts.satellites += 1
 
         sat = sim_data.satellites
         sat.position = np.vstack([sat.position, new_pos])

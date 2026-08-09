@@ -7,23 +7,25 @@ from constants import (
 def exclusion(
     data_struct: Dict[str, Any],
     satellite_index: int,
-    sat_category: str = 'satellites',
     print_debug: bool = False
 ) -> int:
     """
-    Determines if a satellite's pointing vector is excluded by the Sun, Moon, or Earth.
+    Determines if a satellite's pointing vector is excluded
+    by the Sun, Moon, or Earth.
 
-    This function is vectorized to check for exclusions from all three bodies (Sun,
-    Moon, Earth) simultaneously for a single satellite.
+    This function is vectorized to check for exclusions from
+    all three bodies (Sun, Moon, Earth) simultaneously for a
+    single satellite.
 
     Args:
         data_struct: The main simulation data dictionary.
-        satellite_index: The index of the satellite to check.
-        sat_category: The satellite category (e.g. 'satellites', 'red_satellites').
-        print_debug: If True, prints detailed debug information for the calculation.
+        satellite_index: The index of the detector to check.
+        print_debug: If True, prints detailed debug
+            information for the calculation.
 
     Returns:
-        1 if the satellite's view is excluded by any of the bodies, 0 otherwise.
+        1 if the detector's view is excluded by any of the
+        bodies, 0 otherwise.
     """
     # Determine asset category and index using the detector's internal tracking
     detector_props = data_struct.detector
@@ -148,8 +150,8 @@ def update_exclusion_table(
         - observer_pos[np.newaxis, :, :]
     )
 
-    norm_pointing = np.linalg.norm(pointing_vectors, axis=2)
-    safe_norm = np.where(norm_pointing == 0, 1.0, norm_pointing)
+    dist_to_target = np.linalg.norm(pointing_vectors, axis=2)
+    safe_norm = np.where(dist_to_target == 0, 1.0, dist_to_target)
     u_pointing = pointing_vectors / safe_norm[:, :, np.newaxis]
 
     # --- Celestial body geometry ---
@@ -233,8 +235,8 @@ def update_exclusion_table(
     # Collapse body axis → scalar excluded flag
     exclusion_matrix = np.any(is_excluded, axis=2).astype(int)
 
-    # Zero-norm pointing → treat as excluded
-    exclusion_matrix[norm_pointing < 1e-9] = 1
+    # Zero distance to target → treat as excluded
+    exclusion_matrix[dist_to_target < 1e-9] = 1
 
     # --- Debug output ---
     if (print_debug_for_sat is not None

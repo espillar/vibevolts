@@ -12,7 +12,6 @@ def add_celestial_bodies(sim_data: Any) -> None:
     Args:
         sim_data: The simulation data structure.
     """
-    sim_data.counts.celestial = 2  # Sun and Moon
     sim_data.celestial = {
         'position': np.zeros((2, 3), dtype=float),
         'velocity': np.zeros((2, 3), dtype=float),

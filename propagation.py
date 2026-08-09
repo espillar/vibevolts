@@ -31,7 +31,6 @@ def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str
     orbital_elements, epochs = readtle(tle_file_path)
     num_sats = len(epochs)
 
-    sim_data.counts[sat_category] = num_sats
     new_detector = makeBlankDetector(num_sats)
     new_detector.category = [sat_category] * num_sats
     new_detector.asset_index = np.arange(num_sats, dtype=int)
@@ -88,12 +87,20 @@ def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
 
 def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: str = None) -> Any:
     """
-    data_struct is the "standard" structure for the simulation
-    time_date - a datetime - is the time that the satellites are propagated to.
-    NOTE that the datetime structure in simulation_data is NOT updated to this value by this function!
+    Propagates satellite positions and velocities to a given time
+    using Keplerian two-body orbital mechanics.
 
-    Updates satellite positions and pointing vectors based on their orbital elements.
-    
+    Args:
+        data_struct: The main simulation data structure.
+        time_date: The datetime to propagate the satellites to.
+            NOTE: the datetime in data_struct is NOT updated by
+            this function.
+        sat_category: Optional satellite category key. If None,
+            all satellite categories are auto-discovered from
+            data_struct.counts.
+
+    Returns:
+        The updated data_struct with new positions and velocities.
     """
     MU_EARTH = 3.986004418e14
     time_date_timestamp = time_date.timestamp()
@@ -172,8 +179,18 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
         positions = np.vstack((x_gcrs, y_gcrs, z_gcrs)).T
         data_struct[category].position = positions
 
-        norms = np.linalg.norm(positions, axis=1)[:, np.newaxis]
-        norms[norms == 0] = 1.0
+        # Velocity in PQW (perifocal) frame
+        p = safe_a * (1 - safe_e**2)
+        v_factor = np.sqrt(MU_EARTH / p)
+        vx_pqw = -v_factor * np.sin(nu)
+        vy_pqw = v_factor * (safe_e + np.cos(nu))
 
+        # Transform velocity to GCRS using same P, Q basis
+        vx_gcrs = vx_pqw * P_x + vy_pqw * Q_x
+        vy_gcrs = vx_pqw * P_y + vy_pqw * Q_y
+        vz_gcrs = vx_pqw * P_z + vy_pqw * Q_z
+
+        velocities = np.vstack((vx_gcrs, vy_gcrs, vz_gcrs)).T
+        data_struct[category].velocity = velocities
 
     return data_struct
