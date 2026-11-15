@@ -1,9 +1,6 @@
 import numpy as np
-import pytest
-from io import StringIO
-import sys
 
-from lambertian import lambertiansphere, simple_lambertian, includedAngle
+from lambertian import lambertiansphere, simple_lambertian
 
 def test_lambertiansphere_debug_level_2(capsys):
     """
