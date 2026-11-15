@@ -19,11 +19,11 @@ modules to maintain and update the overall system state.
 | `time` | `create_empty_simulation`, `nextIntegration` | Current time (datetime) |
 | `delta_time` | `create_empty_simulation` | Time step in seconds |
 | `counts` | `create_empty_simulation` | `CountsState` counts |
-| `pointing_spheres` | `create_empty_simulation`, `generate_pointing_sphere` | Cache of pointing vectors |
-| `observatories` | `add_observatories` | `ObservatoriesState` data (includes embedded `detector`) |
-| `satellites` | `propagation.add_satellites_from_tle`, `constellation.geosmod`, `radiometry_test.fixedSat` | `SatellitesState` sat state (includes embedded `detector`) |
-| `detector` | `@property` on `SimulationState` | Backwards-compatible aggregated accessor for component `DetectorArray`s |
-| `fixedpoints` | `targets.add_fixed_points`, `radiometry_test.fixedTarget` | `FixedPointsState` target points |
+| `pointing_spheres` | `create_empty_simulation`, `generate_pointing_sphere` | Pointing cache |
+| `observatories` | `add_observatories` | `ObservatoriesState` (with `detector`) |
+| `satellites` | `add_satellites_from_tle`, `geosmod`, `fixedSat` | `SatellitesState` (w/ `detector`) |
+| `detector` | `@property` on `SimulationState` | Aggregated `DetectorArray` accessor |
+| `fixedpoints` | `add_fixed_points`, `fixedTarget` | `FixedPointsState` target points |
 | `celestial` | `celestialbodies.add_celestial_bodies` | `CelestialState` Sun/Moon pos |
 | `cadenceStructure` | `cadenceController.initCadence` | `CadenceState` scan schedule |
 
@@ -33,11 +33,22 @@ modules to maintain and update the overall system state.
 Initializes the basic structure with `start_time`, `time`, `delta_time`, `counts`, and
 `pointing_spheres`.
 
-#### `add_observatories(sim_data: Any, num_observatories: int, latitudes: np.ndarray = None, longitudes: np.ndarray = None, altitudes: np.ndarray = None)`
-Adds `observatories` structure to `sim_data`, with embedded `detector` and optional geodetic coordinates.
+#### `add_observatories`
+```python
+def add_observatories(
+    sim_data: Any,
+    num_observatories: int,
+    latitudes: np.ndarray = None,
+    longitudes: np.ndarray = None,
+    altitudes: np.ndarray = None,
+)
+```
+Adds `observatories` structure to `sim_data`, with embedded `detector` and optional geodetic
+coordinates.
 
-#### `add_satellites_from_tle(sim_data, tle_file_path, sat_category)`
-Adds satellite state arrays and embedded `detector` to `sim_data[sat_category]`.
+#### `add_satellites_from_tle(sim_data, tle_source, sat_category='satellites')`
+Adds satellite state arrays and embedded `detector` to `sim_data[sat_category]` from a TLE
+file path or raw multi-line TLE string.
 
 #### `add_celestial_bodies(sim_data)`
 Adds the `celestial` dictionary for Sun and Moon positions.
@@ -78,13 +89,17 @@ The following demos are available in the repository:
 ### all_demos.py
 
 #### `list_demo_groups()`
-Lists available demo suite groups (`'orbits'`, `'pointing'`, `'radiometry'`) and their included demo functions.
+Lists available demo suite groups (`'orbits'`, `'pointing'`, `'radiometry'`) and their included
+demo functions.
 
 #### `demo_vector_resorting_plot()`
 Runs the `test_vector_resorting` function and returns its figure.
 
 #### `run_all_demos(group: str = 'all', demos: list = None, save_html: bool = False)`
-Runs demo functions by thematic group (`'orbits'`, `'pointing'`, `'radiometry'`), specific list of demos, or all demos. To prevent browser WebGL context limits (~16 max per page) from being exceeded during notebook execution, `group='all'` automatically defaults to `save_html=True` unless a specific smaller group is specified for inline display.
+Runs demo functions by thematic group (`'orbits'`, `'pointing'`, `'radiometry'`), specific list
+of demos, or all demos. To prevent browser WebGL context limits (~16 max per page) from being
+exceeded during notebook execution, `group='all'` automatically defaults to `save_html=True` unless
+a specific smaller group is specified for inline display.
 
 ### cadenceController.py
 
@@ -148,6 +163,21 @@ Calculates chronological time gaps (in seconds) between observations of targets.
 ##### `plot_gap_times_histogram(target_id=None, bins="auto", show_plot=True) -> go.Figure`
 Generates and optionally displays a Plotly histogram of the interobservation gap times.
 
+### demo_common.py
+
+#### `get_sample_geo_tles(n: int = 4) -> str`
+Returns the first `n` satellites (3 lines each) from `FOUR_GEO_TLE_DATA`.
+
+#### `set_exclusion_deg(sim_data, solar=30.0, lunar=15.0, earth=10.0)`
+Sets solar, lunar, and Earth exclusion angles (in degrees) on `sim_data.detector`.
+
+#### `initialize_standard_simulation(start_time=None) -> Dict[str, Any]`
+Initializes a standard simulation with `STANDARD_TLE_DATA`, celestial bodies, fixed points,
+and satellite detectors, and propagates satellites to `start_time`.
+
+#### `run_trajectory_demo(tle_data, time_steps, step_unit, unit_label, orbit_label, ...)`
+Propagates a single satellite across `time_steps` and plots its 3D trajectory with Earth.
+
 ### detector.py
 
 #### `setDetectorFOV(sim_data, fovSize)`
@@ -159,9 +189,15 @@ Ad-hoc function to change integration times of all detectors to `itime` (seconds
 #### `makeBlankDetector(n: int)`
 Returns a `DetectorArray` with empty arrays for `n` detectors.
 
-#### `makeDetector(n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7, solarex=20*DEGREE, lunarex=10*DEGREE, earthex=15*DEGREE, category=None, asset_index=None)`
-Creates a detector with specified radiometric and geometric parameters. `category` and
-`asset_index` default to `None` (filled with empty strings / zeros internally).
+#### `makeDetector`
+```python
+def makeDetector(
+    n, band, fov, ifov, aper, intTime=1.0, qe=0.5, photfrac=0.7,
+    solarex=20*DEGREE, lunarex=10*DEGREE, earthex=15*DEGREE
+)
+```
+Creates a `DetectorArray` with specified radiometric and geometric parameters. Its
+`pointing_state` array has shape `(n, 2)` (column 0 = grid size, column 1 = current index).
 
 #### `appendDetector(cd, new_cd)`
 Appends the attributes of `new_cd` to the existing detector object `cd` in-place.
@@ -176,8 +212,19 @@ Calculates integration time required for a target SNR and limiting magnitude.
 
 ### exclusion.py
 
+#### `compute_exclusions`
+```python
+def compute_exclusions(
+    obs_pos, u_pointing, is_ground, exclusion_angles,
+    body_positions, body_radii, use_arcsin=False, return_angles=False
+)
+```
+Vectorized exclusion and Earth-limb/local-horizon check shared by `exclusion`,
+`update_exclusion_table`, and `scandetectors`.
+
 #### `exclusion(data_struct, satellite_index, print_debug=False)`
-Checks if a satellite or observatory detector's view is obstructed by the Sun, Moon, or Earth (or below local horizon for observatories).
+Checks if a satellite or observatory detector's view is obstructed by the Sun, Moon, or Earth
+(or below local horizon for observatories).
 
 #### `update_exclusion_table(data_struct, print_debug_for_sat=None)`
 Updates the exclusion table for all detectors against all fixed points.
@@ -227,7 +274,16 @@ Initializes the core `sim_data` dictionary.
 
 ### observatories.py
 
-#### `add_observatories(sim_data: Any, num_observatories: int, latitudes: np.ndarray = None, longitudes: np.ndarray = None, altitudes: np.ndarray = None)`
+#### `add_observatories`
+```python
+def add_observatories(
+    sim_data: Any,
+    num_observatories: int,
+    latitudes: np.ndarray = None,
+    longitudes: np.ndarray = None,
+    altitudes: np.ndarray = None,
+)
+```
 Adds ground station data and detectors to the simulation.
 
 #### `propagate_observatories(sim_data: Any, time_date: Any)`
@@ -239,6 +295,19 @@ Updates observatory positions in the GCRS inertial frame based on Earth's sidere
 Plots V-band photon flux and magnitude of satellites over a range of distances.
 
 ### plotting_3d.py
+
+#### `add_sphere_trace(fig, radius=EARTH_RADIUS, name='Earth', ...)`
+Adds a 3D spherical surface trace (such as Earth or a unit sphere) to a Plotly figure, with
+configurable `colorscale`, `opacity`, and `resolution`.
+
+#### `tag_demo_figure(fig: go.Figure, demo_name: str) -> go.Figure`
+Adds a standard `"Generated by: <demo_name>"` subtitle annotation to a Plotly figure.
+
+#### `apply_3d_scene_layout(fig, title, axis_unit=' (m)', legend_title=None, **extra_layout)`
+Applies standard 3D scene axis titles, `aspectmode='data'`, and compact margins to a figure.
+
+#### `add_vector_traces(fig, origins, vectors, scale=1.0, color='red', width=3, ...)`
+Adds 3D line segments from `origins` along `vectors` (scaled by `scale`) to a Plotly figure.
 
 #### `plot_3d_scatter(positions, title, plot_time, labels, marker_size, trace_name, ...)`
 Creates a 3D plot of object positions.
@@ -253,23 +322,24 @@ Creates a 3D plot of satellites with their current pointing vectors.
 #### `generate_pointing_sphere(sim_data, n_points, debug=False)`
 Generates and caches a set of pointing vectors on a sphere in `sim_data.pointing_spheres`.
 
-#### `update_detector_pointing(sim_data, sat_category='satellites', debug=False)`
-Updates detector pointing vectors, skipping directions in exclusion zones.
+#### `update_detector_pointing(sim_data, sat_category=None, debug=False)`
+Updates detector pointing vectors, skipping directions in exclusion zones. If `sat_category` is
+provided, updates only that component (`'satellites'` or `'observatories'`).
 
 #### `detectorPointingInitialize(sim_data, grid_points)`
-Initializes `pointing_state` and `pointing` arrays for all detectors and adds a pointing
-sphere to `sim_data`. Calls `update_detector_pointing` to set an initial valid direction.
+Initializes `(n, 2)` `pointing_state` and `(n, 3)` `pointing` arrays for all detectors and adds a
+pointing sphere to `sim_data`. Calls `update_detector_pointing` to set an initial valid direction.
 
 #### `demo_exclusion_pointing()`
 Demonstrates pointing with solar exclusion and FOV constraints.
 
 ### propagation.py
 
-#### `add_satellites_from_tle(sim_data, tle_file_path, sat_category)`
-Initializes satellite structures from a TLE file.
+#### `add_satellites_from_tle(sim_data, tle_source, sat_category='satellites')`
+Initializes satellite structures from a TLE file path or raw multi-line TLE string.
 
-#### `readtle(tle_file_path)`
-Extracts orbital elements and epochs from a TLE file.
+#### `readtle(tle_source)`
+Extracts orbital elements and epochs from a TLE file path or raw multi-line TLE string.
 
 #### `propagate_satellites(data_struct, time_date, sat_category='satellites')`
 Updates satellite positions to the specified `time_date`.
@@ -320,9 +390,8 @@ Converts an `(N, 3)` Cartesian array to spherical angles `(theta, phi)`.
 
 #### `scandetectors(sim_data, print_output=0, mask=None)`
 Orchestrates target detection, calculating signal, noise, and SNR for visible targets.
-Observer positions are resolved per-detector via `detector.category` and
-`detector.asset_index`, ensuring correct positions regardless of the order assets were
-added to `sim_data`.
+Observer positions are resolved uniformly via `sim_data.get_detector_positions(mask)`,
+ensuring correct positions regardless of the order assets were added to `sim_data`.
 
 ### sim_check.py
 

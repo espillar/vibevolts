@@ -1,22 +1,21 @@
 
 import numpy as np
 from typing import Dict, Any
-import math
 
 import astropy.units as u
 
-from constants import EARTH_RADIUS, ARCSEC, DEGREE
-from detector import makeBlankDetector, makeDetector
+from constants import ARCSEC, DEGREE
+from detector import makeDetector
 from celestialbodies import add_celestial_bodies
 import plotly.graph_objects as go
 from minimalsimulation import (
     create_empty_simulation,
     SatellitesState,
     FixedPointsState,
-    CelestialState,
 )
 from datetime import datetime, timezone
 from scandetectors import scandetectors
+from plotting_3d import add_vector_traces, tag_demo_figure
 
 
 def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * DEGREE):
@@ -48,60 +47,38 @@ def fixedSat(sim_data: Dict[str, Any], x: float, y: float, z: float, fov= 10 * D
         y (float): The y-coordinate of the satellite's position in meters.
         z (float): The z-coordinate of the satellite's position in meters.
     """
-    new_pos = np.array([x, y, z]).reshape(1, 3)
-    new_vel = np.array([0, 0, 0]).reshape(1, 3)
-    new_accel = np.zeros((1, 3), dtype=float)
+    new_pos = np.array([[x, y, z]], dtype=float)
+    new_vel = np.zeros((1, 3), dtype=float)
     new_orbital_elements = np.zeros((1, 6), dtype=float)
 
-    # Calculate pointing vector for the new satellite
     norm_pos = np.linalg.norm(new_pos)
-    if norm_pos > 0:
-        new_pointing_vector = new_pos / norm_pos
-    else:
-        new_pointing_vector = np.array([1, 0, 0]).reshape(1, 3) # Default if at origin
+    new_pointing_vector = (
+        new_pos / norm_pos if norm_pos > 0 else np.array([[1.0, 0.0, 0.0]])
+    )
 
-    if not sim_data.satellites:
-        # Initialize for the first satellite
-        sim_data.satellites = SatellitesState(
-            position=new_pos,
-            velocity=new_vel,
-            acceleration=new_accel,
-            orbital_elements=new_orbital_elements,
-            epochs=[sim_data.time],
-        )
-        # Initialize detector for the first satellite
-        # Store detector creation parameters for future use
-        initial_detector_params = {
-            'n': 1, 'band': 'V', 'fov': fov, 'ifov': 1 * ARCSEC, 
+    if not sim_data.satellites or 'initial_detector_params' not in sim_data:
+        sim_data.initial_detector_params = {
+            'n': 1, 'band': 'V', 'fov': fov, 'ifov': 1 * ARCSEC,
             'intTime': 1.0, 'aper': 1, 'qe': 0.5, 'photfrac': 0.7,
-            'solarex': 20.0 * DEGREE, 'lunarex': 10.0 * DEGREE, 'earthex': 15.0 * DEGREE
+            'solarex': 20.0 * DEGREE, 'lunarex': 10.0 * DEGREE, 'earthex': 15.0 * DEGREE,
         }
-        detector = makeDetector(**initial_detector_params)
-        detector.pointing[0, :] = new_pointing_vector[0]
-        sim_data.satellites.detector = detector
-        sim_data.initial_detector_params = initial_detector_params
-    else:
-        # Append for subsequent satellites
-        sat = sim_data.satellites
-        sat.position = np.vstack([sat.position, new_pos])
-        sat.velocity = np.vstack([sat.velocity, new_vel])
-        sat.acceleration = np.vstack([sat.acceleration, new_accel])
-        sat.orbital_elements = np.vstack([sat.orbital_elements, new_orbital_elements])
-        sat.epochs.append(sim_data.time)
 
-        # Create a new single detector using the stored initial parameters
-        from detector import appendDetector
-        initial_params = sim_data.initial_detector_params.copy()
-        initial_params['n'] = 1
-        
-        new_single_detector = makeDetector(**initial_params)
-        if sat.detector is None:
-            sat.detector = new_single_detector
-        else:
-            appendDetector(sat.detector, new_single_detector)
-        
-        # Update the pointing for the newly added satellite's detector
-        sat.detector.pointing[-1, :] = new_pointing_vector[0]
+    det_params = sim_data.initial_detector_params.copy()
+    det_params['n'] = 1
+    detector = makeDetector(**det_params)
+    detector.pointing[0, :] = new_pointing_vector[0]
+
+    new_sat = SatellitesState(
+        position=new_pos,
+        velocity=new_vel,
+        orbital_elements=new_orbital_elements,
+        epochs=[sim_data.time],
+        detector=detector,
+    )
+    if not sim_data.satellites:
+        sim_data.satellites = new_sat
+    else:
+        sim_data.satellites.append(new_sat)
 
 def fixedTarget(sim_data: Dict[str, Any], size: float, x: float, y: float, z: float):
     """
@@ -251,16 +228,10 @@ def demoFixed():
 
     # Viewing vector
     vec_len_log = np.linalg.norm(sat_pos_log) * 0.3
-    vec_end = sat_pos_log + viewing_vector * vec_len_log
-    
-    fig.add_trace(go.Scatter3d(
-        x=[sat_pos_log[0], vec_end[0]],
-        y=[sat_pos_log[1], vec_end[1]],
-        z=[sat_pos_log[2], vec_end[2]],
-        mode='lines',
-        line=dict(color='red', width=2),
-        name='Viewing Vector'
-    ))
+    add_vector_traces(
+        fig, sat_pos_log, viewing_vector, scale=vec_len_log,
+        color='red', width=2, name='Viewing Vector', normalize=False,
+    )
 
     fig.update_layout(          # 
         title_text='Demonstration of Fixed Objects (Log Scale Distance)',
@@ -276,16 +247,7 @@ def demoFixed():
     scan_output = scandetectors(sim_data, print_output=1)
     print(f"Output of scandetector: {scan_output}") 
 
-    fig.add_annotation(
-        text="Generated by: demoFixed",
-        xref="paper", yref="paper",
-        x=0.5, y=1.01,
-        showarrow=False,
-        font=dict(size=10, color="gray"),
-        xanchor="center", yanchor="bottom"
-    )
-
-    return fig, sim_data
+    return tag_demo_figure(fig, "demoFixed"), sim_data
 
 if __name__ == '__main__':
     fig, simdata = demoFixed()

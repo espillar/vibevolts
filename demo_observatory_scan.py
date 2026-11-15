@@ -6,9 +6,7 @@ from observatories import add_observatories, propagate_observatories
 from celestialbodies import add_celestial_bodies, celestial_update
 from detector import makeDetector
 from exclusion import exclusion
-from astropy.coordinates import EarthLocation
-from astropy.time import Time
-import astropy.units as u
+from plotting_3d import add_sphere_trace
 
 def run_observatory_animation():
     print("=== Generating Ground Observatory 3D Animation ===")
@@ -99,17 +97,7 @@ def run_observatory_animation():
     
     # Draw Earth as a sphere
     r_earth = 6378137.0 / scale
-    u = np.linspace(0, 2 * np.pi, 50)
-    v = np.linspace(0, np.pi, 50)
-    x_earth = r_earth * np.outer(np.cos(u), np.sin(v))
-    y_earth = r_earth * np.outer(np.sin(u), np.sin(v))
-    z_earth = r_earth * np.outer(np.ones(np.size(u)), np.cos(v))
-    
-    fig.add_trace(go.Surface(
-        x=x_earth, y=y_earth, z=z_earth,
-        colorscale='Blues', showscale=False, opacity=0.3,
-        name='Earth'
-    ))
+    add_sphere_trace(fig, radius=r_earth, name='Earth', opacity=0.3, resolution=50)
     
     # Draw Targets
     fig.add_trace(go.Scatter3d(

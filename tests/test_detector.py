@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from detector import makeDetector, DetectorArray
 from constants import DEGREE, ARCSEC
 

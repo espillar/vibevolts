@@ -1,6 +1,7 @@
-import numpy as np
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
+import numpy as np
+import plotly.graph_objects as go
 from astropy.coordinates import solar_system_ephemeris
 import detector
 from constants import *
@@ -12,25 +13,83 @@ from minimalsimulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
 from targets import add_fixed_points
 from observatories import add_observatories
+from plotting_3d import add_sphere_trace, apply_3d_scene_layout, tag_demo_figure
 
 
-def initialize_standard_simulation(start_time=None) -> Dict[str, Any]:
-    """
-    Initializes a standard simulation with a predefined set of satellites.
+FOUR_GEO_TLE_DATA = """SAT-1
+1 90401U 25007A   25210.50000000  .00000000  00000-0  00000-0 0  9991
+2 90401   0.0500  45.0000 0001000  90.0000  20.0000  1.00270000    11
+SAT-2
+1 90402U 25007B   25210.50000000  .00000000  00000-0  00000-0 0  9992
+2 90402   0.0500  45.0000 0001000  90.0000  60.0000  1.00270000    12
+SAT-3
+1 90403U 25007C   25210.50000000  .00000000  00000-0  00000-0 0  9993
+2 90403   0.0500  45.0000 0001000  90.0000 100.0000  1.00270000    13
+SAT-4
+1 90404U 25007D   25210.50000000  .00000000  00000-0  00000-0 0  9994
+2 90404   0.0500  45.0000 0001000  90.0000 140.0000  1.00270000    14
+"""
 
-    This function consolidates TLE data, initializes the main data structure,
-    and propagates satellites to their initial positions at the specified start
-    time. This ensures the returned simulation state is fully populated with
-    positions and radially-outward pointing vectors.
 
-    Args:
-        start_time: The timezone-aware datetime object for the simulation start.
+def get_sample_geo_tles(n: int = 4) -> str:
+    """Returns the first n satellites (3 lines each) from FOUR_GEO_TLE_DATA."""
+    lines = [line.strip() for line in FOUR_GEO_TLE_DATA.strip().splitlines() if line.strip()]
+    return "\n".join(lines[: 3 * n])
 
-    Returns:
-        The fully initialized and propagated simulation data dictionary.
-    """
-    # Consolidated TLE data from all demos
-    tle_data = """ISS (ZARYA)
+
+def set_exclusion_deg(
+    sim_data: Any,
+    solar: float = 30.0,
+    lunar: float = 15.0,
+    earth: float = 10.0,
+) -> None:
+    """Sets solar, lunar, and Earth exclusion angles (in degrees) on sim_data.detector."""
+    sim_data.detector.solarEx[:] = np.deg2rad(solar)
+    sim_data.detector.lunarEx[:] = np.deg2rad(lunar)
+    sim_data.detector.earthEx[:] = np.deg2rad(earth)
+
+
+def run_trajectory_demo(
+    tle_data: str,
+    time_steps: np.ndarray,
+    step_unit: str,
+    unit_label: str,
+    orbit_label: str,
+    title: str,
+    demo_name: str,
+    line_color: str,
+    marker_color: str,
+) -> go.Figure:
+    """Propagates a single satellite across time_steps and plots its 3D trajectory."""
+    sim_start_time = datetime(2025, 7, 27, 22, 27, 0, tzinfo=timezone.utc)
+    sim_data = create_empty_simulation(sim_start_time)
+    add_satellites_from_tle(sim_data, tle_data, 'satellites')
+    print(f"Initializing structures for {sim_data.counts.satellites} {orbit_label} satellite.")
+
+    positions = []
+    for step in time_steps:
+        prop_time = sim_start_time + timedelta(**{step_unit: int(step)})
+        sim_data = propagate_satellites(sim_data, prop_time)
+        sim_data.time = prop_time
+        positions.append(sim_data.satellites.position[0].copy())
+    positions_array = np.array(positions)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter3d(
+        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
+        mode='lines', line=dict(color=line_color, width=4), name='Trajectory'
+    ))
+    fig.add_trace(go.Scatter3d(
+        x=positions_array[:, 0], y=positions_array[:, 1], z=positions_array[:, 2],
+        mode='markers', marker=dict(size=5, color=marker_color),
+        text=[f'T={t} {unit_label}' for t in time_steps], hoverinfo='text', name='Time Steps'
+    ))
+    add_sphere_trace(fig, radius=EARTH_RADIUS, name='Earth')
+    apply_3d_scene_layout(fig, title, legend_title='Trace')
+    return tag_demo_figure(fig, demo_name)
+
+
+STANDARD_TLE_DATA = """ISS (ZARYA)
 1 25544U 98067A   25209.52203988  .00012111  00000+0  22159-3 0  9991
 2 25544  51.6412 254.9961 0006733  98.4322 261.6813 15.49493393462383
 NOAA 19
@@ -100,16 +159,29 @@ LEO-05
 1 90020U 25003E   25209.50000000  .00000000  00000-0  00000-0 0  9994
 2 90020  28.5000  10.0000 0010000  10.0000 100.0000 15.50000000    12
 """
-    dummy_tle_path = "standard_tle.txt"
-    with open(dummy_tle_path, "w") as f:
-        f.write(tle_data)
 
+
+def initialize_standard_simulation(start_time=None) -> Dict[str, Any]:
+    """
+    Initializes a standard simulation with a predefined set of satellites.
+
+    This function consolidates TLE data, initializes the main data structure,
+    and propagates satellites to their initial positions at the specified start
+    time. This ensures the returned simulation state is fully populated with
+    positions and radially-outward pointing vectors.
+
+    Args:
+        start_time: The timezone-aware datetime object for the simulation start.
+
+    Returns:
+        The fully initialized and propagated simulation data dictionary.
+    """
     if start_time is None:
         start_time = datetime.now(tz=timezone.utc)
 
     sim_data = create_empty_simulation(start_time)
 
-    add_satellites_from_tle(sim_data, dummy_tle_path, 'satellites')
+    add_satellites_from_tle(sim_data, STANDARD_TLE_DATA, 'satellites')
     add_observatories(sim_data, 0)
     add_celestial_bodies(sim_data)
     add_fixed_points(sim_data, 100)

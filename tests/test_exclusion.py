@@ -1,11 +1,9 @@
 import numpy as np
-import pytest
 from datetime import datetime, timezone
 from minimalsimulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies, celestial_update
 from targets import add_fixed_points
 from constellation import geos
-from constants import MOON_RADIUS, EARTH_RADIUS
 from exclusion import exclusion, update_exclusion_table
 
 def reference_update_exclusion_table(data_struct):

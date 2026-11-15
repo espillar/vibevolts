@@ -1,8 +1,9 @@
 
 import numpy as np
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from minimalsimulation import create_empty_simulation
 from propagation import add_satellites_from_tle
+from demo_common import STANDARD_TLE_DATA
 from targets import add_fixed_points
 from celestialbodies import add_celestial_bodies, celestial_update
 from cadenceController import initCadence, nextIntegration
@@ -20,9 +21,8 @@ def run_verification():
     start_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
     sim_data = create_empty_simulation(start_time)
     
-    # 2. Add Satellites (use a small number from a dummy TLE)
-    # Let's assume dummy_tle.txt has at least 4 satellites.
-    add_satellites_from_tle(sim_data, 'dummy_tle.txt', 'satellites')
+    # 2. Add Satellites
+    add_satellites_from_tle(sim_data, STANDARD_TLE_DATA, 'satellites')
     from propagation import propagate_satellites
     propagate_satellites(sim_data, sim_data.time, 'satellites')
     num_sats = sim_data.counts.satellites

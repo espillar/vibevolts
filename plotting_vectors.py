@@ -5,6 +5,7 @@ from typing import Dict, Any
 import plotly.graph_objects as go
 
 from constants import EARTH_RADIUS
+from plotting_3d import add_sphere_trace, add_vector_traces, apply_3d_scene_layout
 
 def plot_pointing_vectors(
     data_struct: Dict[str, Any],
@@ -32,41 +33,14 @@ def plot_pointing_vectors(
         name='Satellites'
     ))
 
-    vector_scale = 0.5 * EARTH_RADIUS
-    for i in range(num_sats):
-        start_point = sat_positions[i]
-        pointing_vec = np.zeros(3)
-        if sat_det is not None and i < len(sat_det.pointing):
-            pointing_vec = sat_det.pointing[i]
-        norm = np.linalg.norm(pointing_vec)
-        unit_vec = pointing_vec / norm if norm > 0 else np.array([0, 0, 0])
-        end_point = start_point + unit_vec * vector_scale
-        fig.add_trace(go.Scatter3d(
-            x=[start_point[0], end_point[0]],
-            y=[start_point[1], end_point[1]],
-            z=[start_point[2], end_point[2]],
-            mode='lines',
-            line=dict(color='red', width=3),
-            showlegend=False
-        ))
+    if sat_det is not None and len(sat_det.pointing) > 0:
+        add_vector_traces(
+            fig, sat_positions, sat_det.pointing[:num_sats],
+            scale=0.5 * EARTH_RADIUS, color='red', width=3,
+        )
 
-    u_sphere = np.linspace(0, 2 * np.pi, 100)
-    v_sphere = np.linspace(0, np.pi, 100)
-    x_earth = EARTH_RADIUS * np.outer(np.cos(u_sphere), np.sin(v_sphere))
-    y_earth = EARTH_RADIUS * np.outer(np.sin(u_sphere), np.sin(v_sphere))
-    z_earth = EARTH_RADIUS * np.outer(np.ones(np.size(u_sphere)), np.cos(v_sphere))
-    fig.add_trace(go.Surface(
-        x=x_earth, y=y_earth, z=z_earth,
-        colorscale='Blues', showscale=False, opacity=0.5, name='Earth'
-    ))
+    add_sphere_trace(fig, radius=EARTH_RADIUS, name='Earth')
 
-    fig.update_layout(
-        title=title,
-        scene=dict(
-            xaxis_title='X (m)', yaxis_title='Y (m)', zaxis_title='Z (m)',
-            aspectmode='data'
-        ),
-        margin=dict(r=20, b=10, l=10, t=40)
-    )
+    apply_3d_scene_layout(fig, title)
 
     return fig

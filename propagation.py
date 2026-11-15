@@ -1,56 +1,64 @@
 import numpy as np
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Tuple
+from typing import Any, List, Tuple
 from sgp4.api import Satrec
 from astropy.time import Time
-from astropy.coordinates import get_body, GCRS
-import astropy.units as u
 
 from constants import *
 
 
 
-def add_satellites_from_tle(sim_data: Any, tle_file_path: str, sat_category: str) -> None:
+def add_satellites_from_tle(
+    sim_data: Any,
+    tle_source: str,
+    sat_category: str = 'satellites',
+) -> None:
     """
-    Adds and initializes a category of satellites from a TLE file.
-    Note although the TLEs are loaded, positions etc. are not.
+    Adds and initializes a category of satellites from a TLE file path or
+    multi-line TLE string. Note although the TLEs are loaded, positions etc.
+    are not propagated yet.
 
     Args:
         sim_data: The main simulation data structure.
-        tle_file_path: Path to the TLE file.
+        tle_source: Path to a TLE file or raw multi-line TLE string.
         sat_category: The key for this satellite category (e.g., 'satellites').
 
     Data added to the sat_category element of sim_data:
-        position, velocity, acceleration, orbital_elements, epochs
+        position, velocity, orbital_elements, epochs, detector
     """
-    from detector import makeBlankDetector, appendDetector
-    orbital_elements, epochs = readtle(tle_file_path)
+    from detector import makeBlankDetector
+    orbital_elements, epochs = readtle(tle_source)
     num_sats = len(epochs)
 
     new_detector = makeBlankDetector(num_sats)
     sim_data[sat_category] = {
         'position': np.zeros((num_sats, 3), dtype=float),
         'velocity': np.zeros((num_sats, 3), dtype=float),
-        'acceleration': np.zeros((num_sats, 3), dtype=float),
         'orbital_elements': orbital_elements,
         'epochs': epochs,
         'detector': new_detector,
     }
 
-def readtle(tle_file_path: str) -> Tuple[np.ndarray, List[datetime]]:
+def readtle(tle_source: str) -> Tuple[np.ndarray, List[datetime]]:
     """
-    Reads a TLE file and extracts orbital elements and epochs for each satellite.
+    Reads TLE data from a file path or raw multi-line TLE string and extracts
+    orbital elements and epochs for each satellite.
 
     The array returned has the orbital elements in "canonical" order.
     """
+    if '\n' in tle_source or '\r' in tle_source:
+        raw_lines = tle_source.splitlines()
+    else:
+        with open(tle_source, 'r') as f:
+            raw_lines = f.readlines()
+
+    lines = [line.strip() for line in raw_lines if line.strip()]
     orbital_elements_list = []
     epochs_list = []
-    with open(tle_file_path, 'r') as f:
-        lines = f.readlines()
 
     for i in range(0, len(lines), 3):
-        line1 = lines[i+1].strip()
-        line2 = lines[i+2].strip()
+        line1 = lines[i+1]
+        line2 = lines[i+2]
 
         satellite = Satrec.twoline2rv(line1, line2)
 

@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-import pandas as pd
 from datetime import datetime, timezone, timedelta
 from dataHandling import DataHandler
 import plotly.graph_objects as go

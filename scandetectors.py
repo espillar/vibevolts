@@ -3,6 +3,7 @@ import numpy as np
 from lambertian import lambertiansphere, includedAngle
 import radiometry_calcs
 from constants import EARTH_RADIUS
+from exclusion import compute_exclusions
 
 
 def get_spherical_coords(arr: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -156,38 +157,23 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     hit_obs_pos = satpositions[sat_hit_idx]
     hit_toTargets_pre = toTargets[sat_hit_idx, target_hit_idx]
     hit_norms_pre = norms_toTargets[sat_hit_idx, target_hit_idx]
-    
-    u_hit_toTargets = hit_toTargets_pre / hit_norms_pre[:, np.newaxis]
-    obs_norms = np.linalg.norm(hit_obs_pos, axis=1)
-    valid_obs = obs_norms > 1e-9
-    
-    u_nadir = np.zeros_like(hit_obs_pos)
-    u_nadir[valid_obs] = -hit_obs_pos[valid_obs] / obs_norms[valid_obs, np.newaxis]
-    
-    cos_angle_to_nadir = np.sum(u_hit_toTargets * u_nadir, axis=1)
-    angle_to_nadir = np.arccos(np.clip(cos_angle_to_nadir, -1.0, 1.0))
-    
-    hit_earthEx = det_subset.earthEx[sat_hit_idx]
-    active_categories = sim_data.get_detector_categories(mask)
-    hit_categories = active_categories[sat_hit_idx]
-    
-    obs_is_ground = (hit_categories == 'observatories')
+    safe_hit_norms = np.where(hit_norms_pre == 0, 1.0, hit_norms_pre)
+    u_hit_toTargets = hit_toTargets_pre / safe_hit_norms[:, np.newaxis]
 
-    # Ground observatory horizon check: angle from zenith must be <= (90deg - min_elevation)
-    angle_to_zenith = np.pi - angle_to_nadir
-    max_zenith = np.pi / 2.0 - hit_earthEx
-    horizon_occluded = obs_is_ground & valid_obs & (angle_to_zenith > max_zenith)
-
-    # Spacecraft Earth limb check: angle to Earth center must be >= (apparent_radius + earthEx)
-    safe_obs_norms = np.where(obs_norms > EARTH_RADIUS, obs_norms, EARTH_RADIUS)
-    apparent_radius = np.where(
-        obs_norms > EARTH_RADIUS,
-        np.arcsin(EARTH_RADIUS / safe_obs_norms),
-        np.pi / 2.0
+    hit_is_ground = (
+        sim_data.get_detector_categories(mask)[sat_hit_idx] == 'observatories'
     )
-    limb_occluded = (~obs_is_ground) & valid_obs & (angle_to_nadir < (apparent_radius + hit_earthEx))
+    hit_earthEx = det_subset.earthEx[sat_hit_idx]
 
-    is_occluded = horizon_occluded | limb_occluded
+    is_occluded = compute_exclusions(
+        obs_pos=hit_obs_pos,
+        u_pointing=u_hit_toTargets[np.newaxis, :, :],
+        is_ground=hit_is_ground,
+        exclusion_angles=hit_earthEx[:, np.newaxis],
+        body_positions=np.zeros((1, 3), dtype=float),
+        body_radii=np.array([EARTH_RADIUS]),
+        use_arcsin=True,
+    )[0, :, 0]
 
     # Filter out occluded hits
     clear_hits = ~is_occluded
@@ -227,7 +213,7 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
     hit_aper = apertureArea[sat_hit_idx]
     hit_qe = qe[sat_hit_idx]
     hit_omega = pixelOmega[sat_hit_idx]
-    hit_photoEff = sim_data.detector.photoEff[mask][sat_hit_idx]
+    hit_photoEff = det_subset.photoEff[sat_hit_idx]
 
     signal = detectorFlux * hit_itime * hit_aper * hit_qe * hit_photoEff
     noise = np.sqrt(space * hit_itime * hit_aper * hit_omega * hit_qe)

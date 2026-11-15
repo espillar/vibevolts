@@ -8,8 +8,6 @@ from constants import (
     ORBITAL_E_IDX,
     ORBITAL_I_IDX,
     ORBITAL_RAAN_IDX,
-    ORBITAL_ARGP_IDX,
-    ORBITAL_M_IDX
 )
 
 def print_simulation_state(sim_data):
@@ -22,14 +20,6 @@ def print_simulation_state(sim_data):
     print("SIMULATION STATE REPORT")
     print(f"Time: {sim_data.time}")
     print("="*80)
-
-    # Build lookup array for detectors safely if detector is present
-    has_detectors = (hasattr(sim_data, 'detector') and sim_data.detector is not None and len(sim_data.detector.filt) > 0)
-    if has_detectors:
-        det_cat = np.array(sim_data.detector.category)
-        det_idx = sim_data.detector.asset_index
-    else:
-        det_cat, det_idx = np.array([]), np.array([])
 
     # 1. Satellites
     print("\n--- SATELLITES ---")

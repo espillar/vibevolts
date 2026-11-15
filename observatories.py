@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, Any
+from typing import Any
 
 def add_observatories(
     sim_data: Any,
@@ -28,35 +28,22 @@ def add_observatories(
     if altitudes is None:
         altitudes = np.zeros(num_observatories)
 
-    from detector import makeBlankDetector, appendDetector
-    detector = makeBlankDetector(num_observatories)
-
+    from detector import makeBlankDetector
     from minimalsimulation import ObservatoriesState
+
+    new_obs = ObservatoriesState(
+        latitude=np.array(latitudes, dtype=float),
+        longitude=np.array(longitudes, dtype=float),
+        altitude=np.array(altitudes, dtype=float),
+        position=np.zeros((num_observatories, 3), dtype=float),
+        velocity=np.zeros((num_observatories, 3), dtype=float),
+        detector=makeBlankDetector(num_observatories),
+    )
+
     if sim_data.observatories is not None and len(sim_data.observatories) > 0:
-        # Append to existing
-        existing = sim_data.observatories
-        existing.latitude = np.append(existing.latitude, np.array(latitudes, dtype=float))
-        existing.longitude = np.append(existing.longitude, np.array(longitudes, dtype=float))
-        existing.altitude = np.append(existing.altitude, np.array(altitudes, dtype=float))
-        existing.position = np.vstack([existing.position, np.zeros((num_observatories, 3), dtype=float)])
-        existing.velocity = np.vstack([existing.velocity, np.zeros((num_observatories, 3), dtype=float)])
-        existing.acceleration = np.vstack([existing.acceleration, np.zeros((num_observatories, 3), dtype=float)])
-        existing.pointing = np.vstack([existing.pointing, np.zeros((num_observatories, 3), dtype=float)])
-        if existing.detector is None:
-            existing.detector = detector
-        else:
-            appendDetector(existing.detector, detector)
+        sim_data.observatories.append(new_obs)
     else:
-        sim_data.observatories = ObservatoriesState(
-            latitude=np.array(latitudes, dtype=float),
-            longitude=np.array(longitudes, dtype=float),
-            altitude=np.array(altitudes, dtype=float),
-            position=np.zeros((num_observatories, 3), dtype=float),
-            velocity=np.zeros((num_observatories, 3), dtype=float),
-            acceleration=np.zeros((num_observatories, 3), dtype=float),
-            pointing=np.zeros((num_observatories, 3), dtype=float),
-            detector=detector,
-        )
+        sim_data.observatories = new_obs
 
     # Initial propagation of observatory positions to the current simulation time
     propagate_observatories(sim_data, sim_data.time)

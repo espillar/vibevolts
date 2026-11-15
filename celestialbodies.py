@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 from datetime import datetime
 from astropy.time import Time
 from astropy.coordinates import get_body, GCRS
@@ -15,7 +15,6 @@ def add_celestial_bodies(sim_data: Any) -> None:
     sim_data.celestial = {
         'position': np.zeros((2, 3), dtype=float),
         'velocity': np.zeros((2, 3), dtype=float),
-        'acceleration': np.zeros((2, 3), dtype=float),
     }
 
 def celestial_update(data_struct: Any, time_date: Optional[datetime] = None) -> Any:

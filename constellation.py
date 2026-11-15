@@ -1,19 +1,19 @@
+from typing import Any
 import numpy as np
-from datetime import datetime
-from typing import Dict, Any
-import math
-import random
-import sys
-import radiometry_data
-from radiometry_data import FILTER_DATA
-from constants import *
-from minimalsimulation import *
+
+from constants import (
+    ARCSEC,
+    GEO_RADIUS,
+    ORBITAL_A_IDX,
+    ORBITAL_RAAN_IDX,
+    POINTING_COUNT_IDX,
+    POINTING_PLACE_IDX,
+)
+from minimalsimulation import SatellitesState
 from pointing import generate_pointing_sphere
-from propagation import propagate_satellites # Added import
-from detector import makeBlankDetector, makeDetector
+from propagation import propagate_satellites
+from detector import makeDetector
 
-
-#########################################################
 
 def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) -> None:
     """
@@ -29,72 +29,41 @@ def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) 
         fov: The field of view diameter in radians.
         detect: The DetectorArray object configured for these satellites.
     """
-    # Calculate solid angle 
     theta = fov / 2
     solid_angle = 2 * np.pi * (1 - np.cos(theta))
-    
-    # Calculate grid_points - blow things up by 0.25 for overlap
     grid_points = int(4 * np.pi / solid_angle * 1.25)
 
-    # Generate and store the pointing sphere
     generate_pointing_sphere(sim_data, grid_points)
 
-    orbital_elements_list = []
-    epochs_list = []
-    pointing_state_list = []
+    orbital_elements = np.zeros((n, 6), dtype=float)
+    orbital_elements[:, ORBITAL_A_IDX] = GEO_RADIUS
+    orbital_elements[:, ORBITAL_RAAN_IDX] = np.arange(n) * 2 * np.pi / n
 
-    # Geostationary orbit semi-major axis in meters
-    a = GEO_RADIUS
+    epochs_list = [sim_data.get('time', sim_data.get('start_time'))] * n
 
-    # Create a set of elements evenly spaced around the equator
-    for i in range(n):
-        elements = np.zeros(6)
-        elements[ORBITAL_A_IDX] = a
-        elements[ORBITAL_E_IDX] = 0.0
-        elements[ORBITAL_I_IDX] = 0.0
-        elements[ORBITAL_RAAN_IDX] = i * 2 * np.pi / n
-        elements[ORBITAL_ARGP_IDX] = 0.0
-        elements[ORBITAL_M_IDX] = 0.0
-        orbital_elements_list.append(elements)
-        epochs_list.append(sim_data.get('time', sim_data.get('start_time')))
-   
-        pointing_state = np.zeros(2, dtype=int)
-        pointing_state[POINTING_COUNT_IDX] = grid_points
-        pointing_state[POINTING_PLACE_IDX] = random.randint(0, grid_points - 1)
-        pointing_state_list.append(pointing_state)
+    pointing_state = np.zeros((n, 2), dtype=int)
+    pointing_state[:, POINTING_COUNT_IDX] = grid_points
+    pointing_state[:, POINTING_PLACE_IDX] = np.random.randint(0, grid_points, size=n)
 
-    orbital_elements = np.array(orbital_elements_list, dtype=float)
-    pointing_state_array = np.array(pointing_state_list, dtype=int).T
-
-    from detector import appendDetector
-    
     detect.pointing = np.zeros((n, 3), dtype=float)
-    detect.pointing_state = pointing_state_array
+    detect.pointing_state = pointing_state
+
+    new_sats = SatellitesState(
+        position=np.zeros((n, 3), dtype=float),
+        velocity=np.zeros((n, 3), dtype=float),
+        orbital_elements=orbital_elements,
+        epochs=epochs_list,
+        detector=detect,
+    )
 
     if not sim_data.satellites:
-        sim_data.satellites = SatellitesState(
-            position=np.zeros((n, 3), dtype=float),
-            velocity=np.zeros((n, 3), dtype=float),
-            acceleration=np.zeros((n, 3), dtype=float),
-            orbital_elements=orbital_elements,
-            epochs=epochs_list,
-            detector=detect,
-        )
+        sim_data.satellites = new_sats
     else:
-        sat = sim_data.satellites
-        sat.position = np.vstack([sat.position, np.zeros((n, 3), dtype=float)])
-        sat.velocity = np.vstack([sat.velocity, np.zeros((n, 3), dtype=float)])
-        sat.acceleration = np.vstack([sat.acceleration, np.zeros((n, 3), dtype=float)])
-        sat.orbital_elements = np.vstack([sat.orbital_elements, orbital_elements])
-        sat.epochs.extend(epochs_list)
-        if sat.detector is None:
-            sat.detector = detect
-        else:
-            appendDetector(sat.detector, detect)
-    
-    sim_data = propagate_satellites(
+        sim_data.satellites.append(new_sats)
+
+    propagate_satellites(
         sim_data,
-        sim_data.time if sim_data.time is not None else sim_data.start_time
+        sim_data.time if sim_data.time is not None else sim_data.start_time,
     )
 
 
@@ -112,7 +81,7 @@ def geos(sim_data, n, fov) -> None:
         band="V",
         fov=fov,
         ifov=3.0 * ARCSEC,
-        aper=1.0
+        aper=1.0,
     )
     _add_geo_constellation_core(sim_data, n, fov, new_detector)
 
@@ -143,4 +112,3 @@ def geosmod(sim_data, n, band, fov, ifov, aper,
     itime = requiredIntegrationTime(limitingmag, snr, detect)
     detect.integrationTime[:] = itime
     _add_geo_constellation_core(sim_data, n, fov, detect)
-

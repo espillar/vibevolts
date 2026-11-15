@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from datetime import datetime, timezone
 from minimalsimulation import create_empty_simulation
 from celestialbodies import add_celestial_bodies
