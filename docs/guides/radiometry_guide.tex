@@ -50,22 +50,25 @@ As the reflected light propagates over distance $d$ to the observer, the flux sp
 \end{equation}
 
 \section{Step 4: Target Signal Collection}
-The total number of target signal photons $S$ collected by the sensor during the integration time $t$ is calculated in \texttt{scandetectors.py} as:
+The total number of target signal photons $S$ collected by the sensor during the integration time
+$t$ is calculated in \texttt{scandetectors.py} using \texttt{hits = det.subset(sat\_hit\_idx)}:
 \begin{equation}
     S = F_{\text{det}} \cdot t \cdot A \cdot \eta \cdot f \quad [\text{photons}]
 \end{equation}
 Where:
 \begin{itemize}
-    \item $t$: Integration (exposure) time in seconds (\texttt{integrationTime}).
-    \item $A$: Detector aperture entrance area in m$^2$ (\texttt{apertureArea}).
-    \item $\eta$: Overall system quantum efficiency (\texttt{qe}).
-    \item $f$: Photometric efficiency fraction inside the photometry bucket (\texttt{photoEff}).
+    \item $t$: Integration (exposure) time in seconds (\texttt{hits.integrationTime}).
+    \item $A$: Detector aperture entrance area in m$^2$ (\texttt{hits.apertureArea}).
+    \item $\eta$: Overall system quantum efficiency (\texttt{hits.qe}).
+    \item $f$: Photometric efficiency fraction in the photometry bucket (\texttt{hits.photoEff}).
 \end{itemize}
 
 \section{Step 5: Background Noise Collection}
-The background sky/space brightness $F_{\text{bg}}$ is given in photons/s/sr/m$^2$ (derived from the filter band's zero point and magnitudes per square arcsecond). 
+The background sky/space brightness $F_{\text{bg}}$ is given in photons/s/sr/m$^2$ (derived from
+the filter band's zero point and magnitudes per square arcsecond).
 
-Assuming background-dominated noise (shot noise), the background photons $B$ collected by a pixel of solid angle $\Omega$ (in steradians) is:
+Assuming background-dominated noise (shot noise), the background photons $B$ collected by a pixel
+of solid angle $\Omega$ in steradians (\texttt{hits.pixelOmega}) is:
 \begin{equation}
     B = F_{\text{bg}} \cdot t \cdot A \cdot \Omega \cdot \eta \quad [\text{photons}]
 \end{equation}
@@ -94,17 +97,17 @@ This is the corrected equation implemented in \texttt{detector.py}'s \texttt{req
 Variable & Code Representation & Description \\
 \midrule
 $F_{\text{sun}}$ & \texttt{sun} & Incident solar flux ($\text{photons}/\text{s}/\text{m}^2$) \\
-$R$ & \texttt{radius} & Radius of the sphere target ($\text{m}$) \\
-$a$ & \texttt{albedo} & Reflected fraction of target surface ($0.0 \dots 1.0$) \\
+$R$ & \texttt{fixedpoints.size[...] / 2} & Radius of the sphere target ($\text{m}$) \\
+$a$ & \texttt{fixedpoints.albedo[...]} & Reflected fraction of target surface ($0.0 \dots 1.0$) \\
 $\alpha$ & \texttt{angle\_light\_observer} & Phase angle ($\text{radians}$) \\
 $d$ & \texttt{hit\_norms} & Target-to-detector distance ($\text{m}$) \\
 $F_{\text{det}}$ & \texttt{detectorFlux} & Incident target flux on detector ($\text{photons}/\text{s}/\text{m}^2$) \\
-$A$ & \texttt{apertureArea} & Entrance aperture area ($\text{m}^2$) \\
-$t$ & \texttt{integrationTime} & Exposure time ($\text{seconds}$) \\
-$\eta$ & \texttt{qe} & System quantum efficiency ($0.0 \dots 1.0$) \\
-$f$ & \texttt{photoEff} / \texttt{photfrac} & Photometric bucket fraction ($0.0 \dots 1.0$) \\
+$A$ & \texttt{hits.apertureArea} & Entrance aperture area ($\text{m}^2$) \\
+$t$ & \texttt{hits.integrationTime} & Exposure time ($\text{seconds}$) \\
+$\eta$ & \texttt{hits.qe} & System quantum efficiency ($0.0 \dots 1.0$) \\
+$f$ & \texttt{hits.photoEff} / \texttt{photfrac} & Photometric bucket fraction ($0.0 \dots 1.0$) \\
 $F_{\text{bg}}$ & \texttt{space} / \texttt{sky} & Background sky radiance ($\text{photons}/\text{s}/\text{sr}/\text{m}^2$) \\
-$\Omega$ & \texttt{pixelOmega} & Pixel solid angle ($\text{steradians}$) \\
+$\Omega$ & \texttt{hits.pixelOmega} & Pixel solid angle ($\text{steradians}$) \\
 \bottomrule
 \end{tabular}
 \caption{Variable mappings between the mathematical equations and the python code.}

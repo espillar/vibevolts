@@ -4,8 +4,7 @@ import numpy as np
 
 from constants import ARCSEC, DEGREE
 from minimalsimulation import ComponentState
-from radiometry_data import FILTER_DATA
-from radiometry_calcs import amag
+from radiometry_calcs import FILTER_DATA, amag
 
 
 class DetectorArray(ComponentState):
@@ -61,12 +60,12 @@ class DetectorArray(ComponentState):
 
 
 def _set_detector_field(sim_data: Any, field: str, value: float) -> None:
-    if hasattr(sim_data, '_active_detector_components'):
-        active = sim_data._active_detector_components()
-        if active:
-            for _, comp in active:
-                arr = getattr(comp.detector, field)
-                setattr(comp.detector, field, np.full(len(arr), value))
+    if hasattr(sim_data, 'iter_detector_components'):
+        comps = list(sim_data.iter_detector_components())
+        if comps:
+            for _, _, det, _ in comps:
+                arr = getattr(det, field)
+                setattr(det, field, np.full(len(arr), value))
             return
     det = sim_data.detector if hasattr(sim_data, 'detector') else sim_data['detector']
     setattr(det, field, np.full(len(det.fov), value))
@@ -203,19 +202,3 @@ def appendDetector(cd: DetectorArray, new_cd: DetectorArray) -> None:
     in-place.
     """
     cd.append(new_cd)
-
-
-###########################################################
-
-def testdetector():
-    '''
-    testdetector creates an example that can be compared
-    with some of the stuff in Curio.
-    '''
-    detect = makeDetector(1, "V", 1 * DEGREE,
-                          2 * ARCSEC, 1,
-                          qe=0.2, photfrac=1.0)
-    print(requiredIntegrationTime(20.5, 10, detect, debug=1))
-
-if __name__ == '__main__':
-    testdetector()

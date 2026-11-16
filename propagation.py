@@ -107,7 +107,7 @@ def propagate_satellites(data_struct: Any, time_date: datetime, sat_category: st
     if sat_category:
         categories = [sat_category]
     elif hasattr(data_struct, 'counts') and data_struct.counts:
-        non_sat_keys = {'celestial', 'observatories', 'fixedpoints'}
+        non_sat_keys = {'celestial', 'observatories', 'fixedpoints', 'cislunar'}
         categories = [
             k for k, v in data_struct.counts.items()
             if k not in non_sat_keys and v > 0

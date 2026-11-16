@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Any
 from astropy.coordinates import EarthLocation, GCRS, AltAz, SkyCoord
 from astropy.time import Time
 import astropy.units as u
@@ -100,16 +101,60 @@ def print_simulation_state(sim_data):
         print(f"{'Category':<15} | {'Asset Idx':<9} | {'Solar Excl (deg)':<16} | {'Lunar Excl (deg)':<16} | {'Earth Excl (deg)':<16}")
         print("-" * 80)
         
-        num_sats = len(sim_data.satellites.detector.filt) if (sim_data.satellites and getattr(sim_data.satellites, 'detector', None)) else 0
-        for d_i in range(len(det.filt)):
-            cat = "satellites" if d_i < num_sats else "observatories"
-            a_idx = d_i if d_i < num_sats else (d_i - num_sats)
-            solar_ex = np.rad2deg(det.solarEx[d_i])
-            lunar_ex = np.rad2deg(det.lunarEx[d_i])
-            earth_ex = np.rad2deg(det.earthEx[d_i])
-            
-            print(f"{cat:<15} | {a_idx:<9} | {solar_ex:<16.2f} | {lunar_ex:<16.2f} | {earth_ex:<16.2f}")
+        for cat, _, comp_det, _ in sim_data.iter_detector_components():
+            for a_idx in range(len(comp_det.filt)):
+                solar_ex = np.rad2deg(comp_det.solarEx[a_idx])
+                lunar_ex = np.rad2deg(comp_det.lunarEx[a_idx])
+                earth_ex = np.rad2deg(comp_det.earthEx[a_idx])
+                print(f"{cat:<15} | {a_idx:<9} | {solar_ex:<16.2f} | {lunar_ex:<16.2f} | {earth_ex:<16.2f}")
     else:
         print("No detectors configured.")
         
     print("="*80 + "\n")
+
+
+def sim_check(sim_data: Any) -> None:
+    """
+    Validates and prints a diagnostic summary of the simulation data structure.
+
+    Checks key properties of the simulation state (start_time, delta_time,
+    pointing_spheres, celestial, satellites, and detector configurations).
+    """
+    print("========================================")
+    print("--- Simulation Data Check ---")
+    for label, attr in (('Start Time', 'start_time'), ('Delta Time', 'delta_time')):
+        val = getattr(sim_data, attr, None)
+        print(f"          {label}: {val}" if val is not None else f"*** {label}: Not found")
+
+    spheres = getattr(sim_data, 'pointing_spheres', None)
+    print(f"          Pointing Sphere Keys: {list(spheres.keys())}" if spheres else "*** Pointing Spheres: Not found or empty")
+
+    celestial = getattr(sim_data, 'celestial', None)
+    print(f"          Celestial Dictionary Keys: {list(celestial.keys())}" if celestial else "*** Celestial Dictionary: Not found or empty")
+
+    num_sats = getattr(getattr(sim_data, 'counts', None), 'satellites', 0)
+    if getattr(sim_data, 'satellites', None) and num_sats:
+        print(f"          Number of Satellites: {num_sats}")
+        pos = getattr(sim_data.satellites, 'position', None)
+        if pos is None:
+            print("*** Satellite positions not found.")
+        elif np.all(pos == 0):
+            print("*** Satellite positions are all zero.")
+        else:
+            print("          Satellite positions are not all zero.")
+
+        det = getattr(sim_data, 'detector', None)
+        if det:
+            for i in range(num_sats):
+                has_det = (
+                    (hasattr(det, 'apertureArea') and det.apertureArea[i] != 0)
+                    or (hasattr(det, 'pixelOmega') and det.pixelOmega[i] != 0)
+                    or (hasattr(det, 'qe') and det.qe[i] != 0)
+                )
+                print(f"            - Satellite {i} has a detector." if has_det else f"***         - Satellite {i} does not have a detector.")
+        else:
+            print("*** Detector information not found for satellites.")
+    else:
+        print("*** Satellites: Not found")
+
+    print("--- End of Check ---")

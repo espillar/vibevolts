@@ -4,6 +4,7 @@
 \usepackage{geometry}
 \geometry{margin=1in}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage{hyperref}
 
 \title{Exclusion and Visibility Geometry in VibeVolts}
@@ -15,115 +16,106 @@
 \maketitle
 
 \section{Introduction}
-This document details the geometric, vector, and angular calculations used in VibeVolts to determine whether a target point in space is visible to a satellite or ground-based observatory detector. 
-
-Visibility is subject to two conditions:
+This document details the geometric, vector, and angular calculations used in VibeVolts to
+determine whether a target point in space is visible to a satellite or ground-based observatory
+detector. Visibility is subject to two conditions:
 \begin{enumerate}
-    \item \textbf{Field-of-View (FOV) Check}: The target must lie within the sensor's conical field-of-view.
-    \item \textbf{Exclusion Checks}: The detector's view must not be obstructed by, or lie too close to, key celestial bodies (Sun, Moon, Earth).
+    \item \textbf{Field-of-View (FOV) Check}: The target must lie within the sensor's cone.
+    \item \textbf{Exclusion Checks}: The line of sight must clear celestial exclusion zones
+    (Sun, Moon, Earth limb) and local horizon limits for ground observatories.
 \end{enumerate}
 
----
-
 \section{Step 1: Coordinate Frame and Vectors}
-Let $\mathbf{x}_{\text{sat}}$ be the position of the observer (satellite or observatory) and $\mathbf{x}_{\text{targ}}$ be the position of the target, both represented in the Geocentric Celestial Reference System (GCRS).
-
-The pointing vector from the observer to the target is:
+Let $\mathbf{x}_{\text{obs}}$ be the observer position (satellite or observatory) and
+$\mathbf{x}_{\text{targ}}$ be the target position, both in GCRS. The vector to target is:
 \begin{equation}
-    \mathbf{v}_{\text{targ}} = \mathbf{x}_{\text{targ}} - \mathbf{x}_{\text{sat}} \quad [\text{meters}]
+    \mathbf{v}_{\text{targ}} = \mathbf{x}_{\text{targ}} - \mathbf{x}_{\text{obs}}
+    \quad [\text{meters}]
 \end{equation}
-
-The unit pointing vector is:
-\begin{equation}
-    \hat{\mathbf{v}}_{\text{targ}} = \frac{\mathbf{v}_{\text{targ}}}{\|\mathbf{v}_{\text{targ}}\|}
-\end{equation}
-If the distance $\|\mathbf{v}_{\text{targ}}\| < 10^{-9}$ meters, the target is considered co-located with the satellite and is automatically marked as excluded.
-
----
+and the unit pointing vector is
+$\hat{\mathbf{v}}_{\text{targ}} = \mathbf{v}_{\text{targ}} / \|\mathbf{v}_{\text{targ}}\|$.
+If $\|\mathbf{v}_{\text{targ}}\| < 10^{-9}$ m, the target is co-located and marked excluded.
 
 \section{Step 2: Field-of-View (FOV) Cone Check}
-Let $\hat{\mathbf{p}}$ be the unit vector representing the pointing direction of the detector, and let $\text{FOV}$ be the full-width angular diameter of the field-of-view in radians.
-
-The angle $\theta_{\text{targ}}$ between the detector pointing vector and the target direction is:
+Let $\hat{\mathbf{p}}$ be the unit pointing vector of the detector and $\text{FOV}$ be its
+full-width angular diameter in radians. A target is within the FOV if and only if:
 \begin{equation}
-    \theta_{\text{targ}} = \arccos(\hat{\mathbf{p}} \cdot \hat{\mathbf{v}}_{\text{targ}}) \quad [\text{radians}]
+    \theta_{\text{targ}} = \arccos(\hat{\mathbf{p}} \cdot \hat{\mathbf{v}}_{\text{targ}})
+    < \frac{\text{FOV}}{2}
 \end{equation}
-
-The target is within the detector's field of view if and only if:
-\begin{equation}
-    \theta_{\text{targ}} < \frac{\text{FOV}}{2}
-\end{equation}
-
----
 
 \section{Step 3: Apparent Angular Radii of Celestial Bodies}
-As viewed from the observer's position $\mathbf{x}_{\text{sat}}$, celestial bodies appear as disks with angular sizes that depend on their physical radii and their distance from the observer.
-
-Let $\mathbf{x}_{\text{body}}$ be the GCRS position of a celestial body (Sun, Moon, or Earth) and $R_{\text{body}}$ be its physical radius. The vector from the observer to the body is:
+For a celestial body at GCRS position $\mathbf{x}_{\text{body}}$ with radius $R_{\text{body}}$,
+the vector from the observer is
+$\mathbf{v}_{\text{body}} = \mathbf{x}_{\text{body}} - \mathbf{x}_{\text{obs}}$.
+In \texttt{exclusion.py}, \texttt{compute\_exclusions()} computes the apparent angular radius
+$\theta_{\text{body}}$ using either the small-angle tangent form (used by \texttt{exclusion()}
+and \texttt{update\_exclusion\_table()}) or exact spherical limb geometry when
+\texttt{use\_arcsin=True} (used by \texttt{scandetectors()} for Earth-limb occlusion):
 \begin{equation}
-    \mathbf{v}_{\text{body}} = \mathbf{x}_{\text{body}} - \mathbf{x}_{\text{sat}}
+    \theta_{\text{body}} =
+    \begin{cases}
+        \arcsin\!\left(\min\!\left(\dfrac{R_{\text{body}}}{\|\mathbf{v}_{\text{body}}\|},
+        1\right)\right), & \text{if } \texttt{use\_arcsin=True}, \\[1em]
+        \arctan\!\left(\dfrac{R_{\text{body}}}{\|\mathbf{v}_{\text{body}}\|}\right),
+        & \text{otherwise.}
+    \end{cases}
 \end{equation}
-And the unit vector is $\hat{\mathbf{v}}_{\text{body}} = \mathbf{v}_{\text{body}} / \|\mathbf{v}_{\text{body}}\|$.
-
-The apparent angular radius $\theta_{\text{body}}$ of the body as seen by the observer is:
-\begin{equation}
-    \theta_{\text{body}} = \arctan\left(\frac{R_{\text{body}}}{\|\mathbf{v}_{\text{body}}\|}\right) \quad [\text{radians}]
-\end{equation}
-
-In VibeVolts, the physical parameters and apparent radii calculations are:
-\begin{itemize}
-    \item \textbf{Sun:} Modeled as a point source for simplicity:
-    \begin{equation}
-        \theta_{\text{Sun}} = 0.0 \quad [\text{radians}]
-    \end{equation}
-    \item \textbf{Moon:} Using physical Moon radius $R_{\text{Moon}} \approx 1,737,400\text{ m}$:
-    \begin{equation}
-        \theta_{\text{Moon}} = \arctan\left(\frac{R_{\text{Moon}}}{\|\mathbf{v}_{\text{Moon}}\|}\right)
-    \end{equation}
-    \item \textbf{Earth:} Center is at GCRS origin $[0,0,0]$, so $\mathbf{v}_{\text{Earth}} = -\mathbf{x}_{\text{sat}}$. Using equatorial radius $R_{\text{Earth}} \approx 6,378,137\text{ m}$:
-    \begin{equation}
-        \theta_{\text{Earth}} = \arctan\left(\frac{R_{\text{Earth}}}{\|\mathbf{x}_{\text{sat}}\|}\right)
-    \end{equation}
-\end{itemize}
-
----
+Physical radii used are $R_{\text{Sun}} = 0$ (point source),
+$R_{\text{Moon}} \approx 1{,}737{,}400\text{ m}$, and
+$R_{\text{Earth}} \approx 6{,}378{,}137\text{ m}$ centered at $[0,0,0]$.
 
 \section{Step 4: Exclusion Angle Check}
-To protect sensitive optics from bright sources, a target observation is excluded if the line of sight passes too close to the limb (edge) of a celestial body.
-
-Let $\psi_{\text{body}}$ be the angular separation between the target direction and the celestial body center:
-\begin{equation}
-    \psi_{\text{body}} = \arccos(\hat{\mathbf{v}}_{\text{targ}} \cdot \hat{\mathbf{v}}_{\text{body}}) \quad [\text{radians}]
-\end{equation}
-
-Let $\theta_{\text{limit}}$ be the exclusion safety angle specified for the detector (e.g. \texttt{solarEx}, \texttt{lunarEx}, \texttt{earthEx} in radians). The angle between the target line-of-sight and the limb of the body is $\psi_{\text{body}} - \theta_{\text{body}}$.
-
-The view is **excluded** (obstructed or blinded) if:
+Let $\psi_{\text{body}} = \arccos(\hat{\mathbf{p}} \cdot \hat{\mathbf{v}}_{\text{body}})$ be
+the angular separation between the line of sight and the body center, and $\theta_{\text{limit}}$
+be the detector exclusion angle (\texttt{solarEx}, \texttt{lunarEx}, \texttt{earthEx} in radians).
+For space-based detectors (and for Sun/Moon checks generally), the direction is excluded if:
 \begin{equation}
     \psi_{\text{body}} - \theta_{\text{body}} < \theta_{\text{limit}}
 \end{equation}
 
-If this inequality holds for the Sun, Moon, or Earth, the target is excluded from observation.
+\section{Step 5: Ground Observatory Horizon Check \& Unified Packing}
+For ground-based observatories (\texttt{is\_ground = True}), \texttt{compute\_exclusions()}
+replaces the final body check (Earth limb) with a local-horizon elevation check. Using the
+local zenith unit vector $\hat{\mathbf{z}} = \mathbf{x}_{\text{obs}} / \|\mathbf{x}_{\text{obs}}\|$
+and minimum elevation $\theta_{\text{min}} = \texttt{earthEx}$, a direction $\hat{\mathbf{p}}$ is
+excluded when its zenith angle exceeds $\frac{\pi}{2} - \theta_{\text{min}}$:
+\begin{equation}
+    \arccos(\hat{\mathbf{p}} \cdot \hat{\mathbf{z}}) > \frac{\pi}{2} - \theta_{\text{min}}
+\end{equation}
 
----
+To eliminate duplicated state unpacking across callers, \texttt{check\_sim\_exclusions()}
+in \texttt{exclusion.py} packs \texttt{obs\_pos}, \texttt{is\_ground}, \texttt{exclusion\_angles},
+and celestial \texttt{body\_positions}/\texttt{body\_radii} once from \texttt{sim\_data} and
+delegates to \texttt{compute\_exclusions()} for \texttt{exclusion()},
+\texttt{update\_exclusion\_table()}, and \texttt{scandetectors()} (with \texttt{earth\_only=True}).
 
 \section{Summary of Variable Definitions}
 \begin{table}[h]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lll}
 \toprule
 Variable & Code Representation & Description \\
 \midrule
-$\mathbf{x}_{\text{sat}}$ & \texttt{sat\_pos} / \texttt{satposition} & Observer GCRS position vector (m) \\
+$\mathbf{x}_{\text{obs}}$ & \texttt{obs\_pos} & Observer GCRS position vector (m) \\
 $\mathbf{x}_{\text{targ}}$ & \texttt{targets} & Target GCRS position vector (m) \\
-$\hat{\mathbf{p}}$ & \texttt{pointing} & Sensor pointing direction unit vector \\
+$\hat{\mathbf{p}}$ & \texttt{pointing} / \texttt{u\_pointing} &
+Unit line-of-sight pointing vector \\
+\texttt{is\_ground} & \texttt{get\_detector\_categories() == 'observatories'} &
+Boolean mask for ground observatories \\
 $\text{FOV}$ & \texttt{fov} & Sensor full field-of-view (rad) \\
-$\mathbf{v}_{\text{body}}$ & \texttt{vecs\_to\_bodies} & Vector from observer to celestial body center (m) \\
-$\theta_{\text{body}}$ & \texttt{apparent\_radii} & Apparent angular radius of celestial body (rad) \\
-$\theta_{\text{limit}}$ & \texttt{solarEx}, \texttt{lunarEx}, \texttt{earthEx} & Detector exclusion safety angles (rad) \\
-$\psi_{\text{body}}$ & \texttt{angles} & Separation angle between target and body center (rad) \\
+$\mathbf{v}_{\text{body}}$ & \texttt{vecs\_to\_bodies} &
+Vector from observer to body center (m) \\
+$\theta_{\text{body}}$ & \texttt{apparent\_radii} &
+Apparent angular radius of body (rad) \\
+$\theta_{\text{limit}}$ & \texttt{solarEx}, \texttt{lunarEx}, \texttt{earthEx} &
+Detector exclusion / horizon angles (rad) \\
+$\psi_{\text{body}}$ & \texttt{angles} &
+Separation angle between LOS and body center (rad) \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \caption{Exclusion parameter and code variable mappings.}
 \end{table}
 

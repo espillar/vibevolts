@@ -56,10 +56,7 @@ def _add_geo_constellation_core(sim_data: Any, n: int, fov: float, detect: Any) 
         detector=detect,
     )
 
-    if not sim_data.satellites:
-        sim_data.satellites = new_sats
-    else:
-        sim_data.satellites.append(new_sats)
+    sim_data.add_component('satellites', new_sats)
 
     propagate_satellites(
         sim_data,

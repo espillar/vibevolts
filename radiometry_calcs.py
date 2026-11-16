@@ -1,173 +1,61 @@
 import math
-import scipy.integrate
 import scipy.constants as const
-import numpy as np
-import plotly.graph_objects as go
-from radiometry_data import *
 from constants import ARCSEC
 
-def fluxes(band):
-    """
-    Uses the FILTER_DATA table from radiometry_data.py to look up
-    flux parameters for a given astronomical filter band (e.g. 'U', 'B', 'V').
 
-    Args:
-        band (str): The filter band name.
+# --- Physical Constants ---
+AU_M = const.au
+RSUN_M = 6.957e8
 
-    Returns:
-        tuple[float, float, float]:
-            - sun: Solar flux at Earth in photons / s / m²
-            - space: Background flux in space in photons / s / sr / m²
-            - sky: Sky background flux at Earth in photons / s / sr / m²
-    """
-    x = FILTER_DATA[band]
-    zp = x['zero_point']
-    sun_mag = x.get('sun')
-    sun = amag(sun_mag) * zp if sun_mag is not None else 0.0
 
-    space_mag = x.get('space', x.get('sky'))
-    space = amag(space_mag) * zp / (ARCSEC**2) if space_mag is not None else 0.0
+# --- Filter Photometric Data ---
+# Magnitudes are apparent magnitudes; sky/space are mag / arcsec^2;
+# wavelengths/bandwidths in nm; zero_point in photons / s / m^2.
+FILTER_DATA = {
+    'U': {'sun': -26.03, 'sky': 22.0, 'space': 22.9, 'central_wavelength': 365.0, 'bandwidth': 66.0, 'zero_point': 4.96e9},
+    'B': {'sun': -26.13, 'sky': 22.7, 'space': 23.3, 'central_wavelength': 445.0, 'bandwidth': 94.0, 'zero_point': 1.36e10},
+    'V': {'sun': -26.78, 'sky': 21.9, 'space': 23.0, 'central_wavelength': 551.0, 'bandwidth': 88.0, 'zero_point': 8.79e9},
+    'R': {'sun': -27.11, 'sky': 21.0, 'space': 22.0, 'central_wavelength': 658.0, 'bandwidth': 138.0, 'zero_point': 9.74e9},
+    'I': {'sun': -27.47, 'sky': 20.0, 'space': 21.2, 'central_wavelength': 806.0, 'bandwidth': 149.0, 'zero_point': 7.11e9},
+    'J': {'sun': -27.91, 'sky': 16.0, 'space': 21.5, 'central_wavelength': 1235.0, 'bandwidth': 162.0, 'zero_point': 3.15e9},
+    'H': {'sun': -28.25, 'sky': 14.0, 'space': 20.5, 'central_wavelength': 1646.0, 'bandwidth': 251.0, 'zero_point': 2.35e9},
+    'K': {'sun': -28.29, 'sky': 13.0, 'space': 19.5, 'central_wavelength': 2159.0, 'bandwidth': 262.0, 'zero_point': 1.17e9},
+    'g': {'sun': -26.47, 'sky': 21.8, 'space': 23.0, 'central_wavelength': 477.0, 'bandwidth': 137.9, 'zero_point': 1.582e10},
+    'r': {'sun': -26.93, 'sky': 20.8, 'space': 22.2, 'central_wavelength': 623.1, 'bandwidth': 138.2, 'zero_point': 1.214e10},
+    'i': {'sun': -27.05, 'sky': 20.2, 'space': 21.5, 'central_wavelength': 762.5, 'bandwidth': 153.5, 'zero_point': 1.103e10},
+    'z': {'sun': -27.07, 'sky': 19.0, 'space': 20.8, 'central_wavelength': 913.4, 'bandwidth': 140.9, 'zero_point': 8.455e9},
+    'L': {'sun': None, 'sky': 3.5, 'space': 20.0, 'central_wavelength': 3500.0, 'bandwidth': 600.0, 'zero_point': 9.4e9},
+    'M': {'sun': None, 'sky': 0.0, 'space': 19.0, 'central_wavelength': 4800.0, 'bandwidth': 600.0, 'zero_point': 6.8e9},
+    'N': {'sun': None, 'sky': -6.0, 'space': 17.0, 'central_wavelength': 10200.0, 'bandwidth': 5000.0, 'zero_point': 2.7e10},
+    'F560W': {'sun': None, 'sky': 24.4, 'central_wavelength': 5600.0, 'bandwidth': 1000.0, 'zero_point': 9.78e9},
+    'F770W': {'sun': None, 'sky': 24.4, 'central_wavelength': 7700.0, 'bandwidth': 1950.0, 'zero_point': 1.39e10},
+    'F1000W': {'sun': None, 'sky': 23.6, 'central_wavelength': 10000.0, 'bandwidth': 1800.0, 'zero_point': 9.86e9},
+    'F1500W': {'sun': None, 'sky': 21.9, 'central_wavelength': 15000.0, 'bandwidth': 2940.0, 'zero_point': 1.08e10},
+    'F2550W': {'sun': None, 'sky': 19.4, 'central_wavelength': 25500.0, 'bandwidth': 4050.0, 'zero_point': 8.70e9},
+}
 
-    sky_mag = x.get('sky')
-    sky = amag(sky_mag) * zp / (ARCSEC**2) if sky_mag is not None else 0.0
-
-    return (sun, space, sky)
-    
 
 def mag(x: float) -> float:
-    """
-    Calculates a magnitude value from a linear ratio.
-    Uses the formula: magnitude = -2.5 * log10(ratio)
-    """
+    """Converts a linear flux ratio into a stellar magnitude."""
     if x <= 0:
         raise ValueError("Input for mag() must be positive.")
     return -2.5 * math.log10(x)
 
+
 def amag(x: float) -> float:
+    """Converts a stellar magnitude into a linear flux ratio."""
+    return 10 ** (-0.4 * x)
+
+
+def fluxes(band: str) -> tuple[float, float, float]:
     """
-    Calculates the linear ratio from a magnitude value.
-    This is the inverse of the mag() function.
-    Uses the formula: ratio = 10**(-0.4 * magnitude)
+    Returns (sun, space, sky) photon fluxes for a filter band:
+    sun in photons/s/m^2, space and sky in photons/s/sr/m^2.
     """
-    return 10**(-0.4 * x)
-
-
-def _planck_law(wav_m: float, temp_k: float) -> float:
-    """
-    Helper function for Planck's law for spectral radiance.
-    Args:
-        wav_m: Wavelength in meters.
-        temp_k: Temperature in Kelvin.
-    Returns:
-        Spectral radiance in W / (m^2 * sr * m).
-    """
-    if wav_m <= 0:
-        return 0.0
-    exponent = (const.h * const.c) / (wav_m * const.k * temp_k)
-    if exponent > 700:
-        return 0.0
-    numerator = 2.0 * const.h * const.c**2
-    denominator = (wav_m**5) * (math.expm1(exponent))
-    if denominator == 0:
-        return 0.0
-    return numerator / denominator
-
-def blackbody_flux(
-    temperature: float,
-    lambda_short: float,
-    lambda_long: float
-) -> float:
-    """
-    Numerically computes the integrated spectral radiance of
-    a blackbody over a given wavelength band.
-
-    Requires the scipy library.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-        lambda_short: The short wavelength of the band in microns.
-        lambda_long: The long wavelength of the band in microns.
-
-    Returns:
-        The integrated spectral radiance in units of
-        Watts / (m^2 * steradian).
-    """
-    if lambda_short >= lambda_long:
-        raise ValueError("lambda_short must be less than lambda_long.")
-    lambda_short_m = lambda_short * 1e-6
-    lambda_long_m = lambda_long * 1e-6
-    integrated_radiance, _ = scipy.integrate.quad(
-        lambda wav: _planck_law(wav, temperature),
-        lambda_short_m,
-        lambda_long_m
-    )
-    return integrated_radiance
-
-def stefan_boltzmann_law(temperature: float) -> float:
-    """
-    Calculates the total power radiated per unit area by a
-    blackbody using the Stefan-Boltzmann law.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-
-    Returns:
-        The total radiated power per unit area in W / m^2.
-    """
-    return const.sigma * (temperature**4)
-
-def plot_blackbody_spectrum(temperature: float):
-    """
-    Plots the spectral radiance of a blackbody from
-    0.5 to 30 microns.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-    """
-    wavelengths_microns = np.geomspace(0.5, 30, 500)
-    wavelengths_m = wavelengths_microns * 1e-6
-    spectral_radiance = [_planck_law(w, temperature) * 1e-6 for w in wavelengths_m]
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=wavelengths_microns,
-        y=spectral_radiance,
-        mode='lines',
-        name=f'{temperature} K Blackbody'
-    ))
-    fig.update_layout(
-        title_text=f'Blackbody Spectrum ({temperature} K)',
-        xaxis_title="Wavelength (microns)",
-        yaxis_title="Spectral Radiance (W / m^2 / sr / micron)",
-        xaxis_type="log",
-        yaxis_type="log",
-        template="plotly_white"
-    )
-    fig.show()
-
-def plot_blackbody_spectrum_visible_nir(temperature: float):
-    """
-    Plots the spectral radiance of a blackbody from
-    0.1 to 1 micron.
-
-    Args:
-        temperature: The temperature of the blackbody in Kelvin.
-    """
-    wavelengths_microns = np.linspace(0.1, 1.0, 500)
-    wavelengths_m = wavelengths_microns * 1e-6
-    spectral_radiance = [_planck_law(w, temperature) * 1e-6 for w in wavelengths_m]
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=wavelengths_microns,
-        y=spectral_radiance,
-        mode='lines',
-        name=f'{temperature} K Blackbody'
-    ))
-    fig.update_layout(
-        title_text=f'Blackbody Spectrum ({temperature} K) - Visible/NIR',
-        xaxis_title="Wavelength (microns)",
-        yaxis_title="Spectral Radiance (W / m^2 / sr / micron)",
-        template="plotly_white"
-    )
-    fig.show()
-
-
+    x = FILTER_DATA[band]
+    zp = x['zero_point']
+    sun = amag(x['sun']) * zp if x.get('sun') is not None else 0.0
+    space_mag = x.get('space', x.get('sky'))
+    space = amag(space_mag) * zp / (ARCSEC**2) if space_mag is not None else 0.0
+    sky = amag(x['sky']) * zp / (ARCSEC**2) if x.get('sky') is not None else 0.0
+    return (sun, space, sky)

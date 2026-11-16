@@ -2,8 +2,7 @@
 import numpy as np
 from lambertian import lambertiansphere, includedAngle
 import radiometry_calcs
-from constants import EARTH_RADIUS
-from exclusion import compute_exclusions
+from exclusion import check_sim_exclusions
 
 
 def get_spherical_coords(arr: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -102,23 +101,13 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
 
     # Subset observer positions and detector properties cleanly
     satpositions = sim_data.get_detector_positions(mask)
-    det_subset = all_detectors.subset(mask)
+    det = all_detectors.subset(mask)
 
-    detectorVect = det_subset.pointing
-    fovs = det_subset.fov
-    integrationTime = det_subset.integrationTime
-    apertureArea = det_subset.apertureArea
-    pixelOmega = det_subset.pixelOmega
-    qe = det_subset.qe
-    
     # Target and celestial data
     targets = sim_data.fixedpoints.position
     sunVect = sim_data.celestial.position[0]
-    albedo = sim_data.fixedpoints.albedo
-    radius = sim_data.fixedpoints.size / 2
 
     # 2. Background Flux Calculation
-    # Assuming same filter for active group (as per existing TODO)
     filter_name = sim_data.detector.filt[active_indices[0]]
     sun, space, sky = radiometry_calcs.fluxes(filter_name)
 
@@ -127,96 +116,64 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
         print(f'sun, space, sky \n    {sun:.3e}, {space:.3e}, {sky:.3e}')
 
     # 3. Visibility Determination (Vectorized Geometry)
-    # toTargets shape: (num_active_sats, num_targets, 3)
     toTargets = targets[np.newaxis, :, :] - satpositions[:, np.newaxis, :]
-    
-    # Calculate norms for normalization and distance
     norms_toTargets = np.linalg.norm(toTargets, axis=2)
     norms_toTargets_safe = np.where(norms_toTargets == 0, 1.0, norms_toTargets)
-    
-    # Normalized vectors from sats to targets
     normalized_toTargets = toTargets / norms_toTargets_safe[:, :, np.newaxis]
-    
-    # Vectorized dot product for angles: (num_active_sats, num_targets)
-    # Subscripts: s=detector, t=target, i=xyz.  Contracts over i.
-    dot_products = np.einsum('si,sti->st', detectorVect, normalized_toTargets)
+
+    dot_products = np.einsum('si,sti->st', det.pointing, normalized_toTargets)
     angles = np.arccos(np.clip(dot_products, -1.0, 1.0))
 
-    # Apply FOV mask: (num_active_sats, num_targets)
-    # fov is the full field-of-view diameter; a target is visible
-    # when its angular offset from boresight is less than fov / 2.
-    visible_mask = angles < (fovs[:, np.newaxis] / 2)
+    visible_mask = angles < (det.fov[:, np.newaxis] / 2)
     sat_hit_idx, target_hit_idx = np.where(visible_mask)
-    
+
     if len(sat_hit_idx) == 0:
         if print_output:
             print("No targets visible to active detectors.")
         return results
 
     # 3.5 Occlusion Filter (Earth Limb & Horizon)
-    hit_obs_pos = satpositions[sat_hit_idx]
-    hit_toTargets_pre = toTargets[sat_hit_idx, target_hit_idx]
     hit_norms_pre = norms_toTargets[sat_hit_idx, target_hit_idx]
-    safe_hit_norms = np.where(hit_norms_pre == 0, 1.0, hit_norms_pre)
-    u_hit_toTargets = hit_toTargets_pre / safe_hit_norms[:, np.newaxis]
-
-    hit_is_ground = (
-        sim_data.get_detector_categories(mask)[sat_hit_idx] == 'observatories'
-    )
-    hit_earthEx = det_subset.earthEx[sat_hit_idx]
-
-    is_occluded = compute_exclusions(
-        obs_pos=hit_obs_pos,
+    u_hit_toTargets = toTargets[sat_hit_idx, target_hit_idx] / np.where(
+        hit_norms_pre == 0, 1.0, hit_norms_pre
+    )[:, np.newaxis]
+    is_occluded = check_sim_exclusions(
+        sim_data,
         u_pointing=u_hit_toTargets[np.newaxis, :, :],
-        is_ground=hit_is_ground,
-        exclusion_angles=hit_earthEx[:, np.newaxis],
-        body_positions=np.zeros((1, 3), dtype=float),
-        body_radii=np.array([EARTH_RADIUS]),
+        mask=active_indices[sat_hit_idx],
+        earth_only=True,
         use_arcsin=True,
     )[0, :, 0]
 
-    # Filter out occluded hits
     clear_hits = ~is_occluded
     sat_hit_idx = sat_hit_idx[clear_hits]
     target_hit_idx = target_hit_idx[clear_hits]
-    
+
     if len(sat_hit_idx) == 0:
         if print_output:
             print("No targets visible (all occluded) to active detectors.")
         return results
 
     # 4. Detector Flux Calculation (Vectorized Radiometry)
-    # Subset data for specific detector-target pairs (hits)
     hit_toTargets = toTargets[sat_hit_idx, target_hit_idx]
     hit_norms = norms_toTargets[sat_hit_idx, target_hit_idx]
-    hit_albedo = albedo[target_hit_idx]
-    hit_radius = radius[target_hit_idx]
-    
-    # Lambertian Phase Angle Calculation
-    vec_from_sphere_to_observer = -hit_toTargets
-    vec_from_sphere_to_light = np.tile(sunVect, (len(sat_hit_idx), 1))
-    
-    angle_light_observer = includedAngle(vec_from_sphere_to_light, vec_from_sphere_to_observer)
+    hits = det.subset(sat_hit_idx)
 
+    angle_light_observer = includedAngle(
+        np.tile(sunVect, (len(sat_hit_idx), 1)), -hit_toTargets
+    )
     target_brightness = lambertiansphere(
         angle_light_observer,
-        hit_albedo,
-        hit_radius,
+        sim_data.fixedpoints.albedo[target_hit_idx],
+        sim_data.fixedpoints.size[target_hit_idx] / 2,
         sun,
-        debug=0 
+        debug=0,
     )
-
     detectorFlux = target_brightness / (np.pi * hit_norms ** 2)
 
     # 5. SNR Calculation
-    hit_itime = integrationTime[sat_hit_idx]
-    hit_aper = apertureArea[sat_hit_idx]
-    hit_qe = qe[sat_hit_idx]
-    hit_omega = pixelOmega[sat_hit_idx]
-    hit_photoEff = det_subset.photoEff[sat_hit_idx]
-
-    signal = detectorFlux * hit_itime * hit_aper * hit_qe * hit_photoEff
-    noise = np.sqrt(space * hit_itime * hit_aper * hit_omega * hit_qe)
+    signal = detectorFlux * hits.integrationTime * hits.apertureArea * hits.qe * hits.photoEff
+    noise = np.sqrt(space * hits.integrationTime * hits.apertureArea * hits.pixelOmega * hits.qe)
     snr = signal / noise
 
     # 6. Output/Storage
@@ -224,7 +181,7 @@ def scandetectors(sim_data: dict, print_output: int = 0, mask: np.ndarray = None
         for k in range(len(sat_hit_idx)):
             i = active_indices[sat_hit_idx[k]]
             j = target_hit_idx[k]
-            print(f"Sat {i} (itime={hit_itime[k]:.1f}s) detects Target {j}:")
+            print(f"Sat {i} (itime={hits.integrationTime[k]:.1f}s) detects Target {j}:")
             print(f"  Signal: {signal[k]:12.3e} | Noise: {noise[k]:12.3e} | SNR: {snr[k]:12.3e}")
 
     results.update({

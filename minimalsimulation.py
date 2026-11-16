@@ -44,6 +44,14 @@ class ComponentState(DotDict):
     Base class for component sub-states stored as parallel NumPy arrays and lists
     indexed along axis 0 by asset count N.
     """
+    _DEFAULTS: dict = {}
+
+    def __init__(self, **kwargs):
+        defaults = {
+            k: (v() if callable(v) else v)
+            for k, v in self._DEFAULTS.items()
+        }
+        super().__init__(**{**defaults, **kwargs})
 
     def __len__(self) -> int:
         for val in self.values():
@@ -94,6 +102,7 @@ class CountsState(DotDict):
         super().__init__(
             celestial=0,
             satellites=0,
+            cislunar=0,
             observatories=0,
             fixedpoints=0,
             **kwargs,
@@ -113,46 +122,41 @@ class CountsState(DotDict):
             return count
         return super().__getitem__(item)
 
-    def __contains__(self, item):
-        return super().__contains__(item) or self._live_count(item) is not None
-
-    def items(self):
-        return [(k, self[k]) for k in self.keys()]
-
-    def values(self):
-        return [self[k] for k in self.keys()]
-
 
 class CelestialState(ComponentState):
-    def __init__(self, **kwargs):
-        defaults = {
-            'position': np.zeros((2, 3)),
-            'velocity': np.zeros((2, 3)),
-        }
-        super().__init__(**{**defaults, **kwargs})
+    _DEFAULTS = {
+        'position': lambda: np.zeros((2, 3)),
+        'velocity': lambda: np.zeros((2, 3)),
+    }
 
 
 class SatellitesState(ComponentState):
-    def __init__(self, **kwargs):
-        defaults = {
-            'position': np.zeros((0, 3)),
-            'velocity': np.zeros((0, 3)),
-            'orbital_elements': np.zeros((0, 6)),
-            'epochs': [],
-            'detector': None,
-        }
-        super().__init__(**{**defaults, **kwargs})
+    _DEFAULTS = {
+        'position': lambda: np.zeros((0, 3)),
+        'velocity': lambda: np.zeros((0, 3)),
+        'orbital_elements': lambda: np.zeros((0, 6)),
+        'epochs': list,
+        'detector': None,
+    }
+
+
+class CislunarState(ComponentState):
+    _DEFAULTS = {
+        'position': lambda: np.zeros((0, 3)),
+        'velocity': lambda: np.zeros((0, 3)),
+        'cr3bp_states': lambda: np.zeros((0, 6)),
+        'epochs': list,
+        'detector': None,
+    }
 
 
 class FixedPointsState(ComponentState):
-    def __init__(self, **kwargs):
-        defaults = {
-            'position': np.zeros((0, 3)),
-            'exclusion': np.zeros((0,)),
-            'size': np.zeros((0,)),
-            'albedo': np.zeros((0,)),
-        }
-        super().__init__(**{**defaults, **kwargs})
+    _DEFAULTS = {
+        'position': lambda: np.zeros((0, 3)),
+        'exclusion': lambda: np.zeros((0,)),
+        'size': lambda: np.zeros((0,)),
+        'albedo': lambda: np.zeros((0,)),
+    }
 
     def add_target(self, position: np.ndarray, size: float, albedo: float = 0.2) -> None:
         pos = np.asarray(position, dtype=float).reshape(-1, 3)
@@ -164,16 +168,14 @@ class FixedPointsState(ComponentState):
 
 
 class ObservatoriesState(ComponentState):
-    def __init__(self, **kwargs):
-        defaults = {
-            'position': np.zeros((0, 3)),
-            'velocity': np.zeros((0, 3)),
-            'latitude': np.zeros(0),
-            'longitude': np.zeros(0),
-            'altitude': np.zeros(0),
-            'detector': None,
-        }
-        super().__init__(**{**defaults, **kwargs})
+    _DEFAULTS = {
+        'position': lambda: np.zeros((0, 3)),
+        'velocity': lambda: np.zeros((0, 3)),
+        'latitude': lambda: np.zeros(0),
+        'longitude': lambda: np.zeros(0),
+        'altitude': lambda: np.zeros(0),
+        'detector': None,
+    }
 
 
 @dataclass
@@ -195,7 +197,7 @@ class CadenceGroup:
     scanNext: datetime
 
 
-class CadenceState(DotDict):
+class CadenceState(ComponentState):
     """
     Top-level cadence schedule stored in sim_data.cadenceStructure.
 
@@ -207,13 +209,11 @@ class CadenceState(DotDict):
         nextGroup:   Index into cadenceList identifying which group fires
                      next.
     """
-    def __init__(self, **kwargs):
-        defaults = {
-            'cadenceList': [],
-            'nextTime': None,
-            'nextGroup': 0,
-        }
-        super().__init__(**{**defaults, **kwargs})
+    _DEFAULTS = {
+        'cadenceList': list,
+        'nextTime': None,
+        'nextGroup': 0,
+    }
 
 
 class SimulationState(DotDict):
@@ -224,6 +224,7 @@ class SimulationState(DotDict):
         'counts': CountsState,
         'celestial': CelestialState,
         'satellites': SatellitesState,
+        'cislunar': CislunarState,
         'fixedpoints': FixedPointsState,
         'observatories': ObservatoriesState,
         'cadenceStructure': CadenceState,
@@ -240,6 +241,7 @@ class SimulationState(DotDict):
             'counts': None,
             'pointing_spheres': {},
             'satellites': None,
+            'cislunar': None,
             'observatories': None,
             'fixedpoints': None,
             'celestial': None,
@@ -248,14 +250,40 @@ class SimulationState(DotDict):
         super().__init__(**{**defaults, **kwargs})
         self.counts = CountsState(parent_sim=self)
 
-    def _active_detector_components(self):
-        """Returns [(category_name, component), ...] for components with non-empty detectors."""
-        active = []
-        for name in ('satellites', 'observatories'):
+    def add_component(self, key: str, state: ComponentState) -> ComponentState:
+        """Initializes or appends `state` into `self[key]` along axis 0."""
+        existing = dict.__getitem__(self, key) if dict.__contains__(self, key) else None
+        if existing is not None and len(existing) > 0:
+            existing.append(state)
+            return existing
+        self[key] = state
+        return self[key]
+
+    def step_to(self, time_date: datetime) -> "SimulationState":
+        """Advances simulation time and propagates all active components to `time_date`."""
+        from celestialbodies import celestial_update
+        from cislunar import propagate_cislunar
+        from observatories import propagate_observatories
+        from propagation import propagate_satellites
+
+        self.time = time_date
+        propagate_satellites(self, time_date)
+        propagate_cislunar(self, time_date)
+        if self.celestial is not None:
+            celestial_update(self, time_date)
+        propagate_observatories(self, time_date)
+        return self
+
+    def iter_detector_components(self, category: str = None):
+        """Yields (name, comp, det, offset) for active detector components."""
+        offset = 0
+        for name in ('satellites', 'cislunar', 'observatories'):
             comp = dict.__getitem__(self, name) if dict.__contains__(self, name) else None
-            if comp is not None and getattr(comp, 'detector', None) is not None and len(comp.detector) > 0:
-                active.append((name, comp))
-        return active
+            det = getattr(comp, 'detector', None) if comp is not None else None
+            if det is not None and len(det) > 0:
+                if category is None or category == name:
+                    yield name, comp, det, offset
+                offset += len(det)
 
     @property
     def detector(self):
@@ -264,7 +292,7 @@ class SimulationState(DotDict):
         Returns satellite detector if only satellites exist, observatory detector if only
         observatories exist, or an aggregated detector if both exist.
         """
-        detectors = [comp.detector for _, comp in self._active_detector_components()]
+        detectors = [det for _, _, det, _ in self.iter_detector_components()]
         if not detectors and dict.__contains__(self, '_temp_detector'):
             return dict.__getitem__(self, '_temp_detector')
         if not detectors:
@@ -283,12 +311,12 @@ class SimulationState(DotDict):
         self._set_detector(value)
 
     def _set_detector(self, value):
-        if self.satellites is not None and len(self.satellites) > 0:
-            self.satellites.detector = value
-        elif self.observatories is not None and len(self.observatories) > 0:
-            self.observatories.detector = value
-        else:
-            dict.__setitem__(self, '_temp_detector', value)
+        for name in ('satellites', 'cislunar', 'observatories'):
+            comp = getattr(self, name, None)
+            if comp is not None and len(comp) > 0:
+                comp.detector = value
+                return
+        dict.__setitem__(self, '_temp_detector', value)
 
     def __setitem__(self, key, value):
         if key == 'detector':
@@ -320,14 +348,8 @@ class SimulationState(DotDict):
         """
         Builds and returns an (N, 3) NumPy array of detector positions
         directly aggregated from active asset component positions.
-
-        Args:
-            mask: Optional boolean or index array to subset the output.
-
-        Returns:
-            (N, 3) array of GCRS positions for detectors.
         """
-        pos_list = [comp.position for _, comp in self._active_detector_components()]
+        pos_list = [comp.position for _, comp, _, _ in self.iter_detector_components()]
         if not pos_list:
             return np.zeros((0, 3), dtype=float)
         all_positions = np.vstack(pos_list) if len(pos_list) > 1 else pos_list[0]
@@ -338,9 +360,11 @@ class SimulationState(DotDict):
         Returns an array of category strings ('satellites', 'observatories')
         for all active detectors.
         """
-        cats_list = []
-        for name, comp in self._active_detector_components():
-            cats_list.extend([name] * len(comp.detector))
+        cats_list = [
+            name
+            for name, _, det, _ in self.iter_detector_components()
+            for _ in range(len(det))
+        ]
         cats = np.array(cats_list)
         return cats[mask] if mask is not None else cats
 

@@ -40,10 +40,7 @@ def add_observatories(
         detector=makeBlankDetector(num_observatories),
     )
 
-    if sim_data.observatories is not None and len(sim_data.observatories) > 0:
-        sim_data.observatories.append(new_obs)
-    else:
-        sim_data.observatories = new_obs
+    sim_data.add_component('observatories', new_obs)
 
     # Initial propagation of observatory positions to the current simulation time
     propagate_observatories(sim_data, sim_data.time)

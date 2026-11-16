@@ -1,65 +1,97 @@
 import numpy as np
 from typing import Any
-import math
-from datetime import datetime, timezone
 import plotly.graph_objects as go
 
-from minimalsimulation import create_empty_simulation
-from celestialbodies import add_celestial_bodies, celestial_update
-from propagation import add_satellites_from_tle, propagate_satellites
-from plotting_3d import add_sphere_trace, apply_3d_scene_layout, tag_demo_figure
 from constants import POINTING_COUNT_IDX, POINTING_PLACE_IDX
-from fibonacciSearch import pointing_vectors, resort_vectors_by_proximity
-from exclusion import exclusion
+from exclusion import check_sim_exclusions
+from plotting_3d import add_sphere_trace, apply_3d_scene_layout, tag_demo_figure
+
+
+def pointing_vectors(n: int) -> np.ndarray:
+    """
+    Generates n equally spaced points on a unit sphere using the Fibonacci lattice algorithm.
+    """
+    if not isinstance(n, int) or n <= 0:
+        raise ValueError("n must be a positive integer.")
+
+    indices = np.arange(0, n, dtype=float) + 0.5
+    z = 1 - 2 * indices / n
+    radius_xy = np.sqrt(1 - z**2)
+    theta = np.pi * (3.0 - np.sqrt(5.0)) * indices
+    return np.stack([radius_xy * np.cos(theta), radius_xy * np.sin(theta), z], axis=1)
+
+
+def resort_vectors_by_proximity(unit_vectors: np.ndarray) -> np.ndarray:
+    """
+    Resorts a list of vectors by making each subsequent vector the closest one
+    in the remaining set to the previous one.
+    """
+    if unit_vectors.ndim != 2 or unit_vectors.shape[1] != 3:
+        raise ValueError("unit_vectors array must have shape (n, 3).")
+
+    n_vectors = unit_vectors.shape[0]
+    if n_vectors == 0:
+        return np.array([])
+
+    remaining_indices = list(range(n_vectors))
+    sorted_vectors = np.zeros_like(unit_vectors)
+    sorted_vectors[0] = unit_vectors[remaining_indices.pop(0)]
+
+    for i in range(1, n_vectors):
+        rem_coords = unit_vectors[remaining_indices]
+        dists = np.linalg.norm(rem_coords - sorted_vectors[i - 1], axis=1)
+        best_idx_in_rem = int(np.argmin(dists))
+        sorted_vectors[i] = unit_vectors[remaining_indices.pop(best_idx_in_rem)]
+
+    return sorted_vectors
+
+
+def plot_vectors_on_sphere(vectors: np.ndarray, title: str) -> go.Figure:
+    """Creates a 3D plot of vectors on a unit sphere."""
+    if vectors.ndim != 2 or vectors.shape[1] != 3:
+        raise ValueError("vectors array must have shape (n, 3).")
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter3d(
+        x=vectors[:, 0], y=vectors[:, 1], z=vectors[:, 2],
+        mode='markers', marker=dict(size=2, color='red', opacity=0.8),
+        name='Vectors',
+    ))
+    add_sphere_trace(fig, radius=1.0, name='Sphere')
+    apply_3d_scene_layout(fig, title, axis_unit='', legend_title='Objects')
+    return fig
+
+
+def test_vector_resorting() -> go.Figure:
+    """Tests vector resorting and plots the Euclidean distance between subsequent vectors."""
+    vectors = pointing_vectors(100)
+    diffs_unsorted = np.linalg.norm(np.diff(vectors, axis=0), axis=1)
+    diffs_sorted = np.linalg.norm(np.diff(resort_vectors_by_proximity(vectors), axis=0), axis=1)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(y=diffs_unsorted, mode='lines', name='Unsorted'))
+    fig.add_trace(go.Scatter(y=diffs_sorted, mode='lines', name='Resorted by Proximity'))
+    fig.update_layout(
+        title="Euclidean Distance Between Subsequent Vectors",
+        xaxis_title="Vector Index",
+        yaxis_title="Euclidean Distance",
+    )
+    return tag_demo_figure(fig, "test_vector_resorting")
 
 
 def generate_pointing_sphere(sim_data: Any, n_points: int, debug: bool = False) -> None:
-    """
-    Generates a pointing sphere with n_points and stores it in the sim_data.pointing_spheres[n_points]
-    A pointing sphere is a 3 by n_points numpy array with the 3 representing unit vectors to be
-    pointed to
-    These positions will be used by the update_detector_pointing to
-    point sensors incrementaly.
-    The index is sim_data.pointing_spheres[n] 
-    If a sphere with the same number of points already exists, this function does nothing.
-    The current version of the code resorts the vector by proximity to make the sky search
-    more efficient, although this is not deeply optimized yet.
-    """
+    """Generates and caches a proximity-sorted Fibonacci pointing sphere in sim_data."""
     if n_points not in sim_data.pointing_spheres:
         print(f"Generating pointing sphere with {n_points} points...")
-        sim_data.pointing_spheres[n_points] = \
-           resort_vectors_by_proximity(pointing_vectors(n_points))
+        sim_data.pointing_spheres[n_points] = resort_vectors_by_proximity(
+            pointing_vectors(n_points)
+        )
 
     if debug:
+        generated = sim_data.pointing_spheres[n_points]
         print(f"\n--- Debugging Pointing Sphere (n_points={n_points}) ---")
-        generated_vectors = sim_data.pointing_spheres[n_points]
-        print(f"Total number of pointing vectors generated: {len(generated_vectors)}")
-
-        num_to_show = min(5, len(generated_vectors))
-        print(f"Showing first {num_to_show} pointing vectors and their norms:")
-        print(f"{'Index':<7} {'Vector (x, y, z)':<35} {'Norm':<10}")
-        print(f"{'-------':<7} {'-----------------------------------':<35} {'----------':<10}")
-        for i in range(num_to_show):
-            vec = generated_vectors[i]
-            norm = np.linalg.norm(vec)
-            print(f"{i:<7} {str(vec):<35} {norm:<10.6f}")
-        print("-------------------------------------------\n")
-
-
-def _get_asset_detectors(sim_data: Any, sat_category: str = None):
-    """
-    Helper function to yield (component_detector, global_offset_index) pairs
-    for active asset categories (satellites, observatories).
-    """
-    offset = 0
-    for name in ('satellites', 'observatories'):
-        comp = getattr(sim_data, name, None)
-        if comp is not None and getattr(comp, 'detector', None) is not None:
-            det = comp.detector
-            if len(det.filt) > 0:
-                if sat_category is None or sat_category == name:
-                    yield det, offset
-                offset += len(det.filt)
+        for i, vec in enumerate(generated[:5]):
+            print(f"{i:<7} {str(vec):<35} {np.linalg.norm(vec):<10.6f}")
 
 
 def update_detector_pointing(
@@ -68,53 +100,45 @@ def update_detector_pointing(
     debug: bool = False,
 ) -> None:
     """
-    Updates the pointing vector for each detector across satellites and observatories,
+    Updates detector pointing vectors across active categories in vectorized batches,
     skipping excluded pointing directions.
     """
-    for det, global_offset in _get_asset_detectors(sim_data, sat_category=sat_category):
-        num_detectors = len(det.filt)
-        pointing_state = det.pointing_state
-        pointing_vectors_all = det.pointing
+    by_count: dict = {}
+    for _, _, det, global_offset in sim_data.iter_detector_components(sat_category):
+        for i_local in range(len(det.filt)):
+            count = int(det.pointing_state[i_local, POINTING_COUNT_IDX])
+            if count > 0:
+                by_count.setdefault(count, []).append((det, i_local, global_offset + i_local))
 
-        for i_local in range(num_detectors):
-            i_global = global_offset + i_local
-            count = int(pointing_state[i_local, POINTING_COUNT_IDX])
-            if count == 0:
-                continue
-            grid = sim_data.pointing_spheres[count]
+    for count, entries in by_count.items():
+        grid = sim_data.pointing_spheres[count]
+        global_idxs = [e[2] for e in entries]
+        u_pointing = np.broadcast_to(grid[:, np.newaxis, :], (count, len(global_idxs), 3))
+        excl_mask = np.any(check_sim_exclusions(sim_data, u_pointing, mask=global_idxs), axis=2)
 
-            place = int(pointing_state[i_local, POINTING_PLACE_IDX])
-            start_place = place
-
-            while True:
-                place += 1
-                if place >= count:
-                    place = 0
-                pointing_vectors_all[i_local] = grid[place]
-
-                excluded = exclusion(sim_data, i_global)
-                if debug:
-                    print(f"Detector {i_global} (local {i_local}): Pointing location {place}, Excluded: {excluded != 0}")
-                    print(grid[place])
-
-                if excluded == 0:
-                    pointing_state[i_local, POINTING_PLACE_IDX] = place
-                    break
-
-                if place == start_place:
-                    print(f"Warning: Detector {i_global} has all pointing vectors excluded.")
-                    pointing_state[i_local, POINTING_PLACE_IDX] = place
-                    break
+        for k, (det, i_local, i_global) in enumerate(entries):
+            place = int(det.pointing_state[i_local, POINTING_PLACE_IDX])
+            order = (np.arange(1, count + 1) + place) % count
+            clear = order[~excl_mask[order, k]]
+            if len(clear) > 0:
+                new_place = int(clear[0])
+            else:
+                print(f"Warning: Detector {i_global} has all pointing vectors excluded.")
+                new_place = place
+            det.pointing_state[i_local, POINTING_PLACE_IDX] = new_place
+            det.pointing[i_local] = grid[new_place]
+            if debug:
+                print(f"Detector {i_global} (local {i_local}): Pointing location {new_place}, Excluded: {len(clear) == 0}")
 
 
 def detectorPointingInitialize(sim_data: Any, grid_points: int) -> None:
     """
-    Initializes pointing and pointing_state inside component detectors
-    (satellites and observatories), and adds a pointing sphere to sim_data.
+    Initializes pointing and pointing_state inside component detectors,
+    adds a pointing sphere to sim_data, and sets initial unexcluded directions.
     """
     generate_pointing_sphere(sim_data, grid_points)
 
-    for det, _ in _get_asset_detectors(sim_data):
+    for _, _, det, _ in sim_data.iter_detector_components():
         sensor_count = len(det.filt)
         det.pointing_state = np.zeros((sensor_count, 2), dtype=int)
         det.pointing_state[:, POINTING_COUNT_IDX] = grid_points
@@ -123,100 +147,3 @@ def detectorPointingInitialize(sim_data: Any, grid_points: int) -> None:
         )
 
     update_detector_pointing(sim_data)
-
-
-def demo_exclusion_pointing():
-    """
-    Demonstrates satellite pointing with a solar exclusion angle and a detector
-    field of view, plotting the pointing history on a sphere.
-    """
-    start_time = datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-    sim_data = create_empty_simulation(start_time)
-    add_celestial_bodies(sim_data)
-
-    # Use a single satellite TLE string for this demo
-    single_tle_content = """GEO-SAT
-1 99999U 99999A   25001.00000000  .00000000  00000-0  00000-0 0  9999
-2 99999   0.0001 254.9961 0000001  98.4322 261.6813  1.00271900    10"""
-
-    add_satellites_from_tle(sim_data, single_tle_content, 'satellites')
-
-    # Set solar exclusion angle and detector FOV for the single satellite
-    sim_data.satellites.detector.solarEx[0] = math.pi/2
-    sim_data.satellites.detector.fov[0] = math.pi/5
-
-    # Generate 400 pointing points using the module's generate_pointing_sphere
-    n_points_sphere = 400
-    generate_pointing_sphere(sim_data, n_points_sphere)
-
-    # Initialize pointing_state for the single detector
-    # Assuming the first detector (index 0)
-    sim_data.satellites.detector.pointing_state[0, POINTING_COUNT_IDX] = n_points_sphere
-    sim_data.satellites.detector.pointing_state[0, POINTING_PLACE_IDX] = 0 # Start at the first point
-
-    pointed_directions_history = []
-    
-    # Propagate the satellite once to get an initial position
-    sim_data = celestial_update(sim_data, start_time)
-    sim_data = propagate_satellites(sim_data, start_time, 'satellites')
-    
-    initial_sat_pos = sim_data.satellites.position[0]
-    
-    # --- Plot initialization with unit sphere ---
-    fig = go.Figure()
-    # Add a sphere at the origin to represent the pointing sphere itself for context
-    add_sphere_trace(
-        fig, radius=1.0, name='Unit Sphere', opacity=0.1, resolution=50
-    )
-    
-    # Add initial satellite position as a marker
-    # The plot_3d_scatter function would normally plot initial_sat_pos scaled,
-    # but here we are just adding it as a marker on the unit sphere for context
-    # as the vectors are also on the unit sphere.
-    initial_sat_direction = initial_sat_pos / np.linalg.norm(initial_sat_pos)
-    fig.add_trace(go.Scatter3d(
-        x=[initial_sat_direction[0]], y=[initial_sat_direction[1]], z=[initial_sat_direction[2]],
-        mode='markers',
-        marker=dict(size=5, color='blue'),
-        name='Initial Satellite Pointing'
-    ))
-
-    for i in range(400):
-        update_detector_pointing(sim_data, debug=False)
-        current_pointed_direction = sim_data.detector.pointing[0]
-        snapshot = current_pointed_direction.copy()
-        pointed_directions_history.append(snapshot)
-
-    pointed_directions_history = np.array(pointed_directions_history)
-
-    # Add the pointing history as markers
-    colors = np.arange(len(pointed_directions_history))
-    fig.add_trace(go.Scatter3d(
-        x=pointed_directions_history[:, 0],
-        y=pointed_directions_history[:, 1],
-        z=pointed_directions_history[:, 2],
-        mode='markers',
-        marker=dict(
-            size=3,
-            color=colors,
-            colorscale='Plasma', # Using a gradient color
-            opacity=0.7
-        ),
-        name='Pointing History'
-    ))
-
-    # Connect the pointing points with lines
-    fig.add_trace(go.Scatter3d(
-        x=pointed_directions_history[:, 0],
-        y=pointed_directions_history[:, 1],
-        z=pointed_directions_history[:, 2],
-        mode='lines',
-        line=dict(color='grey', width=1),
-        name='Pointing Path'
-    ))
-    
-    apply_3d_scene_layout(fig, "Detector Pointing with Exclusion", axis_unit=' (Unit Vector)')
-
-#    print(pointed_directions_history[:100])
-    return tag_demo_figure(fig, "demo_exclusion_pointing")
-

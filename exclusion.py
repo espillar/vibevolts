@@ -93,6 +93,47 @@ def compute_exclusions(
     return is_excluded
 
 
+def check_sim_exclusions(
+    sim_data: Any,
+    u_pointing: np.ndarray,
+    mask: Any = None,
+    earth_only: bool = False,
+    use_arcsin: bool = False,
+    return_angles: bool = False,
+) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    """
+    Packs observer positions, ground flags, detector exclusion angles, and
+    celestial body positions/radii from sim_data and runs compute_exclusions.
+    """
+    obs_pos = sim_data.get_detector_positions(mask)
+    is_ground = sim_data.get_detector_categories(mask) == 'observatories'
+    det = sim_data.get_all_detectors()
+    if mask is not None:
+        det = det.subset(mask)
+    if earth_only:
+        exclusion_angles = det.earthEx[:, np.newaxis]
+        body_positions = np.zeros((1, 3), dtype=float)
+        body_radii = np.array([EARTH_RADIUS])
+    else:
+        exclusion_angles = np.column_stack([det.solarEx, det.lunarEx, det.earthEx])
+        body_positions = np.array([
+            sim_data.celestial.position[0],
+            sim_data.celestial.position[1],
+            [0.0, 0.0, 0.0],
+        ])
+        body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
+    return compute_exclusions(
+        obs_pos=obs_pos,
+        u_pointing=u_pointing,
+        is_ground=is_ground,
+        exclusion_angles=exclusion_angles,
+        body_positions=body_positions,
+        body_radii=body_radii,
+        use_arcsin=use_arcsin,
+        return_angles=return_angles,
+    )
+
+
 def exclusion(
     data_struct: Any,
     satellite_index: int,
@@ -101,57 +142,27 @@ def exclusion(
     """
     Determines if a satellite's or observatory's pointing vector is excluded
     by the Sun, Moon, or Earth (or below the local horizon for observatories).
-
-    Args:
-        data_struct: The main simulation data dictionary.
-        satellite_index: The index of the detector to check.
-        print_debug: If True, prints detailed debug information.
-
-    Returns:
-        1 if the detector's view is excluded, 0 otherwise.
     """
     detector_props = data_struct.get_all_detectors()
     if detector_props is None or len(detector_props) == 0:
         return 1
 
-    sat_pos = data_struct.get_detector_positions()[satellite_index]
     sat_pointing = detector_props.pointing[satellite_index]
-
     norm_pointing = np.linalg.norm(sat_pointing)
     if norm_pointing < 1e-9:
         return 1  # Not pointing anywhere, treat as excluded
 
     u_pointing = (sat_pointing / norm_pointing)[np.newaxis, np.newaxis, :]
-    is_observatory = (
-        data_struct.get_detector_categories()[satellite_index] == 'observatories'
-    )
-    is_ground = np.array([is_observatory], dtype=bool)
-
-    exclusion_angles = np.array([[
-        detector_props.solarEx[satellite_index],
-        detector_props.lunarEx[satellite_index],
-        detector_props.earthEx[satellite_index],
-    ]])
-    body_positions = np.array([
-        data_struct.celestial.position[0],
-        data_struct.celestial.position[1],
-        [0.0, 0.0, 0.0],
-    ])
-    body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
-
-    is_excluded, angles = compute_exclusions(
-        obs_pos=sat_pos[np.newaxis, :],
-        u_pointing=u_pointing,
-        is_ground=is_ground,
-        exclusion_angles=exclusion_angles,
-        body_positions=body_positions,
-        body_radii=body_radii,
-        return_angles=True,
+    is_excluded, angles = check_sim_exclusions(
+        data_struct, u_pointing, mask=[satellite_index], return_angles=True
     )
 
     excl_flags = is_excluded[0, 0]
     if print_debug:
         body_names = ["Sun", "Moon", "Earth"]
+        is_observatory = (
+            data_struct.get_detector_categories([satellite_index])[0] == 'observatories'
+        )
         num_sats = (
             len(data_struct.satellites.detector)
             if (data_struct.satellites and getattr(data_struct.satellites, 'detector', None))
@@ -159,12 +170,17 @@ def exclusion(
         )
         asset_name = "Observatory" if is_observatory else "Satellite"
         asset_idx = (satellite_index - num_sats) if is_observatory else satellite_index
+        excl_deg = np.rad2deg([
+            detector_props.solarEx[satellite_index],
+            detector_props.lunarEx[satellite_index],
+            detector_props.earthEx[satellite_index],
+        ])
         print(f"--- Exclusion Debug for {asset_name} {asset_idx} ---")
         for i in range(3):
             print(
                 f"  - {body_names[i]:<5} Flag: {excl_flags[i]}, "
                 f"Angle: {np.rad2deg(angles[0, 0, i]):.2f} deg, "
-                f"Excl: {np.rad2deg(exclusion_angles[0, i]):.2f} deg"
+                f"Excl: {excl_deg[i]:.2f} deg"
             )
 
     return 1 if np.any(excl_flags) else 0
@@ -176,11 +192,6 @@ def update_exclusion_table(
 ) -> None:
     """
     Updates the exclusion table for all detectors against all fixed points.
-
-    For space-based detectors the standard Sun / Moon / Earth-limb exclusion
-    checks are applied. For ground-based observatories the Earth-limb check
-    is replaced by a local-horizon elevation check (minimum elevation stored
-    in detector.earthEx).
 
     The resulting matrix is stored in data_struct.fixedpoints.exclusion with
     shape (num_fixed_points, num_detectors).
@@ -199,28 +210,7 @@ def update_exclusion_table(
     safe_norm = np.where(dist_to_target == 0, 1.0, dist_to_target)
     u_pointing = pointing_vectors / safe_norm[:, :, np.newaxis]
 
-    is_ground = data_struct.get_detector_categories() == 'observatories'
-    exclusion_angles = np.column_stack([
-        detector_props.solarEx,
-        detector_props.lunarEx,
-        detector_props.earthEx,
-    ])
-    body_positions = np.array([
-        data_struct.celestial.position[0],
-        data_struct.celestial.position[1],
-        [0.0, 0.0, 0.0],
-    ])
-    body_radii = np.array([0.0, MOON_RADIUS, EARTH_RADIUS])
-
-    is_excluded = compute_exclusions(
-        obs_pos=observer_pos,
-        u_pointing=u_pointing,
-        is_ground=is_ground,
-        exclusion_angles=exclusion_angles,
-        body_positions=body_positions,
-        body_radii=body_radii,
-    )
-
+    is_excluded = check_sim_exclusions(data_struct, u_pointing)
     exclusion_matrix = np.any(is_excluded, axis=2).astype(int)
     exclusion_matrix[dist_to_target < 1e-9] = 1
 

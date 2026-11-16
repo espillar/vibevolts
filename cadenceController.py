@@ -1,10 +1,7 @@
 import numpy as np
 from datetime import timedelta
-from propagation import propagate_satellites
 from scandetectors import scandetectors
-from celestialbodies import celestial_update
 from minimalsimulation import CadenceGroup, CadenceState
-from observatories import propagate_observatories
 
 
 def initCadence(sim_data) -> None:
@@ -61,13 +58,8 @@ def nextIntegration(sim_data, print_output: int = 0) -> dict:
     """
     cadence = sim_data.cadenceStructure
 
-    # 1. Advance simulation time to the next scheduled event.
-    sim_data.time = cadence.nextTime
-
-    # 2. Propagate all satellites and celestial bodies to the new time.
-    propagate_satellites(sim_data, sim_data.time)
-    celestial_update(sim_data, sim_data.time)
-    propagate_observatories(sim_data, sim_data.time)
+    # 1-2. Advance simulation time and propagate all active components.
+    sim_data.step_to(cadence.nextTime)
 
     # 3. Run the scan for the active group's detector subset.
     group = cadence.cadenceList[cadence.nextGroup]

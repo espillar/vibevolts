@@ -1,6 +1,6 @@
 import numpy as np
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import plotly.graph_objects as go
 from astropy.time import Time
@@ -168,3 +168,29 @@ def plot_3d_scatter(
     apply_3d_scene_layout(fig, title, legend_title='Objects')
 
     return fig
+
+
+def plot_pointing_vectors(
+    data_struct: Any,
+    title: str,
+    plot_time: Optional[datetime] = None,
+) -> go.Figure:
+    """Creates a 3D plot of active observers with their current pointing vectors."""
+    positions = data_struct.get_detector_positions()
+    if len(positions) == 0:
+        print("No satellites to plot.")
+        return go.Figure()
+    det = data_struct.detector
+    fig = go.Figure()
+    fig.add_trace(go.Scatter3d(
+        x=positions[:, 0], y=positions[:, 1], z=positions[:, 2],
+        mode='markers', marker=dict(size=5, color='blue', opacity=0.8),
+        name='Satellites',
+    ))
+    if det is not None and len(det.pointing) > 0:
+        add_vector_traces(
+            fig, positions, det.pointing[:len(positions)],
+            scale=0.5 * EARTH_RADIUS, color='red', width=3,
+        )
+    add_sphere_trace(fig, radius=EARTH_RADIUS, name='Earth')
+    return apply_3d_scene_layout(fig, title)
