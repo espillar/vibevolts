@@ -89,6 +89,27 @@ Solving this expression for the required integration time $t$ to achieve a targe
 \end{equation}
 This is the corrected equation implemented in \texttt{detector.py}'s \texttt{requiredIntegrationTime}.
 
+\section{Dynamic Ground Sky Background (\texttt{ground\_sky\_brightness})}
+In addition to the static zenith sky values from \texttt{fluxes(band)}, \texttt{radiometry\_calcs.py}
+provides a standalone function \texttt{ground\_sky\_brightness(zenith\_vec, pointing\_vec, sun\_vec,
+moon\_vec, band=None, return\_mag=False)} for ground-based observatories across all 12 optical and
+near-IR filters (\texttt{OPTICAL\_NIR\_BANDS}: $U, B, V, R, I, J, H, K, g, r, i, z$).
+\textit{Note: this function is currently standalone and is not yet hooked into
+\texttt{scandetectors.py}.}
+
+\begin{itemize}
+    \item \textbf{Airmass \& Extinction:} Uses scattering airmass
+    $X(Z) = (1 - 0.96 \sin^2 Z)^{-1/2}$ and wavelength-scaled Rayleigh ($w_R = (\lambda/550)^{-4}$)
+    and Mie ($w_M = (\lambda/550)^{-1.3}$) weights with $k(\lambda) = 0.11 w_R + 0.05 w_M$.
+    \item \textbf{Dark Sky + Airglow:} Scales the zenith dark-sky magnitude by
+    $10^{-0.4 k(\lambda)(X(Z)-1)} X(Z)$.
+    \item \textbf{Scattered Moonlight ($Z_m < 90^\circ$):} Applies Krisciunas \& Schaefer (1991)
+    with lunar phase angle $\alpha$ and Rayleigh + Mie scattering function $f_\lambda(\rho_m)$.
+    \item \textbf{Daytime \& Twilight Sunlight ($Z_\odot < 108^\circ$):} Applies the same scattering
+    kernel for $Z_\odot \le 90^\circ$, decaying exponentially by $0.75\text{ mag/deg}$ through
+    twilight ($90^\circ < Z_\odot < 108^\circ$).
+\end{itemize}
+
 \section{Summary of Variable Definitions}
 \begin{table}[h]
 \centering

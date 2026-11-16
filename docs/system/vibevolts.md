@@ -333,6 +333,32 @@ Calculates magnitude from a linear ratio.
 #### `amag(x)`
 Calculates linear ratio from a magnitude.
 
+#### `ground_sky_brightness`
+```python
+def ground_sky_brightness(
+    zenith_vec: np.ndarray,
+    pointing_vec: np.ndarray,
+    sun_vec: np.ndarray,
+    moon_vec: np.ndarray,
+    band: str | None = None,
+    return_mag: bool = False,
+) -> float | dict[str, float]
+```
+Computes ground-based sky background brightness due to dark-sky airglow, scattered moonlight
+(Krisciunas & Schaefer 1991), and daytime/twilight sunlight (Schaefer 1993; Patat et al. 2006),
+scaled across wavelength (Noll et al. 2012; Jones et al. 2013) for `OPTICAL_NIR_BANDS` (`U`–`K`,
+`g`–`z`). Returns `photons/s/m^2/sr` (or `mag/arcsec^2` when `return_mag=True`). Currently
+standalone and not yet hooked into `scandetectors`.
+
+#### `_unit_vec(v: np.ndarray) -> np.ndarray`
+Normalizes a non-zero 3D direction vector.
+
+#### `_airmass(cos_z: float) -> float`
+Computes Krisciunas & Schaefer (1991) scattering airmass `(1 - 0.96 * sin^2 Z)^(-1/2)`.
+
+#### `_scattered_nl(p_dot_src, x_src, mag_plus_1657, w_r, w_m, k_ext, xz) -> float`
+Computes Rayleigh + Mie scattered surface brightness in nanoLamberts for Sun or Moon.
+
 ### scandetectors.py
 
 #### `get_spherical_coords(arr)`
